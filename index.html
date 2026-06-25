@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grandes Projetos - Pesquisa de Animais</title>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- CSS Global -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- SVG Gradient para ícones do Lucide -->
+    <svg style="width:0; height:0; position:absolute;" aria-hidden="true">
+        <defs>
+            <linearGradient id="aurora-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#818cf8" />
+                <stop offset="50%" stop-color="#c084fc" />
+                <stop offset="100%" stop-color="#f472b6" />
+            </linearGradient>
+        </defs>
+    </svg>
+
+    <main>
+        <section class="hero-section">
+            <h1>GRANDES PROJETOS</h1>
+            <p class="subtitle">Explore a biodiversidade e descubra curiosidades sobre o reino animal</p>
+        </section>
+
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="Pesquise por nome comum ou científico...">
+            <div id="searchResults"></div>
+        </div>
+
+        <p id="loading-message">A carregar animais...</p>
+        <div class="categories-container" id="categories-list" style="display: none;"></div>
+    </main>
+
+    <!-- Componentes e Lógica -->
+    <script type="module" src="js/components.js"></script>
+    <script type="module">
+        import { db } from "./js/firebase-config.js";
+        import { collection, getDocs } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
+
+        let allAnimals = [];
+        const searchInput = document.getElementById('searchInput');
+        const searchResultsContainer = document.getElementById('searchResults');
+        const loadingMessage = document.getElementById('loading-message');
+        const categoriesContainer = document.getElementById('categories-list');
+
+        const categoryIcons = {
+            Mamiferos: '<i class="fa-solid fa-paw"></i>',
+            Aves: '<i class="fa-solid fa-dove"></i>',
+            Peixes: '<i class="fa-solid fa-fish"></i>',
+            Moluscos: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 15c0-1.66-1.34-3-3-3H9c-1.66 0-3-1.34-3-3s1.34-3 3-3h7c1.66 0 3-1.34 3-3s-1.34-3-3-3h-4a5 5 0 0 0-5 5v.2c-1.8.4-3 2-3 3.8 0 2.2 1.8 4 4 4h10c1.1 0 2 .9 2 2s-.9 2-2 2H4v2h12c2.8 0 5-2.2 5-5Zm-3-12a1 1 0 1 1 0 2 1 1 0 0 1 0-2Zm-7 6c0-.55.45-1 1-1s1 .45 1 1-.45 1-1 1-1-.45-1-1Z"/></svg>',
+            Crustaceos: '<i class="fa-solid fa-shrimp"></i>',
+            Aracnideos: '<i class="fa-solid fa-spider"></i>',
+            Vermes: '<i class="fa-solid fa-worm"></i>',
+            Repteis: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.5 7.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5ZM21 9c0 1.93-1.57 3.5-3.5 3.5H9c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5h7.5c.83 0 1.5-.67 1.5-1.5S17.33 5 16.5 5h-10A4.5 4.5 0 0 0 2 9.5 4.5 4.5 0 0 0 6.5 14h10c2.48 0 4.5-2.02 4.5-4.5V9ZM6.5 16A6.5 6.5 0 0 1 0 9.5V11a7.5 7.5 0 0 0 7.5 7.5H19c1.93 0 3.5-1.57 3.5-3.5v-1c0 .83-.67 1.5-1.5 1.5H6.5Z"/></svg>',
+            Anfibios: '<i class="fa-solid fa-frog"></i>',
+            Insetos: '<i class="fa-solid fa-bug"></i>',
+            Microscopicos: '<i class="fa-solid fa-microscope"></i>',
+            Extintos: '<i class="fa-solid fa-bone"></i>'
+        };
+
+        async function fetchAllAnimals() {
+            try {
+                const querySnapshot = await getDocs(collection(db, "animais"));
+                querySnapshot.forEach((doc) => {
+                    allAnimals.push({ id: doc.id, ...doc.data() });
+                });
+                loadingMessage.style.display = 'none';
+                categoriesContainer.style.display = 'grid';
+                populateCategories();
+            } catch (error) {
+                console.error("Erro ao carregar animais:", error);
+                loadingMessage.textContent = "Não foi possível carregar os animais.";
+            }
+        }
+
+        function populateCategories() {
+            categoriesContainer.innerHTML = '';
+            for (const [name, iconHtml] of Object.entries(categoryIcons)) {
+                const categoryLink = document.createElement('a');
+                categoryLink.className = 'category-link';
+                categoryLink.href = `categories.html?category=${name}`;
+                categoryLink.innerHTML = `
+                    <span class="category-emoji">${iconHtml}</span>
+                    <span>${name}</span>
+                `;
+                categoriesContainer.appendChild(categoryLink);
+            }
+        }
+        
+        function displayResults(results) {
+            searchResultsContainer.innerHTML = '';
+            if (results.length === 0) {
+                searchResultsContainer.style.display = 'none';
+                return;
+            }
+            results.forEach(animal => {
+                const resultElement = document.createElement('a');
+                resultElement.className = 'result-item';
+                resultElement.href = `animal.html?id=${animal.id}`;
+                
+                resultElement.innerHTML = `
+                    <div class="result-main-info">
+                        <img src="${animal.imagemUrl}" alt="Imagem de ${animal.nome}" style="object-position: ${animal.imagemObjectPosition || 'center center'};">
+                        <div class="result-text">
+                            <span class="nome">${animal.nome}</span>
+                            <span class="nome-cientifico">(${animal.nomeCientifico})</span>
+                        </div>
+                    </div>
+                    <div class="result-category">${animal.categoria}</div>
+                `;
+                searchResultsContainer.appendChild(resultElement);
+            });
+            searchResultsContainer.style.display = 'block';
+        }
+
+        searchInput.addEventListener('input', () => {
+            const searchTerm = searchInput.value.toLowerCase().trim();
+            if (searchTerm.length === 0) {
+                searchResultsContainer.style.display = 'none';
+                return;
+            }
+            const filteredAnimals = allAnimals.filter(animal => 
+                animal.nome.toLowerCase().includes(searchTerm) || 
+                animal.nomeCientifico.toLowerCase().includes(searchTerm)
+            );
+            displayResults(filteredAnimals);
+        });
+        
+        document.addEventListener('click', (event) => {
+            if (!event.target.closest('.search-container')) {
+                searchResultsContainer.style.display = 'none';
+            }
+        });
+        
+        fetchAllAnimals();
+    </script>
+</body>
+</html>

@@ -1,0 +1,3164 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerir Portal - Grandes Projetos</title>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- CSS Global -->
+    <link rel="stylesheet" href="css/style.css">
+    <!-- jsVectorMap -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsvectormap/dist/css/jsvectormap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/jsvectormap"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsvectormap/dist/maps/world.js"></script>
+    <style>
+        .input-with-button {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            width: 100%;
+        }
+        .input-with-button input {
+            flex: 1;
+        }
+        .preview-btn {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 12px 16px;
+            font-size: 1.25rem;
+            cursor: pointer;
+            border-radius: var(--border-radius-sm);
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 52px;
+            min-width: 52px;
+        }
+        .preview-btn:hover {
+            border-color: var(--primary-color);
+            background: var(--bg-card-hover);
+            box-shadow: 0 0 10px var(--primary-glow);
+            transform: translateY(-2px);
+        }
+        
+        /* Perspective Modal Specifics */
+        .preset-btn {
+            background: var(--bg-card) !important;
+            border: 1px solid var(--border-color) !important;
+        }
+        .preset-btn:hover {
+            border-color: var(--primary-color) !important;
+            background: var(--bg-card-hover) !important;
+        }
+        #perspectiveModalOverlay {
+            align-items: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        #perspectiveModalOverlay .modal {
+            max-height: calc(100vh - 40px);
+            overflow-y: auto;
+            padding: 30px;
+            gap: 16px;
+            box-sizing: border-box;
+        }
+        @media (max-width: 480px) {
+            #perspectiveModalOverlay {
+                padding: 10px;
+            }
+            #perspectiveModalOverlay .modal {
+                max-height: calc(100vh - 20px);
+                padding: 20px;
+                gap: 12px;
+            }
+        }
+        
+        /* Custom backgrounds for each tab panel section */
+        .form-tab-panel {
+            padding: 24px;
+            border-radius: var(--border-radius-sm);
+            border: 1px solid var(--border-color);
+            transition: var(--transition);
+        }
+
+        /* Default Dark Theme backgrounds */
+        #tabpanel-dimensoes {
+            background: rgba(99, 102, 241, 0.05); /* Indigo tint */
+            border-color: rgba(99, 102, 241, 0.15);
+        }
+        #tabpanel-alimentacao {
+            background: rgba(16, 185, 129, 0.05); /* Emerald tint */
+            border-color: rgba(16, 185, 129, 0.15);
+        }
+        #tabpanel-reproducao {
+            background: rgba(236, 72, 153, 0.05); /* Pink/violet tint */
+            border-color: rgba(236, 72, 153, 0.15);
+        }
+        #tabpanel-plumagem {
+            background: rgba(6, 182, 212, 0.05); /* Cyan tint */
+            border-color: rgba(6, 182, 212, 0.15);
+        }
+        #tabpanel-distribuicao {
+            background: rgba(245, 158, 11, 0.05); /* Orange/amber tint */
+            border-color: rgba(245, 158, 11, 0.15);
+        }
+
+        /* Edit Theme adjustments (Golden Brown Warm Theme) */
+        body.edit-theme #tabpanel-dimensoes {
+            background: rgba(251, 191, 36, 0.05); /* Amber tint */
+            border-color: rgba(251, 191, 36, 0.15);
+        }
+        body.edit-theme #tabpanel-alimentacao {
+            background: rgba(248, 113, 113, 0.05); /* Red tint */
+            border-color: rgba(248, 113, 113, 0.15);
+        }
+        body.edit-theme #tabpanel-reproducao {
+            background: rgba(251, 146, 60, 0.05); /* Orange tint */
+            border-color: rgba(251, 146, 60, 0.15);
+        }
+        body.edit-theme #tabpanel-plumagem {
+            background: rgba(245, 158, 11, 0.05); /* Yellow/amber tint */
+            border-color: rgba(245, 158, 11, 0.15);
+        }
+        body.edit-theme #tabpanel-distribuicao {
+            background: rgba(245, 158, 11, 0.05); /* Amber tint */
+            border-color: rgba(245, 158, 11, 0.15);
+        }
+
+        /* Dynamic Tab Wrapper Themes */
+        .form-tabs-wrapper {
+            border: 1px solid var(--border-color);
+            padding: 24px;
+            border-radius: var(--border-radius-lg);
+            background: var(--bg-card);
+            transition: var(--transition);
+        }
+        
+        /* Dimensões Theme */
+        .form-tabs-wrapper.active-dimensoes {
+            border-color: rgba(99, 102, 241, 0.4);
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.08);
+        }
+        .form-tabs-wrapper.active-dimensoes .form-tab-nav-btn[data-tab="dimensoes"].active {
+            background: linear-gradient(135deg, #818cf8 0%, #c084fc 100%);
+            box-shadow: 0 4px 15px rgba(129, 140, 248, 0.3);
+        }
+
+        /* Alimentação Theme */
+        .form-tabs-wrapper.active-alimentacao {
+            border-color: rgba(16, 185, 129, 0.4);
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.08);
+        }
+        .form-tabs-wrapper.active-alimentacao .form-tab-nav-btn[data-tab="alimentacao"].active {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+        }
+
+        /* Reprodução Theme */
+        .form-tabs-wrapper.active-reproducao {
+            border-color: rgba(236, 72, 153, 0.4);
+            box-shadow: 0 0 20px rgba(236, 72, 153, 0.08);
+        }
+        .form-tabs-wrapper.active-reproducao .form-tab-nav-btn[data-tab="reproducao"].active {
+            background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);
+            box-shadow: 0 4px 15px rgba(236, 72, 153, 0.3);
+        }
+
+        /* Plumagem Theme */
+        .form-tabs-wrapper.active-plumagem {
+            border-color: rgba(6, 182, 212, 0.4);
+            box-shadow: 0 0 20px rgba(6, 182, 212, 0.08);
+        }
+        .form-tabs-wrapper.active-plumagem .form-tab-nav-btn[data-tab="plumagem"].active {
+            background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+            box-shadow: 0 4px 15px rgba(6, 182, 212, 0.3);
+        }
+
+        /* Distribuição Theme */
+        .form-tabs-wrapper.active-distribuicao {
+            border-color: rgba(245, 158, 11, 0.4);
+            box-shadow: 0 0 20px rgba(245, 158, 11, 0.08);
+        }
+        .form-tabs-wrapper.active-distribuicao .form-tab-nav-btn[data-tab="distribuicao"].active {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="top-menu">
+        <button id="openEditModalBtn" class="menu-button" disabled>A carregar...</button>
+    </div>
+
+    <div class="container">
+        <h1 class="form-title" id="formTitle">Gerir Grandes Projetos</h1>
+        <p class="subtitle" id="formSubtitle">Formulário de Criação de Animais</p>
+        
+        <form id="animalForm">
+            <div class="form-group">
+                <label for="nomeAnimal">Nome Comum</label>
+                <input type="text" id="nomeAnimal" required placeholder="Ex: Leão">
+            </div>
+            
+            <div class="form-group">
+                <label for="nomeCientifico">Nome Científico</label>
+                <input type="text" id="nomeCientifico" required placeholder="Ex: Panthera leo">
+            </div>
+            
+            <div class="form-group autocomplete-container">
+                <label for="familia">Família</label>
+                <input type="text" id="familia" autocomplete="off" placeholder="Ex: Felidae">
+                <div class="autocomplete-results" id="familiaResults"></div>
+            </div>
+            
+            <div class="form-group grid-span-2">
+                <label for="imagemUrl">URL da Imagem</label>
+                <div class="input-with-button">
+                    <input type="url" id="imagemUrl" placeholder="https://exemplo.com/imagem.jpg" required>
+                    <button type="button" id="btnPreviewImage" class="preview-btn" title="Visualizar e Ajustar Perspetiva">
+                        <i class="fa-solid fa-crop-simple"></i>
+                    </button>
+                </div>
+                <input type="hidden" id="imagemObjectPosition" value="center center">
+            </div>
+            
+            <div class="form-group">
+                <label for="categoria">Categoria</label>
+                <select id="categoria" required>
+                    <option value="" disabled selected>Selecione uma Categoria</option>
+                    <option value="Mamiferos">Mamíferos</option>
+                    <option value="Aves">Aves</option>
+                    <option value="Peixes">Peixes</option>
+                    <option value="Moluscos">Moluscos</option>
+                    <option value="Crustaceos">Crustáceos</option>
+                    <option value="Aracnideos">Aracnídeos</option>
+                    <option value="Vermes">Vermes</option>
+                    <option value="Repteis">Répteis</option>
+                    <option value="Anfibios">Anfíbios</option>
+                    <option value="Insetos">Insetos</option>
+                    <option value="Microscopicos">Microscópicos</option>
+                    <option value="Extintos">Extintos</option>
+                </select>
+            </div>
+            
+            <div class="general-info-section grid-span-3">
+                <div class="sub-tabs-navigation general-sub-tabs" role="tablist">
+                    <button type="button" class="general-subtab-nav-btn active" data-general-subtab="geral-resumo-textual" role="tab" aria-selected="true" aria-controls="subtabpanel-geral-resumo-textual">Resumo textual</button>
+                    <button type="button" class="general-subtab-nav-btn" data-general-subtab="geral-modelo-visual" role="tab" aria-selected="false" aria-controls="subtabpanel-geral-modelo-visual">Modelo Visual</button>
+                </div>
+
+                <div class="sub-tabs-content">
+                    <div class="general-subtab-panel active" id="subtabpanel-geral-resumo-textual" role="tabpanel">
+                        <div class="form-group">
+                            <label for="infoGeral">Informação Geral</label>
+                            <textarea id="infoGeral" rows="8" placeholder="Escreva uma descrição geral detalhada sobre o animal..."></textarea>
+                        </div>
+                    </div>
+
+                    <div class="general-subtab-panel" id="subtabpanel-geral-modelo-visual" role="tabpanel">
+                        <div class="general-visual-layout">
+                            <div class="general-visual-editor">
+                                <div class="general-visual-row-header">
+                                    <span>Modelo</span>
+                                    <span>Mín.</span>
+                                    <span>Máx.</span>
+                                    <span>Unidade</span>
+                                </div>
+                                <div id="generalVisualRows" class="general-visual-rows"></div>
+                                <datalist id="feedingStrategyOptions">
+                                    <option value="Caça"></option>
+                                    <option value="Perseguição"></option>
+                                    <option value="Emboscada"></option>
+                                    <option value="Mergulho"></option>
+                                    <option value="Pesca"></option>
+                                    <option value="Filtração"></option>
+                                    <option value="Pastoreio"></option>
+                                    <option value="Ramoneio"></option>
+                                    <option value="Escavação"></option>
+                                    <option value="Raspagem"></option>
+                                    <option value="Sucção"></option>
+                                    <option value="Picagem"></option>
+                                    <option value="Coleta"></option>
+                                    <option value="Procura no solo"></option>
+                                    <option value="Procura em árvores"></option>
+                                    <option value="Necrofagia"></option>
+                                    <option value="Parasitismo"></option>
+                                    <option value="Roubo de alimento"></option>
+                                    <option value="Armadilha"></option>
+                                    <option value="Camuflagem"></option>
+                                    <option value="Cooperação em grupo"></option>
+                                    <option value="Migração para alimento"></option>
+                                    <option value="Armazenamento de alimento"></option>
+                                </datalist>
+                                <datalist id="matingOptions">
+                                    <option value="Monogamia"></option>
+                                    <option value="Poligamia"></option>
+                                    <option value="Poliginia"></option>
+                                    <option value="Poliandria"></option>
+                                    <option value="Poliginandria"></option>
+                                </datalist>
+                                <datalist id="climateZoneOptions">
+                                    <option value="Tropical"></option>
+                                    <option value="Subtropical"></option>
+                                    <option value="Temperada"></option>
+                                    <option value="Polar"></option>
+                                    <option value="Ártica"></option>
+                                    <option value="Antártica"></option>
+                                    <option value="Desértica"></option>
+                                    <option value="Semiárida"></option>
+                                    <option value="Mediterrânica"></option>
+                                    <option value="Montanhosa / Alpina"></option>
+                                </datalist>
+                                <button type="button" id="addGeneralVisualBtn" class="secondary-action-btn">+ Adicionar modelo</button>
+                                <p class="form-hint">Usa esta área para dados gerais com modelo visual: vida útil, velocidade máxima, velocidade média, estratégia para obter alimento, acasalamento e zona climática.</p>
+                            </div>
+
+                            <div class="general-visual-preview" aria-live="polite">
+                                <div class="preview-card-title">Modelo visual geral</div>
+                                <div class="general-preview-hero">
+                                    <div class="general-preview-icon" aria-hidden="true">
+                                        <svg class="metric-model-svg general-model-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true">
+                                            <path d="M18 58c8-22 24-34 47-36"/>
+                                            <path d="M21 61h38"/>
+                                            <path d="M57 22l5-8"/>
+                                            <path d="M53 26l-7-6"/>
+                                            <circle cx="30" cy="57" r="4"/>
+                                            <circle cx="56" cy="57" r="4"/>
+                                        </svg>
+                                    </div>
+                                    <div class="general-preview-copy">
+                                        <span>Informação Geral</span>
+                                        <strong>Dados rápidos do animal</strong>
+                                    </div>
+                                </div>
+                                <div class="general-visual-models" id="previewGeneralVisualModels"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-tabs-wrapper grid-span-3 active-dimensoes">
+                <div class="form-tabs-navigation" role="tablist">
+                    <button type="button" class="form-tab-nav-btn active" data-tab="dimensoes" role="tab" aria-selected="true" aria-controls="tabpanel-dimensoes">Dimensões</button>
+                    <button type="button" class="form-tab-nav-btn" data-tab="alimentacao" role="tab" aria-selected="false" aria-controls="tabpanel-alimentacao">Alimentação</button>
+                    <button type="button" class="form-tab-nav-btn" data-tab="reproducao" role="tab" aria-selected="false" aria-controls="tabpanel-reproducao">Reprodução</button>
+                    <button type="button" class="form-tab-nav-btn" data-tab="distribuicao" role="tab" aria-selected="false" aria-controls="tabpanel-distribuicao">Distribuição</button>
+                    <button type="button" class="form-tab-nav-btn" data-tab="plumagem" id="tab-btn-plumagem" role="tab" aria-selected="false" aria-controls="tabpanel-plumagem" style="display: none;">Plumagem</button>
+                </div>
+
+                <div class="form-tabs-content">
+                    <!-- Aba: Dimensões -->
+                    <div class="form-tab-panel active" id="tabpanel-dimensoes" role="tabpanel">
+                        <div class="sub-tabs-navigation" role="tablist">
+                            <button type="button" class="form-subtab-nav-btn active" data-subtab="resumo-textual" role="tab" aria-selected="true" aria-controls="subtabpanel-resumo">Resumo textual</button>
+                            <button type="button" class="form-subtab-nav-btn" data-subtab="modelo-visual" role="tab" aria-selected="false" aria-controls="subtabpanel-modelo">Modelo Visual</button>
+                        </div>
+                        
+                        <div class="sub-tabs-content">
+                            <!-- Sub-aba: Resumo textual -->
+                            <div class="form-subtab-panel active" id="subtabpanel-resumo-textual" role="tabpanel">
+                                <div class="form-group">
+                                    <label for="infoDimensoes">Resumo textual</label>
+                                    <textarea id="infoDimensoes" rows="10" placeholder="Ex: Animal de grande porte, com corpo robusto e cauda comprida..."></textarea>
+                                </div>
+                            </div>
+                            
+                            <!-- Sub-aba: Modelo Visual -->
+                            <div class="form-subtab-panel" id="subtabpanel-modelo-visual" role="tabpanel">
+                                <div class="dimensions-layout">
+                                    <div class="dimensions-editor">
+                                        <div class="dimension-row-header">
+                                            <span>Medida</span>
+                                            <span>Mín.</span>
+                                            <span>Máx.</span>
+                                            <span>Unidade</span>
+                                        </div>
+                                        <div id="dimensionRows" class="dimension-rows"></div>
+                                        <button type="button" id="addDimensionBtn" class="secondary-action-btn">+ Adicionar medida</button>
+                                        <p class="form-hint">Para intervalos, preenche mínimo e máximo. Ex.: Comprimento total, mín. 66, máx. 76, unidade cm → “66–76 cm”. Para valores exatos, preenche só o mínimo.</p>
+                                    </div>
+
+                                    <div class="animal-measure-preview" aria-live="polite">
+                                        <div class="preview-card-title">Modelo visual</div>
+                                        <div class="preview-stage">
+                                            <div class="height-ruler">
+                                                <span id="previewHeightValue">Altura</span>
+                                            </div>
+                                            <div class="animal-silhouette" id="animalSilhouette" aria-hidden="true"></div>
+                                            <div class="weight-badge" id="previewWeightValue">Peso</div>
+                                            <div class="length-ruler" id="previewLengthValue">Comprimento</div>
+                                        </div>
+                                        <div class="preview-dimension-models" id="previewDimensionModels"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Aba: Alimentação -->
+                    <div class="form-tab-panel" id="tabpanel-alimentacao" role="tabpanel">
+                        <div class="sub-tabs-navigation" role="tablist">
+                            <button type="button" class="form-subtab-nav-btn active" data-subtab="alimentacao-resumo-textual" role="tab" aria-selected="true" aria-controls="subtabpanel-alimentacao-resumo-textual">Resumo textual</button>
+                            <button type="button" class="form-subtab-nav-btn" data-subtab="alimentacao-modelo-visual" role="tab" aria-selected="false" aria-controls="subtabpanel-alimentacao-modelo-visual">Modelo Visual</button>
+                        </div>
+
+                        <div class="sub-tabs-content">
+                            <div class="form-subtab-panel active" id="subtabpanel-alimentacao-resumo-textual" role="tabpanel">
+                                <div class="form-group">
+                                    <label for="infoAlimentacao">Alimentação</label>
+                                    <textarea id="infoAlimentacao" rows="10" placeholder="Tipo de dieta, presas favoritas..."></textarea>
+                                </div>
+                            </div>
+
+                            <div class="form-subtab-panel" id="subtabpanel-alimentacao-modelo-visual" role="tabpanel">
+                                <div class="reproduction-layout feeding-layout">
+                                    <div class="reproduction-editor feeding-editor">
+                                        <div class="reproduction-row-header">
+                                            <span>Tipo de alimentação</span>
+                                            <span>Detalhe curto</span>
+                                        </div>
+                                        <div id="feedingRows" class="reproduction-rows"></div>
+                                        <button type="button" id="addFeedingBtn" class="secondary-action-btn">+ Adicionar tipo</button>
+                                        <div class="feeding-animal-dropdown" id="feedingAnimalDropdown">
+                                            <button type="button" class="feeding-animal-trigger" id="feedingAnimalTrigger" aria-expanded="false" aria-controls="feedingAnimalMenu">
+                                                <span>Escolher animal da dieta</span>
+                                                <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+                                            </button>
+                                            <div class="feeding-animal-menu" id="feedingAnimalMenu">
+                                                <input type="search" id="feedingAnimalSearch" class="feeding-animal-search" placeholder="Pesquisar animal..." autocomplete="off">
+                                                <div class="feeding-animal-list" id="feedingAnimalList" role="listbox" aria-label="Animais por ordem alfabética"></div>
+                                            </div>
+                                        </div>
+                                        <p class="form-hint">Escolhe um ou mais tipos de dieta. O modelo visual mostra um ícone próprio para cada tipo selecionado.</p>
+                                    </div>
+
+                                    <div class="reproduction-visual-preview feeding-visual-preview" aria-live="polite">
+                                        <div class="preview-card-title">Modelo visual da alimentação</div>
+                                        <div class="reproduction-preview-stage feeding-preview-stage">
+                                            <div class="reproduction-category-icon" id="feedingHeroIcon" aria-hidden="true"></div>
+                                            <div class="reproduction-category-copy">
+                                                <span>Dieta</span>
+                                                <strong id="feedingHeroTitle">Tipos de alimentação</strong>
+                                            </div>
+                                        </div>
+                                        <div class="reproduction-model-grid feeding-model-grid" id="previewFeedingModels"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Aba: Reprodução -->
+                    <div class="form-tab-panel" id="tabpanel-reproducao" role="tabpanel">
+                        <div class="sub-tabs-navigation" role="tablist">
+                            <button type="button" class="form-subtab-nav-btn active" data-subtab="reproducao-resumo-textual" role="tab" aria-selected="true" aria-controls="subtabpanel-reproducao-resumo-textual">Resumo textual</button>
+                            <button type="button" class="form-subtab-nav-btn" data-subtab="reproducao-modelo-visual" role="tab" aria-selected="false" aria-controls="subtabpanel-reproducao-modelo-visual">Modelo Visual</button>
+                        </div>
+
+                        <div class="sub-tabs-content">
+                            <div class="form-subtab-panel active" id="subtabpanel-reproducao-resumo-textual" role="tabpanel">
+                                <div class="form-group">
+                                    <label for="infoReproducao">Resumo textual</label>
+                                    <textarea id="infoReproducao" rows="10" placeholder="Gestação, época de acasalamento, número de ovos ou crias..."></textarea>
+                                </div>
+                            </div>
+
+                            <div class="form-subtab-panel" id="subtabpanel-reproducao-modelo-visual" role="tabpanel">
+                                <div class="reproduction-layout">
+                                    <div class="reproduction-editor">
+                                        <div class="reproduction-row-header">
+                                            <span id="reproductionTypeHeader">Tipo de reprodução</span>
+                                            <span id="reproductionDetailHeader">Detalhe curto</span>
+                                        </div>
+                                        <div id="reproductionRows" class="reproduction-rows"></div>
+                                        <button type="button" id="addReproductionBtn" class="secondary-action-btn">+ Adicionar tipo</button>
+                                        <p class="form-hint" id="reproductionHint">As opções mudam conforme a categoria escolhida. Ex: aves mostram ovíparo/incubação; mamíferos mostram vivíparo/placental/marsupial.</p>
+                                    </div>
+
+                                    <div class="reproduction-visual-preview" aria-live="polite">
+                                        <div class="preview-card-title">Modelo visual da reprodução</div>
+                                        <div class="reproduction-preview-stage">
+                                            <div class="reproduction-category-icon" id="reproductionCategoryIcon" aria-hidden="true"></div>
+                                            <div class="reproduction-category-copy">
+                                                <span>Categoria</span>
+                                                <strong id="reproductionCategoryName">Seleciona uma categoria</strong>
+                                            </div>
+                                        </div>
+                                        <div class="reproduction-model-grid" id="previewReproductionModels"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Aba: Plumagem -->
+                    <div class="form-tab-panel" id="tabpanel-plumagem" role="tabpanel">
+                        <div class="sub-tabs-navigation" role="tablist">
+                            <button type="button" class="form-subtab-nav-btn active" data-subtab="plumagem-resumo-textual" role="tab" aria-selected="true" aria-controls="subtabpanel-plumagem-resumo-textual">Resumo textual</button>
+                            <button type="button" class="form-subtab-nav-btn" data-subtab="plumagem-modelo-visual" role="tab" aria-selected="false" aria-controls="subtabpanel-plumagem-modelo-visual">Modelo Visual</button>
+                        </div>
+
+                        <div class="sub-tabs-content">
+                            <div class="form-subtab-panel active" id="subtabpanel-plumagem-resumo-textual" role="tabpanel">
+                                <div class="form-group">
+                                    <label for="infoPlumagem">Plumagem (Apenas para Aves)</label>
+                                    <textarea id="infoPlumagem" rows="10" placeholder="Ex: Plumagem colorida, com tons de azul e verde brilhantes..."></textarea>
+                                </div>
+                            </div>
+
+                            <div class="form-subtab-panel" id="subtabpanel-plumagem-modelo-visual" role="tabpanel">
+                                <div class="plumage-layout">
+                                    <div class="plumage-editor">
+                                        <div class="plumage-row-header">
+                                            <span>Grupo visual</span>
+                                            <span>Tipo</span>
+                                            <span>Detalhe curto</span>
+                                        </div>
+                                        <div id="plumageRows" class="plumage-rows"></div>
+                                        <button type="button" id="addPlumageBtn" class="secondary-action-btn">+ Adicionar tipo</button>
+                                        <p class="form-hint">Podes escolher um <strong>tipo de plumagem</strong> (ex: nupcial, camuflagem, ornamental) ou um <strong>tipo de pena</strong> (ex: rémiges, retrizes, tectrizes, penugem). O modelo visual mostra a peça correspondente com fundo realmente transparente.</p>
+                                    </div>
+
+                                    <div class="plumage-visual-preview" aria-live="polite">
+                                        <div class="preview-card-title">Modelo visual da plumagem</div>
+                                        <div class="plumage-preview-stage">
+                                            <div class="plumage-hero-figure">
+                                                <img id="plumageHeroImage" src="assets/plumagem/remiges.png" alt="Modelo visual de plumagem">
+                                            </div>
+                                            <div class="plumage-hero-copy">
+                                                <span>Secção exclusiva de aves</span>
+                                                <strong id="plumageHeroTitle">Plumagem e tipos de pena</strong>
+                                                <p id="plumageHeroText">Seleciona tipos de plumagem ou de pena para gerar um modelo visual coerente.</p>
+                                            </div>
+                                        </div>
+                                        <div class="plumage-model-grid" id="previewPlumageModels"></div>
+                                    </div>
+                                </div>
+                        </div>
+                    </div>
+                    </div>
+
+                    <!-- Aba: Distribuição -->
+                    <div class="form-tab-panel" id="tabpanel-distribuicao" role="tabpanel">
+                        <div class="distribution-layout">
+                            <div class="distribution-editor">
+                                <div class="form-group">
+                                    <label for="countrySearchInput">Adicionar Países</label>
+                                    <div class="country-search-wrapper">
+                                        <input type="text" id="countrySearchInput" placeholder="Escreva o nome de um país (ex: Portugal, Brasil)..." autocomplete="off">
+                                        <div class="autocomplete-dropdown" id="countryAutocompleteDropdown" style="display: none;"></div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <span class="highlighted-countries-title">Países Selecionados</span>
+                                    <div class="country-tag-list" id="selectedCountriesList">
+                                        <!-- Tags will be dynamically added here -->
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="infoDistribuicao">Descrição da Distribuição</label>
+                                    <textarea id="infoDistribuicao" rows="6" placeholder="Descreva a distribuição geográfica do animal, habitats comuns, migração..."></textarea>
+                                </div>
+                            </div>
+                            <div class="map-container-wrapper">
+                                <div class="preview-card-title">Mapa de Distribuição (Pré-visualização)</div>
+                                <div class="map-container" id="distributionMapForm"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <fieldset class="grid-span-3">
+                <legend>Vídeos Complementares (YouTube)</legend>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+                    <div class="form-group">
+                        <label for="video1">Vídeo 1</label>
+                        <input type="url" id="video1" placeholder="URL do YouTube">
+                    </div>
+                    <div class="form-group">
+                        <label for="video2">Vídeo 2</label>
+                        <input type="url" id="video2" placeholder="URL do YouTube">
+                    </div>
+                    <div class="form-group">
+                        <label for="video3">Vídeo 3</label>
+                        <input type="url" id="video3" placeholder="URL do YouTube">
+                    </div>
+                    <div class="form-group">
+                        <label for="video4">Vídeo 4</label>
+                        <input type="url" id="video4" placeholder="URL do YouTube">
+                    </div>
+                </div>
+            </fieldset>
+            
+            <button type="submit" id="saveButton" class="grid-span-3">Gravar Novo Animal</button>
+            <div id="statusMessage" class="grid-span-3"></div>
+        </form>
+    </div>
+
+    <!-- Modal de Seleção de Edição -->
+    <div class="modal-overlay" id="editModalOverlay">
+        <div class="modal">
+            <h2>Selecionar Animal para Editar</h2>
+            <input type="text" id="editSearchInput" placeholder="Pesquisar por nome comum ou científico...">
+            <div class="edit-list" id="editListContainer">
+                <p style="padding: 15px; text-align: center; color: var(--text-secondary);">A carregar animais...</p>
+            </div>
+            <button id="closeEditModalBtn" class="menu-button">Fechar</button>
+        </div>
+    </div>
+
+    <!-- Modal de Seleção de Subregião -->
+    <div class="modal-overlay" id="subregionModalOverlay" style="z-index: 2000;">
+        <div class="modal" style="max-width: 440px;">
+            <h2 id="subregionModalTitle">Selecionar Área</h2>
+            <p style="color: var(--text-secondary); margin-top: -10px; font-size: 0.9rem;">Escolha qual parte do país pretende assinalar.</p>
+            <div class="form-group">
+                <select id="subregionSelectModal" style="width: 100%; padding: 12px; background: var(--bg-card); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--border-radius-sm);">
+                    <option value="inteiro">País inteiro (Predefinido)</option>
+                    <option value="esquerdo">Lado esquerdo (Oeste)</option>
+                    <option value="direito">Lado direito (Este)</option>
+                    <option value="cima">Lado de cima (Norte)</option>
+                    <option value="baixo">Lado de baixo (Sul)</option>
+                </select>
+            </div>
+            <div style="display: flex; gap: 10px; justify-content: space-between; margin-top: 20px;">
+                <button id="removeSubregionCountryBtn" class="secondary-action-btn" style="padding: 10px 16px; border-color: #ef4444; color: #ef4444; background: transparent;">Remover</button>
+                <div style="display: flex; gap: 10px;">
+                    <button id="closeSubregionModalBtn" class="secondary-action-btn" style="padding: 10px 16px;">Cancelar</button>
+                    <button id="saveSubregionModalBtn" class="menu-button" style="padding: 10px 20px; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">Confirmar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Ajustar Perspetiva da Imagem -->
+    <div class="modal-overlay" id="perspectiveModalOverlay">
+        <div class="modal" style="max-width: 500px;">
+            <h2>Ajustar Perspetiva da Imagem</h2>
+            <p style="color: var(--text-secondary); margin-top: -15px; font-size: 0.95rem;">Arraste a imagem ou use os controlos para ajustar a miniatura que aparecerá no site.</p>
+            
+            <!-- Live Preview Container mimicking categories.html cards -->
+            <div style="display: flex; justify-content: center; margin: 15px 0;">
+                <div class="animal-list-item-preview-card" style="width: 190px; height: 260px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--border-radius); overflow: hidden; display: flex; flex-direction: column; cursor: move; user-select: none;">
+                    <div style="width: 100%; height: 150px; overflow: hidden; position: relative;">
+                        <img id="perspectivePreviewImg" src="" alt="Pré-visualização" style="width: 100%; height: 150px; object-fit: cover; object-position: center center; pointer-events: none;">
+                        <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.1); border-bottom: 1px solid var(--border-color);"></div>
+                    </div>
+                    <div style="padding: 16px; background: var(--bg-card); flex: 1; text-align: left;">
+                        <div id="previewCardTitle" style="font-weight: 800; font-size: 1.1rem; color: var(--text-primary); margin-bottom: 4px;">Nome do Animal</div>
+                        <div id="previewCardSubtitle" style="font-size: 0.85rem; color: var(--text-secondary); font-style: italic;">(Nome científico)</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Sliders for positioning -->
+            <div style="display: flex; flex-direction: column; gap: 15px;">
+                <div style="display: flex; flex-direction: column; gap: 5px;">
+                    <div style="display: flex; justify-content: space-between; font-size: 0.9rem;">
+                        <label for="posXSlider">Posição Horizontal (X):</label>
+                        <span id="posXVal">50%</span>
+                    </div>
+                    <input type="range" id="posXSlider" min="0" max="100" value="50" style="width: 100%;">
+                </div>
+                
+                <div style="display: flex; flex-direction: column; gap: 5px;">
+                    <div style="display: flex; justify-content: space-between; font-size: 0.9rem;">
+                        <label for="posYSlider">Posição Vertical (Y):</label>
+                        <span id="posYVal">50%</span>
+                    </div>
+                    <input type="range" id="posYSlider" min="0" max="100" value="50" style="width: 100%;">
+                </div>
+            </div>
+
+            <!-- Presets buttons -->
+            <div style="display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 5px;">
+                <button type="button" class="menu-button preset-btn" data-x="50" data-y="50" style="padding: 8px 12px; font-size: 0.85rem;">Centro</button>
+                <button type="button" class="menu-button preset-btn" data-x="50" data-y="0" style="padding: 8px 12px; font-size: 0.85rem;">Topo</button>
+                <button type="button" class="menu-button preset-btn" data-x="50" data-y="100" style="padding: 8px 12px; font-size: 0.85rem;">Fundo</button>
+                <button type="button" class="menu-button preset-btn" data-x="0" data-y="50" style="padding: 8px 12px; font-size: 0.85rem;">Esquerda</button>
+                <button type="button" class="menu-button preset-btn" data-x="100" data-y="50" style="padding: 8px 12px; font-size: 0.85rem;">Direita</button>
+            </div>
+            
+            <div style="display: flex; gap: 15px; margin-top: 10px;">
+                <button type="button" id="confirmPerspectiveBtn" class="menu-button" style="flex: 1; background: var(--accent-gradient); color: white;">Confirmar</button>
+                <button type="button" id="closePerspectiveModalBtn" class="menu-button" style="flex: 1;">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Componentes e Lógica -->
+    <script type="module" src="js/components.js"></script>
+    <script type="module">
+        import { db } from "./js/firebase-config.js";
+        import { doc, setDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
+        import { feedingTypes, feedingTypeDescriptions, getFeedingVisualMeta, getFeedingModelSvg } from "./js/feeding-visuals.js";
+        import { feedingAnimalOptions } from "./js/feeding-animal-options.js?v=2";
+        import { getFeedingStrategyMeta, getFeedingStrategySvg } from "./js/feeding-strategies.js";
+        import { getMatingMeta, getMatingSystemSvg } from "./js/mating-systems.js";
+
+        let allAnimals = [];
+        let existingFamilies = new Set();
+        let isEditMode = false;
+        let currentEditingId = null;
+
+        const animalForm = document.getElementById('animalForm');
+        const saveButton = document.getElementById('saveButton');
+        const formTitle = document.getElementById('formTitle');
+        const formSubtitle = document.getElementById('formSubtitle');
+        const statusMessage = document.getElementById('statusMessage');
+        const nomeCientificoInput = document.getElementById('nomeCientifico');
+        const familiaInput = document.getElementById('familia');
+        const familiaResultsContainer = document.getElementById('familiaResults');
+        const openEditModalBtn = document.getElementById('openEditModalBtn');
+        const closeEditModalBtn = document.getElementById('closeEditModalBtn');
+        const editModalOverlay = document.getElementById('editModalOverlay');
+        const editSearchInput = document.getElementById('editSearchInput');
+        const editListContainer = document.getElementById('editListContainer');
+        const dimensionRowsContainer = document.getElementById('dimensionRows');
+        const addDimensionBtn = document.getElementById('addDimensionBtn');
+        const animalSilhouette = document.getElementById('animalSilhouette');
+        const previewHeightValue = document.getElementById('previewHeightValue');
+        const previewWeightValue = document.getElementById('previewWeightValue');
+        const previewLengthValue = document.getElementById('previewLengthValue');
+        const previewDimensionModels = document.getElementById('previewDimensionModels');
+        const generalVisualRowsContainer = document.getElementById('generalVisualRows');
+        const addGeneralVisualBtn = document.getElementById('addGeneralVisualBtn');
+        const previewGeneralVisualModels = document.getElementById('previewGeneralVisualModels');
+        const feedingRowsContainer = document.getElementById('feedingRows');
+        const addFeedingBtn = document.getElementById('addFeedingBtn');
+        const feedingAnimalDropdown = document.getElementById('feedingAnimalDropdown');
+        const feedingAnimalTrigger = document.getElementById('feedingAnimalTrigger');
+        const feedingAnimalSearch = document.getElementById('feedingAnimalSearch');
+        const feedingAnimalList = document.getElementById('feedingAnimalList');
+        const feedingHeroIcon = document.getElementById('feedingHeroIcon');
+        const feedingHeroTitle = document.getElementById('feedingHeroTitle');
+        const previewFeedingModels = document.getElementById('previewFeedingModels');
+        const reproductionRowsContainer = document.getElementById('reproductionRows');
+        const addReproductionBtn = document.getElementById('addReproductionBtn');
+        const reproductionCategoryIcon = document.getElementById('reproductionCategoryIcon');
+        const reproductionCategoryName = document.getElementById('reproductionCategoryName');
+        const previewReproductionModels = document.getElementById('previewReproductionModels');
+        const baseDimensionOptions = [
+            { label: 'Altura', unit: 'm' },
+            { label: 'Altura ao ombro', unit: 'm' },
+            { label: 'Comprimento total', unit: 'm' },
+            { label: 'Comprimento do corpo', unit: 'cm' },
+            { label: 'Peso', unit: 'kg' },
+            { label: 'Largura do corpo', unit: 'cm' },
+            { label: 'Altura do corpo', unit: 'cm' },
+            { label: 'Diâmetro do corpo', unit: 'cm' },
+            { label: 'Espessura do corpo', unit: 'cm' }
+        ];
+
+        const dimensionOptionsByCategory = {
+            Mamiferos: [
+                { label: 'Altura', unit: 'm' },
+                { label: 'Altura ao ombro', unit: 'm' },
+                { label: 'Comprimento total', unit: 'm' },
+                { label: 'Comprimento do corpo', unit: 'cm' },
+                { label: 'Peso', unit: 'kg' },
+                { label: 'Largura do corpo', unit: 'cm' },
+                { label: 'Perímetro torácico', unit: 'cm' },
+                { label: 'Comprimento da cauda', unit: 'cm' },
+                { label: 'Comprimento das patas', unit: 'cm' },
+                { label: 'Comprimento da orelha', unit: 'cm' },
+                { label: 'Comprimento do focinho', unit: 'cm' },
+                { label: 'Comprimento do pescoço', unit: 'cm' },
+                { label: 'Comprimento da tromba', unit: 'cm' },
+                { label: 'Comprimento das presas', unit: 'cm' },
+                { label: 'Comprimento dos caninos', unit: 'cm' },
+                { label: 'Comprimento dos cornos', unit: 'cm' },
+                { label: 'Comprimento das galhadas', unit: 'cm' },
+                { label: 'Comprimento da juba', unit: 'cm' },
+                { label: 'Largura da pata', unit: 'cm' },
+                { label: 'Comprimento da garra', unit: 'cm' },
+                { label: 'Comprimento do casco', unit: 'cm' },
+                { label: 'Comprimento da nadadeira', unit: 'cm' },
+                { label: 'Comprimento da barbatana dorsal', unit: 'cm' },
+                { label: 'Comprimento dos bigodes', unit: 'cm' },
+                { label: 'Envergadura', unit: 'm' }
+            ],
+            Aves: [
+                { label: 'Comprimento total', unit: 'cm' },
+                { label: 'Comprimento do corpo', unit: 'cm' },
+                { label: 'Peso', unit: 'kg' },
+                { label: 'Altura', unit: 'cm' },
+                { label: 'Envergadura', unit: 'cm' },
+                { label: 'Comprimento da asa', unit: 'cm' },
+                { label: 'Comprimento do bico', unit: 'cm' },
+                { label: 'Comprimento da cauda', unit: 'cm' },
+                { label: 'Comprimento das patas', unit: 'cm' },
+                { label: 'Tamanho do ovo', unit: 'cm' },
+                { label: 'Peso do bico', unit: 'g' },
+                { label: 'Peso da cauda', unit: 'g' }
+            ],
+            Peixes: [
+                { label: 'Comprimento total', unit: 'cm' },
+                { label: 'Comprimento do corpo', unit: 'cm' },
+                { label: 'Peso', unit: 'kg' },
+                { label: 'Altura do corpo', unit: 'cm' },
+                { label: 'Largura do corpo', unit: 'cm' },
+                { label: 'Diâmetro do corpo', unit: 'cm' },
+                { label: 'Comprimento da cabeça', unit: 'cm' },
+                { label: 'Comprimento da cauda', unit: 'cm' },
+                { label: 'Comprimento da boca', unit: 'cm' },
+                { label: 'Largura da boca', unit: 'cm' },
+                { label: 'Comprimento da barbatana dorsal', unit: 'cm' },
+                { label: 'Altura da barbatana dorsal', unit: 'cm' },
+                { label: 'Comprimento da barbatana caudal', unit: 'cm' },
+                { label: 'Largura da barbatana caudal', unit: 'cm' },
+                { label: 'Comprimento das barbatanas peitorais', unit: 'cm' },
+                { label: 'Comprimento das barbatanas pélvicas', unit: 'cm' },
+                { label: 'Comprimento da barbatana anal', unit: 'cm' },
+                { label: 'Comprimento dos barbilhos', unit: 'cm' },
+                { label: 'Comprimento do rostro', unit: 'cm' },
+                { label: 'Comprimento da espada', unit: 'cm' },
+                { label: 'Comprimento dos dentes', unit: 'cm' },
+                { label: 'Comprimento das mandíbulas', unit: 'cm' },
+                { label: 'Largura das guelras', unit: 'cm' },
+                { label: 'Comprimento dos espinhos', unit: 'cm' },
+                { label: 'Comprimento dos tentáculos / filamentos', unit: 'cm' },
+                { label: 'Envergadura das barbatanas', unit: 'cm' },
+                { label: 'Largura do disco corporal', unit: 'cm' }
+            ],
+            Moluscos: [
+                { label: 'Comprimento total', unit: 'cm' },
+                { label: 'Comprimento do corpo', unit: 'cm' },
+                { label: 'Peso', unit: 'kg' },
+                { label: 'Largura do corpo', unit: 'cm' },
+                { label: 'Altura do corpo', unit: 'cm' },
+                { label: 'Diâmetro do corpo', unit: 'cm' },
+                { label: 'Comprimento da concha', unit: 'cm' },
+                { label: 'Largura da concha', unit: 'cm' },
+                { label: 'Altura da concha', unit: 'cm' },
+                { label: 'Diâmetro da concha', unit: 'cm' },
+                { label: 'Espessura da concha', unit: 'mm' },
+                { label: 'Peso da concha', unit: 'g' },
+                { label: 'Comprimento da abertura da concha', unit: 'cm' },
+                { label: 'Largura da abertura da concha', unit: 'cm' },
+                { label: 'Comprimento do manto', unit: 'cm' },
+                { label: 'Largura do manto', unit: 'cm' },
+                { label: 'Comprimento dos braços', unit: 'cm' },
+                { label: 'Comprimento dos tentáculos', unit: 'cm' },
+                { label: 'Comprimento do maior tentáculo', unit: 'cm' },
+                { label: 'Diâmetro das ventosas', unit: 'mm' },
+                { label: 'Comprimento do pé', unit: 'cm' },
+                { label: 'Largura do pé', unit: 'cm' },
+                { label: 'Comprimento dos tentáculos oculares', unit: 'cm' },
+                { label: 'Comprimento dos tentáculos sensoriais', unit: 'cm' },
+                { label: 'Número de braços', unit: 'unid.' },
+                { label: 'Número de tentáculos', unit: 'unid.' }
+            ],
+            Crustaceos: [
+                { label: 'Comprimento total', unit: 'cm' },
+                { label: 'Comprimento do corpo', unit: 'cm' },
+                { label: 'Peso', unit: 'kg' },
+                { label: 'Largura do corpo', unit: 'cm' },
+                { label: 'Altura do corpo', unit: 'cm' },
+                { label: 'Comprimento da carapaça', unit: 'cm' },
+                { label: 'Largura da carapaça', unit: 'cm' },
+                { label: 'Altura da carapaça', unit: 'cm' },
+                { label: 'Comprimento das pinças', unit: 'cm' },
+                { label: 'Largura das pinças', unit: 'cm' },
+                { label: 'Peso das pinças', unit: 'g' },
+                { label: 'Comprimento das patas', unit: 'cm' },
+                { label: 'Envergadura das patas', unit: 'cm' },
+                { label: 'Comprimento das antenas', unit: 'cm' },
+                { label: 'Comprimento do abdómen', unit: 'cm' },
+                { label: 'Comprimento da cauda', unit: 'cm' },
+                { label: 'Largura da cauda', unit: 'cm' },
+                { label: 'Diâmetro da base', unit: 'cm' },
+                { label: 'Largura da base', unit: 'cm' },
+                { label: 'Comprimento do pedúnculo', unit: 'cm' },
+                { label: 'Largura do pedúnculo', unit: 'cm' }
+            ],
+            Aracnideos: [
+                { label: 'Comprimento total', unit: 'cm' },
+                { label: 'Comprimento do corpo', unit: 'cm' },
+                { label: 'Peso', unit: 'g' },
+                { label: 'Largura do corpo', unit: 'cm' },
+                { label: 'Altura do corpo', unit: 'cm' },
+                { label: 'Comprimento do abdómen', unit: 'cm' },
+                { label: 'Largura do abdómen', unit: 'cm' },
+                { label: 'Comprimento do cefalotórax', unit: 'cm' },
+                { label: 'Largura do cefalotórax', unit: 'cm' },
+                { label: 'Comprimento das patas', unit: 'cm' },
+                { label: 'Envergadura das patas', unit: 'cm' },
+                { label: 'Comprimento dos pedipalpos', unit: 'cm' },
+                { label: 'Comprimento das quelíceras', unit: 'mm' },
+                { label: 'Comprimento das presas', unit: 'mm' },
+                { label: 'Comprimento da cauda', unit: 'cm' },
+                { label: 'Comprimento do ferrão', unit: 'mm' },
+                { label: 'Comprimento das pinças', unit: 'cm' },
+                { label: 'Largura das pinças', unit: 'cm' },
+                { label: 'Diâmetro do corpo', unit: 'mm' }
+            ],
+            Vermes: [
+                { label: 'Comprimento total', unit: 'cm' },
+                { label: 'Comprimento do corpo', unit: 'cm' },
+                { label: 'Peso', unit: 'g' },
+                { label: 'Largura do corpo', unit: 'mm' },
+                { label: 'Diâmetro do corpo', unit: 'mm' },
+                { label: 'Espessura do corpo', unit: 'mm' },
+                { label: 'Número de segmentos', unit: 'unid.' },
+                { label: 'Comprimento dos segmentos', unit: 'mm' },
+                { label: 'Comprimento da cabeça', unit: 'mm' },
+                { label: 'Largura da cabeça', unit: 'mm' },
+                { label: 'Comprimento da cauda', unit: 'mm' },
+                { label: 'Comprimento da boca', unit: 'mm' },
+                { label: 'Comprimento das cerdas', unit: 'mm' },
+                { label: 'Comprimento dos parapódios', unit: 'mm' },
+                { label: 'Comprimento dos proglótides', unit: 'mm' },
+                { label: 'Número de proglótides', unit: 'unid.' },
+                { label: 'Comprimento dos espículos', unit: 'mm' }
+            ],
+            Repteis: [
+                { label: 'Comprimento total', unit: 'cm' },
+                { label: 'Comprimento do corpo', unit: 'cm' },
+                { label: 'Peso', unit: 'kg' },
+                { label: 'Largura do corpo', unit: 'cm' },
+                { label: 'Altura do corpo', unit: 'cm' },
+                { label: 'Comprimento da cauda', unit: 'cm' },
+                { label: 'Comprimento da cabeça', unit: 'cm' },
+                { label: 'Largura da cabeça', unit: 'cm' },
+                { label: 'Comprimento do focinho', unit: 'cm' },
+                { label: 'Largura do focinho', unit: 'cm' },
+                { label: 'Comprimento da mandíbula', unit: 'cm' },
+                { label: 'Comprimento dos dentes', unit: 'cm' },
+                { label: 'Comprimento das presas', unit: 'cm' },
+                { label: 'Comprimento da língua', unit: 'cm' },
+                { label: 'Comprimento das patas', unit: 'cm' },
+                { label: 'Comprimento das garras', unit: 'cm' },
+                { label: 'Comprimento da carapaça', unit: 'cm' },
+                { label: 'Largura da carapaça', unit: 'cm' },
+                { label: 'Altura da carapaça', unit: 'cm' },
+                { label: 'Comprimento do pescoço', unit: 'cm' },
+                { label: 'Comprimento da crista', unit: 'cm' },
+                { label: 'Altura da crista', unit: 'cm' },
+                { label: 'Diâmetro do corpo', unit: 'cm' }
+            ],
+            Anfibios: [
+                { label: 'Comprimento total', unit: 'cm' },
+                { label: 'Comprimento do corpo', unit: 'cm' },
+                { label: 'Peso', unit: 'g' },
+                { label: 'Largura do corpo', unit: 'cm' },
+                { label: 'Altura do corpo', unit: 'cm' },
+                { label: 'Comprimento da cabeça', unit: 'cm' },
+                { label: 'Largura da cabeça', unit: 'cm' },
+                { label: 'Comprimento das patas', unit: 'cm' },
+                { label: 'Comprimento das patas dianteiras', unit: 'cm' },
+                { label: 'Comprimento das patas traseiras', unit: 'cm' },
+                { label: 'Comprimento dos dedos', unit: 'cm' },
+                { label: 'Largura dos discos adesivos', unit: 'mm' },
+                { label: 'Comprimento da cauda', unit: 'cm' },
+                { label: 'Distância entre os olhos', unit: 'mm' },
+                { label: 'Diâmetro dos olhos', unit: 'mm' },
+                { label: 'Comprimento das guelras externas', unit: 'cm' },
+                { label: 'Comprimento da crista dorsal', unit: 'cm' },
+                { label: 'Diâmetro do corpo', unit: 'cm' }
+            ],
+            Insetos: [
+                { label: 'Comprimento total', unit: 'mm' },
+                { label: 'Comprimento do corpo', unit: 'mm' },
+                { label: 'Peso', unit: 'mg' },
+                { label: 'Largura do corpo', unit: 'mm' },
+                { label: 'Altura do corpo', unit: 'mm' },
+                { label: 'Comprimento da cabeça', unit: 'mm' },
+                { label: 'Largura da cabeça', unit: 'mm' },
+                { label: 'Comprimento do tórax', unit: 'mm' },
+                { label: 'Largura do tórax', unit: 'mm' },
+                { label: 'Comprimento do abdómen', unit: 'mm' },
+                { label: 'Largura do abdómen', unit: 'mm' },
+                { label: 'Envergadura', unit: 'mm' },
+                { label: 'Comprimento da asa', unit: 'mm' },
+                { label: 'Largura da asa', unit: 'mm' },
+                { label: 'Comprimento das asas anteriores', unit: 'mm' },
+                { label: 'Comprimento das asas posteriores', unit: 'mm' },
+                { label: 'Largura das asas anteriores', unit: 'mm' },
+                { label: 'Largura das asas posteriores', unit: 'mm' },
+                { label: 'Comprimento das antenas', unit: 'mm' },
+                { label: 'Comprimento das patas', unit: 'mm' },
+                { label: 'Comprimento das patas dianteiras', unit: 'mm' },
+                { label: 'Comprimento das patas médias', unit: 'mm' },
+                { label: 'Comprimento das patas traseiras', unit: 'mm' },
+                { label: 'Comprimento das mandíbulas', unit: 'mm' },
+                { label: 'Comprimento da probóscide', unit: 'mm' },
+                { label: 'Comprimento do aparelho bucal', unit: 'mm' },
+                { label: 'Comprimento do ferrão', unit: 'mm' },
+                { label: 'Comprimento dos cornos', unit: 'mm' },
+                { label: 'Comprimento dos élitros', unit: 'mm' },
+                { label: 'Comprimento do ovipositor', unit: 'mm' }
+            ],
+            Microscopicos: [
+                { label: 'Comprimento total', unit: 'µm' },
+                { label: 'Comprimento do corpo', unit: 'µm' },
+                { label: 'Peso', unit: 'pg' },
+                { label: 'Comprimento celular', unit: 'µm' },
+                { label: 'Largura celular', unit: 'µm' },
+                { label: 'Diâmetro celular', unit: 'µm' },
+                { label: 'Espessura do corpo', unit: 'µm' },
+                { label: 'Espessura da parede celular', unit: 'nm' },
+                { label: 'Volume celular', unit: 'µm³' },
+                { label: 'Comprimento do flagelo', unit: 'µm' },
+                { label: 'Número de flagelos', unit: 'unid.' },
+                { label: 'Comprimento dos cílios', unit: 'µm' },
+                { label: 'Comprimento dos pili', unit: 'µm' },
+                { label: 'Comprimento dos pseudópodes', unit: 'µm' },
+                { label: 'Tamanho do núcleo', unit: 'µm' },
+                { label: 'Tamanho do vacúolo', unit: 'µm' },
+                { label: 'Comprimento dos filamentos', unit: 'µm' },
+                { label: 'Diâmetro da colónia', unit: 'µm' },
+                { label: 'Número de células por colónia', unit: 'unid.' },
+                { label: 'Comprimento das patas', unit: 'µm' },
+                { label: 'Comprimento dos apêndices', unit: 'µm' },
+                { label: 'Comprimento das garras', unit: 'µm' },
+                { label: 'Comprimento do aparelho bucal', unit: 'µm' },
+                { label: 'Diâmetro da partícula viral', unit: 'nm' },
+                { label: 'Comprimento da partícula viral', unit: 'nm' },
+                { label: 'Diâmetro do capsídeo', unit: 'nm' },
+                { label: 'Comprimento da cauda viral', unit: 'nm' }
+            ],
+            Extintos: [
+                { label: 'Comprimento total', unit: 'm' },
+                { label: 'Comprimento do corpo', unit: 'm' },
+                { label: 'Altura', unit: 'm' },
+                { label: 'Altura ao ombro', unit: 'm' },
+                { label: 'Peso', unit: 'kg' },
+                { label: 'Comprimento da cauda', unit: 'm' },
+                { label: 'Comprimento da cabeça', unit: 'cm' },
+                { label: 'Largura da cabeça', unit: 'cm' },
+                { label: 'Comprimento do crânio', unit: 'cm' },
+                { label: 'Largura do crânio', unit: 'cm' },
+                { label: 'Comprimento dos dentes', unit: 'cm' },
+                { label: 'Comprimento das presas', unit: 'cm' },
+                { label: 'Comprimento dos cornos', unit: 'cm' },
+                { label: 'Comprimento das garras', unit: 'cm' },
+                { label: 'Envergadura', unit: 'm' },
+                { label: 'Comprimento da asa', unit: 'cm' }
+            ]
+        };
+
+        const dimensionDefaultsByCategory = {
+            Mamiferos: ['Altura ao ombro', 'Comprimento total', 'Peso'],
+            Aves: ['Comprimento total', 'Envergadura', 'Peso'],
+            Peixes: ['Comprimento total', 'Altura do corpo', 'Peso'],
+            Moluscos: ['Comprimento total', 'Peso', 'Comprimento da concha'],
+            Crustaceos: ['Comprimento total', 'Largura da carapaça', 'Peso'],
+            Aracnideos: ['Comprimento do corpo', 'Envergadura das patas', 'Peso'],
+            Vermes: ['Comprimento total', 'Largura do corpo', 'Peso'],
+            Repteis: ['Comprimento total', 'Comprimento da cauda', 'Peso'],
+            Anfibios: ['Comprimento total', 'Comprimento do corpo', 'Peso'],
+            Insetos: ['Comprimento total', 'Envergadura', 'Peso'],
+            Microscopicos: ['Comprimento celular', 'Diâmetro celular', 'Comprimento do flagelo'],
+            Extintos: ['Comprimento total', 'Altura', 'Peso']
+        };
+
+        const reproductionTypesByCategory = {
+            Mamiferos: ['Vivíparo', 'Placental', 'Marsupial', 'Ovíparo'],
+            Aves: ['Ovíparo', 'Incubação externa', 'Nidícola', 'Nidífugo'],
+            Peixes: ['Ovíparo', 'Vivíparo', 'Ovovivíparo', 'Desova externa', 'Fertilização interna', 'Hermafrodita'],
+            Moluscos: ['Ovíparo', 'Hermafrodita', 'Sexos separados', 'Fertilização interna', 'Fertilização externa', 'Desenvolvimento larvar'],
+            Crustaceos: ['Ovíparo', 'Sexos separados', 'Fertilização interna', 'Ovos transportados pela fêmea', 'Desenvolvimento larvar', 'Metamorfose'],
+            Aracnideos: ['Ovíparo', 'Vivíparo', 'Fertilização interna', 'Saco de ovos', 'Cuidado parental', 'Canibalismo sexual'],
+            Vermes: ['Sexuada', 'Assexuada', 'Hermafrodita', 'Fragmentação', 'Regeneração', 'Postura de ovos', 'Ciclo parasitário'],
+            Repteis: ['Ovíparo', 'Vivíparo', 'Ovovivíparo', 'Fertilização interna', 'Incubação externa', 'Determinação sexual por temperatura'],
+            Anfibios: ['Ovíparo', 'Fertilização externa', 'Fertilização interna', 'Postura em água', 'Postura em locais húmidos', 'Metamorfose', 'Fase larvar'],
+            Insetos: ['Ovíparo', 'Vivíparo', 'Partenogénese', 'Metamorfose completa', 'Metamorfose incompleta', 'Postura de ovos', 'Reprodução social'],
+            Microscopicos: ['Divisão binária', 'Assexuada', 'Sexuada', 'Esporulação', 'Brotamento', 'Conjugação', 'Multiplicação celular'],
+            Extintos: ['Ovíparo provável', 'Vivíparo provável', 'Fertilização interna provável', 'Postura de ovos fossilizados', 'Cuidados parentais prováveis', 'Desconhecido', 'Estimado por comparação']
+        };
+
+        const reproductionTypeDescriptions = {
+            'Vivíparo': 'Crias nascem vivas',
+            'Placental': 'Desenvolvimento com placenta',
+            'Marsupial': 'Crias continuam na bolsa',
+            'Ovíparo': 'Postura de ovos',
+            'Incubação externa': 'Ovos chocados fora do corpo',
+            'Nidícola': 'Crias dependentes no ninho',
+            'Nidífugo': 'Crias móveis cedo',
+            'Ovovivíparo': 'Ovos desenvolvem-se internamente',
+            'Desova externa': 'Ovos libertados no ambiente',
+            'Fertilização interna': 'Fecundação dentro do corpo',
+            'Fertilização externa': 'Fecundação no ambiente',
+            'Hermafrodita': 'Pode ter órgãos dos dois sexos',
+            'Sexos separados': 'Macho e fêmea separados',
+            'Desenvolvimento larvar': 'Passa por fase de larva',
+            'Ovos transportados pela fêmea': 'Ovos presos ao corpo da fêmea',
+            'Metamorfose': 'Mudança corporal durante o crescimento',
+            'Saco de ovos': 'Ovos protegidos num saco',
+            'Cuidado parental': 'Adultos protegem ovos ou crias',
+            'Canibalismo sexual': 'Pode ocorrer após acasalamento',
+            'Sexuada': 'Envolve gâmetas',
+            'Assexuada': 'Sem parceiro sexual',
+            'Fragmentação': 'Corpo divide-se em partes',
+            'Regeneração': 'Partes regeneram novo indivíduo',
+            'Postura de ovos': 'Deposita ovos no ambiente',
+            'Ciclo parasitário': 'Depende de hospedeiros',
+            'Incubação externa': 'Ovos desenvolvem-se fora do corpo',
+            'Determinação sexual por temperatura': 'Temperatura influencia o sexo',
+            'Postura em água': 'Ovos colocados na água',
+            'Postura em locais húmidos': 'Ovos em ambientes húmidos',
+            'Fase larvar': 'Fase inicial diferente do adulto',
+            'Partenogénese': 'Desenvolvimento sem fecundação',
+            'Metamorfose completa': 'Ovo, larva, pupa e adulto',
+            'Metamorfose incompleta': 'Ovo, ninfa e adulto',
+            'Reprodução social': 'Organizada em colónias',
+            'Divisão binária': 'Uma célula divide-se em duas',
+            'Esporulação': 'Forma esporos resistentes',
+            'Brotamento': 'Novo organismo brota do corpo',
+            'Conjugação': 'Troca de material genético',
+            'Multiplicação celular': 'Aumento por divisão celular',
+            'Ovíparo provável': 'Provável postura de ovos',
+            'Vivíparo provável': 'Provável nascimento vivo',
+            'Fertilização interna provável': 'Inferido por comparação',
+            'Postura de ovos fossilizados': 'Evidência fóssil de ovos',
+            'Cuidados parentais prováveis': 'Inferido por fósseis ou parentes',
+            'Desconhecido': 'Sem dados suficientes',
+            'Estimado por comparação': 'Baseado em espécies semelhantes'
+        };
+
+        const birdEggVisuals = [
+            { label: 'Branco', image: 'assets/ovos/ovo_branco.png', average: '2-5 ovos' },
+            { label: 'Creme', image: 'assets/ovos/ovo_creme.png', average: '2-5 ovos' },
+            { label: 'Bege salpicado', image: 'assets/ovos/ovo_bege_salpicado.png', average: '2-5 ovos' },
+            { label: 'Castanho', image: 'assets/ovos/ovo_castanho.png', average: '2-5 ovos' },
+            { label: 'Azul claro', image: 'assets/ovos/ovo_azul_claro.png', average: '2-5 ovos' },
+            { label: 'Azul-esverdeado', image: 'assets/ovos/ovo_azul_esverdeado_salpicado.png', average: '2-5 ovos' },
+            { label: 'Manchado', image: 'assets/ovos/ovo_manchado_escuro.png', average: '2-5 ovos' },
+            { label: 'Camuflado', image: 'assets/ovos/ovo_camuflado_moteado.png', average: '2-5 ovos' }
+        ];
+
+        function getBirdEggVisualByLabel(label = '') {
+            return birdEggVisuals.find(egg => egg.label === label);
+        }
+
+        function isBirdEggSelection(item = {}) {
+            return !!getBirdEggVisualByLabel(item.tipo || item);
+        }
+
+        const plumageVisualGroups = {
+            plumagem: 'Tipo de plumagem',
+            pena: 'Tipo de pena'
+        };
+
+        const plumageTypes = [
+            'Penugem',
+            'Plumagem juvenil',
+            'Plumagem adulta',
+            'Plumagem nupcial',
+            'Plumagem de eclipse',
+            'Plumagem de inverno',
+            'Plumagem de verão',
+            'Plumagem de camuflagem',
+            'Plumagem ornamental',
+            'Plumagem impermeável',
+            'Plumagem sexualmente dimórfica'
+        ];
+
+        const featherTypes = [
+            'Rémiges',
+            'Retrizes',
+            'Tectrizes',
+            'Penugem',
+            'Semiplumas',
+            'Filoplumas',
+            'Cerdas'
+        ];
+
+        const plumageOptionsByGroup = {
+            plumagem: plumageTypes,
+            pena: featherTypes
+        };
+
+        const plumageTypeDescriptions = {
+            'Penugem': 'Penas muito macias e isolantes',
+            'Plumagem juvenil': 'Primeira plumagem após a penugem',
+            'Plumagem adulta': 'Aspeto típico da ave madura',
+            'Plumagem nupcial': 'Mais vistosa durante a reprodução',
+            'Plumagem de eclipse': 'Fase mais discreta após reprodução',
+            'Plumagem de inverno': 'Mais isolante e discreta',
+            'Plumagem de verão': 'Mais leve, definida e sazonal',
+            'Plumagem de camuflagem': 'Mistura-se com o habitat',
+            'Plumagem ornamental': 'Usada em exibição e atração',
+            'Plumagem impermeável': 'Adaptada à repelência da água',
+            'Plumagem sexualmente dimórfica': 'Macho e fêmea com visuais distintos',
+            'Rémiges': 'Penas de voo das asas',
+            'Retrizes': 'Penas da cauda, direção e travagem',
+            'Tectrizes': 'Penas de cobertura do corpo e asas',
+            'Semiplumas': 'Misturam estrutura com suavidade',
+            'Filoplumas': 'Penas finas de função sensorial',
+            'Cerdas': 'Estruturas rígidas perto do bico e olhos'
+        };
+
+        const plumageVisualAssets = {
+            'Penugem': { image: 'assets/plumagem/penugem.png', group: 'plumagem' },
+            'Plumagem juvenil': { image: 'assets/plumagem/semiplumas.png', group: 'plumagem' },
+            'Plumagem adulta': { image: 'assets/plumagem/remiges.png', group: 'plumagem' },
+            'Plumagem nupcial': { image: 'assets/plumagem/retrizes.png', group: 'plumagem' },
+            'Plumagem de eclipse': { image: 'assets/plumagem/tectrizes.png', group: 'plumagem' },
+            'Plumagem de inverno': { image: 'assets/plumagem/semiplumas.png', group: 'plumagem' },
+            'Plumagem de verão': { image: 'assets/plumagem/remiges.png', group: 'plumagem' },
+            'Plumagem de camuflagem': { image: 'assets/plumagem/tectrizes.png', group: 'plumagem' },
+            'Plumagem ornamental': { image: 'assets/plumagem/retrizes.png', group: 'plumagem' },
+            'Plumagem impermeável': { image: 'assets/plumagem/remiges.png', group: 'plumagem' },
+            'Plumagem sexualmente dimórfica': { image: 'assets/plumagem/retrizes.png', group: 'plumagem' },
+            'Rémiges': { image: 'assets/plumagem/remiges.png', group: 'pena' },
+            'Retrizes': { image: 'assets/plumagem/retrizes.png', group: 'pena' },
+            'Tectrizes': { image: 'assets/plumagem/tectrizes.png', group: 'pena' },
+            'Semiplumas': { image: 'assets/plumagem/semiplumas.png', group: 'pena' },
+            'Filoplumas': { image: 'assets/plumagem/filoplumas.png', group: 'pena' },
+            'Cerdas': { image: 'assets/plumagem/cerdas.png', group: 'pena' }
+        };
+
+        const dimensionUnits = ['nm', 'µm', 'mm', 'cm', 'm', 'km', 'pg', 'ng', 'µg', 'mg', 'g', 'kg', 't', 'unid.', 'mm²', 'cm²', 'µm²', 'mm³', 'cm³', 'µm³'];
+
+
+        // --- SALVAR OU ATUALIZAR ---
+        animalForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            saveButton.disabled = true;
+            saveButton.textContent = isEditMode ? 'A atualizar...' : 'A gravar...';
+            
+            try {
+                const scientificNameKey = document.getElementById('nomeCientifico').value.trim().toLowerCase().replace(/\s+/g, '_');
+                const docId = isEditMode ? currentEditingId : scientificNameKey;
+                if (!docId) { throw new Error("Não foi possível determinar o ID do documento."); }
+                
+                const animalData = {
+                    nome: document.getElementById('nomeAnimal').value,
+                    nomeCientifico: document.getElementById('nomeCientifico').value,
+                    familia: document.getElementById('familia').value.trim(),
+                    imagemUrl: document.getElementById('imagemUrl').value,
+                    imagemObjectPosition: document.getElementById('imagemObjectPosition').value || 'center center',
+                    categoria: document.getElementById('categoria').value,
+                    informacao: {
+                        geral: document.getElementById('infoGeral').value,
+                        geralDetalhada: getGeneralVisualData(),
+                        dimensoes: document.getElementById('infoDimensoes').value,
+                        dimensoesDetalhadas: getDimensionData(),
+                        alimentacao: document.getElementById('infoAlimentacao').value,
+                        alimentacaoDetalhada: getFeedingData(),
+                        reproducao: document.getElementById('infoReproducao').value,
+                        reproducaoDetalhada: getReproductionData(),
+                        plumagem: document.getElementById('infoPlumagem').value || '',
+                        plumagemDetalhada: getPlumageData(),
+                        distribuicao: {
+                            paises: selectedCountries,
+                            paisesDetalhes: paisesDetalhes,
+                            descricao: document.getElementById('infoDistribuicao').value || ''
+                        }
+                    },
+                    videos: [
+                        document.getElementById('video1').value,
+                        document.getElementById('video2').value,
+                        document.getElementById('video3').value,
+                        document.getElementById('video4').value
+                    ].filter(url => url)
+                };
+
+                await setDoc(doc(db, "animais", docId), animalData);
+                statusMessage.className = 'grid-span-3 success';
+                statusMessage.textContent = `Animal ${isEditMode ? 'atualizado' : 'gravado'} com sucesso!`;
+                
+                await initializePage();
+                switchToCreateMode();
+            } catch (error) {
+                console.error("Erro ao gravar no Firestore:", error);
+                statusMessage.className = 'grid-span-3 error';
+                statusMessage.textContent = 'Ocorreu um erro ao gravar. Verifique a consola.';
+            } finally {
+                saveButton.disabled = false;
+            }
+        });
+
+        // --- DIMENSÕES E MODELO VISUAL ---
+        function getSelectedCategory() {
+            return document.getElementById('categoria').value || '';
+        }
+
+        function getDimensionOptionsForCategory(category = getSelectedCategory()) {
+            const categoryOptions = dimensionOptionsByCategory[category] || [];
+            const merged = [...categoryOptions, ...baseDimensionOptions];
+            const seen = new Set();
+            return merged.filter(option => {
+                if (!option?.label || seen.has(option.label)) return false;
+                seen.add(option.label);
+                return true;
+            });
+        }
+
+        function getDimensionOption(metric, category = getSelectedCategory()) {
+            return getDimensionOptionsForCategory(category).find(option => option.label === metric) ||
+                   Object.values(dimensionOptionsByCategory).flat().find(option => option.label === metric) ||
+                   baseDimensionOptions.find(option => option.label === metric);
+        }
+
+        function fillDimensionMetricSelect(select, selectedValue = '') {
+            const options = getDimensionOptionsForCategory();
+            const hasSelected = selectedValue && options.some(option => option.label === selectedValue);
+            select.innerHTML = `<option value="">Escolha uma medida</option>` +
+                options.map(option => `<option value="${option.label}">${option.label}</option>`).join('') +
+                (selectedValue && !hasSelected ? `<option value="${selectedValue}">${selectedValue} — fora desta categoria</option>` : '');
+            select.value = selectedValue;
+        }
+
+        function updateAllDimensionMetricSelects() {
+            dimensionRowsContainer.querySelectorAll('.dimension-row').forEach(row => {
+                const metricSelect = row.querySelector('.dimension-metric');
+                const currentMetric = metricSelect.value;
+                fillDimensionMetricSelect(metricSelect, currentMetric);
+            });
+        }
+
+        function getDefaultDimensionsForCategory(category = getSelectedCategory()) {
+            const defaults = dimensionDefaultsByCategory[category] || ['Altura', 'Peso', 'Comprimento total'];
+            return defaults.map(label => {
+                const option = getDimensionOption(label, category) || { label, unit: 'cm' };
+                return { tipo: option.label, valorMin: '', valorMax: '', unidade: option.unit };
+            });
+        }
+
+        function createDimensionRow(metric = '', minValue = '', unit = '', maxValue = '') {
+            const row = document.createElement('div');
+            row.className = 'dimension-row';
+
+            const metricSelect = document.createElement('select');
+            metricSelect.className = 'dimension-metric';
+            fillDimensionMetricSelect(metricSelect, metric);
+
+            const minInput = document.createElement('input');
+            minInput.className = 'dimension-min';
+            minInput.type = 'number';
+            minInput.step = '0.01';
+            minInput.min = '0';
+            minInput.placeholder = 'Ex: 66';
+            minInput.value = minValue;
+
+            const maxInput = document.createElement('input');
+            maxInput.className = 'dimension-max';
+            maxInput.type = 'number';
+            maxInput.step = '0.01';
+            maxInput.min = '0';
+            maxInput.placeholder = 'Ex: 76';
+            maxInput.value = maxValue;
+            maxInput.title = 'Opcional. Usa para intervalos, como 66-76 cm.';
+
+            const unitSelect = document.createElement('select');
+            unitSelect.className = 'dimension-unit';
+            unitSelect.innerHTML = dimensionUnits.map(u => `<option value="${u}">${u}</option>`).join('');
+            unitSelect.value = unit || getDimensionOption(metric)?.unit || 'cm';
+
+            const removeBtn = document.createElement('button');
+            removeBtn.type = 'button';
+            removeBtn.className = 'remove-dimension-btn';
+            removeBtn.innerHTML = '&times;';
+            removeBtn.title = 'Remover medida';
+
+            metricSelect.addEventListener('change', () => {
+                const selected = getDimensionOption(metricSelect.value);
+                if (selected && !unitSelect.dataset.userChanged) unitSelect.value = selected.unit;
+                updateDimensionPreview();
+            });
+            minInput.addEventListener('input', updateDimensionPreview);
+            maxInput.addEventListener('input', updateDimensionPreview);
+            unitSelect.addEventListener('change', () => {
+                unitSelect.dataset.userChanged = 'true';
+                updateDimensionPreview();
+            });
+            removeBtn.addEventListener('click', () => {
+                row.remove();
+                if (dimensionRowsContainer.children.length === 0) createDimensionRow();
+                updateDimensionPreview();
+            });
+
+            row.append(metricSelect, minInput, maxInput, unitSelect, removeBtn);
+            dimensionRowsContainer.appendChild(row);
+            updateDimensionPreview();
+        }
+
+        function getDimensionData() {
+            return [...dimensionRowsContainer.querySelectorAll('.dimension-row')]
+                .map(row => {
+                    const min = row.querySelector('.dimension-min')?.value || '';
+                    const max = row.querySelector('.dimension-max')?.value || '';
+                    return {
+                        tipo: row.querySelector('.dimension-metric').value,
+                        valor: min,
+                        valorMin: min,
+                        valorMax: max,
+                        unidade: row.querySelector('.dimension-unit').value
+                    };
+                })
+                .filter(item => item.tipo && (item.valorMin || item.valorMax));
+        }
+
+        function setDimensionData(dimensions = []) {
+            dimensionRowsContainer.innerHTML = '';
+            if (!Array.isArray(dimensions) || dimensions.length === 0) {
+                getDefaultDimensionsForCategory().forEach(item => createDimensionRow(item.tipo, '', item.unidade, ''));
+                return;
+            }
+            dimensions.forEach(item => createDimensionRow(
+                item.tipo,
+                item.valorMin ?? item.valor ?? '',
+                item.unidade,
+                item.valorMax ?? ''
+            ));
+            updateDimensionPreview();
+        }
+
+        function findDimension(labels) {
+            const labelList = labels.map(label => label.toLowerCase());
+            const dimensions = getDimensionData();
+            return dimensions.find(item => labelList.includes(item.tipo.toLowerCase())) ||
+                   dimensions.find(item => labelList.some(label => item.tipo.toLowerCase().includes(label)));
+        }
+
+        function formatDimension(item, fallback) {
+            if (!item) return fallback;
+            const min = item.valorMin ?? item.valor ?? '';
+            const max = item.valorMax ?? '';
+            const unit = item.unidade || '';
+            const value = min && max ? `${min}-${max}` : `${min || max}`;
+            return `${value}${unit ? ` ${unit}` : ''}`.trim() || fallback;
+        }
+
+        function normalizeDimensionKey(label = '') {
+            return String(label).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        }
+
+        function getDimensionVisualMeta(metric = '') {
+            const normalized = normalizeDimensionKey(metric);
+            if (normalized.includes('bico') && normalized.includes('peso')) return { key: 'peso-bico', title: metric || 'Peso do bico', accent: 'accent-beak' };
+            if (normalized.includes('cauda') && normalized.includes('peso')) return { key: 'peso-cauda', title: metric || 'Peso da cauda', accent: 'accent-tail' };
+            if (normalized.includes('altura')) return { key: 'altura', title: metric || 'Altura', accent: 'accent-height' };
+            if (normalized.includes('peso')) return { key: 'peso', title: metric || 'Peso', accent: 'accent-weight' };
+            if (normalized.includes('envergadura')) return { key: 'envergadura', title: metric || 'Envergadura', accent: 'accent-wing' };
+            if (normalized.includes('asa')) return { key: 'asa', title: metric || 'Comprimento da asa', accent: 'accent-wing' };
+            if (normalized.includes('bico')) return { key: 'bico', title: metric || 'Comprimento do bico', accent: 'accent-beak' };
+            if (normalized.includes('cauda')) return { key: 'cauda', title: metric || 'Comprimento da cauda', accent: 'accent-tail' };
+            if (normalized.includes('pata')) return { key: 'patas', title: metric || 'Comprimento das patas', accent: 'accent-leg' };
+            if (normalized.includes('ovo')) return { key: 'ovo', title: metric || 'Tamanho do ovo', accent: 'accent-egg' };
+            if (normalized.includes('largura')) return { key: 'largura', title: metric || 'Largura', accent: 'accent-width' };
+            if (normalized.includes('diametro')) return { key: 'diametro', title: metric || 'Diâmetro do corpo', accent: 'accent-width' };
+            if (normalized.includes('comprimento')) return { key: 'comprimento', title: metric || 'Comprimento', accent: 'accent-length' };
+            return { key: 'medida', title: metric || 'Medida', accent: 'accent-generic' };
+        }
+
+        function getCategoryModelSvg(category = '') {
+            const normalized = normalizeDimensionKey(category);
+            const bird = `<svg class="animal-model-svg bird-model-svg real-bird-model" viewBox="0 0 220 120" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path class="bird-shadow" d="M52 102C80 110 133 110 171 99"/>
+                <ellipse class="bird-head-fill" cx="69" cy="54" rx="18" ry="15"/>
+                <path class="bird-beak-fill" d="M47 53L22 60L47 67L58 60L47 53Z"/>
+                <path class="bird-body-fill" d="M79 44C96 30 119 26 142 31C163 35 181 49 189 69C191 75 189 81 184 85L171 95H147L129 106H93L99 93H86C74 93 65 86 62 76C60 67 65 55 79 44Z"/>
+                <path class="bird-tail-fill" d="M187 67H214L192 84H172C180 80 185 74 187 67Z"/>
+                <path class="bird-wing-fill" d="M96 45C117 45 135 58 145 80C134 83 119 82 106 76C96 71 89 63 86 53C89 49 92 47 96 45Z"/>
+                <path class="bird-leg-line" d="M101 92L92 113"/>
+                <path class="bird-leg-line" d="M116 92L109 113"/>
+                <path class="bird-body-line" d="M58 60C59 48 67 40 78 39C96 30 119 26 142 31C163 35 181 49 189 69H214L192 84H171L154 95H130L116 106H90L96 93H86C74 93 65 86 62 76L47 67L22 60L47 53L58 60Z"/>
+                <path class="bird-wing-line" d="M90 53C101 57 112 66 120 80"/>
+                <path class="bird-wing-line soft" d="M108 48C122 55 134 67 141 81"/>
+                <path class="bird-wing-line soft" d="M125 47C138 53 149 64 156 76"/>
+                <path class="bird-body-line" d="M58 60C60 51 66 43 74 40"/>
+                <circle class="bird-eye" cx="63" cy="51" r="4"/>
+            </svg>`;
+            const models = {
+                                mamiferos: `<svg class="animal-model-svg mammal-model-svg real-mammal-model" viewBox="0 0 220 120" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <path class="mammal-shadow" d="M54 101C88 109 147 109 187 100"/>
+                    <path class="mammal-body-fill" d="M42 73L26 69L43 63H56L67 50L80 38L92 48C107 42 126 41 144 45C162 49 176 59 184 72L198 80L184 86L173 84C165 94 152 100 137 102H120L113 108H102L106 102H86L81 108H70L74 101H58L51 108H40L48 97C40 93 35 84 37 76L42 73Z"/>
+                    <path class="mammal-body-line" d="M42 73L26 69L43 63H56L67 50L80 38L92 48C107 42 126 41 144 45C162 49 176 59 184 72L198 80L184 86L173 84C165 94 152 100 137 102H120L113 108H102L106 102H86L81 108H70L74 101H58L51 108H40L48 97C40 93 35 84 37 76L42 73Z"/>
+                    <path class="mammal-snout-line" d="M42 73L21 67L42 62"/>
+                    <path class="mammal-ear-line" d="M67 50L79 37L91 47"/>
+                    <path class="mammal-back-line" d="M93 48C113 45 135 47 153 56"/>
+                    <path class="mammal-tail-line" d="M183 72L204 66"/>
+                    <path class="mammal-leg-line" d="M69 100L62 115"/>
+                    <path class="mammal-leg-line" d="M88 100L84 115"/>
+                    <path class="mammal-leg-line" d="M118 101L116 115"/>
+                    <path class="mammal-leg-line" d="M144 100L144 115"/>
+                    <circle class="mammal-eye" cx="61" cy="60" r="3.5"/>
+                </svg>`,
+                aves: bird,
+                ave: bird,
+                peixes: `<svg class="animal-model-svg fish-model-svg" viewBox="0 0 180 110" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path class="animal-soft-fill" d="M22 55C39 34 62 24 91 24C121 24 145 35 163 55C145 75 121 86 91 86C62 86 39 76 22 55Z"/><path class="animal-line" d="M22 55C39 34 62 24 91 24C121 24 145 35 163 55C145 75 121 86 91 86C62 86 39 76 22 55Z"/><path class="animal-line" d="M163 55L177 35V75L163 55Z"/><path class="animal-line" d="M87 29L73 10"/><path class="animal-line" d="M87 81L73 100"/><circle class="animal-dot" cx="62" cy="50" r="3.5"/></svg>`,
+                                repteis: `<svg class="animal-model-svg reptile-model-svg real-reptile-model" viewBox="0 0 220 120" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <path class="reptile-shadow" d="M44 101C78 109 143 109 193 99"/>
+                    <path class="reptile-body-fill" d="M39 73L24 66L41 59H57C65 47 77 39 91 37C104 28 121 25 139 27C161 30 180 41 190 57L211 54L201 66L189 68C183 79 173 87 160 91H143L133 101H121L126 90H103L98 102H86L91 90H70L60 102H47L55 88C47 86 41 81 39 73Z"/>
+                    <path class="reptile-body-line" d="M39 73L24 66L41 59H57C65 47 77 39 91 37C104 28 121 25 139 27C161 30 180 41 190 57L211 54L201 66L189 68C183 79 173 87 160 91H143L133 101H121L126 90H103L98 102H86L91 90H70L60 102H47L55 88C47 86 41 81 39 73Z"/>
+                    <path class="reptile-head-line" d="M39 73L18 66L39 59"/>
+                    <path class="reptile-back-line" d="M100 36C122 33 144 36 162 47"/>
+                    <path class="reptile-tail-line" d="M188 58L214 46"/>
+                    <path class="reptile-leg-line" d="M71 89L61 108"/>
+                    <path class="reptile-leg-line" d="M95 90L89 108"/>
+                    <path class="reptile-leg-line" d="M130 90L126 108"/>
+                    <path class="reptile-leg-line" d="M155 88L155 106"/>
+                    <circle class="reptile-eye" cx="56" cy="62" r="3.5"/>
+                </svg>`,
+                anfibios: `<svg class="animal-model-svg amphibian-model-svg" viewBox="0 0 180 110" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path class="animal-soft-fill" d="M38 64C38 38 59 21 90 21C121 21 142 38 142 64C142 86 125 101 99 101H81C55 101 38 86 38 64Z"/><path class="animal-line" d="M38 64C38 38 59 21 90 21C121 21 142 38 142 64C142 86 125 101 99 101H81C55 101 38 86 38 64Z"/><path class="animal-line" d="M64 86L45 104"/><path class="animal-line" d="M78 91L65 108"/><path class="animal-line" d="M102 91L115 108"/><path class="animal-line" d="M116 86L135 104"/><circle class="animal-line" cx="73" cy="42" r="7"/><circle class="animal-line" cx="107" cy="42" r="7"/></svg>`,
+                insetos: `<svg class="animal-model-svg insect-model-svg" viewBox="0 0 180 110" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><ellipse class="animal-soft-fill" cx="90" cy="58" rx="22" ry="31"/><ellipse class="animal-line" cx="90" cy="58" rx="22" ry="31"/><path class="animal-line" d="M90 20V31"/><path class="animal-line" d="M58 39L74 49"/><path class="animal-line" d="M122 39L106 49"/><path class="animal-line" d="M59 79L75 68"/><path class="animal-line" d="M121 79L105 68"/><path class="animal-line" d="M75 35C61 21 43 21 31 30C35 50 52 58 75 56"/><path class="animal-line" d="M105 35C119 21 137 21 149 30C145 50 128 58 105 56"/></svg>`,
+                crustaceos: `<svg class="animal-model-svg crab-model-svg" viewBox="0 0 180 110" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path class="animal-soft-fill" d="M55 55C55 36 70 25 90 25C110 25 125 36 125 55C125 77 112 91 90 91C68 91 55 77 55 55Z"/><path class="animal-line" d="M55 55C55 36 70 25 90 25C110 25 125 36 125 55C125 77 112 91 90 91C68 91 55 77 55 55Z"/><path class="animal-line" d="M57 51L26 34L18 19L38 26"/><path class="animal-line" d="M123 51L154 34L162 19L142 26"/><path class="animal-line" d="M66 78L45 98"/><path class="animal-line" d="M82 84L74 104"/><path class="animal-line" d="M98 84L106 104"/><path class="animal-line" d="M114 78L135 98"/><circle class="animal-dot" cx="78" cy="46" r="3"/><circle class="animal-dot" cx="102" cy="46" r="3"/></svg>`,
+                aracnideos: `<svg class="animal-model-svg spider-model-svg" viewBox="0 0 180 110" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><ellipse class="animal-soft-fill" cx="90" cy="59" rx="25" ry="22"/><ellipse class="animal-line" cx="90" cy="59" rx="25" ry="22"/><circle class="animal-line" cx="90" cy="34" r="13"/><path class="animal-line" d="M66 52L36 34L17 37"/><path class="animal-line" d="M64 61L32 61L14 70"/><path class="animal-line" d="M68 70L40 91L19 94"/><path class="animal-line" d="M114 52L144 34L163 37"/><path class="animal-line" d="M116 61L148 61L166 70"/><path class="animal-line" d="M112 70L140 91L161 94"/></svg>`,
+                moluscos: `<svg class="animal-model-svg mollusc-model-svg" viewBox="0 0 180 110" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path class="animal-soft-fill" d="M38 76C42 45 65 25 94 25C120 25 139 41 142 67C130 87 108 98 76 98C58 98 45 91 38 76Z"/><path class="animal-line" d="M38 76C42 45 65 25 94 25C120 25 139 41 142 67C130 87 108 98 76 98C58 98 45 91 38 76Z"/><path class="animal-line" d="M62 82C74 63 89 47 111 35"/><path class="animal-line" d="M86 96C99 76 116 60 139 50"/><path class="animal-line" d="M39 79L15 92"/><path class="animal-line" d="M47 87L20 104"/></svg>`,
+                vermes: `<svg class="animal-model-svg worm-model-svg" viewBox="0 0 180 110" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path class="animal-line" d="M20 68C42 38 61 89 86 58C111 27 130 78 160 44"/><path class="animal-line" d="M36 53L45 61"/><path class="animal-line" d="M68 73L78 63"/><path class="animal-line" d="M103 44L113 54"/><path class="animal-line" d="M136 59L145 49"/></svg>`,
+                microscopicos: `<svg class="animal-model-svg micro-model-svg" viewBox="0 0 180 110" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><ellipse class="animal-soft-fill" cx="90" cy="58" rx="38" ry="27"/><ellipse class="animal-line" cx="90" cy="58" rx="38" ry="27"/><path class="animal-line" d="M62 39L50 24"/><path class="animal-line" d="M75 33L72 14"/><path class="animal-line" d="M103 33L108 14"/><path class="animal-line" d="M120 42L136 26"/><path class="animal-line" d="M55 70L38 80"/><path class="animal-line" d="M124 72L143 83"/><circle class="animal-dot" cx="78" cy="55" r="3"/><circle class="animal-dot" cx="100" cy="50" r="3"/><circle class="animal-dot" cx="95" cy="67" r="3"/></svg>`,
+                extintos: `<svg class="animal-model-svg dino-model-svg" viewBox="0 0 180 110" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path class="animal-soft-fill" d="M24 74C34 42 60 27 98 31C122 34 139 46 151 65L170 68L157 82H142C137 96 119 104 92 104H73L67 109H53L58 98H39L33 109H19L29 91C23 86 21 80 24 74Z"/><path class="animal-line" d="M24 74C34 42 60 27 98 31C122 34 139 46 151 65L170 68L157 82H142C137 96 119 104 92 104H73L67 109H53L58 98H39L33 109H19L29 91C23 86 21 80 24 74Z"/><path class="animal-line" d="M96 33L111 12"/><path class="animal-line" d="M111 12L125 25"/><circle class="animal-dot" cx="58" cy="44" r="3.5"/></svg>`
+            };
+            return models[normalized] || bird;
+        }
+
+        function getMetricModelSvg(key = 'medida') {
+            const icons = {
+                altura: `<svg class="metric-model-svg metric-height" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M18 10v60"/><path d="M18 10l-7 8"/><path d="M18 10l7 8"/><path d="M18 70l-7-8"/><path d="M18 70l7-8"/><path d="M40 19c10 0 18 9 18 24s-8 24-18 24"/><path d="M40 19c-6 5-9 13-9 24s3 19 9 24"/></svg>`,
+                peso: `<svg class="metric-model-svg metric-weight" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M25 68h30"/><path d="M40 13l-12 14h24L40 13Z"/><path d="M28 27h24l9 31H19l9-31Z"/><path d="M40 35v8"/></svg>`,
+                'peso-bico': `<svg class="metric-model-svg metric-beak-weight" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M15 43h22l24-15v30L37 43H15Z"/><circle cx="23" cy="36" r="3"/><path d="M58 12v12"/><path d="M50 18h16"/><path d="M53 25h10"/></svg>`,
+                comprimento: `<svg class="metric-model-svg metric-length" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M11 45h58"/><path d="M11 45l8-8"/><path d="M11 45l8 8"/><path d="M69 45l-8-8"/><path d="M69 45l-8 8"/><path d="M20 31c12-12 28-12 40 0"/></svg>`,
+                largura: `<svg class="metric-model-svg metric-width" viewBox="0 0 80 80" fill="none" aria-hidden="true"><ellipse cx="40" cy="41" rx="21" ry="27"/><path d="M18 41h44"/><path d="M18 41l7-7"/><path d="M18 41l7 7"/><path d="M62 41l-7-7"/><path d="M62 41l-7 7"/></svg>`,
+                diametro: `<svg class="metric-model-svg metric-diameter" viewBox="0 0 80 80" fill="none" aria-hidden="true"><circle cx="40" cy="40" r="25"/><path d="M15 40h50"/><path d="M15 40l7-7"/><path d="M15 40l7 7"/><path d="M65 40l-7-7"/><path d="M65 40l-7 7"/></svg>`,
+                bico: `<svg class="metric-model-svg metric-beak" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M13 44c8-15 22-24 37-22c8 1 13 5 16 11h8L61 44H42l-9 9H18l5-9H13Z"/><path d="M57 33h17"/><path d="M57 44h17"/><circle cx="35" cy="31" r="3"/></svg>`,
+                cauda: `<svg class="metric-model-svg metric-tail" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M16 44h19"/><path d="M35 44L66 22"/><path d="M35 44L70 44"/><path d="M35 44L66 66"/><path d="M15 33v22"/><path d="M54 22v44"/></svg>`,
+                'peso-cauda': `<svg class="metric-model-svg metric-tail-weight" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M12 44h17"/><path d="M29 44L58 23"/><path d="M29 44L62 44"/><path d="M29 44L58 65"/><path d="M56 13v12"/><path d="M48 19h16"/><path d="M51 26h10"/></svg>`,
+                asa: `<svg class="metric-model-svg metric-wing" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M14 55C27 30 44 16 67 13C63 34 51 52 30 66H14V55Z"/><path d="M31 28C38 36 42 46 43 59"/><path d="M45 21C51 30 53 40 53 50"/></svg>`,
+                envergadura: `<svg class="metric-model-svg metric-wingspan" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M7 42h66"/><path d="M7 42l8-8"/><path d="M7 42l8 8"/><path d="M73 42l-8-8"/><path d="M73 42l-8 8"/><path d="M17 55c8-13 15-20 23-23"/><path d="M63 55c-8-13-15-20-23-23"/></svg>`,
+                patas: `<svg class="metric-model-svg metric-legs" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M28 13v39"/><path d="M52 13v39"/><path d="M24 52l-10 12"/><path d="M28 52l4 13"/><path d="M32 52l12 10"/><path d="M48 52l-10 12"/><path d="M52 52l4 13"/><path d="M56 52l12 10"/></svg>`,
+                ovo: `<svg class="metric-model-svg metric-egg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M40 10c13 0 23 17 23 33c0 15-9 27-23 27S17 58 17 43C17 27 27 10 40 10Z"/><path d="M20 70h40"/></svg>`,
+                medida: `<svg class="metric-model-svg metric-generic" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M16 59L58 17l6 6l-42 42l-8-6Z"/><path d="M26 49l6 6"/><path d="M36 39l6 6"/><path d="M46 29l6 6"/></svg>`
+            };
+            return icons[key] || icons.medida;
+        }
+
+        function getDimensionSortOrder(item) {
+            const key = getDimensionVisualMeta(item?.tipo).key;
+            const order = {
+                altura: 0,
+                peso: 1,
+                comprimento: 2,
+                largura: 3,
+                diametro: 4,
+                envergadura: 5,
+                asa: 6,
+                bico: 7,
+                'peso-bico': 8,
+                cauda: 9,
+                'peso-cauda': 10,
+                patas: 11,
+                ovo: 12,
+                medida: 99
+            };
+            return order[key] ?? 50;
+        }
+
+        function renderDimensionModelCard(item) {
+            const meta = getDimensionVisualMeta(item.tipo);
+            return `
+                <article class="dimension-model-card ${meta.accent}">
+                    <div class="dimension-model-icon">${getMetricModelSvg(meta.key)}</div>
+                    <div class="dimension-model-copy">
+                        <div class="dimension-model-label">${meta.title}</div>
+                        <div class="dimension-model-value">${formatDimension(item, '—')}</div>
+                    </div>
+                </article>`;
+        }
+
+        function updateAnimalSilhouette() {
+            const category = document.getElementById('categoria').value;
+            animalSilhouette.innerHTML = getCategoryModelSvg(category);
+        }
+
+        function updateDimensionPreview() {
+            updateAnimalSilhouette();
+            const allDimensions = getDimensionData();
+            const height = findDimension(['Altura', 'Altura ao ombro']);
+            const weight = findDimension(['Peso']);
+            const length = findDimension(['Comprimento total', 'Comprimento do corpo', 'Envergadura']);
+
+            previewHeightValue.textContent = height ? formatDimension(height, '') : '';
+            previewHeightValue.closest('.height-ruler')?.classList.toggle('is-empty', !height);
+
+            previewWeightValue.textContent = weight ? formatDimension(weight, '') : '';
+            previewWeightValue.classList.toggle('is-empty', !weight);
+
+            previewLengthValue.textContent = length ? formatDimension(length, '') : '';
+            previewLengthValue.classList.toggle('is-empty', !length);
+
+            const ordered = [...allDimensions].sort((a, b) => getDimensionSortOrder(a) - getDimensionSortOrder(b));
+            previewDimensionModels.innerHTML = ordered.length
+                ? ordered.map(renderDimensionModelCard).join('')
+                : '<div class="dimension-model-empty">Adiciona medidas para ver um modelo próprio para cada aspeto.</div>';
+        }
+
+
+        // --- INFORMAÇÃO GERAL E MODELO VISUAL ---
+        const generalVisualOptions = [
+            { tipo: 'Vida útil', unidade: 'anos' },
+            { tipo: 'Velocidade máxima', unidade: 'km/h' },
+            { tipo: 'Velocidade média', unidade: 'km/h' },
+            { tipo: 'Estratégia para obter alimento', unidade: '' },
+            { tipo: 'Acasalamento', unidade: '' },
+            { tipo: 'Zona Climática', unidade: '' }
+        ];
+
+        const generalVisualUnits = ['', 'dias', 'meses', 'anos', 'km/h', 'm/s'];
+
+        function getGeneralVisualOption(type = '') {
+            return generalVisualOptions.find(option => option.tipo === type);
+        }
+
+        function fillGeneralVisualTypeSelect(select, selectedValue = '') {
+            const options = generalVisualOptions.map(option => option.tipo);
+            const hasSelected = selectedValue && options.includes(selectedValue);
+            select.innerHTML = `<option value="">Escolhe um modelo</option>` +
+                options.map(option => `<option value="${option}">${option}</option>`).join('') +
+                (selectedValue && !hasSelected ? `<option value="${selectedValue}">${selectedValue}</option>` : '');
+            select.value = selectedValue;
+        }
+
+        function isDropdownOnlyGeneralModel(type = '') {
+            const normalized = normalizeSearchText(type);
+            return normalized.includes('estrategia') || normalized.includes('acasalamento') || normalized.includes('zona climatica');
+        }
+
+        function configureGeneralVisualRowControls(type, minInput, maxInput, unitSelect, strategySelect) {
+            const isStrategy = isDropdownOnlyGeneralModel(type);
+            
+            if (isStrategy) {
+                minInput.style.display = 'none';
+                maxInput.style.display = 'none';
+                unitSelect.style.display = 'none';
+                if (strategySelect) {
+                    strategySelect.style.display = '';
+                    strategySelect.style.gridColumn = 'span 3';
+                }
+                maxInput.value = '';
+                unitSelect.value = '';
+            } else {
+                minInput.style.display = '';
+                maxInput.style.display = '';
+                unitSelect.style.display = '';
+                if (strategySelect) {
+                    strategySelect.style.display = 'none';
+                    strategySelect.style.gridColumn = '';
+                }
+                minInput.step = '0.01';
+                minInput.min = '0';
+            }
+            maxInput.placeholder = type && type.includes('Velocidade') ? 'Ex: 80' : 'Ex: 15';
+        }
+
+        function createGeneralVisualRow(type = '', minValue = '', unit = '', maxValue = '') {
+            const row = document.createElement('div');
+            row.className = 'general-visual-row';
+
+            const typeSelect = document.createElement('select');
+            typeSelect.className = 'general-visual-type';
+            fillGeneralVisualTypeSelect(typeSelect, type);
+
+            const minInput = document.createElement('input');
+            minInput.className = 'general-visual-min';
+            minInput.type = 'number';
+            minInput.step = '0.01';
+            minInput.min = '0';
+            minInput.placeholder = type && type.includes('Velocidade') ? 'Ex: 40' : 'Ex: 10';
+            minInput.value = minValue;
+
+            const strategySelect = document.createElement('select');
+            strategySelect.className = 'general-visual-strategy';
+            strategySelect.style.display = 'none';
+            function populateDropdownSelect(selectedType) {
+                const normalized = normalizeSearchText(selectedType);
+                const isMating = normalized.includes('acasalamento');
+                const isClimateZone = normalized.includes('zona climatica');
+                const datalistId = isClimateZone ? '#climateZoneOptions' : (isMating ? '#matingOptions' : '#feedingStrategyOptions');
+                const placeholder = isClimateZone ? 'Escolhe uma zona climática' : (isMating ? 'Escolhe um tipo de acasalamento' : 'Escolhe uma estratégia');
+                const datalistOpts = document.querySelectorAll(datalistId + ' option');
+                strategySelect.innerHTML = `<option value="">${placeholder}</option>` + 
+                    Array.from(datalistOpts).map(opt => `<option value="${opt.value}">${opt.value}</option>`).join('');
+            }
+            populateDropdownSelect(type);
+            if (isDropdownOnlyGeneralModel(type)) {
+                strategySelect.value = minValue;
+            }
+
+            const maxInput = document.createElement('input');
+            maxInput.className = 'general-visual-max';
+            maxInput.type = 'number';
+            maxInput.step = '0.01';
+            maxInput.min = '0';
+            maxInput.placeholder = type && type.includes('Velocidade') ? 'Ex: 80' : 'Ex: 15';
+            maxInput.value = maxValue;
+            maxInput.title = 'Opcional. Usa para intervalos, como 10-15 anos ou 40-80 km/h.';
+
+            const unitSelect = document.createElement('select');
+            unitSelect.className = 'general-visual-unit';
+            unitSelect.innerHTML = generalVisualUnits.map(u => `<option value="${u}">${u}</option>`).join('');
+            unitSelect.value = unit || getGeneralVisualOption(type)?.unidade || 'anos';
+            configureGeneralVisualRowControls(type, minInput, maxInput, unitSelect, strategySelect);
+
+            const removeBtn = document.createElement('button');
+            removeBtn.type = 'button';
+            removeBtn.className = 'remove-dimension-btn';
+            removeBtn.innerHTML = '&times;';
+            removeBtn.title = 'Remover modelo visual';
+
+            typeSelect.addEventListener('change', () => {
+                const selected = getGeneralVisualOption(typeSelect.value);
+                if (selected && !unitSelect.dataset.userChanged) unitSelect.value = selected.unidade;
+                populateDropdownSelect(typeSelect.value);
+                configureGeneralVisualRowControls(typeSelect.value, minInput, maxInput, unitSelect, strategySelect);
+                updateGeneralVisualPreview();
+            });
+            minInput.addEventListener('input', updateGeneralVisualPreview);
+            strategySelect.addEventListener('change', updateGeneralVisualPreview);
+            maxInput.addEventListener('input', updateGeneralVisualPreview);
+            unitSelect.addEventListener('change', () => {
+                unitSelect.dataset.userChanged = 'true';
+                updateGeneralVisualPreview();
+            });
+            removeBtn.addEventListener('click', () => {
+                row.remove();
+                if (generalVisualRowsContainer.children.length === 0) setGeneralVisualData();
+                updateGeneralVisualPreview();
+            });
+
+            row.append(typeSelect, minInput, strategySelect, maxInput, unitSelect, removeBtn);
+            generalVisualRowsContainer.appendChild(row);
+            updateGeneralVisualPreview();
+        }
+
+        function getGeneralVisualData() {
+            return [...generalVisualRowsContainer.querySelectorAll('.general-visual-row')]
+                .map(row => {
+                    const type = row.querySelector('.general-visual-type')?.value || '';
+                    const isStrategy = isDropdownOnlyGeneralModel(type);
+                    const min = isStrategy 
+                        ? (row.querySelector('.general-visual-strategy')?.value || '')
+                        : (row.querySelector('.general-visual-min')?.value || '');
+                    const max = isStrategy ? '' : (row.querySelector('.general-visual-max')?.value || '');
+                    return {
+                        tipo: type,
+                        valor: min,
+                        valorMin: min,
+                        valorMax: max,
+                        unidade: isStrategy ? '' : (row.querySelector('.general-visual-unit')?.value || '')
+                    };
+                })
+                .filter(item => item.tipo && (item.valorMin || item.valorMax || item.valor));
+        }
+
+        function setGeneralVisualData(items = []) {
+            generalVisualRowsContainer.innerHTML = '';
+            if (!Array.isArray(items) || items.length === 0) {
+                generalVisualOptions.forEach(option => createGeneralVisualRow(option.tipo, '', option.unidade, ''));
+                updateGeneralVisualPreview();
+                return;
+            }
+            items.forEach(item => createGeneralVisualRow(
+                item.tipo || '',
+                item.valorMin ?? item.valor ?? '',
+                item.unidade || getGeneralVisualOption(item.tipo)?.unidade || '',
+                item.valorMax ?? ''
+            ));
+            updateGeneralVisualPreview();
+        }
+
+        function formatGeneralVisualValue(item, fallback = '—') {
+            if (!item) return fallback;
+            const min = item.valorMin ?? item.valor ?? '';
+            const max = item.valorMax ?? '';
+            const unit = item.unidade || '';
+            const value = min && max ? `${min}-${max}` : `${min || max}`;
+            return `${value}${unit ? ` ${unit}` : ''}`.trim() || fallback;
+        }
+
+        function getGeneralVisualMeta(type = '') {
+            const normalized = normalizeDimensionKey(type);
+            if (normalized.includes('vida')) return { key: 'vida', title: type || 'Vida útil', accent: 'accent-life' };
+            if (normalized.includes('maxima')) return { key: 'velocidade-maxima', title: type || 'Velocidade máxima', accent: 'accent-speed-max' };
+            if (normalized.includes('media')) return { key: 'velocidade-media', title: type || 'Velocidade média', accent: 'accent-speed-average' };
+            if (normalized.includes('estrategia')) return { key: 'estrategia', title: type || 'Estratégia para obter alimento', accent: 'accent-generic' };
+            if (normalized.includes('acasalamento')) return { key: 'acasalamento', title: type || 'Acasalamento', accent: 'accent-generic' };
+            if (normalized.includes('zona')) return { key: 'zona-climatica', title: type || 'Zona Climática', accent: 'accent-climate' };
+            return { key: 'geral', title: type || 'Modelo geral', accent: 'accent-generic' };
+        }
+
+        function getClimateZoneMeta(value = '') {
+            const normalized = normalizeSearchText(value);
+            const zones = {
+                tropical: { image: 'assets/zonas-climaticas/tropical.png', accent: 'accent-climate-tropical' },
+                subtropical: { image: 'assets/zonas-climaticas/subtropical.png', accent: 'accent-climate-subtropical' },
+                temperada: { image: 'assets/zonas-climaticas/temperada.png', accent: 'accent-climate-temperada' },
+                polar: { image: 'assets/zonas-climaticas/polar.png', accent: 'accent-climate-polar' },
+                artica: { image: 'assets/zonas-climaticas/artica.png', accent: 'accent-climate-artica' },
+                antartica: { image: 'assets/zonas-climaticas/antartica.png', accent: 'accent-climate-antartica' },
+                desertica: { image: 'assets/zonas-climaticas/desertica.png', accent: 'accent-climate-desertica' },
+                semiarida: { image: 'assets/zonas-climaticas/semiarida.png', accent: 'accent-climate-semiarida' },
+                mediterranica: { image: 'assets/zonas-climaticas/mediterranica.png', accent: 'accent-climate-mediterranica' },
+                montanhosa_alpina: { image: 'assets/zonas-climaticas/montanhosa-alpina.png', accent: 'accent-climate-montanhosa' }
+            };
+            if (normalized.includes('montanhosa') || normalized.includes('alpina')) return zones.montanhosa_alpina;
+            return zones[normalized.replace(/\s+/g, '_')] || zones[normalized] || null;
+        }
+
+        function getGeneralModelSvg(key = 'geral') {
+            const icons = {
+                vida: `<svg class="metric-model-svg general-model-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M28 10h24"/><path d="M28 70h24"/><path d="M31 10c0 15 18 16 18 30S31 55 31 70"/><path d="M49 10c0 15-18 16-18 30s18 15 18 30"/><path d="M34 53h12"/><path d="M37 59h6"/></svg>`,
+                'velocidade-maxima': `<svg class="metric-model-svg general-model-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M14 58a26 26 0 0 1 52 0"/><path d="M24 58h32"/><path d="M40 58l18-24"/><path d="M28 30l-5-6"/><path d="M52 30l5-6"/><path d="M40 24v-9"/><path d="M61 58h7"/></svg>`,
+                'velocidade-media': `<svg class="metric-model-svg general-model-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M13 58a27 27 0 0 1 54 0"/><path d="M22 58h36"/><path d="M40 58l8-18"/><path d="M23 43h8"/><path d="M49 43h8"/><path d="M30 28l-4-7"/><path d="M50 28l4-7"/></svg>`,
+                geral: `<svg class="metric-model-svg general-model-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><circle cx="40" cy="40" r="25"/><path d="M40 25v18"/><path d="M40 53v2"/></svg>`,
+                acasalamento: `<svg class="metric-model-svg general-model-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><circle cx="28" cy="30" r="8"/><circle cx="52" cy="30" r="8"/><path d="M28 38v10"/><path d="M52 38v10"/><path d="M22 54c4-5 8-8 14-8"/><path d="M58 54c-4-5-8-8-14-8"/><path d="M36 30h8"/><path d="M44 30h8"/></svg>`
+            };
+            return icons[key] || icons.geral;
+        }
+
+        function renderGeneralVisualCard(item, isSuggestion = false) {
+            const type = item.tipo || item;
+            const meta = getGeneralVisualMeta(type);
+            const value = isSuggestion ? 'Por preencher' : formatGeneralVisualValue(item);
+            const normalizedType = normalizeDimensionKey(type);
+            const isStrategy = normalizedType.includes('estrategia');
+            const isMating = normalizedType.includes('acasalamento');
+            const isClimateZone = normalizedType.includes('zona');
+            const strategyMeta = isStrategy && !isSuggestion ? getFeedingStrategyMeta(item.valorMin || item.valor || '') : null;
+            const matingMeta = isMating && !isSuggestion ? getMatingMeta(item.valorMin || item.valor || '') : null;
+            const climateMeta = isClimateZone && !isSuggestion ? getClimateZoneMeta(item.valorMin || item.valor || '') : null;
+            const icon = climateMeta
+                ? `<img class="climate-zone-model-image" src="${climateMeta.image}" alt="Zona climática ${item.valorMin || item.valor || ''}" loading="lazy">`
+                : strategyMeta
+                    ? getFeedingStrategySvg(strategyMeta.key)
+                    : matingMeta
+                        ? getMatingSystemSvg(matingMeta.key)
+                        : getGeneralModelSvg(meta.key);
+            return `
+                <article class="dimension-model-card general-model-card ${climateMeta?.accent || strategyMeta?.accent || matingMeta?.accent || meta.accent}${isSuggestion ? ' is-suggestion' : ''}">
+                    <div class="dimension-model-icon ${climateMeta ? 'climate-zone-model-icon' : ''}">${icon}</div>
+                    <div class="dimension-model-copy">
+                        <div class="dimension-model-label">${meta.title}</div>
+                        <div class="dimension-model-value">${value}</div>
+                    </div>
+                </article>`;
+        }
+
+        function updateGeneralVisualPreview() {
+            const selected = getGeneralVisualData();
+            if (selected.length) {
+                previewGeneralVisualModels.innerHTML = selected.map(item => renderGeneralVisualCard(item)).join('');
+                return;
+            }
+            previewGeneralVisualModels.innerHTML = generalVisualOptions.map(option => renderGeneralVisualCard(option, true)).join('');
+        }
+
+        addGeneralVisualBtn.addEventListener('click', () => createGeneralVisualRow());
+        setGeneralVisualData();
+
+        addDimensionBtn.addEventListener('click', () => createDimensionRow());
+        document.getElementById('categoria').addEventListener('change', () => {
+            const hasFilledDimensions = getDimensionData().length > 0;
+            if (!hasFilledDimensions) {
+                setDimensionData();
+            } else {
+                updateAllDimensionMetricSelects();
+                updateDimensionPreview();
+            }
+
+            updateAllReproductionTypeSelects();
+            updateReproductionPreview();
+        });
+        setDimensionData();
+
+        // --- ALIMENTAÇÃO E MODELO VISUAL ---
+        function normalizeSearchText(value = '') {
+            return String(value).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        }
+
+        function closeFeedingAnimalDropdown() {
+            feedingAnimalDropdown.classList.remove('open');
+            feedingAnimalTrigger.setAttribute('aria-expanded', 'false');
+        }
+
+        function renderFeedingAnimalOptions(query = '') {
+            const normalizedQuery = normalizeSearchText(query);
+            const filteredOptions = feedingAnimalOptions.filter(option => normalizeSearchText(option.label).includes(normalizedQuery));
+
+            if (!filteredOptions.length) {
+                feedingAnimalList.innerHTML = '<div class="feeding-animal-empty">Sem resultados</div>';
+                return;
+            }
+
+            feedingAnimalList.innerHTML = filteredOptions.map(option => `
+                <button type="button" class="feeding-animal-option" role="option" data-label="${option.label}">
+                    <img class="feeding-animal-thumb" src="${option.src}" alt="${option.label}" loading="lazy">
+                    <span class="feeding-animal-option-copy">
+                        <strong>${option.label}</strong>
+                        <small>${option.feedingType}</small>
+                    </span>
+                </button>
+            `).join('');
+        }
+
+        function getFeedingAnimalOption(label = '') {
+            return feedingAnimalOptions.find(option => option.label === label);
+        }
+
+        function selectFeedingAnimal(label) {
+            const option = feedingAnimalOptions.find(item => item.label === label);
+            if (!option) return;
+
+            const emptyRow = [...feedingRowsContainer.querySelectorAll('.feeding-row')].find(row => {
+                const typeValue = row.querySelector('.feeding-type')?.value || '';
+                const detailValue = row.querySelector('.feeding-detail')?.value.trim() || '';
+                return !typeValue && !detailValue;
+            });
+
+            if (emptyRow) {
+                emptyRow.querySelector('.feeding-type').value = option.feedingType;
+                emptyRow.querySelector('.feeding-detail').value = option.label;
+                updateFeedingPreview();
+            } else {
+                createFeedingRow(option.feedingType, option.label);
+            }
+
+            feedingAnimalSearch.value = '';
+            renderFeedingAnimalOptions();
+            closeFeedingAnimalDropdown();
+        }
+
+        function initFeedingAnimalDropdown() {
+            renderFeedingAnimalOptions();
+
+            feedingAnimalTrigger.addEventListener('click', () => {
+                const isOpen = feedingAnimalDropdown.classList.toggle('open');
+                feedingAnimalTrigger.setAttribute('aria-expanded', String(isOpen));
+                if (isOpen) feedingAnimalSearch.focus();
+            });
+
+            feedingAnimalSearch.addEventListener('input', event => renderFeedingAnimalOptions(event.target.value));
+            feedingAnimalList.addEventListener('click', event => {
+                const optionButton = event.target.closest('.feeding-animal-option');
+                if (optionButton) selectFeedingAnimal(optionButton.dataset.label);
+            });
+
+            document.addEventListener('click', event => {
+                if (!feedingAnimalDropdown.contains(event.target)) closeFeedingAnimalDropdown();
+            });
+
+            document.addEventListener('keydown', event => {
+                if (event.key === 'Escape') closeFeedingAnimalDropdown();
+            });
+        }
+
+        function fillFeedingTypeSelect(select, selectedValue = '') {
+            const hasSelected = selectedValue && feedingTypes.includes(selectedValue);
+            select.innerHTML = `<option value="">Escolhe um tipo</option>` +
+                feedingTypes.map(type => `<option value="${type}">${type}</option>`).join('') +
+                (selectedValue && !hasSelected ? `<option value="${selectedValue}">${selectedValue} — personalizado</option>` : '');
+            select.value = selectedValue;
+        }
+
+        function createFeedingRow(type = '', detail = '') {
+            const row = document.createElement('div');
+            row.className = 'reproduction-row feeding-row';
+
+            const typeSelect = document.createElement('select');
+            typeSelect.className = 'feeding-type';
+            fillFeedingTypeSelect(typeSelect, type);
+
+            const detailInput = document.createElement('input');
+            detailInput.className = 'feeding-detail';
+            detailInput.type = 'text';
+            detailInput.placeholder = 'Ex: folhas jovens, pequenos peixes, néctar...';
+            detailInput.value = detail;
+
+            const removeBtn = document.createElement('button');
+            removeBtn.type = 'button';
+            removeBtn.className = 'remove-dimension-btn';
+            removeBtn.innerHTML = '&times;';
+            removeBtn.title = 'Remover tipo de alimentação';
+
+            typeSelect.addEventListener('change', updateFeedingPreview);
+            detailInput.addEventListener('input', updateFeedingPreview);
+            removeBtn.addEventListener('click', () => {
+                row.remove();
+                if (feedingRowsContainer.children.length === 0) createFeedingRow();
+                updateFeedingPreview();
+            });
+
+            row.append(typeSelect, detailInput, removeBtn);
+            feedingRowsContainer.appendChild(row);
+            updateFeedingPreview();
+        }
+
+        function getFeedingData() {
+            return [...feedingRowsContainer.querySelectorAll('.feeding-row')]
+                .map(row => ({
+                    tipo: row.querySelector('.feeding-type')?.value || '',
+                    detalhe: row.querySelector('.feeding-detail')?.value.trim() || ''
+                }))
+                .filter(item => item.tipo || item.detalhe);
+        }
+
+        function setFeedingData(items = []) {
+            feedingRowsContainer.innerHTML = '';
+            if (!Array.isArray(items) || items.length === 0) {
+                createFeedingRow();
+                return;
+            }
+            items.forEach(item => createFeedingRow(item.tipo || '', item.detalhe || item.descricao || ''));
+            updateFeedingPreview();
+        }
+        function renderFeedingModelCard(item, isSuggestion = false) {
+            const type = item.tipo || item;
+            const meta = getFeedingVisualMeta(type);
+            const detail = item.detalhe || feedingTypeDescriptions[type] || 'Tipo de dieta';
+            const animalOption = getFeedingAnimalOption(item.detalhe || '');
+            const visual = animalOption?.src
+                ? `<img class="feeding-model-animal-image" src="${animalOption.src}" alt="${animalOption.label}">`
+                : getFeedingModelSvg(meta.key);
+            return `
+                <article class="dimension-model-card feeding-model-card ${meta.accent}${isSuggestion ? ' is-suggestion' : ''}">
+                    <div class="dimension-model-icon">${visual}</div>
+                    <div class="dimension-model-copy">
+                        <div class="dimension-model-label">${meta.title}</div>
+                        <div class="dimension-model-value">${detail}</div>
+                        <div class="dimension-model-meta">${isSuggestion ? 'Disponível' : 'Modelo visual'}</div>
+                    </div>
+                </article>`;
+        }
+        function updateFeedingPreview() {
+            const selected = getFeedingData();
+            const hero = selected[0]?.tipo || 'Alimentação';
+            const heroMeta = getFeedingVisualMeta(hero);
+            feedingHeroIcon.innerHTML = getFeedingModelSvg(heroMeta.key);
+            feedingHeroTitle.textContent = selected[0]?.tipo || 'Tipos de alimentação';
+
+            if (selected.length) {
+                previewFeedingModels.innerHTML = selected.map(item => renderFeedingModelCard(item)).join('');
+                return;
+            }
+
+            previewFeedingModels.innerHTML = feedingTypes.map(type => renderFeedingModelCard(type, true)).join('');
+        }
+
+        addFeedingBtn.addEventListener('click', () => createFeedingRow());
+        initFeedingAnimalDropdown();
+        setFeedingData();
+
+        // --- REPRODUÇÃO E MODELO VISUAL ---
+        function isBirdCategory(category = getSelectedCategory()) {
+            return category === 'Aves';
+        }
+
+        function getReproductionOptionsForCategory(category = getSelectedCategory()) {
+            if (isBirdCategory(category)) return birdEggVisuals.map(egg => egg.label);
+            const options = reproductionTypesByCategory[category] || [];
+            return [...new Set(options)];
+        }
+
+        function fillReproductionTypeSelect(select, selectedValue = '') {
+            const options = getReproductionOptionsForCategory();
+            const hasSelected = selectedValue && options.includes(selectedValue);
+            const placeholder = isBirdCategory() ? 'Escolhe a cor/padrão do ovo' : 'Escolhe um tipo';
+            select.innerHTML = `<option value="">${placeholder}</option>` +
+                options.map(option => `<option value="${option}">${option}</option>`).join('') +
+                (selectedValue && !hasSelected ? `<option value="${selectedValue}">${selectedValue} — fora desta categoria</option>` : '');
+            select.value = selectedValue;
+        }
+
+        function updateReproductionEditorLabels() {
+            if (isBirdCategory()) {
+                reproductionTypeHeader.textContent = 'Tipo de ovo';
+                reproductionDetailHeader.textContent = 'N.º de ovos';
+                addReproductionBtn.textContent = '+ Adicionar ovo';
+                reproductionHint.textContent = 'Para aves, escolhe a cor/padrão do ovo e escreve à frente quantos ovos essa espécie coloca em média. A imagem muda automaticamente conforme o ovo escolhido.';
+            } else {
+                reproductionTypeHeader.textContent = 'Tipo de reprodução';
+                reproductionDetailHeader.textContent = 'Detalhe curto';
+                addReproductionBtn.textContent = '+ Adicionar tipo';
+                reproductionHint.textContent = 'As opções mudam conforme a categoria escolhida. Ex: aves mostram ovos por cor/padrão; mamíferos mostram vivíparo/placental/marsupial.';
+            }
+        }
+
+        function updateAllReproductionTypeSelects() {
+            updateReproductionEditorLabels();
+            reproductionRowsContainer.querySelectorAll('.reproduction-row').forEach(row => {
+                const typeSelect = row.querySelector('.reproduction-type');
+                const detailInput = row.querySelector('.reproduction-detail');
+                fillReproductionTypeSelect(typeSelect, typeSelect.value);
+                if (detailInput) {
+                    detailInput.placeholder = isBirdCategory() ? 'Ex: 2 ovos, 3-5 ovos, 1 ovo...' : 'Ex: 1-3 crias, ovos na água, fase larvar...';
+                    detailInput.inputMode = isBirdCategory() ? 'text' : '';
+                }
+            });
+        }
+
+        function createReproductionRow(type = '', detail = '') {
+            const row = document.createElement('div');
+            row.className = 'reproduction-row';
+
+            const typeSelect = document.createElement('select');
+            typeSelect.className = 'reproduction-type';
+            fillReproductionTypeSelect(typeSelect, type);
+
+            const detailInput = document.createElement('input');
+            detailInput.className = 'reproduction-detail';
+            detailInput.type = 'text';
+            detailInput.placeholder = isBirdCategory() ? 'Ex: 2 ovos, 3-5 ovos, 1 ovo...' : 'Ex: 1-3 crias, ovos na água, fase larvar...';
+            detailInput.value = detail;
+
+            const removeBtn = document.createElement('button');
+            removeBtn.type = 'button';
+            removeBtn.className = 'remove-dimension-btn';
+            removeBtn.innerHTML = '&times;';
+            removeBtn.title = isBirdCategory() ? 'Remover ovo' : 'Remover tipo de reprodução';
+
+            typeSelect.addEventListener('change', updateReproductionPreview);
+            detailInput.addEventListener('input', updateReproductionPreview);
+            removeBtn.addEventListener('click', () => {
+                row.remove();
+                if (reproductionRowsContainer.children.length === 0) createReproductionRow();
+                updateReproductionPreview();
+            });
+
+            row.append(typeSelect, detailInput, removeBtn);
+            reproductionRowsContainer.appendChild(row);
+            updateReproductionPreview();
+        }
+
+        function getReproductionData() {
+            return [...reproductionRowsContainer.querySelectorAll('.reproduction-row')]
+                .map(row => ({
+                    tipo: row.querySelector('.reproduction-type')?.value || '',
+                    detalhe: row.querySelector('.reproduction-detail')?.value.trim() || ''
+                }))
+                .filter(item => item.tipo || item.detalhe);
+        }
+
+        function setReproductionData(reproduction = []) {
+            reproductionRowsContainer.innerHTML = '';
+            if (!Array.isArray(reproduction) || reproduction.length === 0) {
+                createReproductionRow();
+                return;
+            }
+            reproduction.forEach(item => createReproductionRow(item.tipo || '', item.detalhe || item.descricao || ''));
+            updateReproductionPreview();
+        }
+
+        function getReproductionVisualMeta(type = '') {
+            const normalized = normalizeDimensionKey(type);
+            if (normalized.includes('oviparo') || normalized.includes('ovo')) return { key: 'ovo', title: type || 'Ovíparo', accent: 'accent-egg' };
+            if (normalized.includes('viviparo') || normalized.includes('placental')) return { key: 'viviparo', title: type || 'Vivíparo', accent: 'accent-weight' };
+            if (normalized.includes('marsupial')) return { key: 'marsupial', title: type || 'Marsupial', accent: 'accent-tail' };
+            if (normalized.includes('larvar') || normalized.includes('metamorfose') || normalized.includes('girino') || normalized.includes('ninfa') || normalized.includes('pupa')) return { key: 'metamorfose', title: type || 'Metamorfose', accent: 'accent-wing' };
+            if (normalized.includes('fertilizacao') || normalized.includes('sexuada') || normalized.includes('sexos separados')) return { key: 'fertilizacao', title: type || 'Fertilização', accent: 'accent-length' };
+            if (normalized.includes('hermafrodita') || normalized.includes('partenogenese')) return { key: 'hermafrodita', title: type || 'Hermafrodita', accent: 'accent-width' };
+            if (normalized.includes('divisao') || normalized.includes('assexuada') || normalized.includes('brotamento') || normalized.includes('conjugacao') || normalized.includes('multiplicacao') || normalized.includes('esporulacao') || normalized.includes('fragmentacao') || normalized.includes('regeneracao')) return { key: 'celular', title: type || 'Reprodução celular', accent: 'accent-generic' };
+            if (normalized.includes('fossil') || normalized.includes('provavel') || normalized.includes('desconhecido') || normalized.includes('estimado')) return { key: 'fossil', title: type || 'Estimado', accent: 'accent-beak' };
+            if (normalized.includes('parental') || normalized.includes('ninho') || normalized.includes('nidicola') || normalized.includes('nidifugo') || normalized.includes('saco')) return { key: 'cuidado', title: type || 'Cuidado parental', accent: 'accent-leg' };
+            return { key: 'reproducao', title: type || 'Reprodução', accent: 'accent-generic' };
+        }
+
+        function getReproductionModelSvg(key = 'reproducao') {
+            const icons = {
+                ovo: `<svg class="metric-model-svg reproduction-icon-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M40 10c13 0 23 17 23 33c0 15-9 27-23 27S17 58 17 43C17 27 27 10 40 10Z"/><path d="M29 47c7 5 15 5 22 0"/></svg>`,
+                viviparo: `<svg class="metric-model-svg reproduction-icon-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M40 12c15 12 24 24 24 38c0 13-10 22-24 22S16 63 16 50c0-14 9-26 24-38Z"/><circle cx="40" cy="48" r="12"/><path d="M40 36v-9"/></svg>`,
+                marsupial: `<svg class="metric-model-svg reproduction-icon-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M20 62c2-26 13-43 33-48c9 9 13 19 11 32c-2 13-11 22-26 27"/><path d="M28 48c7 12 20 14 31 3"/><circle cx="42" cy="51" r="6"/></svg>`,
+                metamorfose: `<svg class="metric-model-svg reproduction-icon-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M17 54c12-18 29-23 46-14"/><path d="M57 34l8 8l-10 4"/><circle cx="25" cy="25" r="8"/><path d="M43 59c5 9 15 10 22 3"/><path d="M49 65l-8 5"/></svg>`,
+                fertilizacao: `<svg class="metric-model-svg reproduction-icon-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><circle cx="28" cy="39" r="13"/><circle cx="52" cy="39" r="13"/><path d="M40 25v28"/><path d="M26 63h28"/></svg>`,
+                hermafrodita: `<svg class="metric-model-svg reproduction-icon-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><circle cx="40" cy="34" r="15"/><path d="M40 49v21"/><path d="M29 60h22"/><path d="M50 24l14-14"/><path d="M54 10h10v10"/></svg>`,
+                celular: `<svg class="metric-model-svg reproduction-icon-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><circle cx="30" cy="40" r="18"/><circle cx="50" cy="40" r="18"/><path d="M40 23v34"/><circle cx="30" cy="40" r="4"/><circle cx="50" cy="40" r="4"/></svg>`,
+                fossil: `<svg class="metric-model-svg reproduction-icon-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M19 59c12-25 31-39 52-42c-3 22-17 39-42 52L19 59Z"/><path d="M31 56L58 29"/><path d="M23 67h35"/></svg>`,
+                cuidado: `<svg class="metric-model-svg reproduction-icon-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M14 43c6-16 18-25 36-24c11 1 20 7 25 17"/><path d="M21 47c8 13 20 20 36 20"/><circle cx="39" cy="47" r="8"/><path d="M55 35l12-4"/></svg>`,
+                reproducao: `<svg class="metric-model-svg reproduction-icon-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M40 13c15 0 27 12 27 27S55 67 40 67S13 55 13 40S25 13 40 13Z"/><path d="M40 25v30"/><path d="M25 40h30"/></svg>`
+            };
+            return icons[key] || icons.reproducao;
+        }
+
+        function renderReproductionModelCard(item, isSuggestion = false) {
+            const egg = getBirdEggVisualByLabel(item.tipo || item);
+            if (isBirdCategory() && egg) {
+                const numberOfEggs = item.detalhe || 'Indica o n.º de ovos';
+                return `
+                    <article class="dimension-model-card reproduction-model-card bird-egg-selected-card ${isSuggestion ? 'is-suggestion' : ''}">
+                        <div class="bird-egg-selected-image"><img src="${egg.image}" alt="Ovo ${egg.label}" loading="lazy"></div>
+                        <div class="dimension-model-copy">
+                            <div class="dimension-model-label">${egg.label}</div>
+                            <div class="dimension-model-value">${numberOfEggs}</div>
+                            <div class="dimension-model-meta">Ovo escolhido</div>
+                        </div>
+                    </article>`;
+            }
+
+            const meta = getReproductionVisualMeta(item.tipo || item);
+            const detail = item.detalhe || reproductionTypeDescriptions[item.tipo || item] || 'Opção desta categoria';
+            return `
+                <article class="dimension-model-card reproduction-model-card ${meta.accent}${isSuggestion ? ' is-suggestion' : ''}">
+                    <div class="dimension-model-icon">${getReproductionModelSvg(meta.key)}</div>
+                    <div class="dimension-model-copy">
+                        <div class="dimension-model-label">${meta.title}</div>
+                        <div class="dimension-model-value">${detail}</div>
+                        <div class="dimension-model-meta">${isSuggestion ? 'Disponível para a categoria' : 'Modelo visual'}</div>
+                    </div>
+                </article>`;
+        }
+
+        function updateReproductionPreview() {
+            updateReproductionEditorLabels();
+            const category = getSelectedCategory();
+            const categoryLabel = document.getElementById('categoria').selectedOptions[0]?.textContent || 'Seleciona uma categoria';
+            reproductionCategoryName.textContent = categoryLabel;
+            reproductionCategoryIcon.innerHTML = getCategoryModelSvg(category);
+
+            const selected = getReproductionData();
+            if (selected.length) {
+                previewReproductionModels.innerHTML = selected.map(item => renderReproductionModelCard(item)).join('');
+                return;
+            }
+
+            if (isBirdCategory(category)) {
+                previewReproductionModels.innerHTML = '<div class="dimension-model-empty">Escolhe uma cor/padrão de ovo e escreve o número médio de ovos para aparecer aqui a imagem correta.</div>';
+                return;
+            }
+
+            const suggestions = getReproductionOptionsForCategory(category);
+            previewReproductionModels.innerHTML = suggestions.length
+                ? suggestions.map(type => renderReproductionModelCard(type, true)).join('')
+                : '<div class="dimension-model-empty">Seleciona uma categoria para ver os modelos de reprodução próprios desse grupo.</div>';
+        }
+
+        addReproductionBtn.addEventListener('click', () => createReproductionRow());
+        setReproductionData();
+
+
+        // --- PLUMAGEM E MODELO VISUAL ---
+        const plumageRowsContainer = document.getElementById('plumageRows');
+        const addPlumageBtn = document.getElementById('addPlumageBtn');
+        const previewPlumageModels = document.getElementById('previewPlumageModels');
+        const plumageHeroImage = document.getElementById('plumageHeroImage');
+        const plumageHeroTitle = document.getElementById('plumageHeroTitle');
+        const plumageHeroText = document.getElementById('plumageHeroText');
+
+        function getPlumageOptions(group = 'plumagem') {
+            return plumageOptionsByGroup[group] || [];
+        }
+
+        function fillPlumageTypeSelect(select, group = 'plumagem', selectedValue = '') {
+            const options = getPlumageOptions(group);
+            const hasSelected = selectedValue && options.includes(selectedValue);
+            select.innerHTML = `<option value="">Escolhe um tipo</option>` +
+                options.map(option => `<option value="${option}">${option}</option>`).join('') +
+                (selectedValue && !hasSelected ? `<option value="${selectedValue}">${selectedValue} — personalizado</option>` : '');
+            select.value = selectedValue;
+        }
+
+        function getPlumageVisualMeta(type = '', group = 'plumagem') {
+            const asset = plumageVisualAssets[type] || plumageVisualAssets['Rémiges'];
+            return {
+                label: type || 'Modelo visual',
+                groupLabel: plumageVisualGroups[group] || 'Plumagem',
+                image: asset.image,
+                description: plumageTypeDescriptions[type] || 'Representação visual desta característica.'
+            };
+        }
+
+        function createPlumageRow(group = 'plumagem', type = '', detail = '') {
+            const row = document.createElement('div');
+            row.className = 'plumage-row';
+
+            const groupSelect = document.createElement('select');
+            groupSelect.className = 'plumage-group';
+            groupSelect.innerHTML = `
+                <option value="plumagem">Tipo de plumagem</option>
+                <option value="pena">Tipo de pena</option>
+            `;
+            groupSelect.value = group;
+
+            const typeSelect = document.createElement('select');
+            typeSelect.className = 'plumage-type';
+            fillPlumageTypeSelect(typeSelect, group, type);
+
+            const detailInput = document.createElement('input');
+            detailInput.type = 'text';
+            detailInput.className = 'plumage-detail';
+            detailInput.placeholder = 'Ex: isolante, ornamental, voo...';
+            detailInput.value = detail;
+
+            const removeBtn = document.createElement('button');
+            removeBtn.type = 'button';
+            removeBtn.className = 'remove-dimension-btn';
+            removeBtn.innerHTML = '&times;';
+            removeBtn.setAttribute('aria-label', 'Remover tipo de plumagem');
+
+            groupSelect.addEventListener('change', () => {
+                fillPlumageTypeSelect(typeSelect, groupSelect.value);
+                updatePlumagePreview();
+            });
+            typeSelect.addEventListener('change', updatePlumagePreview);
+            detailInput.addEventListener('input', updatePlumagePreview);
+            removeBtn.addEventListener('click', () => {
+                row.remove();
+                if (plumageRowsContainer.children.length === 0) createPlumageRow();
+                updatePlumagePreview();
+            });
+
+            row.append(groupSelect, typeSelect, detailInput, removeBtn);
+            plumageRowsContainer.appendChild(row);
+            updatePlumagePreview();
+        }
+
+        function getPlumageData() {
+            return [...plumageRowsContainer.querySelectorAll('.plumage-row')].map(row => ({
+                grupo: row.querySelector('.plumage-group')?.value || 'plumagem',
+                tipo: row.querySelector('.plumage-type')?.value || '',
+                detalhe: row.querySelector('.plumage-detail')?.value.trim() || ''
+            })).filter(item => item.tipo || item.detalhe);
+        }
+
+        function setPlumageData(items = []) {
+            plumageRowsContainer.innerHTML = '';
+            if (!Array.isArray(items) || items.length === 0) {
+                createPlumageRow();
+                return;
+            }
+            items.forEach(item => createPlumageRow(item.grupo || 'plumagem', item.tipo || '', item.detalhe || ''));
+            updatePlumagePreview();
+        }
+
+        function renderPlumageModelCard(item, isSuggestion = false) {
+            const group = item.grupo || item.group || 'plumagem';
+            const type = item.tipo || item;
+            const meta = getPlumageVisualMeta(type, group);
+            const detail = item.detalhe || meta.description;
+            return `
+                <article class="plumage-model-card${isSuggestion ? ' is-suggestion' : ''}">
+                    <div class="plumage-model-figure">
+                        <img src="${meta.image}" alt="${meta.label}">
+                    </div>
+                    <div class="plumage-model-copy">
+                        <div class="plumage-model-label">${meta.label}</div>
+                        <div class="plumage-model-value">${detail}</div>
+                        <div class="plumage-model-meta">${meta.groupLabel}</div>
+                    </div>
+                </article>`;
+        }
+
+        function updatePlumagePreview() {
+            const selected = getPlumageData();
+            const isBird = getSelectedCategory() === 'Aves';
+            const hero = selected[0] || { grupo: 'pena', tipo: 'Rémiges' };
+            const heroMeta = getPlumageVisualMeta(hero.tipo || 'Rémiges', hero.grupo || 'pena');
+            plumageHeroImage.src = heroMeta.image;
+            plumageHeroImage.alt = heroMeta.label;
+            plumageHeroTitle.textContent = heroMeta.label;
+            plumageHeroText.textContent = selected[0]?.detalhe || heroMeta.description;
+
+            if (!isBird) {
+                previewPlumageModels.innerHTML = '<div class="dimension-model-empty">A secção de plumagem só fica ativa quando a categoria é <strong>Aves</strong>.</div>';
+                return;
+            }
+
+            if (selected.length) {
+                previewPlumageModels.innerHTML = selected.map(item => renderPlumageModelCard(item)).join('');
+                return;
+            }
+
+            const suggestions = [
+                { grupo: 'pena', tipo: 'Rémiges' },
+                { grupo: 'pena', tipo: 'Retrizes' },
+                { grupo: 'pena', tipo: 'Tectrizes' },
+                { grupo: 'pena', tipo: 'Penugem' },
+                { grupo: 'pena', tipo: 'Filoplumas' },
+                { grupo: 'plumagem', tipo: 'Plumagem nupcial' },
+                { grupo: 'plumagem', tipo: 'Plumagem de camuflagem' },
+                { grupo: 'plumagem', tipo: 'Plumagem ornamental' }
+            ];
+            previewPlumageModels.innerHTML = suggestions.map(item => renderPlumageModelCard(item, true)).join('');
+        }
+
+        addPlumageBtn.addEventListener('click', () => createPlumageRow());
+        setPlumageData();
+
+        // --- BUSCA AUTOMÁTICA DE VÍDEOS VIA YOUTUBE API ---
+        const YOUTUBE_API_KEY = "AIzaSyAum4ZdzQbhJbTVQG1bjV-xrKBkratnsWk";
+        let debounceTimer;
+        const debounce = (callback, time) => {
+            window.clearTimeout(debounceTimer);
+            debounceTimer = window.setTimeout(callback, time);
+        };
+
+        const searchAndFillVideos = async () => {
+            if (isEditMode) return;
+            const searchTerm = nomeCientificoInput.value.trim();
+            if (searchTerm.length < 3) return;
+            const api_url = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(searchTerm)}&maxResults=4&type=video&key=${YOUTUBE_API_KEY}`;
+            try {
+                const response = await fetch(api_url);
+                if (!response.ok) { throw new Error('Erro na API do YouTube'); }
+                const data = await response.json();
+                for (let i = 1; i <= 4; i++) { document.getElementById(`video${i}`).value = ''; }
+                if (data.items) {
+                    data.items.forEach((item, index) => {
+                        if (index < 4) { document.getElementById(`video${index + 1}`).value = `https://www.youtube.com/watch?v=${item.id.videoId}`; }
+                    });
+                }
+            } catch (error) { console.error("Erro ao pesquisar vídeos:", error); }
+        };
+        nomeCientificoInput.addEventListener('input', () => debounce(searchAndFillVideos, 800));
+
+        // --- AUTOCOMPLETE DE FAMÍLIA ---
+        async function loadExistingFamilies() {
+            existingFamilies.clear();
+            allAnimals.forEach(animal => {
+                if (animal.familia) existingFamilies.add(animal.familia);
+            });
+        }
+
+        familiaInput.addEventListener('input', () => {
+            const searchTerm = familiaInput.value.toLowerCase().trim();
+            if (!searchTerm) {
+                familiaResultsContainer.style.display = 'none';
+                return;
+            }
+            const filtered = [...existingFamilies].filter(f => f.toLowerCase().includes(searchTerm));
+            familiaResultsContainer.innerHTML = '';
+            if (filtered.length > 0) {
+                filtered.forEach(family => {
+                    const item = document.createElement('div');
+                    item.className = 'autocomplete-item';
+                    item.textContent = family;
+                    item.addEventListener('click', () => {
+                        familiaInput.value = family;
+                        familiaResultsContainer.style.display = 'none';
+                    });
+                    familiaResultsContainer.appendChild(item);
+                });
+                familiaResultsContainer.style.display = 'block';
+            } else {
+                familiaResultsContainer.style.display = 'none';
+            }
+        });
+
+        // --- CONTROLO DO MODAL DE EDIÇÃO ---
+        function normalizeString(str) {
+            if (!str) return '';
+            return str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, '');
+        }
+
+        function populateEditList(animals) {
+            editListContainer.innerHTML = '';
+            if (animals.length === 0) {
+                editListContainer.innerHTML = '<p style="padding: 15px; text-align: center; color: var(--text-secondary);">Nenhum animal encontrado.</p>';
+                return;
+            }
+            animals.forEach(animal => {
+                const item = document.createElement('div');
+                item.className = 'edit-item';
+                item.innerHTML = `
+                    <div class="edit-item-info">
+                        <div class="nome">${animal.nome} (${animal.nomeCientifico})</div>
+                        <div class="categoria">${animal.categoria}</div>
+                    </div>
+                    <button class="edit-item-btn" data-id="${animal.id}">Editar</button>`;
+                editListContainer.appendChild(item);
+            });
+        }
+
+        editSearchInput.addEventListener('input', () => {
+            const normalizedSearchTerm = normalizeString(editSearchInput.value.trim());
+            if (normalizedSearchTerm.length === 0) {
+                populateEditList(allAnimals);
+                return;
+            }
+            const filtered = allAnimals.filter(animal => {
+                return normalizeString(animal.nome).includes(normalizedSearchTerm) || 
+                       normalizeString(animal.nomeCientifico).includes(normalizedSearchTerm);
+            });
+            populateEditList(filtered);
+        });
+
+        function loadDataIntoForm(animalId) {
+            const animal = allAnimals.find(a => a.id === animalId);
+            if (!animal) return;
+            document.getElementById('nomeAnimal').value = animal.nome || '';
+            document.getElementById('nomeCientifico').value = animal.nomeCientifico || '';
+            document.getElementById('familia').value = animal.familia || '';
+            document.getElementById('imagemUrl').value = animal.imagemUrl || '';
+            document.getElementById('imagemObjectPosition').value = animal.imagemObjectPosition || 'center center';
+            document.getElementById('categoria').value = animal.categoria || '';
+            document.getElementById('infoGeral').value = animal.informacao.geral || '';
+            setGeneralVisualData(animal.informacao.geralDetalhada || []);
+            document.getElementById('infoDimensoes').value = animal.informacao.dimensoes || '';
+            setDimensionData(animal.informacao.dimensoesDetalhadas || []);
+            document.getElementById('infoAlimentacao').value = animal.informacao.alimentacao || '';
+            setFeedingData(animal.informacao.alimentacaoDetalhada || []);
+            document.getElementById('infoReproducao').value = animal.informacao.reproducao || '';
+            document.getElementById('infoPlumagem').value = animal.informacao.plumagem || '';
+            setReproductionData(animal.informacao.reproducaoDetalhada || []);
+            setPlumageData(animal.informacao.plumagemDetalhada || []);
+            
+            const distData = animal.informacao.distribuicao || { paises: [], paisesDetalhes: {}, descricao: '' };
+            selectedCountries = distData.paises || [];
+            paisesDetalhes = distData.paisesDetalhes || {};
+            document.getElementById('infoDistribuicao').value = distData.descricao || '';
+            renderSelectedCountries();
+            if (mapForm) {
+                mapForm.setSelectedRegions(selectedCountries);
+                setTimeout(() => {
+                    selectedCountries.forEach(code => {
+                        applySubregionGradient(code, paisesDetalhes[code] || 'inteiro');
+                    });
+                }, 100);
+            }
+
+            for (let i = 0; i < 4; i++) {
+                document.getElementById(`video${i + 1}`).value = animal.videos && animal.videos[i] ? animal.videos[i] : '';
+            }
+            closeModal();
+            switchToEditMode(animalId);
+            updatePlumagemTabVisibility();
+        }
+
+        function switchToEditMode(animalId) {
+            isEditMode = true;
+            currentEditingId = animalId;
+            formTitle.textContent = "Editar Animal";
+            formSubtitle.textContent = `A editar: ${document.getElementById('nomeAnimal').value}`;
+            saveButton.textContent = "Atualizar Dados";
+            document.getElementById('nomeCientifico').disabled = true;
+            document.body.classList.add('edit-theme');
+        }
+
+        function switchToCreateMode() {
+            isEditMode = false;
+            currentEditingId = null;
+            animalForm.reset();
+            document.getElementById('infoPlumagem').value = '';
+            document.getElementById('imagemObjectPosition').value = 'center center';
+            setGeneralVisualData();
+            setDimensionData();
+            setFeedingData();
+            setReproductionData();
+            setPlumageData();
+            updatePlumagemTabVisibility();
+            
+            selectedCountries = [];
+            paisesDetalhes = {};
+            document.getElementById('infoDistribuicao').value = '';
+            renderSelectedCountries();
+            if (mapForm) {
+                mapForm.setSelectedRegions([]);
+            }
+            const formMapPaths = document.querySelectorAll('#distributionMapForm [data-code]');
+            formMapPaths.forEach(path => {
+                path.removeAttribute('fill');
+                path.style.fill = '';
+            });
+            const svgDefs = document.querySelector('#aurora-gradient-svg defs');
+            if (svgDefs) {
+                const grads = svgDefs.querySelectorAll('linearGradient[id^="grad-"]');
+                grads.forEach(g => g.remove());
+            }
+
+            const dimensoesBtn = document.querySelector('[data-tab="dimensoes"]');
+            if (dimensoesBtn) dimensoesBtn.click();
+            formTitle.textContent = "Gerir Grandes Projetos";
+            formSubtitle.textContent = "Formulário de Criação de Animais";
+            saveButton.textContent = "Gravar Novo Animal";
+            document.getElementById('nomeCientifico').disabled = false;
+            statusMessage.style.display = 'none';
+            document.body.classList.remove('edit-theme');
+        }
+
+        function openModal() {
+            populateEditList(allAnimals);
+            editModalOverlay.style.display = 'flex';
+            editSearchInput.value = '';
+            editSearchInput.focus();
+        }
+        function closeModal() { editModalOverlay.style.display = 'none'; }
+        
+        openEditModalBtn.addEventListener('click', openModal);
+        closeEditModalBtn.addEventListener('click', closeModal);
+        editModalOverlay.addEventListener('click', (e) => { if (e.target === editModalOverlay) closeModal(); });
+        editListContainer.addEventListener('click', (e) => { if (e.target.classList.contains('edit-item-btn')) { loadDataIntoForm(e.target.dataset.id); } });
+        document.addEventListener('click', (e) => { if (!e.target.closest('.autocomplete-container')) { familiaResultsContainer.style.display = 'none'; } });
+
+
+        // --- CONTROLO DA SUB-ABA DE INFORMAÇÃO GERAL ---
+        document.querySelectorAll('.general-subtab-nav-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const target = btn.dataset.generalSubtab;
+                const section = btn.closest('.general-info-section');
+                section.querySelectorAll('.general-subtab-nav-btn').forEach(b => {
+                    b.classList.toggle('active', b === btn);
+                    b.setAttribute('aria-selected', b === btn ? 'true' : 'false');
+                });
+                section.querySelectorAll('.general-subtab-panel').forEach(panel => {
+                    panel.classList.toggle('active', panel.id === `subtabpanel-${target}`);
+                });
+            });
+        });
+
+        // --- CONTROLO DAS ABAS DO FORMULÁRIO ---
+        const tabButtons = document.querySelectorAll('.form-tab-nav-btn');
+        const tabPanels = document.querySelectorAll('.form-tab-panel');
+        const subTabButtons = document.querySelectorAll('.form-subtab-nav-btn');
+        const subTabPanels = document.querySelectorAll('.form-subtab-panel');
+        const tabsWrapper = document.querySelector('.form-tabs-wrapper');
+
+        tabButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const targetTab = btn.dataset.tab;
+                
+                // Update active tab theme class on wrapper
+                tabsWrapper.classList.remove('active-dimensoes', 'active-alimentacao', 'active-reproducao', 'active-plumagem', 'active-distribuicao');
+                tabsWrapper.classList.add(`active-${targetTab}`);
+                
+                tabButtons.forEach(b => {
+                    b.classList.toggle('active', b === btn);
+                    b.setAttribute('aria-selected', b === btn ? 'true' : 'false');
+                });
+
+                tabPanels.forEach(panel => {
+                    const isActive = panel.id === `tabpanel-${targetTab}`;
+                    panel.classList.toggle('active', isActive);
+                });
+
+                if (targetTab === 'distribuicao') {
+                    setTimeout(() => {
+                        if (!mapForm) {
+                            initMapForm();
+                        } else {
+                            mapForm.updateSize();
+                        }
+                    }, 50);
+                }
+            });
+        });
+
+        subTabButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const targetSubTab = btn.dataset.subtab;
+                const scope = btn.closest('.form-tab-panel');
+                const scopedButtons = scope.querySelectorAll('.form-subtab-nav-btn');
+                const scopedPanels = scope.querySelectorAll('.form-subtab-panel');
+
+                scopedButtons.forEach(b => {
+                    b.classList.toggle('active', b === btn);
+                    b.setAttribute('aria-selected', b === btn ? 'true' : 'false');
+                });
+
+                scopedPanels.forEach(panel => {
+                    const isActive = panel.id === `subtabpanel-${targetSubTab}`;
+                    panel.classList.toggle('active', isActive);
+                });
+            });
+        });
+
+        // --- VISIBILIDADE DA ABA PLUMAGEM PARA AVES ---
+        const categorySelect = document.getElementById('categoria');
+        const tabBtnPlumagem = document.getElementById('tab-btn-plumagem');
+
+        function updatePlumagemTabVisibility() {
+            if (categorySelect.value === 'Aves') {
+                tabBtnPlumagem.style.display = 'inline-block';
+            } else {
+                tabBtnPlumagem.style.display = 'none';
+                if (tabBtnPlumagem.classList.contains('active')) {
+                    const dimensoesBtn = document.querySelector('[data-tab="dimensoes"]');
+                    if (dimensoesBtn) dimensoesBtn.click();
+                }
+            }
+        }
+
+        categorySelect.addEventListener('change', updatePlumagemTabVisibility);
+        categorySelect.addEventListener('change', () => {
+            updateReproductionPreview();
+            updatePlumagePreview();
+        });
+
+        // --- INICIALIZAÇÃO ---
+        async function initializePage() {
+            try {
+                allAnimals = [];
+                const querySnapshot = await getDocs(collection(db, "animais"));
+                querySnapshot.forEach(doc => { allAnimals.push({ id: doc.id, ...doc.data() }); });
+                await loadExistingFamilies();
+                
+                // Carregar lista de países
+                const countriesRes = await fetch('js/countries.json');
+                countryList = await countriesRes.json();
+                
+                openEditModalBtn.disabled = false;
+                openEditModalBtn.textContent = 'Procurar Animal p/ Editar';
+            } catch (error) {
+                console.error("Erro fatal na inicialização:", error);
+                openEditModalBtn.textContent = 'Erro ao Carregar';
+            }
+        }
+
+        // --- CONTROLO DA PERSPETIVA DA IMAGEM ---
+        const btnPreviewImage = document.getElementById('btnPreviewImage');
+        const perspectiveModalOverlay = document.getElementById('perspectiveModalOverlay');
+        const closePerspectiveModalBtn = document.getElementById('closePerspectiveModalBtn');
+        const confirmPerspectiveBtn = document.getElementById('confirmPerspectiveBtn');
+        const perspectivePreviewImg = document.getElementById('perspectivePreviewImg');
+        const posXSlider = document.getElementById('posXSlider');
+        const posYSlider = document.getElementById('posYSlider');
+        const posXVal = document.getElementById('posXVal');
+        const posYVal = document.getElementById('posYVal');
+        const hiddenObjectPositionInput = document.getElementById('imagemObjectPosition');
+        const previewCardTitle = document.getElementById('previewCardTitle');
+        const previewCardSubtitle = document.getElementById('previewCardSubtitle');
+        const cardPreviewContainer = document.querySelector('.animal-list-item-preview-card');
+
+        btnPreviewImage.addEventListener('click', () => {
+            const imgUrl = document.getElementById('imagemUrl').value.trim();
+            if (!imgUrl) {
+                alert("Por favor, introduza primeiro o URL de uma imagem.");
+                return;
+            }
+
+            perspectivePreviewImg.src = imgUrl;
+            
+            const animalName = document.getElementById('nomeAnimal').value.trim() || 'Nome do Animal';
+            const scientificName = document.getElementById('nomeCientifico').value.trim() || 'Nome científico';
+            previewCardTitle.textContent = animalName;
+            previewCardSubtitle.textContent = `(${scientificName})`;
+
+            const currentPosition = hiddenObjectPositionInput.value || 'center center';
+            let x = 50;
+            let y = 50;
+            
+            const parts = currentPosition.split(' ');
+            if (parts.length === 2) {
+                const parsePart = (part) => {
+                    if (part.endsWith('%')) return parseInt(part);
+                    if (part === 'left' || part === 'top') return 0;
+                    if (part === 'right' || part === 'bottom') return 100;
+                    if (part === 'center') return 50;
+                    return 50;
+                };
+                x = parsePart(parts[0]);
+                y = parsePart(parts[1]);
+            }
+
+            posXSlider.value = x;
+            posYSlider.value = y;
+            posXVal.textContent = `${x}%`;
+            posYVal.textContent = `${y}%`;
+
+            updatePreviewPosition();
+            perspectiveModalOverlay.style.display = 'flex';
+        });
+
+        closePerspectiveModalBtn.addEventListener('click', () => {
+            perspectiveModalOverlay.style.display = 'none';
+        });
+
+        perspectiveModalOverlay.addEventListener('click', (e) => {
+            if (e.target === perspectiveModalOverlay) {
+                perspectiveModalOverlay.style.display = 'none';
+            }
+        });
+
+        confirmPerspectiveBtn.addEventListener('click', () => {
+            const x = posXSlider.value;
+            const y = posYSlider.value;
+            hiddenObjectPositionInput.value = `${x}% ${y}%`;
+            perspectiveModalOverlay.style.display = 'none';
+        });
+
+        posXSlider.addEventListener('input', () => {
+            posXVal.textContent = `${posXSlider.value}%`;
+            updatePreviewPosition();
+        });
+
+        posYSlider.addEventListener('input', () => {
+            posYVal.textContent = `${posYSlider.value}%`;
+            updatePreviewPosition();
+        });
+
+        document.querySelectorAll('.preset-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const x = btn.dataset.x;
+                const y = btn.dataset.y;
+                posXSlider.value = x;
+                posYSlider.value = y;
+                posXVal.textContent = `${x}%`;
+                posYVal.textContent = `${y}%`;
+                updatePreviewPosition();
+            });
+        });
+
+        function updatePreviewPosition() {
+            perspectivePreviewImg.style.objectPosition = `${posXSlider.value}% ${posYSlider.value}%`;
+        }
+
+        // Dragging implementation
+        let isDragging = false;
+        let startX, startY;
+        let startPosXSliderVal, startPosYSliderVal;
+
+        cardPreviewContainer.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            startX = e.clientX;
+            startY = e.clientY;
+            startPosXSliderVal = parseInt(posXSlider.value);
+            startPosYSliderVal = parseInt(posYSlider.value);
+            cardPreviewContainer.style.cursor = 'grabbing';
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            const deltaX = e.clientX - startX;
+            const deltaY = e.clientY - startY;
+
+            const sensitivity = 0.4;
+            let newX = startPosXSliderVal - Math.round(deltaX * sensitivity);
+            let newY = startPosYSliderVal - Math.round(deltaY * sensitivity);
+
+            newX = Math.max(0, Math.min(100, newX));
+            newY = Math.max(0, Math.min(100, newY));
+
+            posXSlider.value = newX;
+            posYSlider.value = newY;
+            posXVal.textContent = `${newX}%`;
+            posYVal.textContent = `${newY}%`;
+            updatePreviewPosition();
+        });
+
+        window.addEventListener('mouseup', () => {
+            if (isDragging) {
+                isDragging = false;
+                cardPreviewContainer.style.cursor = 'move';
+            }
+        });
+
+        cardPreviewContainer.addEventListener('touchstart', (e) => {
+            if (e.touches.length !== 1) return;
+            isDragging = true;
+            startX = e.touches[0].clientX;
+            startY = e.touches[0].clientY;
+            startPosXSliderVal = parseInt(posXSlider.value);
+            startPosYSliderVal = parseInt(posYSlider.value);
+        }, { passive: true });
+
+        window.addEventListener('touchmove', (e) => {
+            if (!isDragging || e.touches.length !== 1) return;
+            const deltaX = e.touches[0].clientX - startX;
+            const deltaY = e.touches[0].clientY - startY;
+
+            const sensitivity = 0.4;
+            let newX = startPosXSliderVal - Math.round(deltaX * sensitivity);
+            let newY = startPosYSliderVal - Math.round(deltaY * sensitivity);
+
+            newX = Math.max(0, Math.min(100, newX));
+            newY = Math.max(0, Math.min(100, newY));
+
+            posXSlider.value = newX;
+            posYSlider.value = newY;
+            posXVal.textContent = `${newX}%`;
+            posYVal.textContent = `${newY}%`;
+            updatePreviewPosition();
+        }, { passive: true });
+
+        // --- DISTRIBUIÇÃO E MAPA ---
+        let countryList = {};
+
+        let selectedCountries = [];
+        let paisesDetalhes = {};
+        let mapForm = null;
+
+        // Elementos do Modal de Subregião
+        const subregionModalOverlay = document.getElementById('subregionModalOverlay');
+        const subregionSelectModal = document.getElementById('subregionSelectModal');
+        const subregionModalTitle = document.getElementById('subregionModalTitle');
+        const closeSubregionModalBtn = document.getElementById('closeSubregionModalBtn');
+        const saveSubregionModalBtn = document.getElementById('saveSubregionModalBtn');
+        let activeModalCountryCode = null;
+
+         const removeSubregionCountryBtn = document.getElementById('removeSubregionCountryBtn');
+
+        function openSubregionModal(code) {
+            activeModalCountryCode = code;
+            const countryName = countryList[code] || code;
+            subregionModalTitle.textContent = `Área - ${countryName}`;
+            subregionSelectModal.value = paisesDetalhes[code] || 'inteiro';
+            subregionModalOverlay.style.display = 'flex';
+        }
+
+        function closeSubregionModal() {
+            subregionModalOverlay.style.display = 'none';
+            activeModalCountryCode = null;
+        }
+
+        closeSubregionModalBtn.addEventListener('click', closeSubregionModal);
+        subregionModalOverlay.addEventListener('click', (e) => { if (e.target === subregionModalOverlay) closeSubregionModal(); });
+
+        saveSubregionModalBtn.addEventListener('click', () => {
+            if (activeModalCountryCode) {
+                const choice = subregionSelectModal.value;
+                paisesDetalhes[activeModalCountryCode] = choice;
+                applySubregionGradient(activeModalCountryCode, choice);
+                renderSelectedCountries();
+            }
+            closeSubregionModal();
+        });
+
+        removeSubregionCountryBtn.addEventListener('click', () => {
+            if (activeModalCountryCode) {
+                removeCountry(activeModalCountryCode);
+            }
+            closeSubregionModal();
+        });
+
+        function applySubregionGradient(code, subregion) {
+            const svgDefs = document.querySelector('#aurora-gradient-svg defs');
+            if (!svgDefs) return;
+
+            const existingGrad = document.getElementById(`grad-${code}`);
+            if (existingGrad) existingGrad.remove();
+
+            if (subregion === 'inteiro') {
+                const paths = document.querySelectorAll(`[data-code="${code}"]`);
+                paths.forEach(path => {
+                    path.setAttribute('fill', '#f59e0b');
+                    path.style.fill = '#f59e0b';
+                });
+                return;
+            }
+
+            const grad = document.createElementNS("http://www.w3.org/2000/svg", "linearGradient");
+            grad.setAttribute('id', `grad-${code}`);
+            
+            let stopColor1 = '#f59e0b';
+            let stopColor2 = '#2e2e38';
+            let offset = '50%';
+            let x1 = '0%', y1 = '0%', x2 = '0%', y2 = '0%';
+
+            if (subregion === 'esquerdo') { // Oeste
+                x2 = '100%';
+                if (code === 'US') {
+                    offset = '60%';
+                }
+            } else if (subregion === 'direito') { // Este
+                x2 = '100%';
+                if (code === 'US') {
+                    offset = '60%';
+                }
+                stopColor1 = '#2e2e38';
+                stopColor2 = '#f59e0b';
+            } else if (subregion === 'cima') { // Norte
+                y2 = '100%';
+                if (code === 'US') {
+                    offset = '65%';
+                }
+            } else if (subregion === 'baixo') { // Sul
+                y2 = '100%';
+                if (code === 'US') {
+                    offset = '65%';
+                }
+                stopColor1 = '#2e2e38';
+                stopColor2 = '#f59e0b';
+            }
+
+            grad.setAttribute('x1', x1);
+            grad.setAttribute('y1', y1);
+            grad.setAttribute('x2', x2);
+            grad.setAttribute('y2', y2);
+
+            const stop1 = document.createElementNS("http://www.w3.org/2000/svg", "stop");
+            stop1.setAttribute('offset', offset);
+            stop1.setAttribute('stop-color', stopColor1);
+
+            const stop2 = document.createElementNS("http://www.w3.org/2000/svg", "stop");
+            stop2.setAttribute('offset', offset);
+            stop2.setAttribute('stop-color', stopColor2);
+
+            grad.appendChild(stop1);
+            grad.appendChild(stop2);
+
+            svgDefs.appendChild(grad);
+
+            setTimeout(() => {
+                const paths = document.querySelectorAll(`[data-code="${code}"]`);
+                paths.forEach(path => {
+                    path.setAttribute('fill', `url(#grad-${code})`);
+                    path.style.fill = `url(#grad-${code})`;
+                });
+            }, 80);
+        }
+
+        function initMapForm() {
+            const container = document.getElementById('distributionMapForm');
+            if (!container) return;
+            container.innerHTML = '';
+            
+            mapForm = new jsVectorMap({
+                selector: '#distributionMapForm',
+                map: 'world',
+                regionsSelectable: true,
+                regionsSelectableOne: false,
+                selectedRegions: selectedCountries,
+                regionStyle: {
+                    initial: {
+                        fill: '#2e2e38',
+                        fillOpacity: 1,
+                        stroke: '#3b3b4f',
+                        strokeWidth: 0.5
+                    },
+                    hover: {
+                        fill: '#f59e0b',
+                        fillOpacity: 0.5,
+                        cursor: 'pointer'
+                    },
+                    selected: {
+                        fill: '#f59e0b',
+                        fillOpacity: 1
+                    }
+                },
+                onRegionSelected: function(code, isSelected) {
+                    if (window.isUpdatingMapSelection) return;
+                    if (isSelected) {
+                        if (!selectedCountries.includes(code)) {
+                            selectedCountries.push(code);
+                            paisesDetalhes[code] = 'inteiro';
+                            renderSelectedCountries();
+                            applySubregionGradient(code, 'inteiro');
+                            openSubregionModal(code);
+                        }
+                    } else {
+                        if (selectedCountries.includes(code)) {
+                            // User clicked an already selected country, so it was deselected.
+                            // We want to KEEP it selected and open the modal!
+                            window.isUpdatingMapSelection = true;
+                            mapForm.setSelectedRegions(selectedCountries);
+                            window.isUpdatingMapSelection = false;
+                            applySubregionGradient(code, paisesDetalhes[code] || 'inteiro');
+                            openSubregionModal(code);
+                        }
+                    }
+                },
+                onRegionClick: function(event, code) {
+                    if (selectedCountries.includes(code)) {
+                        openSubregionModal(code);
+                    }
+                }
+            });
+        }
+
+        const countrySearchInput = document.getElementById('countrySearchInput');
+        const countryAutocompleteDropdown = document.getElementById('countryAutocompleteDropdown');
+        const selectedCountriesList = document.getElementById('selectedCountriesList');
+
+        countrySearchInput.addEventListener('input', () => {
+            const val = countrySearchInput.value.trim().toLowerCase();
+            if (!val) {
+                countryAutocompleteDropdown.style.display = 'none';
+                return;
+            }
+
+            const matches = Object.entries(countryList).filter(([code, name]) => {
+                return name.toLowerCase().includes(val) || code.toLowerCase().includes(val);
+            }).slice(0, 10);
+
+            if (matches.length === 0) {
+                countryAutocompleteDropdown.style.display = 'none';
+                return;
+            }
+
+            countryAutocompleteDropdown.innerHTML = '';
+            matches.forEach(([code, name]) => {
+                const item = document.createElement('div');
+                item.className = 'autocomplete-item';
+                item.textContent = name;
+                item.addEventListener('click', () => {
+                    addCountry(code);
+                    countrySearchInput.value = '';
+                    countryAutocompleteDropdown.style.display = 'none';
+                });
+                countryAutocompleteDropdown.appendChild(item);
+            });
+            countryAutocompleteDropdown.style.display = 'block';
+        });
+
+        document.addEventListener('click', (e) => {
+            if (e.target !== countrySearchInput) {
+                countryAutocompleteDropdown.style.display = 'none';
+            }
+        });
+
+        function addCountry(code) {
+            if (!selectedCountries.includes(code)) {
+                selectedCountries.push(code);
+                paisesDetalhes[code] = 'inteiro';
+                renderSelectedCountries();
+                if (mapForm) {
+                    mapForm.setSelectedRegions(selectedCountries);
+                }
+                openSubregionModal(code);
+            }
+        }
+
+        function removeCountry(code) {
+            selectedCountries = selectedCountries.filter(c => c !== code);
+            delete paisesDetalhes[code];
+            const existingGrad = document.getElementById(`grad-${code}`);
+            if (existingGrad) existingGrad.remove();
+            
+            // Reset path styles for the removed country
+            const paths = document.querySelectorAll(`[data-code="${code}"]`);
+            paths.forEach(path => {
+                path.removeAttribute('fill');
+                path.style.fill = '';
+            });
+
+            renderSelectedCountries();
+            if (mapForm) {
+                mapForm.setSelectedRegions(selectedCountries);
+            }
+        }
+
+        function renderSelectedCountries() {
+            selectedCountriesList.innerHTML = '';
+            selectedCountries.forEach(code => {
+                const name = countryList[code] || code;
+                const subLabels = {
+                    'inteiro': 'País inteiro',
+                    'esquerdo': 'Lado esquerdo',
+                    'direito': 'Lado direito',
+                    'cima': 'Lado de cima',
+                    'baixo': 'Lado de baixo'
+                };
+                const subregion = paisesDetalhes[code] || 'inteiro';
+                const tag = document.createElement('div');
+                tag.className = 'country-tag';
+                tag.style.cursor = 'pointer';
+                tag.innerHTML = `
+                    <span>${name} (${subLabels[subregion]})</span>
+                    <button type="button" data-code="${code}">&times;</button>
+                `;
+                tag.querySelector('span').addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    openSubregionModal(code);
+                });
+                tag.querySelector('button').addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    removeCountry(code);
+                });
+                selectedCountriesList.appendChild(tag);
+            });
+        }
+
+        initializePage();
+    </script>
+</body>
+</html>
+
+
+
+

@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalhes do Animal - Grandes Projetos</title>
+    <!-- CSS Global -->
+    <link rel="stylesheet" href="css/style.css">
+    <!-- jsVectorMap -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsvectormap/dist/css/jsvectormap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/jsvectormap"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsvectormap/dist/maps/world.js"></script>
+</head>
+<body>
+
+    <main id="main-content-area"></main>
+    
+    <!-- Componentes e Lógica -->
+    <script type="module" src="js/components.js"></script>
+    <script type="module">
+        import { db } from "./js/firebase-config.js";
+        import { doc, getDoc, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
+        import { feedingTypeDescriptions, getFeedingVisualMeta, getFeedingModelSvg } from "./js/feeding-visuals.js";
+        import { feedingAnimalOptions } from "./js/feeding-animal-options.js?v=2";
+        import { feedingStrategyDescriptions, getFeedingStrategyMeta, getFeedingStrategySvg } from "./js/feeding-strategies.js";
+        import { getMatingMeta, getMatingSystemSvg } from "./js/mating-systems.js";
+        
+        const mainContent = document.getElementById('main-content-area');
+
+        let countryList = {};
+        async function loadCountryList() {
+            try {
+                const response = await fetch('js/countries.json');
+                countryList = await response.json();
+            } catch (error) {
+                console.error("Erro ao carregar lista de países:", error);
+            }
+        }
+
+
+        function getInfoSectionIconSvg(type = 'geral') {
+            const icons = {
+                geral: `<svg class="section-title-icon" viewBox="0 0 64 64" fill="none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><circle cx="32" cy="32" r="24"/><circle cx="23" cy="21" r="4.2"/><circle cx="32" cy="16.5" r="4.2"/><circle cx="41" cy="21" r="4.2"/><circle cx="47" cy="29" r="4"/><path d="M21 41c0-6 5-11 11-11c4 0 6 2 8 4c2-2 4-4 8-4c5 0 9 4 9 9c0 7-6 12-14 12H31c-6 0-10-4-10-10Z"/></svg>`,
+                dimensoes: `<svg class="section-title-icon" viewBox="0 0 64 64" fill="none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><path d="M12 48L48 12l8 8l-36 36H12v-8Z"/><path d="M41 19l4 4"/><path d="M35 25l4 4"/><path d="M29 31l4 4"/><path d="M23 37l4 4"/><path d="M17 43l4 4"/></svg>`,
+                alimentacao: `<svg class="section-title-icon" viewBox="0 0 64 64" fill="none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><path d="M21 8v20"/><path d="M13 8v17c0 6 4 10 8 10s8-4 8-10V8"/><path d="M21 35v21"/><path d="M44 8c6 7 8 15 8 24c0 8-3 14-8 17v7"/><path d="M44 8v48"/></svg>`,
+                reproducao: `<svg class="section-title-icon" viewBox="0 0 64 64" fill="none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><path d="M32 8c12 10 19 20 19 32c0 10-8 17-19 17s-19-7-19-17C13 28 20 18 32 8Z"/><circle cx="32" cy="39" r="9"/><path d="M32 30v-8"/></svg>`,
+                plumagem: `<svg class="section-title-icon" viewBox="0 0 64 64" fill="none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><path d="M42 6L14 34c-4 4-4 10 0 14s10 4 14 0l28-28c4-4 4-10 0-14s-10-4-14 0Z"/><path d="M28 20l12 12"/><path d="M18 30l10 10"/><path d="M38 10l12 12"/><path d="M14 50l-8 8"/></svg>`,
+                distribuicao: `<svg class="section-title-icon" viewBox="0 0 64 64" fill="none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><circle cx="32" cy="32" r="24" stroke="currentColor" stroke-width="4"/><path d="M10 32h44M32 8v48M14 20h36M14 44h36M22 8c4 8 4 40 0 48M42 8c-4 8-4 40 0 48" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>`
+            };
+            return icons[type] || icons.geral;
+        }
+
+        function getYouTubeVideoId(url) {
+            if(!url) return null;
+            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+            const match = url.match(regExp);
+            return (match && match[2].length === 11) ? match[2] : null;
+        }
+        
+        function escapeHtml(value) {
+            return String(value || '').replace(/[&<>"]/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[char]));
+        }
+
+        function normalizeDimensionKey(label = '') {
+            return String(label).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        }
+
+        function getCategoryModelSvg(category = '') {
+            const normalized = normalizeDimensionKey(category);
+            const bird = `<svg class="animal-model-svg bird-model-svg real-bird-model" viewBox="0 0 220 120" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path class="bird-shadow" d="M52 102C80 110 133 110 171 99"/>
+                <ellipse class="bird-head-fill" cx="69" cy="54" rx="18" ry="15"/>
+                <path class="bird-beak-fill" d="M47 53L22 60L47 67L58 60L47 53Z"/>
+                <path class="bird-body-fill" d="M79 44C96 30 119 26 142 31C163 35 181 49 189 69C191 75 189 81 184 85L171 95H147L129 106H93L99 93H86C74 93 65 86 62 76C60 67 65 55 79 44Z"/>
+                <path class="bird-tail-fill" d="M187 67H214L192 84H172C180 80 185 74 187 67Z"/>
+                <path class="bird-wing-fill" d="M96 45C117 45 135 58 145 80C134 83 119 82 106 76C96 71 89 63 86 53C89 49 92 47 96 45Z"/>
+                <path class="bird-leg-line" d="M101 92L92 113"/>
+                <path class="bird-leg-line" d="M116 92L109 113"/>
+                <path class="bird-body-line" d="M58 60C59 48 67 40 78 39C96 30 119 26 142 31C163 35 181 49 189 69H214L192 84H171L154 95H130L116 106H90L96 93H86C74 93 65 86 62 76L47 67L22 60L47 53L58 60Z"/>
+                <path class="bird-wing-line" d="M90 53C101 57 112 66 120 80"/>
+                <path class="bird-wing-line soft" d="M108 48C122 55 134 67 141 81"/>
+                <path class="bird-wing-line soft" d="M125 47C138 53 149 64 156 76"/>
+                <path class="bird-body-line" d="M58 60C60 51 66 43 74 40"/>
+                <circle class="bird-eye" cx="63" cy="51" r="4"/>
+            </svg>`;
+            const models = {
+                                mamiferos: `<svg class="animal-model-svg mammal-model-svg real-mammal-model" viewBox="0 0 220 120" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <path class="mammal-shadow" d="M54 101C88 109 147 109 187 100"/>
+                    <path class="mammal-body-fill" d="M42 73L26 69L43 63H56L67 50L80 38L92 48C107 42 126 41 144 45C162 49 176 59 184 72L198 80L184 86L173 84C165 94 152 100 137 102H120L113 108H102L106 102H86L81 108H70L74 101H58L51 108H40L48 97C40 93 35 84 37 76L42 73Z"/>
+                    <path class="mammal-body-line" d="M42 73L26 69L43 63H56L67 50L80 38L92 48C107 42 126 41 144 45C162 49 176 59 184 72L198 80L184 86L173 84C165 94 152 100 137 102H120L113 108H102L106 102H86L81 108H70L74 101H58L51 108H40L48 97C40 93 35 84 37 76L42 73Z"/>
+                    <path class="mammal-snout-line" d="M42 73L21 67L42 62"/>
+                    <path class="mammal-ear-line" d="M67 50L79 37L91 47"/>
+                    <path class="mammal-back-line" d="M93 48C113 45 135 47 153 56"/>
+                    <path class="mammal-tail-line" d="M183 72L204 66"/>
+                    <path class="mammal-leg-line" d="M69 100L62 115"/>
+                    <path class="mammal-leg-line" d="M88 100L84 115"/>
+                    <path class="mammal-leg-line" d="M118 101L116 115"/>
+                    <path class="mammal-leg-line" d="M144 100L144 115"/>
+                    <circle class="mammal-eye" cx="61" cy="60" r="3.5"/>
+                </svg>`,
+                aves: bird,
+                ave: bird,
+                peixes: `<svg class="animal-model-svg fish-model-svg" viewBox="0 0 180 110" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path class="animal-soft-fill" d="M22 55C39 34 62 24 91 24C121 24 145 35 163 55C145 75 121 86 91 86C62 86 39 76 22 55Z"/><path class="animal-line" d="M22 55C39 34 62 24 91 24C121 24 145 35 163 55C145 75 121 86 91 86C62 86 39 76 22 55Z"/><path class="animal-line" d="M163 55L177 35V75L163 55Z"/><path class="animal-line" d="M87 29L73 10"/><path class="animal-line" d="M87 81L73 100"/><circle class="animal-dot" cx="62" cy="50" r="3.5"/></svg>`,
+                                repteis: `<svg class="animal-model-svg reptile-model-svg real-reptile-model" viewBox="0 0 220 120" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <path class="reptile-shadow" d="M44 101C78 109 143 109 193 99"/>
+                    <path class="reptile-body-fill" d="M39 73L24 66L41 59H57C65 47 77 39 91 37C104 28 121 25 139 27C161 30 180 41 190 57L211 54L201 66L189 68C183 79 173 87 160 91H143L133 101H121L126 90H103L98 102H86L91 90H70L60 102H47L55 88C47 86 41 81 39 73Z"/>
+                    <path class="reptile-body-line" d="M39 73L24 66L41 59H57C65 47 77 39 91 37C104 28 121 25 139 27C161 30 180 41 190 57L211 54L201 66L189 68C183 79 173 87 160 91H143L133 101H121L126 90H103L98 102H86L91 90H70L60 102H47L55 88C47 86 41 81 39 73Z"/>
+                    <path class="reptile-head-line" d="M39 73L18 66L39 59"/>
+                    <path class="reptile-back-line" d="M100 36C122 33 144 36 162 47"/>
+                    <path class="reptile-tail-line" d="M188 58L214 46"/>
+                    <path class="reptile-leg-line" d="M71 89L61 108"/>
+                    <path class="reptile-leg-line" d="M95 90L89 108"/>
+                    <path class="reptile-leg-line" d="M130 90L126 108"/>
+                    <path class="reptile-leg-line" d="M155 88L155 106"/>
+                    <circle class="reptile-eye" cx="56" cy="62" r="3.5"/>
+                </svg>`,
+                anfibios: `<svg class="animal-model-svg amphibian-model-svg" viewBox="0 0 180 110" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path class="animal-soft-fill" d="M38 64C38 38 59 21 90 21C121 21 142 38 142 64C142 86 125 101 99 101H81C55 101 38 86 38 64Z"/><path class="animal-line" d="M38 64C38 38 59 21 90 21C121 21 142 38 142 64C142 86 125 101 99 101H81C55 101 38 86 38 64Z"/><path class="animal-line" d="M64 86L45 104"/><path class="animal-line" d="M78 91L65 108"/><path class="animal-line" d="M102 91L115 108"/><path class="animal-line" d="M116 86L135 104"/><circle class="animal-line" cx="73" cy="42" r="7"/><circle class="animal-line" cx="107" cy="42" r="7"/></svg>`,
+                insetos: `<svg class="animal-model-svg insect-model-svg" viewBox="0 0 180 110" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><ellipse class="animal-soft-fill" cx="90" cy="58" rx="22" ry="31"/><ellipse class="animal-line" cx="90" cy="58" rx="22" ry="31"/><path class="animal-line" d="M90 20V31"/><path class="animal-line" d="M58 39L74 49"/><path class="animal-line" d="M122 39L106 49"/><path class="animal-line" d="M59 79L75 68"/><path class="animal-line" d="M121 79L105 68"/><path class="animal-line" d="M75 35C61 21 43 21 31 30C35 50 52 58 75 56"/><path class="animal-line" d="M105 35C119 21 137 21 149 30C145 50 128 58 105 56"/></svg>`,
+                crustaceos: `<svg class="animal-model-svg crab-model-svg" viewBox="0 0 180 110" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path class="animal-soft-fill" d="M55 55C55 36 70 25 90 25C110 25 125 36 125 55C125 77 112 91 90 91C68 91 55 77 55 55Z"/><path class="animal-line" d="M55 55C55 36 70 25 90 25C110 25 125 36 125 55C125 77 112 91 90 91C68 91 55 77 55 55Z"/><path class="animal-line" d="M57 51L26 34L18 19L38 26"/><path class="animal-line" d="M123 51L154 34L162 19L142 26"/><path class="animal-line" d="M66 78L45 98"/><path class="animal-line" d="M82 84L74 104"/><path class="animal-line" d="M98 84L106 104"/><path class="animal-line" d="M114 78L135 98"/><circle class="animal-dot" cx="78" cy="46" r="3"/><circle class="animal-dot" cx="102" cy="46" r="3"/></svg>`,
+                aracnideos: `<svg class="animal-model-svg spider-model-svg" viewBox="0 0 180 110" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><ellipse class="animal-soft-fill" cx="90" cy="59" rx="25" ry="22"/><ellipse class="animal-line" cx="90" cy="59" rx="25" ry="22"/><circle class="animal-line" cx="90" cy="34" r="13"/><path class="animal-line" d="M66 52L36 34L17 37"/><path class="animal-line" d="M64 61L32 61L14 70"/><path class="animal-line" d="M68 70L40 91L19 94"/><path class="animal-line" d="M114 52L144 34L163 37"/><path class="animal-line" d="M116 61L148 61L166 70"/><path class="animal-line" d="M112 70L140 91L161 94"/></svg>`,
+                moluscos: `<svg class="animal-model-svg mollusc-model-svg" viewBox="0 0 180 110" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path class="animal-soft-fill" d="M38 76C42 45 65 25 94 25C120 25 139 41 142 67C130 87 108 98 76 98C58 98 45 91 38 76Z"/><path class="animal-line" d="M38 76C42 45 65 25 94 25C120 25 139 41 142 67C130 87 108 98 76 98C58 98 45 91 38 76Z"/><path class="animal-line" d="M62 82C74 63 89 47 111 35"/><path class="animal-line" d="M86 96C99 76 116 60 139 50"/><path class="animal-line" d="M39 79L15 92"/><path class="animal-line" d="M47 87L20 104"/></svg>`,
+                vermes: `<svg class="animal-model-svg worm-model-svg" viewBox="0 0 180 110" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path class="animal-line" d="M20 68C42 38 61 89 86 58C111 27 130 78 160 44"/><path class="animal-line" d="M36 53L45 61"/><path class="animal-line" d="M68 73L78 63"/><path class="animal-line" d="M103 44L113 54"/><path class="animal-line" d="M136 59L145 49"/></svg>`,
+                microscopicos: `<svg class="animal-model-svg micro-model-svg" viewBox="0 0 180 110" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><ellipse class="animal-soft-fill" cx="90" cy="58" rx="38" ry="27"/><ellipse class="animal-line" cx="90" cy="58" rx="38" ry="27"/><path class="animal-line" d="M62 39L50 24"/><path class="animal-line" d="M75 33L72 14"/><path class="animal-line" d="M103 33L108 14"/><path class="animal-line" d="M120 42L136 26"/><path class="animal-line" d="M55 70L38 80"/><path class="animal-line" d="M124 72L143 83"/><circle class="animal-dot" cx="78" cy="55" r="3"/><circle class="animal-dot" cx="100" cy="50" r="3"/><circle class="animal-dot" cx="95" cy="67" r="3"/></svg>`,
+                extintos: `<svg class="animal-model-svg dino-model-svg" viewBox="0 0 180 110" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path class="animal-soft-fill" d="M24 74C34 42 60 27 98 31C122 34 139 46 151 65L170 68L157 82H142C137 96 119 104 92 104H73L67 109H53L58 98H39L33 109H19L29 91C23 86 21 80 24 74Z"/><path class="animal-line" d="M24 74C34 42 60 27 98 31C122 34 139 46 151 65L170 68L157 82H142C137 96 119 104 92 104H73L67 109H53L58 98H39L33 109H19L29 91C23 86 21 80 24 74Z"/><path class="animal-line" d="M96 33L111 12"/><path class="animal-line" d="M111 12L125 25"/><circle class="animal-dot" cx="58" cy="44" r="3.5"/></svg>`
+            };
+            return models[normalized] || bird;
+        }
+
+        function getDimensionVisualMeta(metric = '') {
+            const normalized = normalizeDimensionKey(metric);
+            if (normalized.includes('bico') && normalized.includes('peso')) return { key: 'peso-bico', title: metric || 'Peso do bico', accent: 'accent-beak' };
+            if (normalized.includes('cauda') && normalized.includes('peso')) return { key: 'peso-cauda', title: metric || 'Peso da cauda', accent: 'accent-tail' };
+            if (normalized.includes('altura')) return { key: 'altura', title: metric || 'Altura', accent: 'accent-height' };
+            if (normalized.includes('peso')) return { key: 'peso', title: metric || 'Peso', accent: 'accent-weight' };
+            if (normalized.includes('envergadura')) return { key: 'envergadura', title: metric || 'Envergadura', accent: 'accent-wing' };
+            if (normalized.includes('asa')) return { key: 'asa', title: metric || 'Comprimento da asa', accent: 'accent-wing' };
+            if (normalized.includes('bico')) return { key: 'bico', title: metric || 'Comprimento do bico', accent: 'accent-beak' };
+            if (normalized.includes('cauda')) return { key: 'cauda', title: metric || 'Comprimento da cauda', accent: 'accent-tail' };
+            if (normalized.includes('pata')) return { key: 'patas', title: metric || 'Comprimento das patas', accent: 'accent-leg' };
+            if (normalized.includes('ovo')) return { key: 'ovo', title: metric || 'Tamanho do ovo', accent: 'accent-egg' };
+            if (normalized.includes('largura')) return { key: 'largura', title: metric || 'Largura', accent: 'accent-width' };
+            if (normalized.includes('diametro')) return { key: 'diametro', title: metric || 'Diâmetro do corpo', accent: 'accent-width' };
+            if (normalized.includes('comprimento')) return { key: 'comprimento', title: metric || 'Comprimento', accent: 'accent-length' };
+            return { key: 'medida', title: metric || 'Medida', accent: 'accent-generic' };
+        }
+
+        function getMetricModelSvg(key = 'medida') {
+            const icons = {
+                altura: `<svg class="metric-model-svg metric-height" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M18 10v60"/><path d="M18 10l-7 8"/><path d="M18 10l7 8"/><path d="M18 70l-7-8"/><path d="M18 70l7-8"/><path d="M40 19c10 0 18 9 18 24s-8 24-18 24"/><path d="M40 19c-6 5-9 13-9 24s3 19 9 24"/></svg>`,
+                peso: `<svg class="metric-model-svg metric-weight" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M25 68h30"/><path d="M40 13l-12 14h24L40 13Z"/><path d="M28 27h24l9 31H19l9-31Z"/><path d="M40 35v8"/></svg>`,
+                'peso-bico': `<svg class="metric-model-svg metric-beak-weight" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M15 43h22l24-15v30L37 43H15Z"/><circle cx="23" cy="36" r="3"/><path d="M58 12v12"/><path d="M50 18h16"/><path d="M53 25h10"/></svg>`,
+                comprimento: `<svg class="metric-model-svg metric-length" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M11 45h58"/><path d="M11 45l8-8"/><path d="M11 45l8 8"/><path d="M69 45l-8-8"/><path d="M69 45l-8 8"/><path d="M20 31c12-12 28-12 40 0"/></svg>`,
+                largura: `<svg class="metric-model-svg metric-width" viewBox="0 0 80 80" fill="none" aria-hidden="true"><ellipse cx="40" cy="41" rx="21" ry="27"/><path d="M18 41h44"/><path d="M18 41l7-7"/><path d="M18 41l7 7"/><path d="M62 41l-7-7"/><path d="M62 41l-7 7"/></svg>`,
+                diametro: `<svg class="metric-model-svg metric-diameter" viewBox="0 0 80 80" fill="none" aria-hidden="true"><circle cx="40" cy="40" r="25"/><path d="M15 40h50"/><path d="M15 40l7-7"/><path d="M15 40l7 7"/><path d="M65 40l-7-7"/><path d="M65 40l-7 7"/></svg>`,
+                bico: `<svg class="metric-model-svg metric-beak" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M13 44c8-15 22-24 37-22c8 1 13 5 16 11h8L61 44H42l-9 9H18l5-9H13Z"/><path d="M57 33h17"/><path d="M57 44h17"/><circle cx="35" cy="31" r="3"/></svg>`,
+                cauda: `<svg class="metric-model-svg metric-tail" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M16 44h19"/><path d="M35 44L66 22"/><path d="M35 44L70 44"/><path d="M35 44L66 66"/><path d="M15 33v22"/><path d="M54 22v44"/></svg>`,
+                'peso-cauda': `<svg class="metric-model-svg metric-tail-weight" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M12 44h17"/><path d="M29 44L58 23"/><path d="M29 44L62 44"/><path d="M29 44L58 65"/><path d="M56 13v12"/><path d="M48 19h16"/><path d="M51 26h10"/></svg>`,
+                asa: `<svg class="metric-model-svg metric-wing" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M14 55C27 30 44 16 67 13C63 34 51 52 30 66H14V55Z"/><path d="M31 28C38 36 42 46 43 59"/><path d="M45 21C51 30 53 40 53 50"/></svg>`,
+                envergadura: `<svg class="metric-model-svg metric-wingspan" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M7 42h66"/><path d="M7 42l8-8"/><path d="M7 42l8 8"/><path d="M73 42l-8-8"/><path d="M73 42l-8 8"/><path d="M17 55c8-13 15-20 23-23"/><path d="M63 55c-8-13-15-20-23-23"/></svg>`,
+                patas: `<svg class="metric-model-svg metric-legs" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M28 13v39"/><path d="M52 13v39"/><path d="M24 52l-10 12"/><path d="M28 52l4 13"/><path d="M32 52l12 10"/><path d="M48 52l-10 12"/><path d="M52 52l4 13"/><path d="M56 52l12 10"/></svg>`,
+                ovo: `<svg class="metric-model-svg metric-egg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M40 10c13 0 23 17 23 33c0 15-9 27-23 27S17 58 17 43C17 27 27 10 40 10Z"/><path d="M20 70h40"/></svg>`,
+                medida: `<svg class="metric-model-svg metric-generic" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M16 59L58 17l6 6l-42 42l-8-6Z"/><path d="M26 49l6 6"/><path d="M36 39l6 6"/><path d="M46 29l6 6"/></svg>`
+            };
+            return icons[key] || icons.medida;
+        }
+
+        function getDimensionByLabel(dimensions, labels) {
+            const labelList = labels.map(label => label.toLowerCase());
+            return dimensions.find(item => labelList.includes(String(item.tipo || '').toLowerCase())) ||
+                   dimensions.find(item => labelList.some(label => String(item.tipo || '').toLowerCase().includes(label)));
+        }
+
+        function getDimensionSortOrder(item) {
+            const key = getDimensionVisualMeta(item?.tipo).key;
+            const order = {
+                altura: 0,
+                peso: 1,
+                comprimento: 2,
+                largura: 3,
+                diametro: 4,
+                envergadura: 5,
+                asa: 6,
+                bico: 7,
+                'peso-bico': 8,
+                cauda: 9,
+                'peso-cauda': 10,
+                patas: 11,
+                ovo: 12,
+                medida: 99
+            };
+            return order[key] ?? 50;
+        }
+
+        function formatDimension(item, fallback) {
+            if (!item) return fallback;
+            const min = item.valorMin ?? item.valor ?? '';
+            const max = item.valorMax ?? '';
+            const unit = item.unidade || '';
+            const value = min && max ? `${min}-${max}` : `${min || max}`;
+            return `${escapeHtml(value)}${unit ? ` ${escapeHtml(unit)}` : ''}`;
+        }
+
+        function renderDimensionModelCard(item) {
+            const meta = getDimensionVisualMeta(item.tipo);
+            return `
+                <article class="dimension-model-card ${meta.accent}">
+                    <div class="dimension-model-icon">${getMetricModelSvg(meta.key)}</div>
+                    <div class="dimension-model-copy">
+                        <div class="dimension-model-label">${escapeHtml(meta.title)}</div>
+                        <div class="dimension-model-value">${formatDimension(item, '—')}</div>
+                    </div>
+                </article>`;
+        }
+
+        function formatGeneralVisualValue(item, fallback = '—') {
+            if (!item) return fallback;
+            const min = item.valorMin ?? item.valor ?? '';
+            const max = item.valorMax ?? '';
+            const unit = item.unidade || '';
+            const value = min && max ? `${min}-${max}` : `${min || max}`;
+            if (!value) return fallback;
+            return `${escapeHtml(value)}${unit ? ` ${escapeHtml(unit)}` : ''}`.trim();
+        }
+
+        function getGeneralVisualMeta(type = '') {
+            const normalized = normalizeDimensionKey(type);
+            if (normalized.includes('vida')) return { key: 'vida', title: type || 'Vida útil', accent: 'accent-life' };
+            if (normalized.includes('maxima')) return { key: 'velocidade-maxima', title: type || 'Velocidade máxima', accent: 'accent-speed-max' };
+            if (normalized.includes('media')) return { key: 'velocidade-media', title: type || 'Velocidade média', accent: 'accent-speed-average' };
+            if (normalized.includes('estrategia')) return { key: 'estrategia', title: type || 'Estratégia para obter alimento', accent: 'accent-generic' };
+            if (normalized.includes('acasalamento')) return { key: 'acasalamento', title: type || 'Acasalamento', accent: 'accent-generic' };
+            if (normalized.includes('zona')) return { key: 'zona-climatica', title: type || 'Zona Climática', accent: 'accent-climate' };
+            return { key: 'geral', title: type || 'Modelo geral', accent: 'accent-generic' };
+        }
+
+        function getClimateZoneMeta(value = '') {
+            const normalized = normalizeDimensionKey(value).replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
+            const zones = {
+                tropical: { image: 'assets/zonas-climaticas/tropical.png', accent: 'accent-climate-tropical' },
+                subtropical: { image: 'assets/zonas-climaticas/subtropical.png', accent: 'accent-climate-subtropical' },
+                temperada: { image: 'assets/zonas-climaticas/temperada.png', accent: 'accent-climate-temperada' },
+                polar: { image: 'assets/zonas-climaticas/polar.png', accent: 'accent-climate-polar' },
+                artica: { image: 'assets/zonas-climaticas/artica.png', accent: 'accent-climate-artica' },
+                antartica: { image: 'assets/zonas-climaticas/antartica.png', accent: 'accent-climate-antartica' },
+                desertica: { image: 'assets/zonas-climaticas/desertica.png', accent: 'accent-climate-desertica' },
+                semiarida: { image: 'assets/zonas-climaticas/semiarida.png', accent: 'accent-climate-semiarida' },
+                mediterranica: { image: 'assets/zonas-climaticas/mediterranica.png', accent: 'accent-climate-mediterranica' },
+                montanhosa_alpina: { image: 'assets/zonas-climaticas/montanhosa-alpina.png', accent: 'accent-climate-montanhosa' }
+            };
+            if (normalized.includes('montanhosa') || normalized.includes('alpina')) return zones.montanhosa_alpina;
+            return zones[normalized] || null;
+        }
+
+        function getGeneralModelSvg(key = 'geral') {
+            const icons = {
+                vida: `<svg class="metric-model-svg general-model-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M28 10h24"/><path d="M28 70h24"/><path d="M31 10c0 15 18 16 18 30S31 55 31 70"/><path d="M49 10c0 15-18 16-18 30s18 15 18 30"/><path d="M34 53h12"/><path d="M37 59h6"/></svg>`,
+                'velocidade-maxima': `<svg class="metric-model-svg general-model-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M14 58a26 26 0 0 1 52 0"/><path d="M24 58h32"/><path d="M40 58l18-24"/><path d="M28 30l-5-6"/><path d="M52 30l5-6"/><path d="M40 24v-9"/><path d="M61 58h7"/></svg>`,
+                'velocidade-media': `<svg class="metric-model-svg general-model-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M13 58a27 27 0 0 1 54 0"/><path d="M22 58h36"/><path d="M40 58l8-18"/><path d="M23 43h8"/><path d="M49 43h8"/><path d="M30 28l-4-7"/><path d="M50 28l4-7"/></svg>`,
+                geral: `<svg class="metric-model-svg general-model-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><circle cx="40" cy="40" r="25"/><path d="M40 25v18"/><path d="M40 53v2"/></svg>`,
+                acasalamento: `<svg class="metric-model-svg general-model-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><circle cx="28" cy="30" r="8"/><circle cx="52" cy="30" r="8"/><path d="M28 38v10"/><path d="M52 38v10"/><path d="M22 54c4-5 8-8 14-8"/><path d="M58 54c-4-5-8-8-14-8"/><path d="M36 30h8"/><path d="M44 30h8"/></svg>`
+            };
+            return icons[key] || icons.geral;
+        }
+
+        function renderGeneralVisualCard(item) {
+            const meta = getGeneralVisualMeta(item.tipo);
+            const normalizedType = normalizeDimensionKey(item.tipo);
+            const isStrategy = normalizedType.includes('estrategia');
+            const isMating = normalizedType.includes('acasalamento');
+            const isClimateZone = normalizedType.includes('zona');
+            const value = item.valorMin || item.valor || '';
+            const strategyMeta = isStrategy ? getFeedingStrategyMeta(value) : null;
+            const matingMeta = isMating ? getMatingMeta(value) : null;
+            const climateMeta = isClimateZone ? getClimateZoneMeta(value) : null;
+            const icon = climateMeta
+                ? `<img class="climate-zone-model-image" src="${climateMeta.image}" alt="Zona climática ${escapeHtml(value)}" loading="lazy">`
+                : strategyMeta
+                    ? getFeedingStrategySvg(strategyMeta.key)
+                    : matingMeta
+                        ? getMatingSystemSvg(matingMeta.key)
+                        : getGeneralModelSvg(meta.key);
+            return `
+                <article class="dimension-model-card general-model-card ${climateMeta?.accent || strategyMeta?.accent || matingMeta?.accent || meta.accent}">
+                    <div class="dimension-model-icon ${climateMeta ? 'climate-zone-model-icon' : ''}">${icon}</div>
+                    <div class="dimension-model-copy">
+                        <div class="dimension-model-label">${escapeHtml(meta.title)}</div>
+                        <div class="dimension-model-value">${formatGeneralVisualValue(item)}</div>
+                    </div>
+                </article>`;
+        }
+
+        function renderGeneralVisual(animalData) {
+            const models = animalData.informacao?.geralDetalhada || [];
+            const valid = Array.isArray(models) ? models.filter(item => item.tipo && item.valor) : [];
+            if (!valid.length) return '';
+
+            return `
+                <div class="general-visual-card">
+                    <div class="general-preview-hero compact">
+                        <div class="general-preview-icon" aria-hidden="true">
+                            <svg class="metric-model-svg general-model-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true">
+                                <path d="M18 58c8-22 24-34 47-36"/>
+                                <path d="M21 61h38"/>
+                                <path d="M57 22l5-8"/>
+                                <path d="M53 26l-7-6"/>
+                                <circle cx="30" cy="57" r="4"/>
+                                <circle cx="56" cy="57" r="4"/>
+                            </svg>
+                        </div>
+                        <div class="general-preview-copy">
+                            <strong>Dados rápidos do animal</strong>
+                        </div>
+                    </div>
+                    <div class="general-visual-models">
+                        ${valid.map(renderGeneralVisualCard).join('')}
+                    </div>
+                </div>`;
+        }
+
+        function renderDimensionsVisual(animalData) {
+            const dimensions = animalData.informacao?.dimensoesDetalhadas || [];
+            if (!Array.isArray(dimensions) || dimensions.length === 0) return '';
+
+            const height = getDimensionByLabel(dimensions, ['Altura', 'Altura ao ombro']);
+            const weight = getDimensionByLabel(dimensions, ['Peso']);
+            const length = getDimensionByLabel(dimensions, ['Comprimento total', 'Comprimento do corpo', 'Envergadura']);
+            const ordered = [...dimensions].sort((a, b) => getDimensionSortOrder(a) - getDimensionSortOrder(b));
+
+            return `
+                <div class="dimensions-visual-card">
+                    <div class="visual-stage">
+                        ${height ? `<div class="visual-height"><span>${formatDimension(height, '')}</span></div>` : ''}
+                        <div class="visual-icon">${getCategoryModelSvg(animalData.categoria)}</div>
+                        ${length ? `<div class="visual-length">${formatDimension(length, '')}</div>` : ''}
+                    </div>
+                    <div class="dimension-model-grid">
+                        ${ordered.map(renderDimensionModelCard).join('')}
+                    </div>
+                </div>`;
+        }
+
+        function normalizeFeedingAnimalLabel(label = '') {
+            return String(label).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        }
+
+        function getFeedingAnimalOption(label = '') {
+            const normalizedLabel = normalizeFeedingAnimalLabel(label);
+            return feedingAnimalOptions.find(option => normalizeFeedingAnimalLabel(option.label) === normalizedLabel);
+        }
+
+        function groupFeedingItems(items = []) {
+            const groups = new Map();
+
+            items.forEach(item => {
+                const type = item.tipo || 'Alimentação';
+                const detail = (item.detalhe || '').trim();
+                const animalOption = getFeedingAnimalOption(detail);
+
+                if (!groups.has(type)) {
+                    groups.set(type, { type, summary: '', animals: [] });
+                }
+
+                const group = groups.get(type);
+                if (animalOption) {
+                    group.animals.push(animalOption);
+                } else if (detail && !group.summary) {
+                    group.summary = detail;
+                }
+            });
+
+            return [...groups.values()];
+        }
+
+        function renderFeedingTypeCard(group) {
+            const meta = getFeedingVisualMeta(group.type);
+            const detail = group.summary || feedingTypeDescriptions[group.type] || 'Modelo visual';
+            return `
+                <article class="dimension-model-card feeding-model-card feeding-type-highlight-card ${meta.accent}">
+                    <div class="dimension-model-icon">${getFeedingModelSvg(meta.key)}</div>
+                    <div class="dimension-model-copy">
+                        <div class="dimension-model-label">${escapeHtml(meta.title)}</div>
+                        <div class="dimension-model-value">${escapeHtml(detail)}</div>
+                        <div class="dimension-model-meta">Alimentação</div>
+                    </div>
+                </article>`;
+        }
+
+        function renderFeedingAnimalCard(animal) {
+            return `
+                <article class="feeding-prey-card">
+                    <img class="feeding-prey-image" src="${animal.src}" alt="${escapeHtml(animal.label)}" loading="lazy">
+                    <div class="feeding-prey-name">${escapeHtml(animal.label)}</div>
+                </article>`;
+        }
+
+        function renderFeedingGroup(group) {
+            return `
+                <div class="feeding-type-group">
+                    ${renderFeedingTypeCard(group)}
+                    ${group.animals.length ? `
+                        <div class="feeding-prey-grid">
+                            ${group.animals.map(renderFeedingAnimalCard).join('')}
+                        </div>
+                    ` : ''}
+                </div>`;
+        }
+
+        function renderFeedingModelCard(item) {
+            const type = item.tipo || '';
+            const meta = getFeedingVisualMeta(type);
+            const detail = item.detalhe || feedingTypeDescriptions[type] || 'Modelo visual';
+            return `
+                <article class="dimension-model-card feeding-model-card ${meta.accent}">
+                    <div class="dimension-model-icon">${getFeedingModelSvg(meta.key)}</div>
+                    <div class="dimension-model-copy">
+                        <div class="dimension-model-label">${escapeHtml(meta.title)}</div>
+                        <div class="dimension-model-value">${escapeHtml(detail)}</div>
+                        <div class="dimension-model-meta">Alimentação</div>
+                    </div>
+                </article>`;
+        }
+
+        function renderFeedingStrategyCard(item) {
+            const strategy = item.estrategia || item.tipo || '';
+            const meta = getFeedingStrategyMeta(strategy);
+            const detail = item.detalhe || feedingStrategyDescriptions[strategy] || 'Estratégia alimentar';
+            return `
+                <article class="dimension-model-card feeding-strategy-card ${meta.accent}">
+                    <div class="dimension-model-icon">${getFeedingStrategySvg(meta.key)}</div>
+                    <div class="dimension-model-copy">
+                        <div class="dimension-model-label">${escapeHtml(strategy)}</div>
+                        <div class="dimension-model-value">${escapeHtml(detail)}</div>
+                        <div class="dimension-model-meta">Estratégia alimentar</div>
+                    </div>
+                </article>`;
+        }
+
+        function renderFeedingVisual(animalData) {
+            const feeding = animalData.informacao?.alimentacaoDetalhada || [];
+            const valid = Array.isArray(feeding) ? feeding.filter(item => item.tipo || item.detalhe) : [];
+            const strategies = animalData.informacao?.alimentacaoEstrategias || [];
+            const validStrategies = Array.isArray(strategies) ? strategies.filter(item => item.estrategia || item.tipo || item.detalhe) : [];
+            if (!valid.length && !validStrategies.length) return '';
+
+            return `
+                <div class="reproduction-visual-card feeding-animal-visual-card">
+                    <div class="reproduction-model-grid feeding-model-grid">
+                        ${groupFeedingItems(valid).map(renderFeedingGroup).join('')}
+                        ${validStrategies.map(renderFeedingStrategyCard).join('')}
+                    </div>
+                </div>`;
+        }
+        
+        function getReproductionVisualMeta(type = '') {
+            const normalized = normalizeDimensionKey(type);
+            if (normalized.includes('oviparo') || normalized.includes('ovo')) return { key: 'ovo', title: type || 'Ovíparo', accent: 'accent-egg' };
+            if (normalized.includes('viviparo') || normalized.includes('placental')) return { key: 'viviparo', title: type || 'Vivíparo', accent: 'accent-weight' };
+            if (normalized.includes('marsupial')) return { key: 'marsupial', title: type || 'Marsupial', accent: 'accent-tail' };
+            if (normalized.includes('larvar') || normalized.includes('metamorfose') || normalized.includes('girino') || normalized.includes('ninfa') || normalized.includes('pupa')) return { key: 'metamorfose', title: type || 'Metamorfose', accent: 'accent-wing' };
+            if (normalized.includes('fertilizacao') || normalized.includes('sexuada') || normalized.includes('sexos separados')) return { key: 'fertilizacao', title: type || 'Fertilização', accent: 'accent-length' };
+            if (normalized.includes('hermafrodita') || normalized.includes('partenogenese')) return { key: 'hermafrodita', title: type || 'Hermafrodita', accent: 'accent-width' };
+            if (normalized.includes('divisao') || normalized.includes('assexuada') || normalized.includes('brotamento') || normalized.includes('conjugacao') || normalized.includes('multiplicacao') || normalized.includes('esporulacao') || normalized.includes('fragmentacao') || normalized.includes('regeneracao')) return { key: 'celular', title: type || 'Reprodução celular', accent: 'accent-generic' };
+            if (normalized.includes('fossil') || normalized.includes('provavel') || normalized.includes('desconhecido') || normalized.includes('estimado')) return { key: 'fossil', title: type || 'Estimado', accent: 'accent-beak' };
+            if (normalized.includes('parental') || normalized.includes('ninho') || normalized.includes('nidicola') || normalized.includes('nidifugo') || normalized.includes('saco')) return { key: 'cuidado', title: type || 'Cuidado parental', accent: 'accent-leg' };
+            return { key: 'reproducao', title: type || 'Reprodução', accent: 'accent-generic' };
+        }
+
+        function getReproductionModelSvg(key = 'reproducao') {
+            const icons = {
+                ovo: `<svg class="metric-model-svg reproduction-icon-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M40 10c13 0 23 17 23 33c0 15-9 27-23 27S17 58 17 43C17 27 27 10 40 10Z"/><path d="M29 47c7 5 15 5 22 0"/></svg>`,
+                viviparo: `<svg class="metric-model-svg reproduction-icon-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M40 12c15 12 24 24 24 38c0 13-10 22-24 22S16 63 16 50c0-14 9-26 24-38Z"/><circle cx="40" cy="48" r="12"/><path d="M40 36v-9"/></svg>`,
+                marsupial: `<svg class="metric-model-svg reproduction-icon-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M20 62c2-26 13-43 33-48c9 9 13 19 11 32c-2 13-11 22-26 27"/><path d="M28 48c7 12 20 14 31 3"/><circle cx="42" cy="51" r="6"/></svg>`,
+                metamorfose: `<svg class="metric-model-svg reproduction-icon-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M17 54c12-18 29-23 46-14"/><path d="M57 34l8 8l-10 4"/><circle cx="25" cy="25" r="8"/><path d="M43 59c5 9 15 10 22 3"/><path d="M49 65l-8 5"/></svg>`,
+                fertilizacao: `<svg class="metric-model-svg reproduction-icon-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><circle cx="28" cy="39" r="13"/><circle cx="52" cy="39" r="13"/><path d="M40 25v28"/><path d="M26 63h28"/></svg>`,
+                hermafrodita: `<svg class="metric-model-svg reproduction-icon-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><circle cx="40" cy="34" r="15"/><path d="M40 49v21"/><path d="M29 60h22"/><path d="M50 24l14-14"/><path d="M54 10h10v10"/></svg>`,
+                celular: `<svg class="metric-model-svg reproduction-icon-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><circle cx="30" cy="40" r="18"/><circle cx="50" cy="40" r="18"/><path d="M40 23v34"/><circle cx="30" cy="40" r="4"/><circle cx="50" cy="40" r="4"/></svg>`,
+                fossil: `<svg class="metric-model-svg reproduction-icon-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M19 59c12-25 31-39 52-42c-3 22-17 39-42 52L19 59Z"/><path d="M31 56L58 29"/><path d="M23 67h35"/></svg>`,
+                cuidado: `<svg class="metric-model-svg reproduction-icon-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M14 43c6-16 18-25 36-24c11 1 20 7 25 17"/><path d="M21 47c8 13 20 20 36 20"/><circle cx="39" cy="47" r="8"/><path d="M55 35l12-4"/></svg>`,
+                reproducao: `<svg class="metric-model-svg reproduction-icon-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M40 13c15 0 27 12 27 27S55 67 40 67S13 55 13 40S25 13 40 13Z"/><path d="M40 25v30"/><path d="M25 40h30"/></svg>`
+            };
+            return icons[key] || icons.reproducao;
+        }
+
+        function renderReproductionModelCard(item, animalData = {}) {
+            const egg = animalData.categoria === 'Aves' ? getBirdEggVisualByLabel(item.tipo) : null;
+            if (egg) {
+                return `
+                    <article class="dimension-model-card reproduction-model-card bird-egg-selected-card">
+                        <div class="bird-egg-selected-image"><img src="${egg.image}" alt="Ovo ${escapeHtml(egg.label)}" loading="lazy"></div>
+                        <div class="dimension-model-copy">
+                            <div class="dimension-model-label">${escapeHtml(egg.label)}</div>
+                            <div class="dimension-model-value">${escapeHtml(item.detalhe || egg.average)}</div>
+                            <div class="dimension-model-meta">Ovo escolhido</div>
+                        </div>
+                    </article>`;
+            }
+
+            const meta = getReproductionVisualMeta(item.tipo);
+            const detail = item.detalhe || 'Modelo visual';
+            return `
+                <article class="dimension-model-card reproduction-model-card ${meta.accent}">
+                    <div class="dimension-model-icon">${getReproductionModelSvg(meta.key)}</div>
+                    <div class="dimension-model-copy">
+                        <div class="dimension-model-label">${escapeHtml(meta.title)}</div>
+                        <div class="dimension-model-value">${escapeHtml(detail)}</div>
+                        <div class="dimension-model-meta">Reprodução</div>
+                    </div>
+                </article>`;
+        }
+
+        function renderReproductionVisual(animalData) {
+            const reproduction = animalData.informacao?.reproducaoDetalhada || [];
+            const valid = Array.isArray(reproduction) ? reproduction.filter(item => item.tipo || item.detalhe) : [];
+            if (!valid.length) return '';
+
+            const isBird = animalData.categoria === 'Aves';
+
+            return `
+                <div class="reproduction-visual-card">
+                    <div class="reproduction-preview-stage compact">
+                        <div class="reproduction-category-icon" aria-hidden="true">${getCategoryModelSvg(animalData.categoria)}</div>
+                        <div class="reproduction-category-copy">
+                            <span>${isBird ? 'Modelo visual dos ovos' : 'Modelo de reprodução'}</span>
+                            <strong>${escapeHtml(animalData.categoria || 'Animal')}</strong>
+                        </div>
+                    </div>
+                    <div class="reproduction-model-grid">
+                        ${valid.map(item => renderReproductionModelCard(item, animalData)).join('')}
+                    </div>
+                </div>`;
+        }
+        
+
+        const birdEggVisuals = [
+            { label: 'Branco', image: 'assets/ovos/ovo_branco.png', average: '2-5 ovos' },
+            { label: 'Creme', image: 'assets/ovos/ovo_creme.png', average: '2-5 ovos' },
+            { label: 'Bege salpicado', image: 'assets/ovos/ovo_bege_salpicado.png', average: '2-5 ovos' },
+            { label: 'Castanho', image: 'assets/ovos/ovo_castanho.png', average: '2-5 ovos' },
+            { label: 'Azul claro', image: 'assets/ovos/ovo_azul_claro.png', average: '2-5 ovos' },
+            { label: 'Azul-esverdeado', image: 'assets/ovos/ovo_azul_esverdeado_salpicado.png', average: '2-5 ovos' },
+            { label: 'Manchado', image: 'assets/ovos/ovo_manchado_escuro.png', average: '2-5 ovos' },
+            { label: 'Camuflado', image: 'assets/ovos/ovo_camuflado_moteado.png', average: '2-5 ovos' }
+        ];
+
+        function getBirdEggVisualByLabel(label = '') {
+            return birdEggVisuals.find(egg => egg.label === label);
+        }
+
+        const plumageTypeDescriptions = {
+            'Penugem': 'Penas muito macias e isolantes',
+            'Plumagem juvenil': 'Primeira plumagem após a penugem',
+            'Plumagem adulta': 'Aspeto típico da ave madura',
+            'Plumagem nupcial': 'Mais vistosa durante a reprodução',
+            'Plumagem de eclipse': 'Fase mais discreta após reprodução',
+            'Plumagem de inverno': 'Mais isolante e discreta',
+            'Plumagem de verão': 'Mais leve, definida e sazonal',
+            'Plumagem de camuflagem': 'Mistura-se com o habitat',
+            'Plumagem ornamental': 'Usada em exibição e atração',
+            'Plumagem impermeável': 'Adaptada à repelência da água',
+            'Plumagem sexualmente dimórfica': 'Macho e fêmea com visuais distintos',
+            'Rémiges': 'Penas de voo das asas',
+            'Retrizes': 'Penas da cauda, direção e travagem',
+            'Tectrizes': 'Penas de cobertura do corpo e asas',
+            'Semiplumas': 'Misturam estrutura com suavidade',
+            'Filoplumas': 'Penas finas de função sensorial',
+            'Cerdas': 'Estruturas rígidas perto do bico e olhos'
+        };
+
+        const plumageVisualAssets = {
+            'Penugem': { image: 'assets/plumagem/penugem.png', group: 'Tipo de plumagem' },
+            'Plumagem juvenil': { image: 'assets/plumagem/semiplumas.png', group: 'Tipo de plumagem' },
+            'Plumagem adulta': { image: 'assets/plumagem/remiges.png', group: 'Tipo de plumagem' },
+            'Plumagem nupcial': { image: 'assets/plumagem/retrizes.png', group: 'Tipo de plumagem' },
+            'Plumagem de eclipse': { image: 'assets/plumagem/tectrizes.png', group: 'Tipo de plumagem' },
+            'Plumagem de inverno': { image: 'assets/plumagem/semiplumas.png', group: 'Tipo de plumagem' },
+            'Plumagem de verão': { image: 'assets/plumagem/remiges.png', group: 'Tipo de plumagem' },
+            'Plumagem de camuflagem': { image: 'assets/plumagem/tectrizes.png', group: 'Tipo de plumagem' },
+            'Plumagem ornamental': { image: 'assets/plumagem/retrizes.png', group: 'Tipo de plumagem' },
+            'Plumagem impermeável': { image: 'assets/plumagem/remiges.png', group: 'Tipo de plumagem' },
+            'Plumagem sexualmente dimórfica': { image: 'assets/plumagem/retrizes.png', group: 'Tipo de plumagem' },
+            'Rémiges': { image: 'assets/plumagem/remiges.png', group: 'Tipo de pena' },
+            'Retrizes': { image: 'assets/plumagem/retrizes.png', group: 'Tipo de pena' },
+            'Tectrizes': { image: 'assets/plumagem/tectrizes.png', group: 'Tipo de pena' },
+            'Semiplumas': { image: 'assets/plumagem/semiplumas.png', group: 'Tipo de pena' },
+            'Filoplumas': { image: 'assets/plumagem/filoplumas.png', group: 'Tipo de pena' },
+            'Cerdas': { image: 'assets/plumagem/cerdas.png', group: 'Tipo de pena' }
+        };
+
+        function getPlumageVisualMeta(type = '', group = 'Tipo de plumagem') {
+            const asset = plumageVisualAssets[type] || plumageVisualAssets['Rémiges'];
+            return {
+                label: type || 'Plumagem',
+                group: (typeof group === 'string' && group) ? group : (asset.group || 'Tipo de plumagem'),
+                image: asset.image,
+                description: plumageTypeDescriptions[type] || 'Modelo visual desta característica da plumagem.'
+            };
+        }
+
+        function renderPlumageModelCard(item) {
+            const meta = getPlumageVisualMeta(item.tipo, item.grupo === 'pena' ? 'Tipo de pena' : (item.grupo === 'plumagem' ? 'Tipo de plumagem' : item.grupo));
+            const detail = item.detalhe || meta.description;
+            return `
+                <article class="plumage-model-card">
+                    <div class="plumage-model-figure">
+                        <img src="${meta.image}" alt="${escapeHtml(meta.label)}">
+                    </div>
+                    <div class="plumage-model-copy">
+                        <div class="plumage-model-label">${escapeHtml(meta.label)}</div>
+                        <div class="plumage-model-value">${escapeHtml(detail)}</div>
+                        <div class="plumage-model-meta">${escapeHtml(meta.group)}</div>
+                    </div>
+                </article>`;
+        }
+
+        function renderPlumageVisual(animalData) {
+            const plumage = animalData.informacao?.plumagemDetalhada || [];
+            if (!Array.isArray(plumage) || plumage.length === 0) return '';
+            const valid = plumage.filter(item => item.tipo || item.detalhe);
+            if (!valid.length) return '';
+            const hero = valid[0];
+            const heroMeta = getPlumageVisualMeta(hero.tipo, hero.grupo === 'pena' ? 'Tipo de pena' : 'Tipo de plumagem');
+
+            return `
+                <div class="plumage-visual-card">
+                    <div class="plumage-preview-stage compact">
+                        <div class="plumage-hero-figure compact"><img src="${heroMeta.image}" alt="${escapeHtml(heroMeta.label)}"></div>
+                        <div class="plumage-hero-copy compact">
+                            <span>Modelo visual da plumagem</span>
+                            <strong>${escapeHtml(heroMeta.label)}</strong>
+                            <p>${escapeHtml(hero.detalhe || heroMeta.description)}</p>
+                        </div>
+                    </div>
+                    <div class="plumage-model-grid">
+                        ${valid.map(renderPlumageModelCard).join('')}
+                    </div>
+                </div>`;
+        }
+        
+        function playVideo(videoUrl, thumbnailElement) {
+            const videoId = getYouTubeVideoId(videoUrl);
+            if (!videoId) return;
+            
+            // Remover classe active de outras thumbnails e adicionar nesta
+            document.querySelectorAll('.thumbnail').forEach(t => t.classList.remove('active'));
+            if(thumbnailElement) thumbnailElement.classList.add('active');
+
+            const videoContainer = document.getElementById('main-video-container');
+            const iframe = videoContainer.querySelector('iframe');
+            iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
+            videoContainer.style.display = 'block';
+        }
+
+        async function fetchAndRenderRelatedAnimals(familia, currentAnimalId) {
+            if (!familia) return;
+            const container = document.getElementById('related-animals-container');
+            if (!container) return;
+            
+            try {
+                const animalsRef = collection(db, "animais");
+                const q = query(animalsRef, where("familia", "==", familia));
+                const querySnapshot = await getDocs(q);
+                let relatedAnimals = [];
+                querySnapshot.forEach(doc => {
+                    if (doc.id !== currentAnimalId) {
+                        relatedAnimals.push({ id: doc.id, ...doc.data() });
+                    }
+                });
+
+                if (relatedAnimals.length > 0) {
+                    let listHTML = '<ul class="related-list">';
+                    relatedAnimals.forEach(animal => {
+                        const objectPos = animal.imagemObjectPosition || 'center center';
+                        listHTML += `
+                            <li class="related-item">
+                                <a href="animal.html?id=${animal.id}">
+                                    <img src="${animal.imagemUrl}" alt="${animal.nome}" style="object-position: ${objectPos};">
+                                    <span>${animal.nome}</span>
+                                </a>
+                            </li>
+                        `;
+                    });
+                    listHTML += '</ul>';
+                    container.innerHTML = `<h3>Da mesma família</h3>${listHTML}`;
+                } else {
+                    container.style.display = 'none';
+                }
+            } catch (error) {
+                console.error("Erro ao buscar animais relacionados:", error);
+                container.innerHTML = `<p>Não foi possível carregar animais relacionados.</p>`;
+            }
+        }
+
+        function renderAnimalData(animalData, animalId) {
+            document.title = `${animalData.nome} - Grandes Projetos`;
+            let thumbnailsHTML = '';
+            if (animalData.videos && animalData.videos.length > 0) {
+                animalData.videos.forEach(videoUrl => {
+                    const videoId = getYouTubeVideoId(videoUrl);
+                    if (videoId) {
+                        thumbnailsHTML += `
+                            <div class="thumbnail" data-video-url="${videoUrl}">
+                                <img src="https://img.youtube.com/vi/${videoId}/mqdefault.jpg" alt="Miniatura de vídeo">
+                                <div class="play-icon">â-¶</div>
+                            </div>`;
+                    }
+                });
+            }
+
+            const hasGeralText = animalData.informacao && animalData.informacao.geral && animalData.informacao.geral.trim() !== "";
+            const hasGeralVisual = Array.isArray(animalData.informacao?.geralDetalhada) && animalData.informacao.geralDetalhada.some(item => item?.tipo && (item?.valor || item?.valorMin || item?.valorMax));
+            const hasGeral = hasGeralText || hasGeralVisual;
+            const hasDimensoesText = animalData.informacao?.dimensoes && animalData.informacao.dimensoes.trim() !== "";
+            const hasDimensoesVisual = Array.isArray(animalData.informacao?.dimensoesDetalhadas) && animalData.informacao.dimensoesDetalhadas.length > 0;
+            const hasDimensoes = hasDimensoesText || hasDimensoesVisual;
+
+            const hasAlimentacaoText = animalData.informacao?.alimentacao && animalData.informacao.alimentacao.trim() !== "";
+            const hasAlimentacaoVisual = (Array.isArray(animalData.informacao?.alimentacaoDetalhada) && animalData.informacao.alimentacaoDetalhada.some(item => item?.tipo || item?.detalhe)) ||
+                (Array.isArray(animalData.informacao?.alimentacaoEstrategias) && animalData.informacao.alimentacaoEstrategias.some(item => item?.estrategia || item?.tipo || item?.detalhe));
+            const hasAlimentacao = hasAlimentacaoText || hasAlimentacaoVisual;
+
+            const hasReproducaoText = animalData.informacao?.reproducao && animalData.informacao.reproducao.trim() !== "";
+            const hasReproducaoVisual = Array.isArray(animalData.informacao?.reproducaoDetalhada) && animalData.informacao.reproducaoDetalhada.length > 0;
+            const hasBirdEggVisual = animalData.categoria === 'Aves';
+            const hasReproducao = hasReproducaoText || hasReproducaoVisual || hasBirdEggVisual;
+
+            const hasPlumagemText = animalData.informacao && animalData.informacao.plumagem && animalData.informacao.plumagem.trim() !== "";
+            const hasPlumagemVisual = Array.isArray(animalData.informacao?.plumagemDetalhada) && animalData.informacao.plumagemDetalhada.some(item => item?.tipo || item?.detalhe);
+            const hasPlumagem = hasPlumagemText || hasPlumagemVisual;
+            
+            const hasDistribicao = animalData.informacao?.distribuicao && 
+                                   ((Array.isArray(animalData.informacao.distribuicao.paises) && animalData.informacao.distribuicao.paises.length > 0) || 
+                                    (animalData.informacao.distribuicao.descricao && animalData.informacao.distribuicao.descricao.trim() !== ""));
+
+            const navItems = [];
+            if (hasGeral) navItems.push({ href: '#info-geral', label: 'Geral' });
+            if (hasDimensoes) navItems.push({ href: '#info-dimensoes', label: 'Dimensões' });
+            if (hasAlimentacao) navItems.push({ href: '#info-alimentacao', label: 'Alimentação' });
+            if (hasReproducao) navItems.push({ href: '#info-reproducao', label: 'Reprodução' });
+            if (hasPlumagem) navItems.push({ href: '#info-plumagem', label: 'Plumagem' });
+            if (hasDistribicao) navItems.push({ href: '#info-distribuicao', label: 'Distribuição' });
+            
+            const navHTML = navItems.map((item, idx) => `
+                <a href="${item.href}" class="nav-anchor ${idx === 0 ? 'active' : ''}">${item.label}</a>
+            `).join('');
+
+            mainContent.innerHTML = `
+                <div class="video-section">
+                    <div id="video-thumbnails">${thumbnailsHTML}</div>
+                    <div id="main-video-container">
+                        <iframe frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    </div>
+                </div>
+                <div class="content-grid">
+                    <div class="left-column">
+                        <div class="animal-image">
+                            <img src="${animalData.imagemUrl}" alt="Imagem de ${animalData.nome}" style="object-position: ${animalData.imagemObjectPosition || 'center center'};">
+                        </div>
+                        <div id="related-animals-container"></div>
+                    </div>
+                    <div class="animal-details">
+                        <div class="header">
+                            <h1>${animalData.nome}</h1>
+                            <h2 class="scientific-name">(${animalData.nomeCientifico})</h2>
+                        </div>
+                        <nav class="page-nav">
+                            ${navHTML}
+                        </nav>
+                        <div class="info-sections">
+                            ${hasGeral ? `
+                            <div class="info-section" id="info-geral">
+                                <h3><span class="icon svg-icon">${getInfoSectionIconSvg('geral')}</span>Informação Geral</h3>
+                                ${hasGeralText ? `<p>${animalData.informacao.geral}</p>` : ''}
+                                ${renderGeneralVisual(animalData)}
+                            </div>` : ''}
+                            ${hasDimensoes ? `
+                            <div class="info-section" id="info-dimensoes">
+                                <h3><span class="icon svg-icon">${getInfoSectionIconSvg('dimensoes')}</span>Dimensões</h3>
+                                <p>${animalData.informacao.dimensoes || ''}</p>
+                                ${renderDimensionsVisual(animalData)}
+                            </div>` : ''}
+                            ${hasAlimentacao ? `
+                            <div class="info-section" id="info-alimentacao">
+                                <h3><span class="icon svg-icon">${getInfoSectionIconSvg('alimentacao')}</span>Alimentação</h3>
+                                ${hasAlimentacaoText ? `<p>${animalData.informacao.alimentacao}</p>` : ''}
+                                ${renderFeedingVisual(animalData)}
+                            </div>` : ''}
+                            ${hasReproducao ? `
+                            <div class="info-section" id="info-reproducao">
+                                <h3><span class="icon svg-icon">${getInfoSectionIconSvg('reproducao')}</span>Reprodução</h3>
+                                <p>${animalData.informacao.reproducao || ''}</p>
+                                ${renderReproductionVisual(animalData)}
+                            </div>` : ''}
+                            ${hasPlumagem ? `
+                            <div class="info-section" id="info-plumagem">
+                                <h3><span class="icon svg-icon">${getInfoSectionIconSvg('plumagem')}</span>Plumagem</h3>
+                                <p>${animalData.informacao.plumagem || 'Sem detalhes sobre a plumagem.'}</p>
+                                ${renderPlumageVisual(animalData)}
+                            </div>` : ''}
+                            ${hasDistribicao ? `
+                            <div class="info-section" id="info-distribuicao">
+                                <h3><span class="icon svg-icon">${getInfoSectionIconSvg('distribuicao')}</span>Distribuição</h3>
+                                <div class="distribution-layout" style="margin-top: 20px;">
+                                    <div class="distribution-details-left" style="display: flex; flex-direction: column; gap: 15px;">
+                                        ${animalData.informacao.distribuicao.descricao && animalData.informacao.distribuicao.descricao.trim() !== "" ? `<p>${animalData.informacao.distribuicao.descricao}</p>` : ''}
+                                        <div style="font-size: 0.95rem; line-height: 1.5; background: rgba(0,0,0,0.2); padding: 15px; border-radius: var(--border-radius-sm); border: 1px solid var(--border-color);">
+                                            <strong style="color: var(--text-primary); display: block; margin-bottom: 5px;">Países assinalados:</strong> 
+                                            <span id="highlightedCountriesNames" style="color: var(--text-secondary);">Carregando...</span>
+                                        </div>
+                                    </div>
+                                    <div class="map-container-wrapper">
+                                        <div class="map-container" id="distributionMapDetail" style="height: 320px;"></div>
+                                    </div>
+                                </div>
+                            </div>` : ''}
+                        </div>
+                    </div>
+                </div>`;
+            
+            if (hasDistribicao) {
+                const selectedCodes = animalData.informacao.distribuicao.paises || [];
+                const paisesDetalhes = animalData.informacao.distribuicao.paisesDetalhes || {};
+
+                function applySubregionGradient(code, subregion) {
+                    const svgDefs = document.querySelector('#aurora-gradient-svg defs');
+                    if (!svgDefs) return;
+
+                    const existingGrad = document.getElementById(`grad-${code}`);
+                    if (existingGrad) existingGrad.remove();
+
+                    if (subregion === 'inteiro') {
+                        const paths = document.querySelectorAll(`[data-code="${code}"]`);
+                        paths.forEach(path => {
+                            path.setAttribute('fill', '#f59e0b');
+                            path.style.fill = '#f59e0b';
+                        });
+                        return;
+                    }
+
+                    const grad = document.createElementNS("http://www.w3.org/2000/svg", "linearGradient");
+                    grad.setAttribute('id', `grad-${code}`);
+                    
+                    let stopColor1 = '#f59e0b';
+                    let stopColor2 = '#2e2e38';
+                    let offset = '50%';
+                    let x1 = '0%', y1 = '0%', x2 = '0%', y2 = '0%';
+
+                    if (subregion === 'esquerdo') { // Oeste
+                        x2 = '100%';
+                        if (code === 'US') {
+                            offset = '60%';
+                        }
+                    } else if (subregion === 'direito') { // Este
+                        x2 = '100%';
+                        if (code === 'US') {
+                            offset = '60%';
+                        }
+                        stopColor1 = '#2e2e38';
+                        stopColor2 = '#f59e0b';
+                    } else if (subregion === 'cima') { // Norte
+                        y2 = '100%';
+                        if (code === 'US') {
+                            offset = '65%';
+                        }
+                    } else if (subregion === 'baixo') { // Sul
+                        y2 = '100%';
+                        if (code === 'US') {
+                            offset = '65%';
+                        }
+                        stopColor1 = '#2e2e38';
+                        stopColor2 = '#f59e0b';
+                    }
+
+                    grad.setAttribute('x1', x1);
+                    grad.setAttribute('y1', y1);
+                    grad.setAttribute('x2', x2);
+                    grad.setAttribute('y2', y2);
+
+                    const stop1 = document.createElementNS("http://www.w3.org/2000/svg", "stop");
+                    stop1.setAttribute('offset', offset);
+                    stop1.setAttribute('stop-color', stopColor1);
+
+                    const stop2 = document.createElementNS("http://www.w3.org/2000/svg", "stop");
+                    stop2.setAttribute('offset', offset);
+                    stop2.setAttribute('stop-color', stopColor2);
+
+                    grad.appendChild(stop1);
+                    grad.appendChild(stop2);
+
+                    svgDefs.appendChild(grad);
+
+                    setTimeout(() => {
+                        const paths = document.querySelectorAll(`[data-code="${code}"]`);
+                        paths.forEach(path => {
+                            path.setAttribute('fill', `url(#grad-${code})`);
+                            path.style.fill = `url(#grad-${code})`;
+                        });
+                    }, 80);
+                }
+
+                const mapDetail = new jsVectorMap({
+                    selector: '#distributionMapDetail',
+                    map: 'world',
+                    regionsSelectable: false,
+                    selectedRegions: selectedCodes,
+                    regionStyle: {
+                        initial: {
+                            fill: '#2e2e38',
+                            fillOpacity: 1,
+                            stroke: '#3b3b4f',
+                            strokeWidth: 0.5
+                        },
+                        selected: {
+                            fill: '#f59e0b',
+                            fillOpacity: 1
+                        }
+                    }
+                });
+
+                // Apply gradients on loaded regions
+                selectedCodes.forEach(code => {
+                    applySubregionGradient(code, paisesDetalhes[code] || 'inteiro');
+                });
+
+                // Polling focus handler: waits for map container to have actual size in browser layout
+                if (selectedCodes.length > 0) {
+                    let attempts = 0;
+                    const focusInterval = setInterval(() => {
+                        attempts++;
+                        const container = document.getElementById('distributionMapDetail');
+                        if (container && container.offsetWidth > 0 && container.offsetHeight > 0) {
+                            try {
+                                mapDetail.setFocus({ regions: selectedCodes, animate: false });
+                                clearInterval(focusInterval);
+                            } catch (e) {
+                                try {
+                                    mapDetail.setFocus({ region: selectedCodes[0], animate: false });
+                                    clearInterval(focusInterval);
+                                } catch (err) {
+                                    console.error("Erro ao focar regiões:", err);
+                                }
+                            }
+                        }
+                        if (attempts > 15) {
+                            clearInterval(focusInterval);
+                        }
+                    }, 80);
+                }
+
+                const namesSpan = document.getElementById('highlightedCountriesNames');
+                if (namesSpan) {
+                    const subLabels = {
+                        'inteiro': 'País inteiro',
+                        'esquerdo': 'Lado esquerdo',
+                        'direito': 'Lado direito',
+                        'cima': 'Lado de cima',
+                        'baixo': 'Lado de baixo'
+                    };
+                    const countryNames = selectedCodes.map(code => {
+                        const name = countryList[code] || code;
+                        const subregion = paisesDetalhes[code] || 'inteiro';
+                        return `${name} (${subLabels[subregion]})`;
+                    });
+                    namesSpan.textContent = countryNames.length > 0 ? countryNames.join(', ') : 'Nenhum país selecionado.';
+                }
+            }
+
+            document.querySelectorAll('.thumbnail').forEach(thumb => {
+                thumb.addEventListener('click', () => {
+                    playVideo(thumb.dataset.videoUrl, thumb);
+                });
+            });
+
+            // Lógica para navegação interna ativa
+            const navAnchors = document.querySelectorAll('.nav-anchor');
+            const sections = document.querySelectorAll('.info-section');
+
+            const makeActive = (link) => {
+                navAnchors.forEach(a => a.classList.remove('active'));
+                link.classList.add('active');
+            };
+
+            navAnchors.forEach(anchor => {
+                anchor.addEventListener('click', (e) => {
+                    makeActive(anchor);
+                });
+            });
+
+            // Seletor dinâmico baseado no scroll
+            window.addEventListener('scroll', () => {
+                let current = '';
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop;
+                    if (pageYOffset >= sectionTop - 90) {
+                        current = section.getAttribute('id');
+                    }
+                });
+                navAnchors.forEach(anchor => {
+                    anchor.classList.remove('active');
+                    if (anchor.getAttribute('href') === `#${current}`) {
+                        anchor.classList.add('active');
+                    }
+                });
+            });
+        }
+
+        async function loadPage() {
+            mainContent.innerHTML = `<p class="loading">A carregar dados do animal...</p>`;
+            const params = new URLSearchParams(window.location.search);
+            const animalId = params.get('id');
+            if (!animalId) {
+                mainContent.innerHTML = `<p class="error">Erro: ID do animal não fornecido.</p>`;
+                return;
+            }
+            try {
+                await loadCountryList();
+                const docRef = doc(db, "animais", animalId);
+                const docSnap = await getDoc(docRef);
+                if (docSnap.exists()) {
+                    const animalData = docSnap.data();
+                    renderAnimalData(animalData, animalId);
+                    fetchAndRenderRelatedAnimals(animalData.familia, animalId);
+                } else {
+                    mainContent.innerHTML = `<p class="error">Erro: Animal não encontrado.</p>`;
+                }
+            } catch (error) {
+                console.error("Erro ao carregar dados do animal:", error);
+                mainContent.innerHTML = `<p class="error">Ocorreu um erro ao carregar os dados. Tente novamente.</p>`;
+            }
+        }
+        
+        loadPage();
+    </script>
+</body>
+</html>
+
