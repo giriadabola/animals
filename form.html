@@ -13,6 +13,71 @@
     <script src="https://cdn.jsdelivr.net/npm/jsvectormap"></script>
     <script src="https://cdn.jsdelivr.net/npm/jsvectormap/dist/maps/world.js"></script>
     <style>
+        body.form-light {
+            --bg-primary: #121116;
+            --bg-secondary: #1a1820;
+            --bg-card: rgba(34, 31, 43, 0.78);
+            --bg-card-hover: rgba(43, 39, 54, 0.92);
+            --text-primary: #f5efe7;
+            --text-secondary: #c5b7a7;
+            --text-muted: #8c7b6d;
+            --primary-color: #d39a5d;
+            --primary-glow: rgba(211, 154, 93, 0.22);
+            --accent-gradient: linear-gradient(135deg, #d5a05a 0%, #d97a68 100%);
+            --accent-color: #d5a05a;
+            --border-color: rgba(213, 160, 90, 0.10);
+            --border-hover: rgba(213, 160, 90, 0.22);
+            --input-bg: rgba(24, 21, 31, 0.92);
+            --shadow-sm: 0 10px 24px rgba(0, 0, 0, 0.24);
+            --shadow-md: 0 18px 40px rgba(0, 0, 0, 0.30);
+            --shadow-lg: 0 30px 70px rgba(0, 0, 0, 0.38);
+        }
+
+        body.form-light.edit-theme {
+            --bg-primary: #18120f;
+            --bg-secondary: #221914;
+            --bg-card: rgba(46, 33, 24, 0.80);
+            --bg-card-hover: rgba(58, 42, 30, 0.94);
+            --text-primary: #f7efe4;
+            --text-secondary: #d0b59a;
+            --text-muted: #98806a;
+            --primary-color: #d6a04f;
+            --primary-glow: rgba(214, 160, 79, 0.24);
+            --accent-gradient: linear-gradient(135deg, #d9a441 0%, #de7a5f 100%);
+            --accent-color: #d9a441;
+            --border-color: rgba(214, 160, 79, 0.12);
+            --border-hover: rgba(214, 160, 79, 0.24);
+            --input-bg: rgba(31, 22, 18, 0.94);
+        }
+
+        body.form-light {
+            background:
+                radial-gradient(circle at top left, rgba(213, 160, 90, 0.16), transparent 34%),
+                radial-gradient(circle at bottom right, rgba(217, 122, 104, 0.12), transparent 32%),
+                var(--bg-primary);
+        }
+
+        body.form-light::before {
+            background: radial-gradient(circle, rgba(213, 160, 90, 0.16) 0%, transparent 70%);
+        }
+
+        body.form-light::after {
+            background: radial-gradient(circle, rgba(217, 122, 104, 0.12) 0%, transparent 70%);
+        }
+
+        body.form-light .global-header {
+            background: rgba(29, 24, 35, 0.76);
+            border-color: rgba(213, 160, 90, 0.12);
+            box-shadow: var(--shadow-md);
+        }
+
+        body.form-light .container,
+        body.form-light .modal,
+        body.form-light .edit-list,
+        body.form-light .form-tab-panel {
+            box-shadow: var(--shadow-md);
+        }
+
         .input-with-button {
             display: flex;
             gap: 10px;
@@ -85,6 +150,10 @@
         }
 
         /* Default Dark Theme backgrounds */
+        #tabpanel-geral {
+            background: rgba(139, 92, 246, 0.05); /* Violet tint */
+            border-color: rgba(139, 92, 246, 0.15);
+        }
         #tabpanel-dimensoes {
             background: rgba(99, 102, 241, 0.05); /* Indigo tint */
             border-color: rgba(99, 102, 241, 0.15);
@@ -107,6 +176,10 @@
         }
 
         /* Edit Theme adjustments (Golden Brown Warm Theme) */
+        body.edit-theme #tabpanel-geral {
+            background: rgba(245, 158, 11, 0.05); /* Amber tint */
+            border-color: rgba(245, 158, 11, 0.15);
+        }
         body.edit-theme #tabpanel-dimensoes {
             background: rgba(251, 191, 36, 0.05); /* Amber tint */
             border-color: rgba(251, 191, 36, 0.15);
@@ -135,6 +208,16 @@
             border-radius: var(--border-radius-lg);
             background: var(--bg-card);
             transition: var(--transition);
+        }
+        
+        /* Geral Theme */
+        .form-tabs-wrapper.active-geral {
+            border-color: rgba(139, 92, 246, 0.4);
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.08);
+        }
+        .form-tabs-wrapper.active-geral .form-tab-nav-btn[data-tab="geral"].active {
+            background: linear-gradient(135deg, #a78bfa 0%, #c084fc 100%);
+            box-shadow: 0 4px 15px rgba(167, 139, 250, 0.3);
         }
         
         /* Dimensões Theme */
@@ -188,15 +271,15 @@
         }
     </style>
 </head>
-<body>
+<body class="form-light">
 
     <div class="top-menu">
         <button id="openEditModalBtn" class="menu-button" disabled>A carregar...</button>
     </div>
 
     <div class="container">
-        <h1 class="form-title" id="formTitle">Gerir Grandes Projetos</h1>
-        <p class="subtitle" id="formSubtitle">Formulário de Criação de Animais</p>
+        <h1 class="form-title" id="formTitle" style="display: none;">Gerir Grandes Projetos</h1>
+        <p class="subtitle" id="formSubtitle" style="display: none;">Formulário de Criação de Animais</p>
         
         <form id="animalForm">
             <div class="form-group">
@@ -207,6 +290,9 @@
             <div class="form-group">
                 <label for="nomeCientifico">Nome Científico</label>
                 <input type="text" id="nomeCientifico" required placeholder="Ex: Panthera leo">
+                <span id="nomeCientificoWarning" style="color: #f87171; font-size: 0.85rem; display: none; margin-top: 5px; font-weight: 500;">
+                    <i class="fa-solid fa-triangle-exclamation"></i> Este animal já se encontra registado.
+                </span>
             </div>
             
             <div class="form-group autocomplete-container">
@@ -245,106 +331,10 @@
                 </select>
             </div>
             
-            <div class="general-info-section grid-span-3">
-                <div class="sub-tabs-navigation general-sub-tabs" role="tablist">
-                    <button type="button" class="general-subtab-nav-btn active" data-general-subtab="geral-resumo-textual" role="tab" aria-selected="true" aria-controls="subtabpanel-geral-resumo-textual">Resumo textual</button>
-                    <button type="button" class="general-subtab-nav-btn" data-general-subtab="geral-modelo-visual" role="tab" aria-selected="false" aria-controls="subtabpanel-geral-modelo-visual">Modelo Visual</button>
-                </div>
-
-                <div class="sub-tabs-content">
-                    <div class="general-subtab-panel active" id="subtabpanel-geral-resumo-textual" role="tabpanel">
-                        <div class="form-group">
-                            <label for="infoGeral">Informação Geral</label>
-                            <textarea id="infoGeral" rows="8" placeholder="Escreva uma descrição geral detalhada sobre o animal..."></textarea>
-                        </div>
-                    </div>
-
-                    <div class="general-subtab-panel" id="subtabpanel-geral-modelo-visual" role="tabpanel">
-                        <div class="general-visual-layout">
-                            <div class="general-visual-editor">
-                                <div class="general-visual-row-header">
-                                    <span>Modelo</span>
-                                    <span>Mín.</span>
-                                    <span>Máx.</span>
-                                    <span>Unidade</span>
-                                </div>
-                                <div id="generalVisualRows" class="general-visual-rows"></div>
-                                <datalist id="feedingStrategyOptions">
-                                    <option value="Caça"></option>
-                                    <option value="Perseguição"></option>
-                                    <option value="Emboscada"></option>
-                                    <option value="Mergulho"></option>
-                                    <option value="Pesca"></option>
-                                    <option value="Filtração"></option>
-                                    <option value="Pastoreio"></option>
-                                    <option value="Ramoneio"></option>
-                                    <option value="Escavação"></option>
-                                    <option value="Raspagem"></option>
-                                    <option value="Sucção"></option>
-                                    <option value="Picagem"></option>
-                                    <option value="Coleta"></option>
-                                    <option value="Procura no solo"></option>
-                                    <option value="Procura em árvores"></option>
-                                    <option value="Necrofagia"></option>
-                                    <option value="Parasitismo"></option>
-                                    <option value="Roubo de alimento"></option>
-                                    <option value="Armadilha"></option>
-                                    <option value="Camuflagem"></option>
-                                    <option value="Cooperação em grupo"></option>
-                                    <option value="Migração para alimento"></option>
-                                    <option value="Armazenamento de alimento"></option>
-                                </datalist>
-                                <datalist id="matingOptions">
-                                    <option value="Monogamia"></option>
-                                    <option value="Poligamia"></option>
-                                    <option value="Poliginia"></option>
-                                    <option value="Poliandria"></option>
-                                    <option value="Poliginandria"></option>
-                                </datalist>
-                                <datalist id="climateZoneOptions">
-                                    <option value="Tropical"></option>
-                                    <option value="Subtropical"></option>
-                                    <option value="Temperada"></option>
-                                    <option value="Polar"></option>
-                                    <option value="Ártica"></option>
-                                    <option value="Antártica"></option>
-                                    <option value="Desértica"></option>
-                                    <option value="Semiárida"></option>
-                                    <option value="Mediterrânica"></option>
-                                    <option value="Montanhosa / Alpina"></option>
-                                </datalist>
-                                <button type="button" id="addGeneralVisualBtn" class="secondary-action-btn">+ Adicionar modelo</button>
-                                <p class="form-hint">Usa esta área para dados gerais com modelo visual: vida útil, velocidade máxima, velocidade média, estratégia para obter alimento, acasalamento e zona climática.</p>
-                            </div>
-
-                            <div class="general-visual-preview" aria-live="polite">
-                                <div class="preview-card-title">Modelo visual geral</div>
-                                <div class="general-preview-hero">
-                                    <div class="general-preview-icon" aria-hidden="true">
-                                        <svg class="metric-model-svg general-model-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true">
-                                            <path d="M18 58c8-22 24-34 47-36"/>
-                                            <path d="M21 61h38"/>
-                                            <path d="M57 22l5-8"/>
-                                            <path d="M53 26l-7-6"/>
-                                            <circle cx="30" cy="57" r="4"/>
-                                            <circle cx="56" cy="57" r="4"/>
-                                        </svg>
-                                    </div>
-                                    <div class="general-preview-copy">
-                                        <span>Informação Geral</span>
-                                        <strong>Dados rápidos do animal</strong>
-                                    </div>
-                                </div>
-                                <div class="general-visual-models" id="previewGeneralVisualModels"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="form-tabs-wrapper grid-span-3 active-dimensoes">
+            <div class="form-tabs-wrapper grid-span-3 active-geral">
                 <div class="form-tabs-navigation" role="tablist">
-                    <button type="button" class="form-tab-nav-btn active" data-tab="dimensoes" role="tab" aria-selected="true" aria-controls="tabpanel-dimensoes">Dimensões</button>
+                    <button type="button" class="form-tab-nav-btn active" data-tab="geral" role="tab" aria-selected="true" aria-controls="tabpanel-geral">Geral</button>
+                    <button type="button" class="form-tab-nav-btn" data-tab="dimensoes" role="tab" aria-selected="false" aria-controls="tabpanel-dimensoes">Dimensões</button>
                     <button type="button" class="form-tab-nav-btn" data-tab="alimentacao" role="tab" aria-selected="false" aria-controls="tabpanel-alimentacao">Alimentação</button>
                     <button type="button" class="form-tab-nav-btn" data-tab="reproducao" role="tab" aria-selected="false" aria-controls="tabpanel-reproducao">Reprodução</button>
                     <button type="button" class="form-tab-nav-btn" data-tab="distribuicao" role="tab" aria-selected="false" aria-controls="tabpanel-distribuicao">Distribuição</button>
@@ -352,8 +342,108 @@
                 </div>
 
                 <div class="form-tabs-content">
+                    <!-- Aba: Geral -->
+                    <div class="form-tab-panel active" id="tabpanel-geral" role="tabpanel">
+                        <div class="sub-tabs-navigation" role="tablist">
+                            <button type="button" class="form-subtab-nav-btn active" data-subtab="geral-resumo-textual" role="tab" aria-selected="true" aria-controls="subtabpanel-geral-resumo-textual">Resumo textual</button>
+                            <button type="button" class="form-subtab-nav-btn" data-subtab="geral-modelo-visual" role="tab" aria-selected="false" aria-controls="subtabpanel-geral-modelo-visual">Modelo Visual</button>
+                        </div>
+
+                        <div class="sub-tabs-content">
+                            <!-- Sub-aba: Resumo textual -->
+                            <div class="form-subtab-panel active" id="subtabpanel-geral-resumo-textual" role="tabpanel">
+                                <div class="form-group">
+                                    <label for="infoGeral">Informação Geral</label>
+                                    <textarea id="infoGeral" rows="8" placeholder="Escreva uma descrição geral detalhada sobre o animal..."></textarea>
+                                </div>
+                            </div>
+
+                            <!-- Sub-aba: Modelo Visual -->
+                            <div class="form-subtab-panel" id="subtabpanel-geral-modelo-visual" role="tabpanel">
+                                <div class="general-visual-layout">
+                                    <div class="general-visual-editor">
+                                        <div class="general-visual-row-header">
+                                            <span>Modelo</span>
+                                            <span>Mín.</span>
+                                            <span>Máx.</span>
+                                            <span>Unidade</span>
+                                        </div>
+                                        <div id="generalVisualRows" class="general-visual-rows"></div>
+                                        <datalist id="feedingStrategyOptions">
+                                            <option value="Caça"></option>
+                                            <option value="Perseguição"></option>
+                                            <option value="Emboscada"></option>
+                                            <option value="Mergulho"></option>
+                                            <option value="Pesca"></option>
+                                            <option value="Filtração"></option>
+                                            <option value="Pastoreio"></option>
+                                            <option value="Ramoneio"></option>
+                                            <option value="Escavação"></option>
+                                            <option value="Raspagem"></option>
+                                            <option value="Sucção"></option>
+                                            <option value="Picagem"></option>
+                                            <option value="Coleta"></option>
+                                            <option value="Procura no solo"></option>
+                                            <option value="Procura em árvores"></option>
+                                            <option value="Necrofagia"></option>
+                                            <option value="Parasitismo"></option>
+                                            <option value="Roubo de alimento"></option>
+                                            <option value="Armadilha"></option>
+                                            <option value="Camuflagem"></option>
+                                            <option value="Cooperação em grupo"></option>
+                                            <option value="Migração para alimento"></option>
+                                            <option value="Armazenamento de alimento"></option>
+                                        </datalist>
+                                        <datalist id="matingOptions">
+                                            <option value="Monogamia"></option>
+                                            <option value="Poligamia"></option>
+                                            <option value="Poliginia"></option>
+                                            <option value="Poliandria"></option>
+                                            <option value="Poliginandria"></option>
+                                        </datalist>
+                                        <datalist id="climateZoneOptions">
+                                            <option value="Tropical"></option>
+                                            <option value="Subtropical"></option>
+                                            <option value="Temperada"></option>
+                                            <option value="Polar"></option>
+                                            <option value="Ártica"></option>
+                                            <option value="Antártica"></option>
+                                            <option value="Desértica"></option>
+                                            <option value="Semiárida"></option>
+                                            <option value="Mediterrânica"></option>
+                                            <option value="Montanhosa / Alpina"></option>
+                                        </datalist>
+                                        <button type="button" id="addGeneralVisualBtn" class="secondary-action-btn">+ Adicionar modelo</button>
+                                        <p class="form-hint">Usa esta área para dados gerais com modelo visual: vida útil, velocidade máxima, velocidade média, estratégia para obter alimento, acasalamento e zona climática.</p>
+                                    </div>
+
+                                    <div class="general-visual-preview" aria-live="polite">
+                                        <div class="preview-card-title">Modelo visual geral</div>
+                                        <div class="general-preview-hero">
+                                            <div class="general-preview-icon" aria-hidden="true">
+                                                <svg class="metric-model-svg general-model-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true">
+                                                    <path d="M18 58c8-22 24-34 47-36"/>
+                                                    <path d="M21 61h38"/>
+                                                    <path d="M57 22l5-8"/>
+                                                    <path d="M53 26l-7-6"/>
+                                                    <circle cx="30" cy="57" r="4"/>
+                                                    <circle cx="56" cy="57" r="4"/>
+                                                </svg>
+                                            </div>
+                                            <div class="general-preview-copy">
+                                                <span>Informação Geral</span>
+                                                <strong>Dados rápidos do animal</strong>
+                                            </div>
+                                        </div>
+                                        <div class="general-visual-models" id="previewGeneralVisualModels"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Aba: Dimensões -->
-                    <div class="form-tab-panel active" id="tabpanel-dimensoes" role="tabpanel">
+                    <div class="form-tab-panel" id="tabpanel-dimensoes" role="tabpanel">
                         <div class="sub-tabs-navigation" role="tablist">
                             <button type="button" class="form-subtab-nav-btn active" data-subtab="resumo-textual" role="tab" aria-selected="true" aria-controls="subtabpanel-resumo">Resumo textual</button>
                             <button type="button" class="form-subtab-nav-btn" data-subtab="modelo-visual" role="tab" aria-selected="false" aria-controls="subtabpanel-modelo">Modelo Visual</button>
@@ -593,6 +683,10 @@
                         <label for="video4">Vídeo 4</label>
                         <input type="url" id="video4" placeholder="URL do YouTube">
                     </div>
+                    <div class="form-group">
+                        <label for="video5">Vídeo 5</label>
+                        <input type="url" id="video5" placeholder="URL do YouTube">
+                    </div>
                 </div>
             </fieldset>
             
@@ -713,6 +807,7 @@
         const formSubtitle = document.getElementById('formSubtitle');
         const statusMessage = document.getElementById('statusMessage');
         const nomeCientificoInput = document.getElementById('nomeCientifico');
+        const nomeCientificoWarning = document.getElementById('nomeCientificoWarning');
         const familiaInput = document.getElementById('familia');
         const familiaResultsContainer = document.getElementById('familiaResults');
         const openEditModalBtn = document.getElementById('openEditModalBtn');
@@ -1258,7 +1353,8 @@
                         document.getElementById('video1').value,
                         document.getElementById('video2').value,
                         document.getElementById('video3').value,
-                        document.getElementById('video4').value
+                        document.getElementById('video4').value,
+                        document.getElementById('video5').value
                     ].filter(url => url)
                 };
 
@@ -2393,20 +2489,36 @@
             if (isEditMode) return;
             const searchTerm = nomeCientificoInput.value.trim();
             if (searchTerm.length < 3) return;
-            const api_url = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(searchTerm)}&maxResults=4&type=video&key=${YOUTUBE_API_KEY}`;
+            const api_url = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(searchTerm)}&maxResults=5&type=video&key=${YOUTUBE_API_KEY}`;
             try {
                 const response = await fetch(api_url);
                 if (!response.ok) { throw new Error('Erro na API do YouTube'); }
                 const data = await response.json();
-                for (let i = 1; i <= 4; i++) { document.getElementById(`video${i}`).value = ''; }
+                for (let i = 1; i <= 5; i++) { document.getElementById(`video${i}`).value = ''; }
                 if (data.items) {
                     data.items.forEach((item, index) => {
-                        if (index < 4) { document.getElementById(`video${index + 1}`).value = `https://www.youtube.com/watch?v=${item.id.videoId}`; }
+                        if (index < 5) { document.getElementById(`video${index + 1}`).value = `https://www.youtube.com/watch?v=${item.id.videoId}`; }
                     });
                 }
             } catch (error) { console.error("Erro ao pesquisar vídeos:", error); }
         };
-        nomeCientificoInput.addEventListener('input', () => debounce(searchAndFillVideos, 800));
+        nomeCientificoInput.addEventListener('input', () => {
+            if (!isEditMode) {
+                const enteredName = nomeCientificoInput.value.trim().toLowerCase();
+                const exists = allAnimals.some(animal => 
+                    (animal.nomeCientifico && animal.nomeCientifico.trim().toLowerCase() === enteredName) || 
+                    (animal.id && animal.id === enteredName.replace(/\s+/g, '_'))
+                );
+                if (exists && enteredName.length > 0) {
+                    nomeCientificoWarning.style.display = 'inline-block';
+                } else {
+                    nomeCientificoWarning.style.display = 'none';
+                }
+            } else {
+                nomeCientificoWarning.style.display = 'none';
+            }
+            debounce(searchAndFillVideos, 800);
+        });
 
         // --- AUTOCOMPLETE DE FAMÍLIA ---
         async function loadExistingFamilies() {
@@ -2513,7 +2625,7 @@
                 }, 100);
             }
 
-            for (let i = 0; i < 4; i++) {
+            for (let i = 0; i < 5; i++) {
                 document.getElementById(`video${i + 1}`).value = animal.videos && animal.videos[i] ? animal.videos[i] : '';
             }
             closeModal();
@@ -2524,6 +2636,8 @@
         function switchToEditMode(animalId) {
             isEditMode = true;
             currentEditingId = animalId;
+            formTitle.style.display = 'block';
+            formSubtitle.style.display = 'block';
             formTitle.textContent = "Editar Animal";
             formSubtitle.textContent = `A editar: ${document.getElementById('nomeAnimal').value}`;
             saveButton.textContent = "Atualizar Dados";
@@ -2562,12 +2676,15 @@
                 grads.forEach(g => g.remove());
             }
 
-            const dimensoesBtn = document.querySelector('[data-tab="dimensoes"]');
-            if (dimensoesBtn) dimensoesBtn.click();
+            const geralBtn = document.querySelector('[data-tab="geral"]');
+            if (geralBtn) geralBtn.click();
+            formTitle.style.display = 'none';
+            formSubtitle.style.display = 'none';
             formTitle.textContent = "Gerir Grandes Projetos";
             formSubtitle.textContent = "Formulário de Criação de Animais";
             saveButton.textContent = "Gravar Novo Animal";
             document.getElementById('nomeCientifico').disabled = false;
+            nomeCientificoWarning.style.display = 'none';
             statusMessage.style.display = 'none';
             document.body.classList.remove('edit-theme');
         }
@@ -2587,21 +2704,6 @@
         document.addEventListener('click', (e) => { if (!e.target.closest('.autocomplete-container')) { familiaResultsContainer.style.display = 'none'; } });
 
 
-        // --- CONTROLO DA SUB-ABA DE INFORMAÇÃO GERAL ---
-        document.querySelectorAll('.general-subtab-nav-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const target = btn.dataset.generalSubtab;
-                const section = btn.closest('.general-info-section');
-                section.querySelectorAll('.general-subtab-nav-btn').forEach(b => {
-                    b.classList.toggle('active', b === btn);
-                    b.setAttribute('aria-selected', b === btn ? 'true' : 'false');
-                });
-                section.querySelectorAll('.general-subtab-panel').forEach(panel => {
-                    panel.classList.toggle('active', panel.id === `subtabpanel-${target}`);
-                });
-            });
-        });
-
         // --- CONTROLO DAS ABAS DO FORMULÁRIO ---
         const tabButtons = document.querySelectorAll('.form-tab-nav-btn');
         const tabPanels = document.querySelectorAll('.form-tab-panel');
@@ -2614,7 +2716,7 @@
                 const targetTab = btn.dataset.tab;
                 
                 // Update active tab theme class on wrapper
-                tabsWrapper.classList.remove('active-dimensoes', 'active-alimentacao', 'active-reproducao', 'active-plumagem', 'active-distribuicao');
+                tabsWrapper.classList.remove('active-geral', 'active-dimensoes', 'active-alimentacao', 'active-reproducao', 'active-plumagem', 'active-distribuicao');
                 tabsWrapper.classList.add(`active-${targetTab}`);
                 
                 tabButtons.forEach(b => {
@@ -3158,7 +3260,5 @@
     </script>
 </body>
 </html>
-
-
 
 
