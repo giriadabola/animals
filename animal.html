@@ -236,16 +236,16 @@
         function getClimateZoneMeta(value = '') {
             const normalized = normalizeDimensionKey(value).replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
             const zones = {
-                tropical: { image: 'assets/zonas-climaticas/tropical.png', accent: 'accent-climate-tropical' },
-                subtropical: { image: 'assets/zonas-climaticas/subtropical.png', accent: 'accent-climate-subtropical' },
-                temperada: { image: 'assets/zonas-climaticas/temperada.png', accent: 'accent-climate-temperada' },
-                polar: { image: 'assets/zonas-climaticas/polar.png', accent: 'accent-climate-polar' },
-                artica: { image: 'assets/zonas-climaticas/artica.png', accent: 'accent-climate-artica' },
-                antartica: { image: 'assets/zonas-climaticas/antartica.png', accent: 'accent-climate-antartica' },
-                desertica: { image: 'assets/zonas-climaticas/desertica.png', accent: 'accent-climate-desertica' },
-                semiarida: { image: 'assets/zonas-climaticas/semiarida.png', accent: 'accent-climate-semiarida' },
-                mediterranica: { image: 'assets/zonas-climaticas/mediterranica.png', accent: 'accent-climate-mediterranica' },
-                montanhosa_alpina: { image: 'assets/zonas-climaticas/montanhosa-alpina.png', accent: 'accent-climate-montanhosa' }
+                tropical: { image: 'assets/zonas-climaticas/01_Tropical.png', accent: 'accent-climate-tropical' },
+                subtropical: { image: 'assets/zonas-climaticas/02_Subtropical.png', accent: 'accent-climate-subtropical' },
+                temperada: { image: 'assets/zonas-climaticas/03_Temperada.png', accent: 'accent-climate-temperada' },
+                polar: { image: 'assets/zonas-climaticas/04_Polar.png', accent: 'accent-climate-polar' },
+                artica: { image: 'assets/zonas-climaticas/05_Artica.png', accent: 'accent-climate-artica' },
+                antartica: { image: 'assets/zonas-climaticas/06_Antartica.png', accent: 'accent-climate-antartica' },
+                desertica: { image: 'assets/zonas-climaticas/07_Desertica.png', accent: 'accent-climate-desertica' },
+                semiarida: { image: 'assets/zonas-climaticas/08_Semiarida.png', accent: 'accent-climate-semiarida' },
+                mediterranica: { image: 'assets/zonas-climaticas/09_Mediterranica.png', accent: 'accent-climate-mediterranica' },
+                montanhosa_alpina: { image: 'assets/zonas-climaticas/10_Montanhosa_Alpina.png', accent: 'accent-climate-montanhosa' }
             };
             if (normalized.includes('montanhosa') || normalized.includes('alpina')) return zones.montanhosa_alpina;
             return zones[normalized] || null;
@@ -291,7 +291,7 @@
 
         function renderGeneralVisual(animalData) {
             const models = animalData.informacao?.geralDetalhada || [];
-            const valid = Array.isArray(models) ? models.filter(item => item.tipo && item.valor) : [];
+            const valid = Array.isArray(models) ? models.filter(item => item.tipo && item.valor && !normalizeDimensionKey(item.tipo).includes('zona')) : [];
             if (!valid.length) return '';
 
             return `
@@ -315,6 +315,27 @@
                         ${valid.map(renderGeneralVisualCard).join('')}
                     </div>
                 </div>`;
+        }
+
+        function renderClimateZoneBadge(animalData) {
+            const models = animalData.informacao?.geralDetalhada || [];
+            const climateItem = Array.isArray(models) ? models.find(item => item.tipo && normalizeDimensionKey(item.tipo).includes('zona')) : null;
+            if (!climateItem || !climateItem.valor) return '';
+
+            const value = climateItem.valor;
+            const climateMeta = getClimateZoneMeta(value);
+            if (!climateMeta) return '';
+
+            return `
+                <div class="animal-climate-zone">
+                    <div class="climate-zone-info">
+                        <span class="climate-zone-label">Zona Climática</span>
+                        <span class="climate-zone-name">${escapeHtml(value)}</span>
+                    </div>
+                    <div class="climate-zone-divider"></div>
+                    <img src="${climateMeta.image}" alt="Zona climática: ${escapeHtml(value)}" class="climate-zone-badge-image">
+                </div>
+            `;
         }
 
         function renderDimensionsVisual(animalData) {
@@ -769,6 +790,7 @@
                             ${hasGeral ? `
                             <div class="info-section" id="info-geral">
                                 <h3><span class="icon svg-icon">${getInfoSectionIconSvg('geral')}</span>Informação Geral</h3>
+                                ${renderClimateZoneBadge(animalData)}
                                 ${hasGeralText ? `<p>${animalData.informacao.geral}</p>` : ''}
                                 ${renderGeneralVisual(animalData)}
                             </div>` : ''}
