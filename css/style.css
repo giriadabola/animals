@@ -1323,6 +1323,25 @@ button[type="submit"]:hover {
         padding: 24px 16px;
         border-radius: var(--border-radius);
     }
+    .form-tabs-wrapper,
+    .form-tabs-content,
+    .form-tab-panel,
+    .distribution-layout,
+    .distribution-editor,
+    .map-container-wrapper,
+    .reproduction-layout,
+    .feeding-layout,
+    .plumage-layout,
+    .dimensions-layout,
+    .dimensions-editor,
+    .reproduction-editor,
+    .feeding-editor,
+    .plumage-editor {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+    }
     .top-menu {
         position: absolute;
         top: 16px;
@@ -3313,7 +3332,7 @@ button[type="submit"]:hover {
 
 .general-visual-models {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     gap: 12px;
 }
 
@@ -3383,6 +3402,9 @@ button[type="submit"]:hover {
 
     .general-preview-icon {
         margin: 0 auto;
+    }
+    .general-visual-models {
+        grid-template-columns: 1fr;
     }
 }
 
