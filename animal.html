@@ -343,7 +343,7 @@
             if (!climateMeta) return '';
 
             return `
-                <div class="animal-climate-zone">
+                <div class="animal-climate-zone ${climateMeta.accent}">
                     <div class="climate-zone-info">
                         <span class="climate-zone-label">Zona Climática</span>
                         <span class="climate-zone-name">${escapeHtml(value)}</span>
@@ -364,7 +364,7 @@
             if (!habitatMeta) return '';
 
             return `
-                <div class="animal-climate-zone animal-habitat-badge">
+                <div class="animal-climate-zone animal-habitat-badge ${habitatMeta.accent}">
                     <div class="climate-zone-info">
                         <span class="climate-zone-label">Habitat</span>
                         <span class="climate-zone-name">${escapeHtml(value)}</span>
@@ -797,7 +797,7 @@
             const validDimensoes = Array.isArray(dimensoes) ? dimensoes.filter(item => item.tipo && item.valor) : [];
 
             const models = animalData.informacao?.geralDetalhada || [];
-            const validQuickData = Array.isArray(models) ? models.filter(item => item.tipo && item.valor && !normalizeDimensionKey(item.tipo).includes('zona')) : [];
+            const validQuickData = Array.isArray(models) ? models.filter(item => item.tipo && item.valor && !normalizeDimensionKey(item.tipo).includes('zona') && !normalizeDimensionKey(item.tipo).includes('habitat')) : [];
 
             const horizontalMetricsHTML = (validDimensoes.length > 0 || validQuickData.length > 0) ? `
                 <div class="metrics-horizontal-bar desktop-only">
@@ -895,6 +895,11 @@
                         ${renderClimateZoneBadge(animalData) ? `
                         <div class="info-section-card" id="info-zona-climatica">
                             ${renderClimateZoneBadge(animalData)}
+                        </div>` : ''}
+
+                        ${renderHabitatBadge(animalData) ? `
+                        <div class="info-section-card" id="info-habitat">
+                            ${renderHabitatBadge(animalData)}
                         </div>` : ''}
                     </div>
                 </div>
