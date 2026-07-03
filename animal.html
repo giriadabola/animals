@@ -356,21 +356,36 @@
 
         function renderHabitatBadge(animalData) {
             const models = animalData.informacao?.geralDetalhada || [];
-            const habitatItem = Array.isArray(models) ? models.find(item => item.tipo && normalizeDimensionKey(item.tipo).includes('habitat')) : null;
-            if (!habitatItem || !habitatItem.valor) return '';
+            const habitatItems = Array.isArray(models) ? models.filter(item => item.tipo && normalizeDimensionKey(item.tipo).includes('habitat')) : [];
+            if (habitatItems.length === 0) return '';
 
-            const value = habitatItem.valor;
-            const habitatMeta = getHabitatMeta(value);
-            if (!habitatMeta) return '';
+            const contentHTML = habitatItems.map((item, idx) => {
+                const value = item.valor || item.valorMin || '';
+                const habitatMeta = getHabitatMeta(value);
+                if (!habitatMeta) return '';
 
-            return `
-                <div class="animal-climate-zone animal-habitat-badge ${habitatMeta.accent}">
+                return `
+                    ${idx > 0 ? '<div class="climate-zone-divider" style="margin: 20px 0;"></div>' : '<div class="climate-zone-divider"></div>'}
                     <div class="climate-zone-info">
-                        <span class="climate-zone-label">Habitat</span>
                         <span class="climate-zone-name">${escapeHtml(value)}</span>
                     </div>
                     <div class="climate-zone-divider"></div>
                     <img src="${habitatMeta.image}" alt="Habitat: ${escapeHtml(value)}" class="climate-zone-badge-image">
+                `;
+            }).filter(html => html !== '').join('');
+
+            if (!contentHTML) return '';
+
+            const firstValue = habitatItems[0].valor || habitatItems[0].valorMin || '';
+            const firstMeta = getHabitatMeta(firstValue);
+            const accentClass = firstMeta ? firstMeta.accent : '';
+
+            return `
+                <div class="animal-climate-zone animal-habitat-badge ${accentClass}">
+                    <div class="climate-zone-info">
+                        <span class="climate-zone-label">Habitat</span>
+                    </div>
+                    ${contentHTML}
                 </div>
             `;
         }
@@ -883,14 +898,21 @@
 
                     <!-- Column 3: Visual Models & Climate Zone -->
                     <div class="column-3 desktop-only">
-                        ${(validDimensoes.length > 0 || validQuickData.length > 0) ? `
-                        <div class="info-section-card" id="info-modelos-visuais">
-                            <h3><span class="icon svg-icon">${getInfoSectionIconSvg('geral')}</span>Informações</h3>
-                            <div class="visual-models-grid" style="display: flex; flex-direction: column; gap: 14px;">
-                                ${validDimensoes.map(renderDimensionModelCard).join('')}
-                                ${validQuickData.map(renderGeneralVisualCard).join('')}
-                            </div>
-                        </div>` : ''}
+                        ${(validDimensoes.length > 0 || validQuickData.length > 0) ? (() => {
+                            const combined = [
+                                ...validDimensoes.map(item => ({ ...item, isDimension: true })),
+                                ...validQuickData.map(item => ({ ...item, isDimension: false }))
+                            ];
+                            const sorted = combined.sort((a, b) => a.tipo.localeCompare(b.tipo));
+                            const cardsHTML = sorted.map(item => item.isDimension ? renderDimensionModelCard(item) : renderGeneralVisualCard(item)).join('');
+                            return `
+                            <div class="info-section-card" id="info-modelos-visuais">
+                                <h3><span class="icon svg-icon">${getInfoSectionIconSvg('geral')}</span>Informações</h3>
+                                <div class="visual-models-grid" style="display: flex; flex-direction: column; gap: 14px;">
+                                    ${cardsHTML}
+                                </div>
+                            </div>`;
+                        })() : ''}
 
                         ${renderClimateZoneBadge(animalData) ? `
                         <div class="info-section-card" id="info-zona-climatica">
