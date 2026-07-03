@@ -1343,6 +1343,21 @@
                 const docId = isEditMode ? currentEditingId : scientificNameKey;
                 if (!docId) { throw new Error("Não foi possível determinar o ID do documento."); }
                 
+                let timestamp = Date.now();
+                let editado = [];
+                if (isEditMode) {
+                    const existingAnimal = allAnimals.find(a => a.id === docId);
+                    if (existingAnimal && existingAnimal.timestamp) {
+                        timestamp = existingAnimal.timestamp;
+                    }
+                    if (existingAnimal && existingAnimal.editado) {
+                        editado = Array.isArray(existingAnimal.editado) ? [...existingAnimal.editado] : [];
+                    }
+                    editado.push({
+                        timestamp: Date.now()
+                    });
+                }
+
                 const animalData = {
                     nome: document.getElementById('nomeAnimal').value,
                     nomeCientifico: document.getElementById('nomeCientifico').value,
@@ -1350,6 +1365,8 @@
                     imagemUrl: document.getElementById('imagemUrl').value,
                     imagemObjectPosition: document.getElementById('imagemObjectPosition').value || 'center center',
                     categoria: document.getElementById('categoria').value,
+                    timestamp: timestamp,
+                    editado: editado,
                     informacao: {
                         geral: document.getElementById('infoGeral').value,
                         geralDetalhada: getGeneralVisualData(),
@@ -2839,6 +2856,11 @@
                 allAnimals = [];
                 const querySnapshot = await getDocs(collection(db, "animais"));
                 querySnapshot.forEach(doc => { allAnimals.push({ id: doc.id, ...doc.data() }); });
+                allAnimals.sort((a, b) => {
+                    const dateA = a.timestamp || 0;
+                    const dateB = b.timestamp || 0;
+                    return dateB - dateA;
+                });
                 await loadExistingFamilies();
                 
                 // Carregar lista de países
