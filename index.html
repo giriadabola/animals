@@ -313,6 +313,7 @@
 
                 if (key === 'estatisticas') {
                     const activeRankings = [];
+                    const usedAnimalIds = new Set();
                     subStatsOrder.forEach(subKey => {
                         if (!active[subKey]) return;
                         const config = listsConfig.find(c => c.key === subKey);
@@ -332,11 +333,20 @@
 
                         if (ranked.length > 0) {
                             ranked.sort((a, b) => b.numericValue - a.numericValue);
-                            const top = ranked[0];
+                            
+                            let selected = ranked[0];
+                            for (let i = 0; i < ranked.length; i++) {
+                                if (!usedAnimalIds.has(ranked[i].animal.id)) {
+                                    selected = ranked[i];
+                                    break;
+                                }
+                            }
+                            usedAnimalIds.add(selected.animal.id);
+
                             activeRankings.push({
                                 config,
-                                topAnimal: top.animal,
-                                displayValue: top.displayValue
+                                topAnimal: selected.animal,
+                                displayValue: selected.displayValue
                             });
                         }
                     });
