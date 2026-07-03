@@ -1,6 +1,6 @@
 import { auth, db } from "./firebase-config.js?v=2";
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
-import { doc, getDoc } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
+import { doc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
 
 export function injectHeader() {
     // Evita duplicar se já existir
@@ -60,17 +60,24 @@ export function injectHeader() {
 
     // Dynamic auth UI update
     const authSection = document.getElementById('header-auth-section');
+    let unsubscribeUser = null;
+
     onAuthStateChanged(auth, async (user) => {
+        if (unsubscribeUser) {
+            unsubscribeUser();
+            unsubscribeUser = null;
+        }
+
         let gerirPortalLink = document.getElementById('nav-link-gerir-portal');
         const centerInfo = document.getElementById('header-center-info');
         
         if (user) {
-            let nome = user.displayName || user.email.split('@')[0];
-            let isAuthorized = false;
-            let criadosCount = 0;
-            let editadosCount = 0;
-            try {
-                const userDoc = await getDoc(doc(db, "users", user.uid));
+            unsubscribeUser = onSnapshot(doc(db, "users", user.uid), (userDoc) => {
+                let nome = user.displayName || user.email.split('@')[0];
+                let isAuthorized = false;
+                let criadosCount = 0;
+                let editadosCount = 0;
+
                 if (userDoc.exists()) {
                     const userData = userDoc.data();
                     if (userData.nome) {
@@ -86,45 +93,58 @@ export function injectHeader() {
                         editadosCount = userData.animaisEditados.length;
                     }
                 }
-            } catch (err) {
-                console.error("Erro ao carregar dados do utilizador no cabeçalho:", err);
-            }
 
-            // Exibir link "Gerir Portal" apenas se for autorizado
-            if (isAuthorized) {
-                if (!gerirPortalLink) {
-                    gerirPortalLink = document.createElement('a');
-                    gerirPortalLink.id = 'nav-link-gerir-portal';
-                    gerirPortalLink.href = 'form.html';
-                    gerirPortalLink.className = `nav-link ${isForm ? 'active' : ''}`;
-                    gerirPortalLink.innerHTML = `<i class="fa-solid fa-sliders"></i> Gerir Portal`;
-                    authSection.parentNode.insertBefore(gerirPortalLink, authSection);
+                // Refresh element references
+                gerirPortalLink = document.getElementById('nav-link-gerir-portal');
+
+                // Exibir link "Gerir Portal" apenas se for autorizado
+                if (isAuthorized) {
+                    if (!gerirPortalLink) {
+                        gerirPortalLink = document.createElement('a');
+                        gerirPortalLink.id = 'nav-link-gerir-portal';
+                        gerirPortalLink.href = 'form.html';
+                        gerirPortalLink.className = `nav-link ${isForm ? 'active' : ''}`;
+                        gerirPortalLink.innerHTML = `<i class="fa-solid fa-sliders"></i> Gerir Portal`;
+                        authSection.parentNode.insertBefore(gerirPortalLink, authSection);
+                    }
+                } else {
+                    if (gerirPortalLink) gerirPortalLink.remove();
                 }
-            } else {
-                if (gerirPortalLink) gerirPortalLink.remove();
-            }
 
-            // Atualizar contadores no centro se estiver no form.html
-            if (isForm && centerInfo) {
-                centerInfo.innerHTML = `
-                    <span style="display: inline-flex; align-items: center; gap: 10px; background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color); padding: 8px 18px; border-radius: var(--border-radius-sm); font-size: 0.85rem; font-weight: 600; color: var(--text-secondary);">
-                        <i class="fa-solid fa-circle-plus" style="color: var(--primary-color);"></i> Criou: <strong style="color: var(--text-primary);">${criadosCount}</strong>
-                        <span style="opacity: 0.2;">|</span>
-                        <i class="fa-solid fa-pen-to-square" style="color: var(--accent-color);"></i> Editados: <strong style="color: var(--text-primary);">${editadosCount}</strong>
-                    </span>
-                `;
-            }
+                // Atualizar contadores no centro se estiver no form.html
+                if (isForm && centerInfo) {
+                    centerInfo.innerHTML = `
+                        <span style="display: inline-flex; align-items: center; gap: 10px; background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color); padding: 8px 18px; border-radius: var(--border-radius-sm); font-size: 0.85rem; font-weight: 600; color: var(--text-secondary);">
+                            <i class="fa-solid fa-circle-plus" style="color: var(--primary-color);"></i> Criou: <strong style="color: var(--text-primary);">${criadosCount}</strong>
+                            <span style="opacity: 0.2;">|</span>
+                            <i class="fa-solid fa-pen-to-square" style="color: var(--accent-color);"></i> Editados: <strong style="color: var(--text-primary);">${editadosCount}</strong>
+                        </span>
+                    `;
+                }
+
+                // Atualizar nome do utilizador
+                const userNameEl = document.getElementById('header-user-name');
+                if (userNameEl) {
+                    userNameEl.textContent = nome;
+                }
+            }, (err) => {
+                console.error("Erro no escutador em tempo real do utilizador:", err);
+            });
 
             authSection.innerHTML = `
                 <span style="font-size: 0.85rem; color: var(--text-secondary); display: inline-flex; align-items: center; gap: 6px;">
                     <i class="fa-solid fa-circle-user" style="color: var(--primary-color);"></i>
-                    Olá, <strong>${nome}</strong>
+                    Olá, <strong id="header-user-name">${user.displayName || user.email.split('@')[0]}</strong>
                 </span>
                 <button id="logout-btn" class="nav-link" style="background: none; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; padding: 0;">
                     <i class="fa-solid fa-right-from-bracket"></i> Sair
                 </button>
             `;
             document.getElementById('logout-btn').addEventListener('click', async () => {
+                if (unsubscribeUser) {
+                    unsubscribeUser();
+                    unsubscribeUser = null;
+                }
                 await signOut(auth);
                 window.location.href = 'index.html';
             });
