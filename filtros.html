@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Filtros - Grandes Projetos</title>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- CSS Global -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <main>
+        <div class="category-header">
+            <h1 id="category-title">A carregar... <span id="toggle-icon">▼</span></h1>
+        </div>
+        <div id="animal-list-container"></div>
+        <div class="pagination-container" id="pagination-container"></div>
+        <p class="message" id="loading-message">A carregar animais...</p>
+    </main>
+
+    <!-- Componentes e Lógica -->
+    <script type="module" src="js/components.js"></script>
+    <script type="module">
+        import { db } from "./js/firebase-config.js";
+        import { collection, getDocs } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
+
+        const categoryTitle = document.getElementById('category-title');
+        const listContainer = document.getElementById('animal-list-container');
+        const paginationContainer = document.getElementById('pagination-container');
+        const loadingMessage = document.getElementById('loading-message');
+
+        const itemsPerPage = 50;
+        let currentPage = 1;
+        let matchedAnimals = [];
+
+        function createAnimalListItem(animalData, animalId, extraText = '') {
+            const card = document.createElement('a');
+            card.className = 'animal-list-item';
+            card.href = `animal.html?id=${animalId}`;
+
+            const objectPos = animalData.imagemObjectPosition || 'center center';
+
+            card.innerHTML = `
+                <img src="${animalData.imagemUrl}" alt="Imagem de ${animalData.nome}" style="object-position: ${objectPos};">
+                <div class="list-item-text">
+                    <div class="title">${animalData.nome}</div>
+                    ${extraText ? `<div class="metric-value">${extraText}</div>` : ''}
+                    <div class="subtitle">(${animalData.nomeCientifico})</div>
+                </div>
+            `;
+            return card;
+        }
+
+        function renderPage(page) {
+            listContainer.innerHTML = '';
+            const startIndex = (page - 1) * itemsPerPage;
+            const endIndex = page * itemsPerPage;
+            const pageItems = matchedAnimals.slice(startIndex, endIndex);
+
+            pageItems.forEach(item => {
+                const extra = item.displayValue || '';
+                const listItem = createAnimalListItem(item.data, item.id, extra);
+                listContainer.appendChild(listItem);
+            });
+
+            // Scroll smoothly to top of list container
+            listContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function renderPagination() {
+            paginationContainer.innerHTML = '';
+            const totalPages = Math.ceil(matchedAnimals.length / itemsPerPage);
+
+            if (totalPages <= 1) return;
+
+            for (let i = 1; i <= totalPages; i++) {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = `pagination-btn ${i === currentPage ? 'active' : ''}`;
+                btn.textContent = i;
+                
+                btn.addEventListener('click', () => {
+                    if (i === currentPage) return;
+                    currentPage = i;
+                    
+                    // Update active button classes
+                    document.querySelectorAll('.pagination-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    
+                    renderPage(currentPage);
+                });
+
+                paginationContainer.appendChild(btn);
+            }
+        }
+
+        function extractNumericMetric(details, searchKeys, exactMatch = false) {
+            const item = details.find(d => {
+                if (!d.tipo) return false;
+                const normalized = d.tipo.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+                if (exactMatch) {
+                    return searchKeys.some(key => normalized === key);
+                }
+                return searchKeys.every(key => normalized.includes(key));
+            });
+            if (!item) return null;
+            const valStr = item.valor || item.valorMin || '';
+            if (!valStr) return null;
+            const cleanVal = valStr.replace(',', '.');
+            const num = parseFloat(cleanVal.replace(/[^0-9.]/g, ''));
+            if (isNaN(num)) return null;
+
+            const unit = (item.unidade || '').toLowerCase().trim();
+            let normalizedValue = num;
+
+            // Height / Length / Width / Thickness normalization (base: cm)
+            if (searchKeys.includes('altura') || searchKeys.includes('largura') || searchKeys.includes('espessura')) {
+                if (unit === 'm' || unit === 'metro' || unit === 'metros') {
+                    normalizedValue = num * 100;
+                } else if (unit === 'mm' || unit === 'milimetro' || unit === 'milimetros') {
+                    normalizedValue = num / 10;
+                }
+            }
+            // Weight normalization (base: g)
+            else if (searchKeys.includes('peso')) {
+                if (unit === 'kg' || unit === 'quilo' || unit === 'quilos' || unit === 'quilograma' || unit === 'quilogramas') {
+                    normalizedValue = num * 1000;
+                } else if (unit === 't' || unit === 'tonelada' || unit === 'toneladas') {
+                    normalizedValue = num * 1000000;
+                }
+            }
+
+            return {
+                numericValue: normalizedValue,
+                displayValue: `${valStr} ${item.unidade || ''}`.trim()
+            };
+        }
+
+        async function loadFilteredPage() {
+            const params = new URLSearchParams(window.location.search);
+            let filterType = params.get('tipo') || 'estrategia-alimento';
+            let filterValue = params.get('valor') || params.get('estrategia');
+
+            if (!filterValue) {
+                categoryTitle.innerHTML = `Erro <span id="toggle-icon">!</span>`;
+                loadingMessage.textContent = "Nenhum valor de filtro foi especificado no URL.";
+                return;
+            }
+
+            let iconClass = 'fa-tag';
+            let titlePrefix = '';
+            let isRanking = false;
+
+            if (filterType === 'estrategia-alimento') {
+                iconClass = 'fa-utensils';
+                titlePrefix = 'Estratégia: ';
+            } else if (filterType === 'acasalamento') {
+                iconClass = 'fa-heart';
+                titlePrefix = 'Acasalamento: ';
+            } else if (filterType === 'zona-climatica') {
+                iconClass = 'fa-cloud-sun';
+                titlePrefix = 'Clima: ';
+            } else if (filterType === 'categoria') {
+                iconClass = 'fa-paw';
+                titlePrefix = 'Categoria: ';
+            } else if (filterType === 'familia') {
+                iconClass = 'fa-users';
+                titlePrefix = 'Família: ';
+            } else if (filterType === 'mais-velozes') {
+                iconClass = 'fa-bolt';
+                titlePrefix = 'Ranking: ';
+                filterValue = 'Os Mais Velozes';
+                isRanking = true;
+            } else if (filterType === 'mais-vida-util') {
+                iconClass = 'fa-hourglass-half';
+                titlePrefix = 'Ranking: ';
+                filterValue = 'Com mais Vida Útil';
+                isRanking = true;
+            } else if (filterType === 'mais-altos') {
+                iconClass = 'fa-arrows-up-down';
+                titlePrefix = 'Ranking: ';
+                filterValue = 'Os Mais Altos';
+                isRanking = true;
+            } else if (filterType === 'mais-pesados') {
+                iconClass = 'fa-weight-hanging';
+                titlePrefix = 'Ranking: ';
+                filterValue = 'Os Mais Pesados';
+                isRanking = true;
+            } else if (filterType === 'mais-largo') {
+                iconClass = 'fa-arrows-left-right';
+                titlePrefix = 'Ranking: ';
+                filterValue = 'Mais Largo';
+                isRanking = true;
+            } else if (filterType === 'mais-espesso') {
+                iconClass = 'fa-ruler-combined';
+                titlePrefix = 'Ranking: ';
+                filterValue = 'Mais Espesso';
+                isRanking = true;
+            }
+
+            document.title = `${filterValue} - Grandes Projetos`;
+            categoryTitle.innerHTML = `<span class="title-with-icon" style="display: flex; align-items: center; gap: 12px;"><i class="fa-solid ${iconClass}"></i> ${titlePrefix}${filterValue}</span> <span id="toggle-icon">▼</span>`;
+
+            // Adjust icon styles inside the header dynamically
+            setTimeout(() => {
+                const headerIcon = categoryTitle.querySelector('i, svg');
+                if (headerIcon) {
+                    headerIcon.style.fontSize = "2.2rem";
+                    headerIcon.style.width = "40px";
+                    headerIcon.style.height = "40px";
+                    headerIcon.style.display = "inline-flex";
+                    headerIcon.style.alignItems = "center";
+                    headerIcon.style.justifyContent = "center";
+                    headerIcon.style.background = "var(--accent-gradient)";
+                    headerIcon.style.webkitBackgroundClip = "text";
+                    headerIcon.style.webkitTextFillColor = "transparent";
+                }
+            }, 0);
+
+            try {
+                const querySnapshot = await getDocs(collection(db, "animais"));
+                matchedAnimals = [];
+
+                querySnapshot.forEach((doc) => {
+                    const animalData = doc.data();
+                    
+                    if (isRanking) {
+                        let res = null;
+                        if (filterType === 'mais-velozes') {
+                            res = extractNumericMetric(animalData.informacao?.geralDetalhada || [], ['velocidade']);
+                        } else if (filterType === 'mais-vida-util') {
+                            res = extractNumericMetric(animalData.informacao?.geralDetalhada || [], ['vida', 'util']);
+                        } else if (filterType === 'mais-altos') {
+                            res = extractNumericMetric(animalData.informacao?.dimensoesDetalhadas || [], ['altura']);
+                        } else if (filterType === 'mais-pesados') {
+                            res = extractNumericMetric(animalData.informacao?.dimensoesDetalhadas || [], ['peso'], true);
+                        } else if (filterType === 'mais-largo') {
+                            res = extractNumericMetric(animalData.informacao?.dimensoesDetalhadas || [], ['largura']);
+                        } else if (filterType === 'mais-espesso') {
+                            res = extractNumericMetric(animalData.informacao?.dimensoesDetalhadas || [], ['espessura']);
+                        }
+
+                        if (res) {
+                            matchedAnimals.push({
+                                data: animalData,
+                                id: doc.id,
+                                numericValue: res.numericValue,
+                                displayValue: res.displayValue
+                            });
+                        }
+                    } else {
+                        let match = false;
+                        if (filterType === 'categoria') {
+                            match = animalData.categoria && animalData.categoria.trim().toLowerCase() === filterValue.trim().toLowerCase();
+                        } else if (filterType === 'familia') {
+                            match = animalData.familia && animalData.familia.trim().toLowerCase() === filterValue.trim().toLowerCase();
+                        } else {
+                            const details = animalData.informacao?.geralDetalhada || [];
+                            match = details.some(item => {
+                                if (!item.tipo) return false;
+                                const normalizedType = item.tipo.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+                                
+                                const isTypeMatch = 
+                                    (filterType === 'estrategia-alimento' && normalizedType.includes('estrategia') && normalizedType.includes('alimento')) ||
+                                    (filterType === 'acasalamento' && normalizedType.includes('acasalamento')) ||
+                                    (filterType === 'zona-climatica' && (normalizedType.includes('climatica') || normalizedType.includes('clima') || normalizedType.includes('zona')));
+
+                                return isTypeMatch && 
+                                       item.valor && 
+                                       item.valor.trim().toLowerCase() === filterValue.trim().toLowerCase();
+                            });
+                        }
+
+                        if (match) {
+                            matchedAnimals.push({ data: animalData, id: doc.id });
+                        }
+                    }
+                });
+
+                if (isRanking) {
+                    matchedAnimals.sort((a, b) => b.numericValue - a.numericValue);
+                }
+
+                if (matchedAnimals.length === 0) {
+                    loadingMessage.textContent = `Nenhum animal encontrado com "${filterValue}".`;
+                    listContainer.style.display = 'none';
+                } else {
+                    loadingMessage.style.display = 'none';
+                    currentPage = 1;
+                    renderPage(currentPage);
+                    renderPagination();
+                }
+            } catch (error) {
+                console.error("Erro ao carregar animais por filtros:", error);
+                loadingMessage.textContent = "Ocorreu um erro ao carregar os dados.";
+            }
+        }
+        
+        categoryTitle.addEventListener('click', () => {
+            categoryTitle.classList.toggle('is-closed');
+            listContainer.classList.toggle('is-hidden');
+        });
+
+        loadFilteredPage();
+    </script>
+</body>
+</html>

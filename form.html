@@ -290,6 +290,7 @@
 <body class="form-light">
 
     <div class="top-menu">
+        <a href="gestor-index.html" class="menu-button"><i class="fa-solid fa-list-check" style="margin-right: 8px;"></i> Gestor do Index</a>
         <button id="openEditModalBtn" class="menu-button" disabled>A carregar...</button>
     </div>
 
@@ -1413,7 +1414,7 @@
         }
 
         function fillDimensionMetricSelect(select, selectedValue = '') {
-            const options = getDimensionOptionsForCategory();
+            const options = [...getDimensionOptionsForCategory()].sort((a, b) => a.label.localeCompare(b.label));
             const hasSelected = selectedValue && options.some(option => option.label === selectedValue);
             select.innerHTML = `<option value="">Escolha uma medida</option>` +
                 options.map(option => `<option value="${option.label}">${option.label}</option>`).join('') +
@@ -1711,19 +1712,20 @@
             { tipo: 'Vida útil', unidade: 'anos' },
             { tipo: 'Velocidade máxima', unidade: 'km/h' },
             { tipo: 'Velocidade média', unidade: 'km/h' },
+            { tipo: 'Força da mordida', unidade: 'PSI' },
             { tipo: 'Estratégia para obter alimento', unidade: '' },
             { tipo: 'Acasalamento', unidade: '' },
             { tipo: 'Zona Climática', unidade: '' }
         ];
 
-        const generalVisualUnits = ['', 'dias', 'meses', 'anos', 'km/h', 'm/s'];
+        const generalVisualUnits = ['', 'dias', 'meses', 'anos', 'km/h', 'm/s', 'PSI'];
 
         function getGeneralVisualOption(type = '') {
             return generalVisualOptions.find(option => option.tipo === type);
         }
 
         function fillGeneralVisualTypeSelect(select, selectedValue = '') {
-            const options = generalVisualOptions.map(option => option.tipo);
+            const options = generalVisualOptions.map(option => option.tipo).sort((a, b) => a.localeCompare(b));
             const hasSelected = selectedValue && options.includes(selectedValue);
             select.innerHTML = `<option value="">Escolhe um modelo</option>` +
                 options.map(option => `<option value="${option}">${option}</option>`).join('') +
@@ -1866,7 +1868,11 @@
         function setGeneralVisualData(items = []) {
             generalVisualRowsContainer.innerHTML = '';
             if (!Array.isArray(items) || items.length === 0) {
-                generalVisualOptions.forEach(option => createGeneralVisualRow(option.tipo, '', option.unidade, ''));
+                generalVisualOptions.forEach(option => {
+                    if (option.tipo !== 'Velocidade média' && option.tipo !== 'Força da mordida') {
+                        createGeneralVisualRow(option.tipo, '', option.unidade, '');
+                    }
+                });
                 updateGeneralVisualPreview();
                 return;
             }
@@ -1893,6 +1899,7 @@
             if (normalized.includes('vida')) return { key: 'vida', title: type || 'Vida útil', accent: 'accent-life' };
             if (normalized.includes('maxima')) return { key: 'velocidade-maxima', title: type || 'Velocidade máxima', accent: 'accent-speed-max' };
             if (normalized.includes('media')) return { key: 'velocidade-media', title: type || 'Velocidade média', accent: 'accent-speed-average' };
+            if (normalized.includes('mordida')) return { key: 'forca-mordida', title: type || 'Força da mordida', accent: 'accent-bite-force' };
             if (normalized.includes('estrategia')) return { key: 'estrategia', title: type || 'Estratégia para obter alimento', accent: 'accent-generic' };
             if (normalized.includes('acasalamento')) return { key: 'acasalamento', title: type || 'Acasalamento', accent: 'accent-generic' };
             if (normalized.includes('zona')) return { key: 'zona-climatica', title: type || 'Zona Climática', accent: 'accent-climate' };
@@ -1922,6 +1929,7 @@
                 vida: `<svg class="metric-model-svg general-model-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M28 10h24"/><path d="M28 70h24"/><path d="M31 10c0 15 18 16 18 30S31 55 31 70"/><path d="M49 10c0 15-18 16-18 30s18 15 18 30"/><path d="M34 53h12"/><path d="M37 59h6"/></svg>`,
                 'velocidade-maxima': `<svg class="metric-model-svg general-model-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M14 58a26 26 0 0 1 52 0"/><path d="M24 58h32"/><path d="M40 58l18-24"/><path d="M28 30l-5-6"/><path d="M52 30l5-6"/><path d="M40 24v-9"/><path d="M61 58h7"/></svg>`,
                 'velocidade-media': `<svg class="metric-model-svg general-model-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M13 58a27 27 0 0 1 54 0"/><path d="M22 58h36"/><path d="M40 58l8-18"/><path d="M23 43h8"/><path d="M49 43h8"/><path d="M30 28l-4-7"/><path d="M50 28l4-7"/></svg>`,
+                'forca-mordida': `<svg class="metric-model-svg general-model-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M20 30c0-6 10-10 20-10s20 4 20 10v6H20v-6z"/><path d="M20 50c0 6 10 10 20 10s20-4 20-10v-6H20v6z"/><path d="M28 30l2 6M36 30l1 6M44 30l-1 6M52 30l-2 6"/><path d="M28 50l2-6M36 50l1-6M44 50l-1-6M52 50l-2-6"/></svg>`,
                 geral: `<svg class="metric-model-svg general-model-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><circle cx="40" cy="40" r="25"/><path d="M40 25v18"/><path d="M40 53v2"/></svg>`,
                 acasalamento: `<svg class="metric-model-svg general-model-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><circle cx="28" cy="30" r="8"/><circle cx="52" cy="30" r="8"/><path d="M28 38v10"/><path d="M52 38v10"/><path d="M22 54c4-5 8-8 14-8"/><path d="M58 54c-4-5-8-8-14-8"/><path d="M36 30h8"/><path d="M44 30h8"/></svg>`
             };
@@ -2065,9 +2073,10 @@
         }
 
         function fillFeedingTypeSelect(select, selectedValue = '') {
-            const hasSelected = selectedValue && feedingTypes.includes(selectedValue);
+            const sortedTypes = [...feedingTypes].sort((a, b) => a.localeCompare(b));
+            const hasSelected = selectedValue && sortedTypes.includes(selectedValue);
             select.innerHTML = `<option value="">Escolhe um tipo</option>` +
-                feedingTypes.map(type => `<option value="${type}">${type}</option>`).join('') +
+                sortedTypes.map(type => `<option value="${type}">${type}</option>`).join('') +
                 (selectedValue && !hasSelected ? `<option value="${selectedValue}">${selectedValue} — personalizado</option>` : '');
             select.value = selectedValue;
         }
@@ -2172,7 +2181,7 @@
         }
 
         function fillReproductionTypeSelect(select, selectedValue = '') {
-            const options = getReproductionOptionsForCategory();
+            const options = [...getReproductionOptionsForCategory()].sort((a, b) => a.localeCompare(b));
             const hasSelected = selectedValue && options.includes(selectedValue);
             const placeholder = isBirdCategory() ? 'Escolhe a cor/padrão do ovo' : 'Escolhe um tipo';
             select.innerHTML = `<option value="">${placeholder}</option>` +
@@ -2359,7 +2368,7 @@
         }
 
         function fillPlumageTypeSelect(select, group = 'plumagem', selectedValue = '') {
-            const options = getPlumageOptions(group);
+            const options = [...getPlumageOptions(group)].sort((a, b) => a.localeCompare(b));
             const hasSelected = selectedValue && options.includes(selectedValue);
             select.innerHTML = `<option value="">Escolhe um tipo</option>` +
                 options.map(option => `<option value="${option}">${option}</option>`).join('') +

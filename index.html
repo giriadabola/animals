@@ -24,25 +24,34 @@
     <main>
         <section class="hero-section">
             <h1>GRANDES PROJETOS</h1>
-            <p class="subtitle">Explore a biodiversidade e descubra curiosidades sobre o reino animal</p>
         </section>
 
-        <div class="search-container">
-            <input type="text" id="searchInput" placeholder="Pesquise por nome comum ou científico...">
-            <div id="searchResults"></div>
-        </div>
+        <div class="main-layout" id="mainLayout">
+            <div class="left-panel">
+                <div class="search-container">
+                    <input type="text" id="searchInput" placeholder="Pesquise por nome comum ou científico...">
+                </div>
 
-        <p id="loading-message">A carregar animais...</p>
-        <div class="categories-container" id="categories-list" style="display: none;"></div>
+                <p id="loading-message">A carregar animais...</p>
+                <div class="categories-container" id="categories-list" style="display: none;"></div>
+                
+                <div id="dynamic-lists-wrapper"></div>
+            </div>
+            
+            <div class="right-panel">
+                <div id="searchResults"></div>
+            </div>
+        </div>
     </main>
 
     <!-- Componentes e Lógica -->
     <script type="module" src="js/components.js"></script>
     <script type="module">
         import { db } from "./js/firebase-config.js";
-        import { collection, getDocs } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
+        import { collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
 
         let allAnimals = [];
+        const mainLayout = document.getElementById('mainLayout');
         const searchInput = document.getElementById('searchInput');
         const searchResultsContainer = document.getElementById('searchResults');
         const loadingMessage = document.getElementById('loading-message');
@@ -72,6 +81,7 @@
                 loadingMessage.style.display = 'none';
                 categoriesContainer.style.display = 'grid';
                 populateCategories();
+                populateSurvivalLists();
             } catch (error) {
                 console.error("Erro ao carregar animais:", error);
                 loadingMessage.textContent = "Não foi possível carregar os animais.";
@@ -91,11 +101,328 @@
                 categoriesContainer.appendChild(categoryLink);
             }
         }
+
+        async function populateSurvivalLists() {
+            const wrapper = document.getElementById('dynamic-lists-wrapper');
+            if (!wrapper) return;
+            wrapper.innerHTML = '';
+
+            let order = ["estrategia-alimento", "acasalamento", "zona-climatica", "categoria", "familia", "estatisticas"];
+            let subStatsOrder = ["mais-velozes", "mais-vida-util", "mais-altos", "mais-pesados", "mais-largo", "mais-espesso"];
+            let active = {
+                "estrategia-alimento": true,
+                "acasalamento": false,
+                "zona-climatica": false,
+                "categoria": false,
+                "familia": false,
+                "estatisticas": true,
+                "mais-velozes": false,
+                "mais-vida-util": false,
+                "mais-altos": false,
+                "mais-pesados": false,
+                "mais-largo": false,
+                "mais-espesso": false
+            };
+
+            try {
+                const settingsSnap = await getDoc(doc(db, "settings", "index-lists"));
+                if (settingsSnap.exists()) {
+                    const data = settingsSnap.data();
+                    if (data.order && Array.isArray(data.order)) {
+                        order = data.order;
+                    }
+                    if (data.subStatsOrder && Array.isArray(data.subStatsOrder)) {
+                        subStatsOrder = data.subStatsOrder;
+                    }
+                    if (data.active) {
+                        active = data.active;
+                    } else {
+                        Object.keys(active).forEach(key => {
+                            if (key in data) {
+                                active[key] = !!data[key];
+                            }
+                        });
+                    }
+                }
+            } catch (err) {
+                console.error("Erro ao carregar settings do index:", err);
+            }
+
+            function extractNumericMetric(details, searchKeys, exactMatch = false) {
+                const item = details.find(d => {
+                    if (!d.tipo) return false;
+                    const normalized = d.tipo.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+                    if (exactMatch) {
+                        return searchKeys.some(key => normalized === key);
+                    }
+                    return searchKeys.every(key => normalized.includes(key));
+                });
+                if (!item) return null;
+                const valStr = item.valor || item.valorMin || '';
+                if (!valStr) return null;
+                const cleanVal = valStr.replace(',', '.');
+                const num = parseFloat(cleanVal.replace(/[^0-9.]/g, ''));
+                if (isNaN(num)) return null;
+
+                const unit = (item.unidade || '').toLowerCase().trim();
+                let normalizedValue = num;
+
+                // Height / Length / Width / Thickness normalization (base: cm)
+                if (searchKeys.includes('altura') || searchKeys.includes('largura') || searchKeys.includes('espessura')) {
+                    if (unit === 'm' || unit === 'metro' || unit === 'metros') {
+                        normalizedValue = num * 100;
+                    } else if (unit === 'mm' || unit === 'milimetro' || unit === 'milimetros') {
+                        normalizedValue = num / 10;
+                    }
+                }
+                // Weight normalization (base: g)
+                else if (searchKeys.includes('peso')) {
+                    if (unit === 'kg' || unit === 'quilo' || unit === 'quilos' || unit === 'quilograma' || unit === 'quilogramas') {
+                        normalizedValue = num * 1000;
+                    } else if (unit === 't' || unit === 'tonelada' || unit === 'toneladas') {
+                        normalizedValue = num * 1000000;
+                    }
+                }
+
+                return {
+                    numericValue: normalizedValue,
+                    displayValue: `${valStr} ${item.unidade || ''}`.trim()
+                };
+            }
+
+            const listsConfig = [
+                {
+                    key: 'estrategia-alimento',
+                    title: 'Estratégias Alimentares',
+                    tag: 'Estratégia',
+                    icon: 'fa-utensils',
+                    gradientClass: 'gradient-purple',
+                    extract: (animal) => {
+                        const details = animal.informacao?.geralDetalhada || [];
+                        const item = details.find(d => {
+                            if (!d.tipo) return false;
+                            const normalized = d.tipo.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+                            return normalized.includes('estrategia') && normalized.includes('alimento');
+                        });
+                        return item?.valor || null;
+                    }
+                },
+                {
+                    key: 'acasalamento',
+                    title: 'Sistemas de Acasalamento',
+                    tag: 'Acasalamento',
+                    icon: 'fa-heart',
+                    gradientClass: 'gradient-teal',
+                    extract: (animal) => {
+                        const details = animal.informacao?.geralDetalhada || [];
+                        const item = details.find(d => {
+                            if (!d.tipo) return false;
+                            const normalized = d.tipo.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+                            return normalized.includes('acasalamento');
+                        });
+                        return item?.valor || null;
+                    }
+                },
+                {
+                    key: 'zona-climatica',
+                    title: 'Zonas Climáticas',
+                    tag: 'Clima',
+                    icon: 'fa-cloud-sun',
+                    gradientClass: 'gradient-cyan',
+                    extract: (animal) => {
+                        const details = animal.informacao?.geralDetalhada || [];
+                        const item = details.find(d => {
+                            if (!d.tipo) return false;
+                            const normalized = d.tipo.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+                            return normalized.includes('climatica') || normalized.includes('clima') || normalized.includes('zona');
+                        });
+                        return item?.valor || null;
+                    }
+                },
+                {
+                    key: 'categoria',
+                    title: 'Categorias de Animais',
+                    tag: 'Categoria',
+                    icon: 'fa-paw',
+                    gradientClass: 'gradient-rose',
+                    extract: (animal) => animal.categoria || null
+                },
+                {
+                    key: 'familia',
+                    title: 'Famílias de Animais',
+                    tag: 'Família',
+                    icon: 'fa-users',
+                    gradientClass: 'gradient-orange',
+                    extract: (animal) => animal.familia || null
+                },
+                {
+                    key: 'mais-velozes',
+                    title: 'Os Mais Velozes',
+                    tag: 'Velocidade',
+                    icon: 'fa-bolt',
+                    isRanking: true,
+                    extractRanking: (animal) => extractNumericMetric(animal.informacao?.geralDetalhada || [], ['velocidade'])
+                },
+                {
+                    key: 'mais-vida-util',
+                    title: 'Com mais Vida Útil',
+                    tag: 'Longevidade',
+                    icon: 'fa-hourglass-half',
+                    isRanking: true,
+                    extractRanking: (animal) => extractNumericMetric(animal.informacao?.geralDetalhada || [], ['vida', 'util'])
+                },
+                {
+                    key: 'mais-altos',
+                    title: 'Os Mais Altos',
+                    tag: 'Altura',
+                    icon: 'fa-arrows-up-down',
+                    isRanking: true,
+                    extractRanking: (animal) => extractNumericMetric(animal.informacao?.dimensoesDetalhadas || [], ['altura'])
+                },
+                {
+                    key: 'mais-pesados',
+                    title: 'Os Mais Pesados',
+                    tag: 'Peso',
+                    icon: 'fa-weight-hanging',
+                    isRanking: true,
+                    extractRanking: (animal) => extractNumericMetric(animal.informacao?.dimensoesDetalhadas || [], ['peso'], true)
+                },
+                {
+                    key: 'mais-largo',
+                    title: 'Mais Largo',
+                    tag: 'Largura',
+                    icon: 'fa-arrows-left-right',
+                    isRanking: true,
+                    extractRanking: (animal) => extractNumericMetric(animal.informacao?.dimensoesDetalhadas || [], ['largura'])
+                },
+                {
+                    key: 'mais-espesso',
+                    title: 'Mais Espesso',
+                    tag: 'Espessura',
+                    icon: 'fa-ruler-combined',
+                    isRanking: true,
+                    extractRanking: (animal) => extractNumericMetric(animal.informacao?.dimensoesDetalhadas || [], ['espessura'])
+                }
+            ];
+
+            let estatisticasSectionCreated = false;
+            let estatisticasContainer = null;
+
+            order.forEach(key => {
+                if (!active[key]) return;
+
+                if (key === 'estatisticas') {
+                    const activeRankings = [];
+                    subStatsOrder.forEach(subKey => {
+                        if (!active[subKey]) return;
+                        const config = listsConfig.find(c => c.key === subKey);
+                        if (!config) return;
+
+                        const ranked = [];
+                        allAnimals.forEach(animal => {
+                            const res = config.extractRanking(animal);
+                            if (res) {
+                                ranked.push({
+                                    animal,
+                                    numericValue: res.numericValue,
+                                    displayValue: res.displayValue
+                                });
+                            }
+                        });
+
+                        if (ranked.length > 0) {
+                            ranked.sort((a, b) => b.numericValue - a.numericValue);
+                            const top = ranked[0];
+                            activeRankings.push({
+                                config,
+                                topAnimal: top.animal,
+                                displayValue: top.displayValue
+                            });
+                        }
+                    });
+
+                    if (activeRankings.length === 0) return;
+
+                    const section = document.createElement('div');
+                    section.className = 'lists-section';
+                    section.innerHTML = `
+                        <h2 class="section-title">Estatísticas</h2>
+                        <div class="lists-container" id="estatisticas-container"></div>
+                    `;
+                    const container = section.querySelector('.lists-container');
+
+                    activeRankings.forEach(item => {
+                        const card = document.createElement('a');
+                        card.className = 'list-card';
+                        card.href = `filtros.html?tipo=${item.config.key}&valor=ranking`;
+                        card.style.backgroundImage = `linear-gradient(rgba(0, 0, 0, 0.2), rgba(9, 9, 20, 0.95)), url('${item.topAnimal.imagemUrl}')`;
+                        card.style.backgroundPosition = item.topAnimal.imagemObjectPosition || 'center center';
+                        
+                        card.innerHTML = `
+                            <div class="list-card-content">
+                                <span class="list-card-tag"><i class="fa-solid ${item.config.icon}"></i> ${item.config.tag}</span>
+                                <h3 class="list-card-title">${item.config.title}</h3>
+                                <span style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">${item.topAnimal.nome}</span>
+                            </div>
+                        `;
+                        container.appendChild(card);
+                    });
+
+                    wrapper.appendChild(section);
+                } else {
+                    const config = listsConfig.find(c => c.key === key);
+                    if (!config) return;
+
+                    const strategyMap = new Map();
+                    allAnimals.forEach(animal => {
+                        const value = config.extract(animal);
+                        if (value && value.trim()) {
+                            const cleanValue = value.trim();
+                            if (!strategyMap.has(cleanValue) && animal.imagemUrl) {
+                                strategyMap.set(cleanValue, {
+                                    imagemUrl: animal.imagemUrl,
+                                    objectPos: animal.imagemObjectPosition || 'center center'
+                                });
+                            }
+                        }
+                    });
+
+                    if (strategyMap.size === 0) return;
+
+                    const section = document.createElement('div');
+                    section.className = 'lists-section';
+                    section.innerHTML = `
+                        <h2 class="section-title ${config.gradientClass || 'gradient-purple'}">${config.title}</h2>
+                        <div class="lists-container"></div>
+                    `;
+                    const container = section.querySelector('.lists-container');
+
+                    for (const [val, data] of strategyMap.entries()) {
+                        const card = document.createElement('a');
+                        card.className = 'list-card';
+                        card.href = `filtros.html?tipo=${config.key}&valor=${encodeURIComponent(val)}`;
+                        card.style.backgroundImage = `linear-gradient(rgba(0, 0, 0, 0.2), rgba(9, 9, 20, 0.95)), url('${data.imagemUrl}')`;
+                        card.style.backgroundPosition = data.objectPos;
+                        
+                        card.innerHTML = `
+                            <div class="list-card-content">
+                                <span class="list-card-tag"><i class="fa-solid ${config.icon}"></i> ${config.tag}</span>
+                                <h3 class="list-card-title">${val}</h3>
+                            </div>
+                        `;
+                        container.appendChild(card);
+                    }
+
+                    wrapper.appendChild(section);
+                }
+            });
+        }
         
         function displayResults(results) {
             searchResultsContainer.innerHTML = '';
             if (results.length === 0) {
                 searchResultsContainer.style.display = 'none';
+                if (mainLayout) mainLayout.classList.remove('has-results');
                 return;
             }
             results.forEach(animal => {
@@ -116,12 +443,14 @@
                 searchResultsContainer.appendChild(resultElement);
             });
             searchResultsContainer.style.display = 'block';
+            if (mainLayout) mainLayout.classList.add('has-results');
         }
 
         searchInput.addEventListener('input', () => {
             const searchTerm = searchInput.value.toLowerCase().trim();
             if (searchTerm.length === 0) {
                 searchResultsContainer.style.display = 'none';
+                if (mainLayout) mainLayout.classList.remove('has-results');
                 return;
             }
             const filteredAnimals = allAnimals.filter(animal => 
@@ -129,11 +458,15 @@
                 animal.nomeCientifico.toLowerCase().includes(searchTerm)
             );
             displayResults(filteredAnimals);
+            if (window.innerWidth > 992 && filteredAnimals.length > 0) {
+                mainLayout.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
         });
         
         document.addEventListener('click', (event) => {
-            if (!event.target.closest('.search-container')) {
+            if (!event.target.closest('.search-container') && !event.target.closest('#searchResults')) {
                 searchResultsContainer.style.display = 'none';
+                if (mainLayout) mainLayout.classList.remove('has-results');
             }
         });
         

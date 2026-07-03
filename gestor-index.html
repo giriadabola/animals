@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestor do Index - Grandes Projetos</title>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- CSS Global -->
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .settings-container {
+            max-width: 900px;
+            margin: 40px auto;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-lg);
+            padding: 30px;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .settings-header {
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .settings-header h1 {
+            font-size: 1.8rem;
+            margin: 0;
+            font-weight: 800;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .settings-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            transition: var(--transition);
+        }
+
+        .setting-item:hover {
+            border-color: var(--primary-color);
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .setting-info h3 {
+            margin: 0 0 6px 0;
+            font-size: 1.1rem;
+            color: var(--text-primary);
+        }
+
+        .setting-info p {
+            margin: 0;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        /* Order Arrows */
+        .order-actions {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .arrow-btn {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 8px;
+            border-radius: var(--border-radius-sm);
+            font-size: 0.9rem;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .arrow-btn:hover:not(:disabled) {
+            color: var(--primary-color);
+            border-color: var(--primary-color);
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateY(-1px);
+        }
+
+        .arrow-btn:disabled {
+            opacity: 0.2;
+            cursor: not-allowed;
+        }
+
+        /* Sub-stats layout styling */
+        .stats-subcontainer {
+            border-top: 1px solid var(--border-color);
+            padding-top: 20px;
+            margin-top: 20px;
+            width: 100%;
+        }
+
+        .stats-subcontainer h4 {
+            margin: 0 0 15px 0;
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stats-sublist {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 15px;
+        }
+
+        .sub-stat-card {
+            background: rgba(255, 255, 255, 0.015);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-sm);
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 12px;
+            transition: var(--transition);
+        }
+
+        .sub-stat-card:hover {
+            border-color: var(--primary-color);
+            background: rgba(255, 255, 255, 0.035);
+        }
+
+        .sub-stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .sub-stat-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin: 0;
+        }
+
+        .sub-stat-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* iOS Toggle Switch */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 54px;
+            height: 28px;
+            flex-shrink: 0;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255, 255, 255, 0.1);
+            transition: .4s;
+            border-radius: 34px;
+            border: 1px solid var(--border-color);
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.4);
+        }
+
+        input:checked + .slider {
+            background: var(--accent-gradient);
+            border-color: transparent;
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 10px 20px;
+            border-radius: var(--border-radius-sm);
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 0.9rem;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .back-btn:hover {
+            border-color: var(--primary-color);
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+
+        #save-status {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            min-height: 20px;
+        }
+        .status-success { color: #10b981; }
+        .status-error { color: #ef4444; }
+    </style>
+</head>
+<body>
+
+    <main style="padding: 20px;">
+        <div class="settings-container">
+            <div class="settings-header">
+                <h1>Gestor de Secções do Index</h1>
+                <a href="form.html" class="back-btn"><i class="fa-solid fa-arrow-left"></i> Painel de Gestão</a>
+            </div>
+
+            <div class="settings-list" id="settingsList">
+                <!-- Rendered dynamically -->
+            </div>
+
+            <div id="save-status"></div>
+        </div>
+    </main>
+
+    <!-- Firebase Logic -->
+    <script type="module">
+        import { db } from "./js/firebase-config.js";
+        import { doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
+
+        const settingsList = document.getElementById('settingsList');
+        const statusDiv = document.getElementById('save-status');
+        const docRef = doc(db, "settings", "index-lists");
+
+        // High level sections definitions
+        const sectionDefs = {
+            "estrategia-alimento": {
+                title: "Estratégia para obter alimento",
+                desc: "Agrupa animais pelas suas estratégias alimentares (Mergulho, Emboscada, Caça, etc.)."
+            },
+            "acasalamento": {
+                title: "Acasalamento",
+                desc: "Agrupa animais pelos seus sistemas de acasalamento (Monogamia, Poligamia, etc.)."
+            },
+            "zona-climatica": {
+                title: "Zona climática",
+                desc: "Agrupa animais pelas suas preferências climáticas (Tropical, Polar, Desértica, etc.)."
+            },
+            "categoria": {
+                title: "Categoria",
+                desc: "Agrupa animais por categoria taxonómica (Mamíferos, Aves, Peixes, etc.)."
+            },
+            "familia": {
+                title: "Família",
+                desc: "Agrupa animais por família (Felidae, Anatidae, Ardeidae, etc.)."
+            },
+            "estatisticas": {
+                title: "Estatísticas",
+                desc: "Secção unificada contendo cards com as maiores estatísticas comparativas entre os animais."
+            }
+        };
+
+        // Sub-stats definitions inside the Estatísticas section
+        const subStatsDefs = {
+            "mais-velozes": { title: "Os Mais Velozes", icon: "fa-bolt" },
+            "mais-vida-util": { title: "Com mais Vida Útil", icon: "fa-hourglass-half" },
+            "mais-altos": { title: "Os Mais Altos", icon: "fa-arrows-up-down" },
+            "mais-pesados": { title: "Os Mais Pesados", icon: "fa-weight-hanging" },
+            "mais-largo": { title: "Mais Largo", icon: "fa-arrows-left-right" },
+            "mais-espesso": { title: "Mais Espesso", icon: "fa-ruler-combined" }
+        };
+
+        let currentOrder = ["estrategia-alimento", "acasalamento", "zona-climatica", "categoria", "familia", "estatisticas"];
+        let currentActive = {
+            "estrategia-alimento": true,
+            "acasalamento": false,
+            "zona-climatica": false,
+            "categoria": false,
+            "familia": false,
+            "estatisticas": true,
+            // Sub-stats active states
+            "mais-velozes": false,
+            "mais-vida-util": false,
+            "mais-altos": false,
+            "mais-pesados": false,
+            "mais-largo": false,
+            "mais-espesso": false
+        };
+
+        let subStatsOrder = ["mais-velozes", "mais-vida-util", "mais-altos", "mais-pesados", "mais-largo", "mais-espesso"];
+
+        // Render List
+        function renderSettingsList() {
+            settingsList.innerHTML = '';
+            
+            currentOrder.forEach((key, index) => {
+                const info = sectionDefs[key];
+                if (!info) return;
+
+                const isActive = !!currentActive[key];
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'setting-item';
+                
+                // If it is the "estatisticas" key, it renders as a expandable grouped box
+                if (key === 'estatisticas') {
+                    itemDiv.style.flexDirection = 'column';
+                    itemDiv.style.alignItems = 'stretch';
+                    itemDiv.style.gap = '15px';
+                    
+                    itemDiv.innerHTML = `
+                        <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                            <div class="setting-info">
+                                <h3>${info.title}</h3>
+                                <p>${info.desc}</p>
+                            </div>
+                            <div class="order-actions">
+                                <button type="button" class="arrow-btn up-btn" data-index="${index}" ${index === 0 ? 'disabled' : ''} title="Mover para cima">
+                                    <i class="fa-solid fa-chevron-up"></i>
+                                </button>
+                                <button type="button" class="arrow-btn down-btn" data-index="${index}" ${index === currentOrder.length - 1 ? 'disabled' : ''} title="Mover para baixo">
+                                    <i class="fa-solid fa-chevron-down"></i>
+                                </button>
+                                <label class="switch">
+                                    <input type="checkbox" data-key="${key}" ${isActive ? 'checked' : ''}>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="stats-subcontainer" style="display: ${isActive ? 'block' : 'none'};">
+                            <h4>Ordenação dos Cards Individuais de Estatística</h4>
+                            <div class="stats-sublist">
+                                <!-- Rendered below dynamically -->
+                            </div>
+                        </div>
+                    `;
+
+                    // Render Sub stats list
+                    const statsSublist = itemDiv.querySelector('.stats-sublist');
+                    subStatsOrder.forEach((subKey, subIndex) => {
+                        const subInfo = subStatsDefs[subKey];
+                        if (!subInfo) return;
+
+                        const isSubActive = !!currentActive[subKey];
+                        const subCard = document.createElement('div');
+                        subCard.className = 'sub-stat-card';
+                        subCard.innerHTML = `
+                            <div class="sub-stat-header">
+                                <span class="sub-stat-title"><i class="fa-solid ${subInfo.icon}" style="margin-right: 6px;"></i> ${subInfo.title}</span>
+                                <label class="switch" style="transform: scale(0.8);">
+                                    <input type="checkbox" data-key="${subKey}" ${isSubActive ? 'checked' : ''}>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="sub-stat-footer">
+                                <span style="font-size: 0.75rem; color: var(--text-muted);">Mover Horizontal</span>
+                                <div style="display: flex; gap: 4px;">
+                                    <button type="button" class="arrow-btn sub-left" ${subIndex === 0 ? 'disabled' : ''} title="Mover para Esquerda">
+                                        <i class="fa-solid fa-chevron-left"></i>
+                                    </button>
+                                    <button type="button" class="arrow-btn sub-right" ${subIndex === subStatsOrder.length - 1 ? 'disabled' : ''} title="Mover para Direita">
+                                        <i class="fa-solid fa-chevron-right"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+
+                        // Sub toggle listener
+                        subCard.querySelector('input[type="checkbox"]').addEventListener('change', handleToggle);
+                        
+                        // Sub shift order listeners
+                        subCard.querySelector('.sub-left').addEventListener('click', () => moveSubItem(subIndex, -1));
+                        subCard.querySelector('.sub-right').addEventListener('click', () => moveSubItem(subIndex, 1));
+
+                        statsSublist.appendChild(subCard);
+                    });
+
+                } else {
+                    itemDiv.innerHTML = `
+                        <div class="setting-info">
+                            <h3>${info.title}</h3>
+                            <p>${info.desc}</p>
+                        </div>
+                        <div class="order-actions">
+                            <button type="button" class="arrow-btn up-btn" data-index="${index}" ${index === 0 ? 'disabled' : ''} title="Mover para cima">
+                                <i class="fa-solid fa-chevron-up"></i>
+                            </button>
+                            <button type="button" class="arrow-btn down-btn" data-index="${index}" ${index === currentOrder.length - 1 ? 'disabled' : ''} title="Mover para baixo">
+                                <i class="fa-solid fa-chevron-down"></i>
+                            </button>
+                            <label class="switch">
+                                <input type="checkbox" data-key="${key}" ${isActive ? 'checked' : ''}>
+                                    <span class="slider"></span>
+                            </label>
+                        </div>
+                    `;
+                }
+
+                // Add main Toggle listener
+                itemDiv.querySelector('input[data-key="' + key + '"]').addEventListener('change', handleToggle);
+                
+                // Add Reorder listeners
+                itemDiv.querySelector('.up-btn').addEventListener('click', () => moveItem(index, -1));
+                itemDiv.querySelector('.down-btn').addEventListener('click', () => moveItem(index, 1));
+
+                settingsList.appendChild(itemDiv);
+            });
+        }
+
+        // Load initial settings
+        async function loadSettings() {
+            try {
+                const docSnap = await getDoc(docRef);
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    
+                    if (data.order && Array.isArray(data.order)) {
+                        const validKeys = Object.keys(sectionDefs);
+                        let loadedOrder = data.order.filter(k => validKeys.includes(k));
+                        
+                        validKeys.forEach(k => {
+                            if (!loadedOrder.includes(k)) {
+                                loadedOrder.push(k);
+                            }
+                        });
+                        currentOrder = loadedOrder;
+                    }
+                    if (data.subStatsOrder && Array.isArray(data.subStatsOrder)) {
+                        const validSubKeys = Object.keys(subStatsDefs);
+                        let loadedSubOrder = data.subStatsOrder.filter(k => validSubKeys.includes(k));
+                        
+                        validSubKeys.forEach(k => {
+                            if (!loadedSubOrder.includes(k)) {
+                                loadedSubOrder.push(k);
+                            }
+                        });
+                        subStatsOrder = loadedSubOrder;
+                    }
+                    if (data.active) {
+                        Object.keys(currentActive).forEach(key => {
+                            if (key in data.active) {
+                                currentActive[key] = !!data.active[key];
+                            }
+                        });
+                    } else {
+                        // Migration support from old schema
+                        Object.keys(currentActive).forEach(key => {
+                            if (key in data) {
+                                currentActive[key] = !!data[key];
+                            }
+                        });
+                    }
+                    
+                    // Save the merged data back to ensure DB is clean and updated
+                    await setDoc(docRef, {
+                        order: currentOrder,
+                        subStatsOrder: subStatsOrder,
+                        active: currentActive
+                    });
+                } else {
+                    await setDoc(docRef, {
+                        order: currentOrder,
+                        subStatsOrder: subStatsOrder,
+                        active: currentActive
+                    });
+                }
+                renderSettingsList();
+            } catch (error) {
+                console.error("Erro ao carregar definições:", error);
+                showStatus("Erro ao carregar as definições do servidor.", "error");
+            }
+        }
+
+        // Save layout/settings to Firestore
+        async function saveSettingsToFirestore() {
+            try {
+                await setDoc(docRef, {
+                    order: currentOrder,
+                    subStatsOrder: subStatsOrder,
+                    active: currentActive
+                });
+                showStatus("Definições guardadas com sucesso!", "success");
+            } catch (error) {
+                console.error("Erro ao guardar definições:", error);
+                showStatus("Erro ao guardar definições no servidor.", "error");
+            }
+        }
+
+        // Move high level item in list
+        function moveItem(index, direction) {
+            const newIndex = index + direction;
+            if (newIndex < 0 || newIndex >= currentOrder.length) return;
+
+            const temp = currentOrder[index];
+            currentOrder[index] = currentOrder[newIndex];
+            currentOrder[newIndex] = temp;
+
+            renderSettingsList();
+            saveSettingsToFirestore();
+        }
+
+        // Move sub-stat item horizontally
+        function moveSubItem(index, direction) {
+            const newIndex = index + direction;
+            if (newIndex < 0 || newIndex >= subStatsOrder.length) return;
+
+            const temp = subStatsOrder[index];
+            subStatsOrder[index] = subStatsOrder[newIndex];
+            subStatsOrder[newIndex] = temp;
+
+            renderSettingsList();
+            saveSettingsToFirestore();
+        }
+
+        // Toggle Active Change
+        function handleToggle(event) {
+            const cb = event.target;
+            const key = cb.dataset.key;
+            currentActive[key] = cb.checked;
+            
+            // If main "estatisticas" is toggled, hide/show the sublist
+            if (key === 'estatisticas') {
+                const subContainer = cb.closest('.setting-item').querySelector('.stats-subcontainer');
+                if (subContainer) {
+                    subContainer.style.display = cb.checked ? 'block' : 'none';
+                }
+            }
+            
+            saveSettingsToFirestore();
+        }
+
+        function showStatus(msg, type) {
+            statusDiv.textContent = msg;
+            statusDiv.className = type === "success" ? "status-success" : "status-error";
+            setTimeout(() => {
+                if (statusDiv.textContent === msg) {
+                    statusDiv.textContent = "";
+                }
+            }, 3000);
+        }
+
+        loadSettings();
+    </script>
+</body>
+</html>
