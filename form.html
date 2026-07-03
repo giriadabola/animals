@@ -520,8 +520,22 @@
                                             <option value="Mediterrânica"></option>
                                             <option value="Montanhosa / Alpina"></option>
                                         </datalist>
+                                        <datalist id="habitatOptions">
+                                            <option value="Bosque"></option>
+                                            <option value="Calota de gelo"></option>
+                                            <option value="Caverna"></option>
+                                            <option value="Chaparral"></option>
+                                            <option value="Duna"></option>
+                                            <option value="Estepe"></option>
+                                            <option value="Fauna urbana"></option>
+                                            <option value="Marinho"></option>
+                                            <option value="Montanha"></option>
+                                            <option value="Pântano"></option>
+                                            <option value="Pradaria"></option>
+                                            <option value="Savana"></option>
+                                        </datalist>
                                         <button type="button" id="addGeneralVisualBtn" class="secondary-action-btn">+ Adicionar modelo</button>
-                                        <p class="form-hint">Usa esta área para dados gerais com modelo visual: vida útil, velocidade máxima, velocidade média, estratégia para obter alimento, acasalamento e zona climática.</p>
+                                        <p class="form-hint">Usa esta área para dados gerais com modelo visual: vida útil, velocidade máxima, velocidade média, estratégia para obter alimento, acasalamento, zona climática e habitat.</p>
                                     </div>
 
                                     <div class="general-visual-preview" aria-live="polite">
@@ -1841,7 +1855,8 @@
             { tipo: 'Força da mordida', unidade: 'PSI' },
             { tipo: 'Estratégia para obter alimento', unidade: '' },
             { tipo: 'Acasalamento', unidade: '' },
-            { tipo: 'Zona Climática', unidade: '' }
+            { tipo: 'Zona Climática', unidade: '' },
+            { tipo: 'Habitat', unidade: '' }
         ];
 
         const generalVisualUnits = ['', 'dias', 'meses', 'anos', 'km/h', 'm/s', 'PSI'];
@@ -1861,7 +1876,7 @@
 
         function isDropdownOnlyGeneralModel(type = '') {
             const normalized = normalizeSearchText(type);
-            return normalized.includes('estrategia') || normalized.includes('acasalamento') || normalized.includes('zona climatica');
+            return normalized.includes('estrategia') || normalized.includes('acasalamento') || normalized.includes('zona climatica') || normalized.includes('habitat');
         }
 
         function configureGeneralVisualRowControls(type, minInput, maxInput, unitSelect, strategySelect) {
@@ -1914,8 +1929,9 @@
                 const normalized = normalizeSearchText(selectedType);
                 const isMating = normalized.includes('acasalamento');
                 const isClimateZone = normalized.includes('zona climatica');
-                const datalistId = isClimateZone ? '#climateZoneOptions' : (isMating ? '#matingOptions' : '#feedingStrategyOptions');
-                const placeholder = isClimateZone ? 'Escolhe uma zona climática' : (isMating ? 'Escolhe um tipo de acasalamento' : 'Escolhe uma estratégia');
+                const isHabitat = normalized.includes('habitat');
+                const datalistId = isClimateZone ? '#climateZoneOptions' : (isHabitat ? '#habitatOptions' : (isMating ? '#matingOptions' : '#feedingStrategyOptions'));
+                const placeholder = isClimateZone ? 'Escolhe uma zona climática' : (isHabitat ? 'Escolhe um habitat' : (isMating ? 'Escolhe um tipo de acasalamento' : 'Escolhe uma estratégia'));
                 const datalistOpts = document.querySelectorAll(datalistId + ' option');
                 strategySelect.innerHTML = `<option value="">${placeholder}</option>` + 
                     Array.from(datalistOpts).map(opt => `<option value="${opt.value}">${opt.value}</option>`).join('');
@@ -2029,6 +2045,7 @@
             if (normalized.includes('estrategia')) return { key: 'estrategia', title: type || 'Estratégia para obter alimento', accent: 'accent-generic' };
             if (normalized.includes('acasalamento')) return { key: 'acasalamento', title: type || 'Acasalamento', accent: 'accent-generic' };
             if (normalized.includes('zona')) return { key: 'zona-climatica', title: type || 'Zona Climática', accent: 'accent-climate' };
+            if (normalized.includes('habitat')) return { key: 'habitat', title: type || 'Habitat', accent: 'accent-habitat' };
             return { key: 'geral', title: type || 'Modelo geral', accent: 'accent-generic' };
         }
 
@@ -2048,6 +2065,26 @@
             };
             if (normalized.includes('montanhosa') || normalized.includes('alpina')) return zones.montanhosa_alpina;
             return zones[normalized.replace(/\s+/g, '_')] || zones[normalized] || null;
+        }
+
+        function getHabitatMeta(value = '') {
+            const normalized = normalizeSearchText(value);
+            const habitats = {
+                bosque: { image: 'assets/habitats/03_Bosque.png', accent: 'accent-habitat-bosque' },
+                calota_de_gelo: { image: 'assets/habitats/07_Calota_de_Gelo.png', accent: 'accent-habitat-calota-gelo' },
+                caverna: { image: 'assets/habitats/05_Caverna.png', accent: 'accent-habitat-caverna' },
+                chaparral: { image: 'assets/habitats/10_Chaparral.png', accent: 'accent-habitat-chaparral' },
+                duna: { image: 'assets/habitats/06_Duna.png', accent: 'accent-habitat-duna' },
+                estepe: { image: 'assets/habitats/09_Estepe.png', accent: 'accent-habitat-estepe' },
+                fauna_urbana: { image: 'assets/habitats/12_Fauna_Urbana.png', accent: 'accent-habitat-fauna-urbana' },
+                marinho: { image: 'assets/habitats/01_Marinho.png', accent: 'accent-habitat-marinho' },
+                montanha: { image: 'assets/habitats/11_Montanha.png', accent: 'accent-habitat-montanha' },
+                pantano: { image: 'assets/habitats/04_Pantano.png', accent: 'accent-habitat-pantano' },
+                pradaria: { image: 'assets/habitats/08_Pradaria.png', accent: 'accent-habitat-pradaria' },
+                savana: { image: 'assets/habitats/02_Savana.png', accent: 'accent-habitat-savana' }
+            };
+            const key = normalized.replace(/\s+/g, '_');
+            return habitats[key] || null;
         }
 
         function getGeneralModelSvg(key = 'geral') {
@@ -2070,19 +2107,23 @@
             const isStrategy = normalizedType.includes('estrategia');
             const isMating = normalizedType.includes('acasalamento');
             const isClimateZone = normalizedType.includes('zona');
+            const isHabitat = normalizedType.includes('habitat');
             const strategyMeta = isStrategy && !isSuggestion ? getFeedingStrategyMeta(item.valorMin || item.valor || '') : null;
             const matingMeta = isMating && !isSuggestion ? getMatingMeta(item.valorMin || item.valor || '') : null;
             const climateMeta = isClimateZone && !isSuggestion ? getClimateZoneMeta(item.valorMin || item.valor || '') : null;
+            const habitatMeta = isHabitat && !isSuggestion ? getHabitatMeta(item.valorMin || item.valor || '') : null;
             const icon = climateMeta
                 ? `<img class="climate-zone-model-image" src="${climateMeta.image}" alt="Zona climática ${item.valorMin || item.valor || ''}" loading="lazy">`
-                : strategyMeta
-                    ? getFeedingStrategySvg(strategyMeta.key)
-                    : matingMeta
-                        ? getMatingSystemSvg(matingMeta.key)
-                        : getGeneralModelSvg(meta.key);
+                : habitatMeta
+                    ? `<img class="climate-zone-model-image" src="${habitatMeta.image}" alt="Habitat ${item.valorMin || item.valor || ''}" loading="lazy">`
+                    : strategyMeta
+                        ? getFeedingStrategySvg(strategyMeta.key)
+                        : matingMeta
+                            ? getMatingSystemSvg(matingMeta.key)
+                            : getGeneralModelSvg(meta.key);
             return `
-                <article class="dimension-model-card general-model-card ${climateMeta?.accent || strategyMeta?.accent || matingMeta?.accent || meta.accent}${isSuggestion ? ' is-suggestion' : ''}">
-                    <div class="dimension-model-icon ${climateMeta ? 'climate-zone-model-icon' : ''}">${icon}</div>
+                <article class="dimension-model-card general-model-card ${climateMeta?.accent || habitatMeta?.accent || strategyMeta?.accent || matingMeta?.accent || meta.accent}${isSuggestion ? ' is-suggestion' : ''}">
+                    <div class="dimension-model-icon ${climateMeta || habitatMeta ? 'climate-zone-model-icon' : ''}">${icon}</div>
                     <div class="dimension-model-copy">
                         <div class="dimension-model-label">${meta.title}</div>
                         <div class="dimension-model-value">${value}</div>
