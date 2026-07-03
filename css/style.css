@@ -941,12 +941,12 @@ main {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: 16px;
+    gap: 12px;
     margin-top: 14px;
-    margin-bottom: 28px;
+    margin-bottom: 16px;
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.01));
     border: 1px solid rgba(255, 255, 255, 0.08);
-    padding: 24px;
+    padding: 18px 24px;
     border-radius: 24px;
     width: fit-content;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.05);
@@ -957,10 +957,14 @@ main {
 .climate-zone-badge-image {
     width: 320px;
     max-width: 100%;
-    height: 130px;
+    height: 105px;
     object-fit: cover;
     border-radius: 12px;
     border: none;
+}
+
+.animal-habitat-badge .climate-zone-label {
+    color: #10b981;
 }
 
 .climate-zone-info {
