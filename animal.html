@@ -292,25 +292,15 @@
         function renderGeneralVisual(animalData) {
             const models = animalData.informacao?.geralDetalhada || [];
             const valid = Array.isArray(models) ? models.filter(item => item.tipo && item.valor && !normalizeDimensionKey(item.tipo).includes('zona')) : [];
-            if (!valid.length) return '';
+            const climateBadge = renderClimateZoneBadge(animalData);
+            if (!valid.length && !climateBadge) return '';
 
             return `
                 <div class="general-visual-card">
-                    <div class="general-preview-hero compact">
-                        <div class="general-preview-icon" aria-hidden="true">
-                            <svg class="metric-model-svg general-model-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true">
-                                <path d="M18 58c8-22 24-34 47-36"/>
-                                <path d="M21 61h38"/>
-                                <path d="M57 22l5-8"/>
-                                <path d="M53 26l-7-6"/>
-                                <circle cx="30" cy="57" r="4"/>
-                                <circle cx="56" cy="57" r="4"/>
-                            </svg>
-                        </div>
-                        <div class="general-preview-copy">
-                            <strong>Dados rápidos do animal</strong>
-                        </div>
+                    <div class="general-visual-title">
+                        <strong>Dados rápidos</strong>
                     </div>
+                    ${climateBadge}
                     <div class="general-visual-models">
                         ${valid.map(renderGeneralVisualCard).join('')}
                     </div>
@@ -354,7 +344,7 @@
                         <div class="visual-icon">${getCategoryModelSvg(animalData.categoria)}</div>
                         ${length ? `<div class="visual-length">${formatDimension(length, '')}</div>` : ''}
                     </div>
-                    <div class="dimension-model-grid">
+                    <div class="dimension-model-grid mobile-only">
                         ${ordered.map(renderDimensionModelCard).join('')}
                     </div>
                 </div>`;
@@ -534,17 +524,8 @@
             const valid = Array.isArray(reproduction) ? reproduction.filter(item => item.tipo || item.detalhe) : [];
             if (!valid.length) return '';
 
-            const isBird = animalData.categoria === 'Aves';
-
             return `
                 <div class="reproduction-visual-card">
-                    <div class="reproduction-preview-stage compact">
-                        <div class="reproduction-category-icon" aria-hidden="true">${getCategoryModelSvg(animalData.categoria)}</div>
-                        <div class="reproduction-category-copy">
-                            <span>${isBird ? 'Modelo visual dos ovos' : 'Modelo de reprodução'}</span>
-                            <strong>${escapeHtml(animalData.categoria || 'Animal')}</strong>
-                        </div>
-                    </div>
                     <div class="reproduction-model-grid">
                         ${valid.map(item => renderReproductionModelCard(item, animalData)).join('')}
                     </div>
@@ -748,21 +729,34 @@
             const hasPlumagemVisual = Array.isArray(animalData.informacao?.plumagemDetalhada) && animalData.informacao.plumagemDetalhada.some(item => item?.tipo || item?.detalhe);
             const hasPlumagem = hasPlumagemText || hasPlumagemVisual;
             
+            const hasDistribicaoText = animalData.informacao?.distribuicao?.descricao && animalData.informacao.distribuicao.descricao.trim() !== "";
             const hasDistribicao = animalData.informacao?.distribuicao && 
                                    ((Array.isArray(animalData.informacao.distribuicao.paises) && animalData.informacao.distribuicao.paises.length > 0) || 
-                                    (animalData.informacao.distribuicao.descricao && animalData.informacao.distribuicao.descricao.trim() !== ""));
+                                    hasDistribicaoText);
 
             const navItems = [];
-            if (hasGeral) navItems.push({ href: '#info-geral', label: 'Geral' });
-            if (hasDimensoes) navItems.push({ href: '#info-dimensoes', label: 'Dimensões' });
-            if (hasAlimentacao) navItems.push({ href: '#info-alimentacao', label: 'Alimentação' });
-            if (hasReproducao) navItems.push({ href: '#info-reproducao', label: 'Reprodução' });
-            if (hasPlumagem) navItems.push({ href: '#info-plumagem', label: 'Plumagem' });
+            if (hasGeralText) navItems.push({ href: '#info-geral', label: 'Geral' });
+            if (hasDimensoesText) navItems.push({ href: '#info-dimensoes', label: 'Dimensões' });
+            if (hasAlimentacaoText) navItems.push({ href: '#info-alimentacao', label: 'Alimentação' });
+            if (hasReproducaoText) navItems.push({ href: '#info-reproducao', label: 'Reprodução' });
+            if (hasPlumagemText) navItems.push({ href: '#info-plumagem', label: 'Plumagem' });
             if (hasDistribicao) navItems.push({ href: '#info-distribuicao', label: 'Distribuição' });
-            
             const navHTML = navItems.map((item, idx) => `
                 <a href="${item.href}" class="nav-anchor ${idx === 0 ? 'active' : ''}">${item.label}</a>
             `).join('');
+
+            // Build horizontal metrics bar for desktop
+            const dimensoes = animalData.informacao?.dimensoesDetalhadas || [];
+            const validDimensoes = Array.isArray(dimensoes) ? dimensoes.filter(item => item.tipo && item.valor) : [];
+
+            const models = animalData.informacao?.geralDetalhada || [];
+            const validQuickData = Array.isArray(models) ? models.filter(item => item.tipo && item.valor && !normalizeDimensionKey(item.tipo).includes('zona')) : [];
+
+            const horizontalMetricsHTML = (validDimensoes.length > 0 || validQuickData.length > 0) ? `
+                <div class="metrics-horizontal-bar desktop-only">
+                    ${validDimensoes.map(renderDimensionModelCard).join('')}
+                    ${validQuickData.map(renderGeneralVisualCard).join('')}
+                </div>` : '';
 
             mainContent.innerHTML = `
                 <div class="video-section">
@@ -771,15 +765,96 @@
                         <iframe frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
                     </div>
                 </div>
-                <div class="content-grid">
+                <div class="animal-header-card desktop-only">
+                    <div class="header-titles">
+                        <h1>${animalData.nome}</h1>
+                        <h2 class="scientific-name">(${animalData.nomeCientifico})</h2>
+                    </div>
+                </div>
+                <nav class="page-nav desktop-only">
+                    ${navHTML}
+                </nav>
+                <div class="content-grid has-3-cols">
+                    <!-- Column 1: Image & Related Animals -->
                     <div class="left-column">
                         <div class="animal-image">
                             <img src="${animalData.imagemUrl}" alt="Imagem de ${animalData.nome}" style="object-position: ${animalData.imagemObjectPosition || 'center center'};">
                         </div>
                         <div id="related-animals-container"></div>
                     </div>
-                    <div class="animal-details">
-                        <div class="header">
+                    
+                    <!-- Column 2: Sections (Geral, Dimensões, Alimentação, Reprodução, Plumagem, Distribuição) -->
+                    <div class="middle-column desktop-only">
+                        ${hasGeralText ? `
+                        <div class="info-section-card" id="info-geral">
+                            <h3><span class="icon svg-icon">${getInfoSectionIconSvg('geral')}</span>Informação Geral</h3>
+                            <p>${animalData.informacao.geral}</p>
+                        </div>` : ''}
+
+                        ${hasDimensoesText ? `
+                        <div class="info-section-card" id="info-dimensoes">
+                            <h3><span class="icon svg-icon">${getInfoSectionIconSvg('dimensoes')}</span>Dimensões</h3>
+                            <p>${animalData.informacao.dimensoes}</p>
+                        </div>` : ''}
+
+                        ${hasAlimentacaoText ? `
+                        <div class="info-section-card" id="info-alimentacao">
+                            <h3><span class="icon svg-icon">${getInfoSectionIconSvg('alimentacao')}</span>Alimentação</h3>
+                            <p>${animalData.informacao.alimentacao}</p>
+                            ${renderFeedingVisual(animalData)}
+                        </div>` : ''}
+
+                        ${hasReproducaoText ? `
+                        <div class="info-section-card" id="info-reproducao">
+                            <h3><span class="icon svg-icon">${getInfoSectionIconSvg('reproducao')}</span>Reprodução</h3>
+                            <p>${animalData.informacao.reproducao || ''}</p>
+                            ${renderReproductionVisual(animalData)}
+                        </div>` : ''}
+
+                        ${hasPlumagemText ? `
+                        <div class="info-section-card" id="info-plumagem">
+                            <h3><span class="icon svg-icon">${getInfoSectionIconSvg('plumagem')}</span>Plumagem</h3>
+                            <p>${animalData.informacao.plumagem || 'Sem detalhes sobre a plumagem.'}</p>
+                            ${renderPlumageVisual(animalData)}
+                        </div>` : ''}
+
+                        ${hasDistribicao ? `
+                        <div class="info-section-card" id="info-distribuicao">
+                            <h3><span class="icon svg-icon">${getInfoSectionIconSvg('distribuicao')}</span>Distribuição</h3>
+                            <div class="distribution-stacked-layout" style="margin-top: 20px; display: flex; flex-direction: column; gap: 16px;">
+                                ${hasDistribicaoText ? `<p>${animalData.informacao.distribuicao.descricao}</p>` : ''}
+                                <div class="map-container-wrapper">
+                                    <div class="map-container" id="distributionMapDetailDesktop" style="height: 320px;"></div>
+                                </div>
+                                <div style="font-size: 0.95rem; line-height: 1.5; background: rgba(0,0,0,0.2); padding: 15px; border-radius: var(--border-radius-sm); border: 1px solid var(--border-color);">
+                                    <strong style="color: var(--text-primary); display: block; margin-bottom: 5px;">Países assinalados:</strong> 
+                                    <span class="highlightedCountriesNames" style="color: var(--text-secondary);">Carregando...</span>
+                                </div>
+                            </div>
+                        </div>` : ''}
+                    </div>
+
+                    <!-- Column 3: Visual Models & Climate Zone -->
+                    <div class="column-3 desktop-only">
+                        ${(validDimensoes.length > 0 || validQuickData.length > 0) ? `
+                        <div class="info-section-card" id="info-modelos-visuais">
+                            <h3><span class="icon svg-icon">${getInfoSectionIconSvg('geral')}</span>Informações</h3>
+                            <div class="visual-models-grid" style="display: flex; flex-direction: column; gap: 14px;">
+                                ${validDimensoes.map(renderDimensionModelCard).join('')}
+                                ${validQuickData.map(renderGeneralVisualCard).join('')}
+                            </div>
+                        </div>` : ''}
+
+                        ${renderClimateZoneBadge(animalData) ? `
+                        <div class="info-section-card" id="info-zona-climatica">
+                            ${renderClimateZoneBadge(animalData)}
+                        </div>` : ''}
+                    </div>
+                </div>
+
+                    <!-- Stacked Mobile Version -->
+                    <div class="animal-details mobile-only">
+                        <div class="header mobile-only">
                             <h1>${animalData.nome}</h1>
                             <h2 class="scientific-name">(${animalData.nomeCientifico})</h2>
                         </div>
@@ -790,15 +865,20 @@
                             ${hasGeral ? `
                             <div class="info-section" id="info-geral">
                                 <h3><span class="icon svg-icon">${getInfoSectionIconSvg('geral')}</span>Informação Geral</h3>
-                                ${renderClimateZoneBadge(animalData)}
                                 ${hasGeralText ? `<p>${animalData.informacao.geral}</p>` : ''}
-                                ${renderGeneralVisual(animalData)}
+                                ${hasGeralVisual ? `
+                                <div class="mobile-only">
+                                    ${renderGeneralVisual(animalData)}
+                                </div>` : ''}
                             </div>` : ''}
                             ${hasDimensoes ? `
-                            <div class="info-section" id="info-dimensoes">
+                            <div class="info-section ${!hasDimensoesText ? 'mobile-only' : ''}" id="info-dimensoes">
                                 <h3><span class="icon svg-icon">${getInfoSectionIconSvg('dimensoes')}</span>Dimensões</h3>
-                                <p>${animalData.informacao.dimensoes || ''}</p>
-                                ${renderDimensionsVisual(animalData)}
+                                ${hasDimensoesText ? `<p>${animalData.informacao.dimensoes || ''}</p>` : ''}
+                                ${hasDimensoesVisual ? `
+                                <div class="mobile-only">
+                                    ${renderDimensionsVisual(animalData)}
+                                </div>` : ''}
                             </div>` : ''}
                             ${hasAlimentacao ? `
                             <div class="info-section" id="info-alimentacao">
@@ -821,16 +901,14 @@
                             ${hasDistribicao ? `
                             <div class="info-section" id="info-distribuicao">
                                 <h3><span class="icon svg-icon">${getInfoSectionIconSvg('distribuicao')}</span>Distribuição</h3>
-                                <div class="distribution-layout" style="margin-top: 20px;">
-                                    <div class="distribution-details-left" style="display: flex; flex-direction: column; gap: 15px;">
-                                        ${animalData.informacao.distribuicao.descricao && animalData.informacao.distribuicao.descricao.trim() !== "" ? `<p>${animalData.informacao.distribuicao.descricao}</p>` : ''}
-                                        <div style="font-size: 0.95rem; line-height: 1.5; background: rgba(0,0,0,0.2); padding: 15px; border-radius: var(--border-radius-sm); border: 1px solid var(--border-color);">
-                                            <strong style="color: var(--text-primary); display: block; margin-bottom: 5px;">Países assinalados:</strong> 
-                                            <span id="highlightedCountriesNames" style="color: var(--text-secondary);">Carregando...</span>
-                                        </div>
-                                    </div>
+                                <div class="distribution-stacked-layout" style="margin-top: 20px; display: flex; flex-direction: column; gap: 16px;">
+                                    ${animalData.informacao.distribuicao.descricao && animalData.informacao.distribuicao.descricao.trim() !== "" ? `<p>${animalData.informacao.distribuicao.descricao}</p>` : ''}
                                     <div class="map-container-wrapper">
-                                        <div class="map-container" id="distributionMapDetail" style="height: 320px;"></div>
+                                        <div class="map-container" id="distributionMapDetailMobile" style="height: 320px;"></div>
+                                    </div>
+                                    <div style="font-size: 0.95rem; line-height: 1.5; background: rgba(0,0,0,0.2); padding: 15px; border-radius: var(--border-radius-sm); border: 1px solid var(--border-color);">
+                                        <strong style="color: var(--text-primary); display: block; margin-bottom: 5px;">Países assinalados:</strong> 
+                                        <span class="highlightedCountriesNames" style="color: var(--text-secondary);">Carregando...</span>
                                     </div>
                                 </div>
                             </div>` : ''}
@@ -842,134 +920,160 @@
                 const selectedCodes = animalData.informacao.distribuicao.paises || [];
                 const paisesDetalhes = animalData.informacao.distribuicao.paisesDetalhes || {};
 
-                function applySubregionGradient(code, subregion) {
+                function applySubregionGradient(code, subregion, mapId) {
                     const svgDefs = document.querySelector('#aurora-gradient-svg defs');
                     if (!svgDefs) return;
 
                     const existingGrad = document.getElementById(`grad-${code}`);
-                    if (existingGrad) existingGrad.remove();
+                    if (!existingGrad) {
+                        const grad = document.createElementNS("http://www.w3.org/2000/svg", "linearGradient");
+                        grad.setAttribute('id', `grad-${code}`);
+                        
+                        let stopColor1 = '#f59e0b';
+                        let stopColor2 = '#2e2e38';
+                        let offset = '50%';
+                        let x1 = '0%', y1 = '0%', x2 = '0%', y2 = '0%';
 
-                    if (subregion === 'inteiro') {
-                        const paths = document.querySelectorAll(`[data-code="${code}"]`);
+                        if (subregion === 'esquerdo') { // Oeste
+                            x2 = '100%';
+                            if (code === 'US') {
+                                offset = '60%';
+                            }
+                        } else if (subregion === 'direito') { // Este
+                            x2 = '100%';
+                            if (code === 'US') {
+                                offset = '60%';
+                            }
+                            stopColor1 = '#2e2e38';
+                            stopColor2 = '#f59e0b';
+                        } else if (subregion === 'cima') { // Norte
+                            y2 = '100%';
+                            if (code === 'US') {
+                                offset = '65%';
+                            }
+                        } else if (subregion === 'baixo') { // Sul
+                            y2 = '100%';
+                            if (code === 'US') {
+                                offset = '65%';
+                            }
+                            stopColor1 = '#2e2e38';
+                            stopColor2 = '#f59e0b';
+                        }
+
+                        grad.setAttribute('x1', x1);
+                        grad.setAttribute('y1', y1);
+                        grad.setAttribute('x2', x2);
+                        grad.setAttribute('y2', y2);
+
+                        const stop1 = document.createElementNS("http://www.w3.org/2000/svg", "stop");
+                        stop1.setAttribute('offset', offset);
+                        stop1.setAttribute('stop-color', stopColor1);
+
+                        const stop2 = document.createElementNS("http://www.w3.org/2000/svg", "stop");
+                        stop2.setAttribute('offset', offset);
+                        stop2.setAttribute('stop-color', stopColor2);
+
+                        grad.appendChild(stop1);
+                        grad.appendChild(stop2);
+
+                        svgDefs.appendChild(grad);
+                    }
+
+                    setTimeout(() => {
+                        const container = document.getElementById(mapId);
+                        if (!container) return;
+                        const paths = container.querySelectorAll(`[data-code="${code}"]`);
                         paths.forEach(path => {
-                            path.setAttribute('fill', '#f59e0b');
-                            path.style.fill = '#f59e0b';
+                            if (subregion === 'inteiro') {
+                                path.setAttribute('fill', '#f59e0b');
+                                path.style.fill = '#f59e0b';
+                            } else {
+                                path.setAttribute('fill', `url(#grad-${code})`);
+                                path.style.fill = `url(#grad-${code})`;
+                            }
                         });
+                    }, 80);
+                }
+
+                const mapIds = ['distributionMapDetailDesktop', 'distributionMapDetailMobile'];
+                
+                function initMap(mapId) {
+                    const container = document.getElementById(mapId);
+                    if (!container) return;
+                    if (container.classList.contains('jsvectormap-init-done')) return;
+
+                    // Only initialize map if container is visible in viewport/layout
+                    if (container.offsetWidth === 0 || container.offsetHeight === 0) {
                         return;
                     }
 
-                    const grad = document.createElementNS("http://www.w3.org/2000/svg", "linearGradient");
-                    grad.setAttribute('id', `grad-${code}`);
-                    
-                    let stopColor1 = '#f59e0b';
-                    let stopColor2 = '#2e2e38';
-                    let offset = '50%';
-                    let x1 = '0%', y1 = '0%', x2 = '0%', y2 = '0%';
-
-                    if (subregion === 'esquerdo') { // Oeste
-                        x2 = '100%';
-                        if (code === 'US') {
-                            offset = '60%';
-                        }
-                    } else if (subregion === 'direito') { // Este
-                        x2 = '100%';
-                        if (code === 'US') {
-                            offset = '60%';
-                        }
-                        stopColor1 = '#2e2e38';
-                        stopColor2 = '#f59e0b';
-                    } else if (subregion === 'cima') { // Norte
-                        y2 = '100%';
-                        if (code === 'US') {
-                            offset = '65%';
-                        }
-                    } else if (subregion === 'baixo') { // Sul
-                        y2 = '100%';
-                        if (code === 'US') {
-                            offset = '65%';
-                        }
-                        stopColor1 = '#2e2e38';
-                        stopColor2 = '#f59e0b';
-                    }
-
-                    grad.setAttribute('x1', x1);
-                    grad.setAttribute('y1', y1);
-                    grad.setAttribute('x2', x2);
-                    grad.setAttribute('y2', y2);
-
-                    const stop1 = document.createElementNS("http://www.w3.org/2000/svg", "stop");
-                    stop1.setAttribute('offset', offset);
-                    stop1.setAttribute('stop-color', stopColor1);
-
-                    const stop2 = document.createElementNS("http://www.w3.org/2000/svg", "stop");
-                    stop2.setAttribute('offset', offset);
-                    stop2.setAttribute('stop-color', stopColor2);
-
-                    grad.appendChild(stop1);
-                    grad.appendChild(stop2);
-
-                    svgDefs.appendChild(grad);
-
-                    setTimeout(() => {
-                        const paths = document.querySelectorAll(`[data-code="${code}"]`);
-                        paths.forEach(path => {
-                            path.setAttribute('fill', `url(#grad-${code})`);
-                            path.style.fill = `url(#grad-${code})`;
-                        });
-                    }, 80);
-                }
-
-                const mapDetail = new jsVectorMap({
-                    selector: '#distributionMapDetail',
-                    map: 'world',
-                    regionsSelectable: false,
-                    selectedRegions: selectedCodes,
-                    regionStyle: {
-                        initial: {
-                            fill: '#2e2e38',
-                            fillOpacity: 1,
-                            stroke: '#3b3b4f',
-                            strokeWidth: 0.5
-                        },
-                        selected: {
-                            fill: '#f59e0b',
-                            fillOpacity: 1
-                        }
-                    }
-                });
-
-                // Apply gradients on loaded regions
-                selectedCodes.forEach(code => {
-                    applySubregionGradient(code, paisesDetalhes[code] || 'inteiro');
-                });
-
-                // Polling focus handler: waits for map container to have actual size in browser layout
-                if (selectedCodes.length > 0) {
-                    let attempts = 0;
-                    const focusInterval = setInterval(() => {
-                        attempts++;
-                        const container = document.getElementById('distributionMapDetail');
-                        if (container && container.offsetWidth > 0 && container.offsetHeight > 0) {
-                            try {
-                                mapDetail.setFocus({ regions: selectedCodes, animate: false });
-                                clearInterval(focusInterval);
-                            } catch (e) {
-                                try {
-                                    mapDetail.setFocus({ region: selectedCodes[0], animate: false });
-                                    clearInterval(focusInterval);
-                                } catch (err) {
-                                    console.error("Erro ao focar regiões:", err);
+                    try {
+                        const mapDetail = new jsVectorMap({
+                            selector: `#${mapId}`,
+                            map: 'world',
+                            regionsSelectable: false,
+                            selectedRegions: selectedCodes,
+                            regionStyle: {
+                                initial: {
+                                    fill: '#2e2e38',
+                                    fillOpacity: 1,
+                                    stroke: '#3b3b4f',
+                                    strokeWidth: 0.5
+                                },
+                                selected: {
+                                    fill: '#f59e0b',
+                                    fillOpacity: 1
                                 }
                             }
+                        });
+
+                        container.classList.add('jsvectormap-init-done');
+
+                        // Apply gradients on loaded regions
+                        selectedCodes.forEach(code => {
+                            applySubregionGradient(code, paisesDetalhes[code] || 'inteiro', mapId);
+                        });
+
+                        // Polling focus handler: waits for map container to have actual size in browser layout
+                        if (selectedCodes.length > 0) {
+                            let attempts = 0;
+                            const focusInterval = setInterval(() => {
+                                attempts++;
+                                if (container.offsetWidth > 0 && container.offsetHeight > 0) {
+                                    try {
+                                        mapDetail.setFocus({ regions: selectedCodes, animate: false });
+                                        clearInterval(focusInterval);
+                                    } catch (e) {
+                                        try {
+                                            mapDetail.setFocus({ region: selectedCodes[0], animate: false });
+                                            clearInterval(focusInterval);
+                                        } catch (err) {
+                                            console.error("Erro ao focar regiões:", err);
+                                        }
+                                    }
+                                }
+                                if (attempts > 15) {
+                                    clearInterval(focusInterval);
+                                }
+                            }, 80);
                         }
-                        if (attempts > 15) {
-                            clearInterval(focusInterval);
-                        }
-                    }, 80);
+                    } catch (error) {
+                        console.error("Erro ao inicializar o mapa jvectormap:", error);
+                    }
                 }
 
-                const namesSpan = document.getElementById('highlightedCountriesNames');
-                if (namesSpan) {
+                // Initial attempts to render the visible map
+                setTimeout(() => {
+                    mapIds.forEach(initMap);
+                }, 120);
+
+                // Also initialize on resize in case user rotates or changes layout size
+                window.addEventListener('resize', () => {
+                    mapIds.forEach(initMap);
+                });
+
+                const namesSpans = document.querySelectorAll('.highlightedCountriesNames');
+                namesSpans.forEach(namesSpan => {
                     const subLabels = {
                         'inteiro': 'País inteiro',
                         'esquerdo': 'Lado esquerdo',
@@ -983,7 +1087,7 @@
                         return `${name} (${subLabels[subregion]})`;
                     });
                     namesSpan.textContent = countryNames.length > 0 ? countryNames.join(', ') : 'Nenhum país selecionado.';
-                }
+                });
             }
 
             document.querySelectorAll('.thumbnail').forEach(thumb => {
@@ -994,7 +1098,7 @@
 
             // Lógica para navegação interna ativa
             const navAnchors = document.querySelectorAll('.nav-anchor');
-            const sections = document.querySelectorAll('.info-section');
+            const sections = document.querySelectorAll('.middle-column .info-section-card, .info-sections .info-section');
 
             const makeActive = (link) => {
                 navAnchors.forEach(a => a.classList.remove('active'));
@@ -1007,21 +1111,31 @@
                 });
             });
 
-            // Seletor dinâmico baseado no scroll
+            // Seletor dinâmico baseado no scroll usando getBoundingClientRect
             window.addEventListener('scroll', () => {
                 let current = '';
-                sections.forEach(section => {
-                    const sectionTop = section.offsetTop;
-                    if (pageYOffset >= sectionTop - 90) {
+                
+                // Encontrar a primeira secção visível cujo fundo ultrapasse o topo/cabeçalho da página
+                for (const section of sections) {
+                    // Ignorar secções ocultas no layout atual
+                    if (section.offsetWidth === 0 || section.offsetHeight === 0) continue;
+                    
+                    const rect = section.getBoundingClientRect();
+                    // Se o fundo da secção está abaixo do limiar (150px do topo do visor)
+                    if (rect.bottom > 150) {
                         current = section.getAttribute('id');
+                        break; // Primeira secção correspondente encontrada, interrompe a procura
                     }
-                });
-                navAnchors.forEach(anchor => {
-                    anchor.classList.remove('active');
-                    if (anchor.getAttribute('href') === `#${current}`) {
-                        anchor.classList.add('active');
-                    }
-                });
+                }
+                
+                if (current) {
+                    navAnchors.forEach(anchor => {
+                        anchor.classList.remove('active');
+                        if (anchor.getAttribute('href') === `#${current}`) {
+                            anchor.classList.add('active');
+                        }
+                    });
+                }
             });
         }
 
