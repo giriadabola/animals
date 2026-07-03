@@ -49,7 +49,6 @@ export function injectHeader() {
             </a>
             <nav class="nav-links">
                 <a href="index.html" class="nav-link ${isHome ? 'active' : ''}"><i class="fa-solid fa-house"></i> Início</a>
-                <a href="form.html" class="nav-link ${isForm ? 'active' : ''}"><i class="fa-solid fa-sliders"></i> Gerir Portal</a>
                 <span id="header-auth-section" style="display: flex; align-items: center; gap: 15px; margin-left: 10px;">
                     <!-- Auth info dynamically inserted -->
                 </span>
@@ -61,16 +60,40 @@ export function injectHeader() {
     // Dynamic auth UI update
     const authSection = document.getElementById('header-auth-section');
     onAuthStateChanged(auth, async (user) => {
+        let gerirPortalLink = document.getElementById('nav-link-gerir-portal');
+        
         if (user) {
             let nome = user.displayName || user.email.split('@')[0];
+            let isAuthorized = false;
             try {
                 const userDoc = await getDoc(doc(db, "users", user.uid));
-                if (userDoc.exists() && userDoc.data().nome) {
-                    nome = userDoc.data().nome;
+                if (userDoc.exists()) {
+                    const userData = userDoc.data();
+                    if (userData.nome) {
+                        nome = userData.nome;
+                    }
+                    if (userData.status === 'on' && (userData.rule === 'ruler' || userData.rule === 'estafeta')) {
+                        isAuthorized = true;
+                    }
                 }
             } catch (err) {
                 console.error("Erro ao carregar dados do utilizador no cabeçalho:", err);
             }
+
+            // Exibir link "Gerir Portal" apenas se for autorizado
+            if (isAuthorized) {
+                if (!gerirPortalLink) {
+                    gerirPortalLink = document.createElement('a');
+                    gerirPortalLink.id = 'nav-link-gerir-portal';
+                    gerirPortalLink.href = 'form.html';
+                    gerirPortalLink.className = `nav-link ${isForm ? 'active' : ''}`;
+                    gerirPortalLink.innerHTML = `<i class="fa-solid fa-sliders"></i> Gerir Portal`;
+                    authSection.parentNode.insertBefore(gerirPortalLink, authSection);
+                }
+            } else {
+                if (gerirPortalLink) gerirPortalLink.remove();
+            }
+
             authSection.innerHTML = `
                 <span style="font-size: 0.85rem; color: var(--text-secondary); display: inline-flex; align-items: center; gap: 6px;">
                     <i class="fa-solid fa-circle-user" style="color: var(--primary-color);"></i>
@@ -85,6 +108,7 @@ export function injectHeader() {
                 window.location.href = 'index.html';
             });
         } else {
+            if (gerirPortalLink) gerirPortalLink.remove();
             authSection.innerHTML = `
                 <a href="login.html" class="nav-link"><i class="fa-solid fa-right-to-bracket"></i> Entrar</a>
             `;
