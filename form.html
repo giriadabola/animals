@@ -315,6 +315,26 @@
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
+
+        /* Ajustar o top-menu para ficar posicionado abaixo do cabeçalho flutuante */
+        .top-menu {
+            position: absolute !important;
+            top: 105px !important;
+            right: 32px !important;
+            z-index: 999 !important;
+        }
+
+        /* Responsividade para telas menores */
+        @media (max-width: 900px) {
+            .top-menu {
+                position: relative !important;
+                top: 0 !important;
+                right: 0 !important;
+                margin: 20px auto 10px auto !important;
+                justify-content: center !important;
+                width: 100% !important;
+            }
+        }
     </style>
 </head>
 <body class="form-light">
