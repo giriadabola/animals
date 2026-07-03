@@ -47,6 +47,7 @@ export function injectHeader() {
                 <span class="logo-emoji"><i class="fa-solid fa-paw"></i></span>
                 <span class="logo-text">Grandes Projetos</span>
             </a>
+            <div id="header-center-info" style="display: flex; justify-content: center; align-items: center;"></div>
             <nav class="nav-links">
                 <a href="index.html" class="nav-link ${isHome ? 'active' : ''}"><i class="fa-solid fa-house"></i> Início</a>
                 <span id="header-auth-section" style="display: flex; align-items: center; gap: 15px; margin-left: 10px;">
@@ -61,10 +62,13 @@ export function injectHeader() {
     const authSection = document.getElementById('header-auth-section');
     onAuthStateChanged(auth, async (user) => {
         let gerirPortalLink = document.getElementById('nav-link-gerir-portal');
+        const centerInfo = document.getElementById('header-center-info');
         
         if (user) {
             let nome = user.displayName || user.email.split('@')[0];
             let isAuthorized = false;
+            let criadosCount = 0;
+            let editadosCount = 0;
             try {
                 const userDoc = await getDoc(doc(db, "users", user.uid));
                 if (userDoc.exists()) {
@@ -74,6 +78,12 @@ export function injectHeader() {
                     }
                     if (userData.status === 'on' && (userData.rule === 'ruler' || userData.rule === 'estafeta')) {
                         isAuthorized = true;
+                    }
+                    if (userData.animaisCriados && Array.isArray(userData.animaisCriados)) {
+                        criadosCount = userData.animaisCriados.length;
+                    }
+                    if (userData.animaisEditados && Array.isArray(userData.animaisEditados)) {
+                        editadosCount = userData.animaisEditados.length;
                     }
                 }
             } catch (err) {
@@ -94,6 +104,17 @@ export function injectHeader() {
                 if (gerirPortalLink) gerirPortalLink.remove();
             }
 
+            // Atualizar contadores no centro se estiver no form.html
+            if (isForm && centerInfo) {
+                centerInfo.innerHTML = `
+                    <span style="display: inline-flex; align-items: center; gap: 10px; background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color); padding: 8px 18px; border-radius: var(--border-radius-sm); font-size: 0.85rem; font-weight: 600; color: var(--text-secondary);">
+                        <i class="fa-solid fa-circle-plus" style="color: var(--primary-color);"></i> Criou: <strong style="color: var(--text-primary);">${criadosCount}</strong>
+                        <span style="opacity: 0.2;">|</span>
+                        <i class="fa-solid fa-pen-to-square" style="color: var(--accent-color);"></i> Editados: <strong style="color: var(--text-primary);">${editadosCount}</strong>
+                    </span>
+                `;
+            }
+
             authSection.innerHTML = `
                 <span style="font-size: 0.85rem; color: var(--text-secondary); display: inline-flex; align-items: center; gap: 6px;">
                     <i class="fa-solid fa-circle-user" style="color: var(--primary-color);"></i>
@@ -109,6 +130,7 @@ export function injectHeader() {
             });
         } else {
             if (gerirPortalLink) gerirPortalLink.remove();
+            if (centerInfo) centerInfo.innerHTML = '';
             authSection.innerHTML = `
                 <a href="login.html" class="nav-link"><i class="fa-solid fa-right-to-bracket"></i> Entrar</a>
             `;
