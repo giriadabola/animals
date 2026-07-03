@@ -230,7 +230,7 @@ body.edit-theme::after {
 
 /* Main Layout */
 main {
-    max-width: 1200px;
+    max-width: 1600px;
     margin: 40px auto;
     padding: 0 24px;
     animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
@@ -652,12 +652,91 @@ main {
     grid-template-columns: minmax(250px, 0.68fr) minmax(0, 2.32fr);
     gap: 28px;
     align-items: flex-start;
+    min-width: 0;
+}
+
+.content-grid.has-middle-col {
+    grid-template-columns: minmax(250px, 0.6fr) minmax(280px, 0.8fr) minmax(0, 1.6fr);
+}
+
+.content-grid.has-3-cols {
+    grid-template-columns: minmax(240px, 0.6fr) minmax(0, 1.8fr) minmax(280px, 0.8fr);
+}
+
+.content-grid.has-4-cols {
+    grid-template-columns: minmax(240px, 0.6fr) minmax(280px, 0.8fr) minmax(0, 1.3fr) minmax(0, 1.3fr);
+}
+
+.middle-column,
+.column-3,
+.column-4 {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    min-width: 0;
+}
+
+.info-section-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-lg);
+    padding: 36px;
+    box-shadow: var(--shadow-md), inset 0 1px 0 rgba(255,255,255,0.03);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    min-width: 0;
+    width: 100%;
+    scroll-margin-top: 140px;
+}
+
+.info-section-card h3 {
+    font-size: 1.5rem;
+    color: var(--text-primary);
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 10px;
+    margin-bottom: 18px;
+    display: flex;
+    align-items: center;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+}
+
+.info-section-card h3 .icon {
+    margin-right: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary-color);
+}
+
+.info-section-card h3 .svg-icon {
+    width: 24px;
+    height: 24px;
+}
+
+.info-section-card p {
+    font-size: 1.22rem;
+    color: var(--text-secondary);
+    line-height: 1.8;
+    margin-bottom: 20px;
+    text-align: justify;
+}
+
+.middle-column .dimensions-visual-card,
+.middle-column .general-visual-card {
+    margin-top: 0;
+}
+
+.middle-column .animal-model-svg {
+    max-width: 100%;
+    height: auto;
 }
 
 .left-column {
     display: flex;
     flex-direction: column;
     gap: 30px;
+    min-width: 0;
 }
 
 .animal-image img {
@@ -675,6 +754,7 @@ main {
     box-shadow: var(--shadow-md), inset 0 1px 0 rgba(255,255,255,0.03);
     backdrop-filter: blur(15px);
     -webkit-backdrop-filter: blur(15px);
+    min-width: 0;
 }
 
 .info-sections {
@@ -683,24 +763,98 @@ main {
     gap: 24px;
 }
 
-.animal-details .header {
-    margin-bottom: 35px;
+.animal-header-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-lg);
+    padding: 24px 48px;
+    margin-bottom: 28px;
+    box-shadow: var(--shadow-md), inset 0 1px 0 rgba(255,255,255,0.03);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
 }
 
-.animal-details h1 {
-    font-size: 3.5rem;
+.animal-header-card .header-titles {
+    display: flex;
+    align-items: baseline;
+    gap: 18px;
+    flex-wrap: wrap;
+}
+
+.animal-header-card h1 {
+    font-size: 3.2rem;
     font-weight: 900;
     color: var(--text-primary);
     line-height: 1.1;
-    margin-bottom: 10px;
-    letter-spacing: -2px;
+    letter-spacing: -1.5px;
+    margin-bottom: 0;
 }
 
-.animal-details h2.scientific-name {
+.animal-header-card h2.scientific-name {
     font-size: 1.6rem;
     font-weight: 500;
     color: var(--text-secondary);
     font-style: italic;
+    margin-bottom: 0;
+}
+
+.animal-climate-zone {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+    margin-top: 14px;
+    margin-bottom: 28px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.01));
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 24px;
+    border-radius: 24px;
+    width: fit-content;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+.climate-zone-badge-image {
+    width: 320px;
+    max-width: 100%;
+    height: 130px;
+    object-fit: cover;
+    border-radius: 12px;
+    border: none;
+}
+
+.climate-zone-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.climate-zone-label {
+    font-size: 0.72rem;
+    font-weight: 800;
+    color: #818cf8;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.climate-zone-name {
+    font-size: 1.6rem;
+    font-weight: 900;
+    color: #ffffff;
+    letter-spacing: -0.5px;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.climate-zone-divider {
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15) 20%, rgba(255, 255, 255, 0.15) 80%, transparent);
+    margin: 2px 0 6px 0;
 }
 
 .page-nav {
@@ -757,7 +911,7 @@ body.edit-theme .page-nav {
 
 .info-section {
     margin-bottom: 0;
-    scroll-margin-top: 80px;
+    scroll-margin-top: 120px;
 }
 
 .info-section h3 {
@@ -1208,16 +1362,40 @@ button[type="submit"]:hover {
         width: calc(100% - 12px);
     }
 
-    .content-grid {
+    .animal-header-card {
+        padding: 20px 32px;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        gap: 8px;
+    }
+    .animal-header-card h1 {
+        font-size: 2.6rem;
+        width: 100%;
+    }
+    .animal-header-card h2.scientific-name {
+        font-size: 1.3rem;
+    }
+    .content-grid,
+    .content-grid.has-middle-col,
+    .content-grid.has-3-cols,
+    .content-grid.has-4-cols {
         grid-template-columns: 1fr;
         gap: 28px;
     }
     .left-column {
         order: 2;
     }
+    .middle-column {
+        order: 3;
+    }
     .animal-details {
         order: 1;
         padding: 40px;
+    }
+    .page-nav {
+        margin-top: 12px !important;
+        margin-bottom: 24px !important;
     }
     .animal-image {
         max-width: 480px;
@@ -3420,18 +3598,359 @@ button[type="submit"]:hover {
     box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
 }
 
-.general-preview-hero.compact {
-    min-height: 104px;
-    grid-template-columns: 82px 1fr;
-    margin-bottom: 14px;
+.general-visual-title {
+    margin-bottom: 16px;
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
 }
 
-.general-visual-card .general-preview-icon {
-    width: 72px;
-    height: 72px;
+/* Responsive Helper Utilities */
+@media (min-width: 993px) {
+    .desktop-only {
+        display: block !important;
+    }
+    .animal-header-card.desktop-only {
+        display: flex !important;
+    }
+    .middle-column.desktop-only,
+    .column-3.desktop-only,
+    .column-4.desktop-only,
+    .page-nav.desktop-only,
+    .metrics-horizontal-bar.desktop-only {
+        display: flex !important;
+    }
+    .mobile-only {
+        display: none !important;
+    }
 }
 
-.general-visual-card .general-preview-icon .metric-model-svg {
-    width: 56px;
-    height: 56px;
+@media (max-width: 992px) {
+    .desktop-only {
+        display: none !important;
+    }
+    .mobile-only {
+        display: block !important;
+    }
+}
+
+/* Sizing and layout adjustments for mobile visual cards and stages */
+@media (max-width: 600px) {
+    /* Reduce container padding inside details section */
+    .mobile-only .dimensions-visual-card,
+    .mobile-only .general-visual-card {
+        padding: 12px;
+        margin-top: 14px;
+        border-radius: 16px;
+    }
+
+    /* Change grid to flex column for space-efficient list on mobile */
+    .mobile-only .dimension-model-grid,
+    .mobile-only .general-visual-models {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-top: 12px;
+    }
+
+    /* Style mobile cards as horizontal rows */
+    .mobile-only .dimension-model-card,
+    .mobile-only .general-model-card {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        text-align: left;
+        padding: 12px 14px;
+        gap: 14px;
+        border-radius: 16px;
+        width: 100%;
+    }
+
+    /* Resize icons for visual cards on mobile */
+    .mobile-only .dimension-model-icon,
+    .mobile-only .general-model-card .dimension-model-icon {
+        width: 48px;
+        height: 48px;
+        min-width: 48px;
+        border-radius: 14px;
+    }
+    
+    .mobile-only .dimension-model-icon svg,
+    .mobile-only .general-model-card .dimension-model-icon svg {
+        width: 30px;
+        height: 30px;
+    }
+
+    .mobile-only .dimension-model-copy,
+    .mobile-only .general-model-card .dimension-model-copy {
+        text-align: left;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    /* Adjust the comparison stage and SVG size on mobile */
+    .mobile-only .dimensions-visual-card .visual-stage {
+        min-height: 160px;
+        border-radius: 12px;
+    }
+
+    .mobile-only .dimensions-visual-card .visual-icon .animal-model-svg {
+        width: 140px;
+    }
+
+    /* Adjust indicators on the comparison stage on mobile */
+    .mobile-only .dimensions-visual-card .visual-height {
+        left: 10px;
+        top: 16px;
+        bottom: 40px;
+    }
+
+    .mobile-only .dimensions-visual-card .visual-stage::before {
+        inset: auto 12px 34px 12px;
+    }
+
+    .mobile-only .dimensions-visual-card .visual-length {
+        left: 45px;
+        right: 12px;
+        bottom: 12px;
+        font-size: 0.8rem;
+    }
+
+    .mobile-only .dimensions-visual-card .visual-weight {
+        right: 10px;
+        top: 10px;
+        font-size: 0.75rem;
+        padding: 4px 8px;
+    }
+
+    .mobile-only .animal-climate-zone {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        padding: 16px;
+        border-radius: 16px;
+        margin-bottom: 20px;
+        width: 100%;
+        box-sizing: border-box;
+        gap: 16px;
+    }
+
+    .mobile-only .climate-zone-info {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 2px;
+    }
+
+    .mobile-only .climate-zone-divider {
+        display: none !important;
+    }
+
+    .mobile-only .climate-zone-badge-image {
+        width: 70px;
+        height: 70px;
+        min-width: 70px;
+        border-radius: 10px;
+        object-fit: cover;
+    }
+
+    /* Fix feeding visual and prey grid overflow on mobile */
+    .reproduction-visual-card,
+    .feeding-animal-visual-card,
+    .reproduction-model-grid,
+    .feeding-model-grid,
+    .feeding-type-group {
+        min-width: 0 !important;
+    }
+
+    .reproduction-visual-card.feeding-animal-visual-card {
+        padding: 12px;
+        margin-top: 14px;
+        border-radius: 16px;
+    }
+
+    .feeding-prey-grid {
+        grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+        gap: 8px;
+    }
+
+    .feeding-prey-card {
+        padding: 6px;
+        border-radius: 10px;
+    }
+
+    .feeding-prey-image {
+        width: 48px;
+        height: 48px;
+        padding: 3px;
+        border-radius: 8px;
+    }
+
+    .feeding-prey-name {
+        font-size: 0.8rem;
+    }
+}
+
+/* Responsive SVG fix for maps/vectors */
+.jvm-container, 
+.jvm-container svg {
+    max-width: 100% !important;
+}
+
+/* Style for climate zone nested inside general visual card */
+.general-visual-card .animal-climate-zone {
+    width: 100%;
+    margin-top: 10px;
+    margin-bottom: 20px;
+    box-sizing: border-box;
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.info-section-card .animal-climate-zone {
+    width: 100%;
+    margin-top: 10px;
+    margin-bottom: 20px;
+    box-sizing: border-box;
+    border: none !important;
+    background: transparent !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+}
+
+/* Make visual models flush with the parent card layout on desktop */
+@media (min-width: 993px) {
+    .dimensions-visual-card,
+    .general-visual-card,
+    .reproduction-visual-card,
+    .feeding-animal-visual-card {
+        border: none !important;
+        background: transparent !important;
+        padding: 0 !important;
+        box-shadow: none !important;
+        margin-top: 24px !important;
+    }
+}
+
+/* Horizontal Metrics Bar for Desktop */
+.metrics-horizontal-bar {
+    display: flex;
+    flex-direction: row;
+    gap: 16px;
+    overflow-x: auto;
+    padding: 8px 0 16px 0;
+    margin-bottom: 32px;
+    scrollbar-width: thin;
+}
+
+.metrics-horizontal-bar .dimension-model-card {
+    flex-shrink: 0;
+    width: auto;
+    min-width: 220px;
+}
+
+.horizontal-climate-badge {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    flex-shrink: 0;
+    min-width: 220px;
+}
+
+.horizontal-climate-badge img {
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+}
+
+.climate-badge-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.climate-badge-info span {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.climate-badge-info strong {
+    font-size: 0.95rem;
+    color: var(--text-primary);
+    font-weight: 700;
+}
+
+/* Unique theme colors for info cards with matching dark tones */
+#info-geral {
+    border-color: rgba(99, 102, 241, 0.25) !important;
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.03), rgba(9, 9, 20, 0.8)) !important;
+    box-shadow: 0 8px 32px rgba(99, 102, 241, 0.03), inset 0 1px 0 rgba(255, 255, 255, 0.02) !important;
+}
+
+#info-dimensoes {
+    border-color: rgba(6, 182, 212, 0.25) !important;
+    background: linear-gradient(135deg, rgba(6, 182, 212, 0.03), rgba(9, 9, 20, 0.8)) !important;
+    box-shadow: 0 8px 32px rgba(6, 182, 212, 0.03), inset 0 1px 0 rgba(255, 255, 255, 0.02) !important;
+}
+
+#info-zona-climatica {
+    border-color: rgba(16, 185, 129, 0.25) !important;
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.03), rgba(9, 9, 20, 0.8)) !important;
+    box-shadow: 0 8px 32px rgba(16, 185, 129, 0.03), inset 0 1px 0 rgba(255, 255, 255, 0.02) !important;
+}
+
+#info-alimentacao {
+    border-color: rgba(245, 158, 11, 0.25) !important;
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.03), rgba(9, 9, 20, 0.8)) !important;
+    box-shadow: 0 8px 32px rgba(245, 158, 11, 0.03), inset 0 1px 0 rgba(255, 255, 255, 0.02) !important;
+}
+
+#info-reproducao {
+    border-color: rgba(236, 72, 153, 0.25) !important;
+    background: linear-gradient(135deg, rgba(236, 72, 153, 0.03), rgba(9, 9, 20, 0.8)) !important;
+    box-shadow: 0 8px 32px rgba(236, 72, 153, 0.03), inset 0 1px 0 rgba(255, 255, 255, 0.02) !important;
+}
+
+#info-plumagem {
+    border-color: rgba(139, 92, 246, 0.25) !important;
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.03), rgba(9, 9, 20, 0.8)) !important;
+    box-shadow: 0 8px 32px rgba(139, 92, 246, 0.03), inset 0 1px 0 rgba(255, 255, 255, 0.02) !important;
+}
+
+#info-distribuicao {
+    border-color: rgba(14, 165, 233, 0.25) !important;
+    background: linear-gradient(135deg, rgba(14, 165, 233, 0.03), rgba(9, 9, 20, 0.8)) !important;
+    box-shadow: 0 8px 32px rgba(14, 165, 233, 0.03), inset 0 1px 0 rgba(255, 255, 255, 0.02) !important;
+}
+
+#info-modelos-visuais .dimension-model-card {
+    background: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 10px 0 !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+    border-radius: 0 !important;
+}
+
+#info-modelos-visuais .dimension-model-card:last-child {
+    border-bottom: none !important;
+}
+
+#info-modelos-visuais .dimension-model-card .dimension-model-label {
+    color: #ffffff !important;
+    font-weight: 400 !important;
+}
+
+#info-modelos-visuais .dimension-model-card .dimension-model-value {
+    font-size: 1.22rem !important;
 }
