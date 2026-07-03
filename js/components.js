@@ -60,23 +60,28 @@ export function injectHeader() {
 
     // Dynamic auth UI update
     const authSection = document.getElementById('header-auth-section');
-    let unsubscribeUser = null;
+    let unsubscribeProfile = null;
+    let unsubscribeAnimais = null;
 
     onAuthStateChanged(auth, async (user) => {
-        if (unsubscribeUser) {
-            unsubscribeUser();
-            unsubscribeUser = null;
+        // Limpar escutadores ativos ao mudar estado
+        if (unsubscribeProfile) {
+            unsubscribeProfile();
+            unsubscribeProfile = null;
+        }
+        if (unsubscribeAnimais) {
+            unsubscribeAnimais();
+            unsubscribeAnimais = null;
         }
 
         let gerirPortalLink = document.getElementById('nav-link-gerir-portal');
         const centerInfo = document.getElementById('header-center-info');
         
         if (user) {
-            unsubscribeUser = onSnapshot(doc(db, "users", user.uid), (userDoc) => {
+            // 1. Escutar dados e permissões do utilizador
+            unsubscribeProfile = onSnapshot(doc(db, "users", user.uid), (userDoc) => {
                 let nome = user.displayName || user.email.split('@')[0];
                 let isAuthorized = false;
-                let criadosCount = 0;
-                let editadosCount = 0;
 
                 if (userDoc.exists()) {
                     const userData = userDoc.data();
@@ -86,15 +91,9 @@ export function injectHeader() {
                     if (userData.status === 'on' && (userData.rule === 'ruler' || userData.rule === 'estafeta')) {
                         isAuthorized = true;
                     }
-                    if (userData.animaisCriados && Array.isArray(userData.animaisCriados)) {
-                        criadosCount = userData.animaisCriados.length;
-                    }
-                    if (userData.animaisEditados && Array.isArray(userData.animaisEditados)) {
-                        editadosCount = userData.animaisEditados.length;
-                    }
                 }
 
-                // Refresh element references
+                // Atualizar referência no DOM
                 gerirPortalLink = document.getElementById('nav-link-gerir-portal');
 
                 // Exibir link "Gerir Portal" apenas se for autorizado
@@ -111,25 +110,49 @@ export function injectHeader() {
                     if (gerirPortalLink) gerirPortalLink.remove();
                 }
 
-                // Atualizar contadores no centro se estiver no form.html
-                if (isForm && centerInfo) {
-                    centerInfo.innerHTML = `
-                        <span style="display: inline-flex; align-items: center; gap: 10px; background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color); padding: 8px 18px; border-radius: var(--border-radius-sm); font-size: 0.85rem; font-weight: 600; color: var(--text-secondary);">
-                            <i class="fa-solid fa-circle-plus" style="color: var(--primary-color);"></i> Criou: <strong style="color: var(--text-primary);">${criadosCount}</strong>
-                            <span style="opacity: 0.2;">|</span>
-                            <i class="fa-solid fa-pen-to-square" style="color: var(--accent-color);"></i> Editados: <strong style="color: var(--text-primary);">${editadosCount}</strong>
-                        </span>
-                    `;
-                }
-
-                // Atualizar nome do utilizador
+                // Atualizar nome no cabeçalho
                 const userNameEl = document.getElementById('header-user-name');
                 if (userNameEl) {
                     userNameEl.textContent = nome;
                 }
             }, (err) => {
-                console.error("Erro no escutador em tempo real do utilizador:", err);
+                console.error("Erro ao escutar dados do perfil:", err);
             });
+
+            // 2. Escutar a coleção de animais para contar os criados e editados pelo utilizador (apenas no form.html)
+            if (isForm) {
+                unsubscribeAnimais = onSnapshot(collection(db, "animais"), (snapshot) => {
+                    let criadosCount = 0;
+                    let editadosCount = 0;
+
+                    snapshot.forEach((animalDoc) => {
+                        const animalData = animalDoc.data();
+                        if (animalData.criadoPor === user.uid) {
+                            criadosCount++;
+                        }
+                        if (animalData.editado && Array.isArray(animalData.editado)) {
+                            const isEditedByUser = animalData.editado.some(
+                                (edit) => edit && edit.editadoPor === user.uid
+                            );
+                            if (isEditedByUser) {
+                                editadosCount++;
+                            }
+                        }
+                    });
+
+                    if (centerInfo) {
+                        centerInfo.innerHTML = `
+                            <span style="display: inline-flex; align-items: center; gap: 10px; background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color); padding: 8px 18px; border-radius: var(--border-radius-sm); font-size: 0.85rem; font-weight: 600; color: var(--text-secondary);">
+                                <i class="fa-solid fa-circle-plus" style="color: var(--primary-color);"></i> Criou: <strong style="color: var(--text-primary);">${criadosCount}</strong>
+                                <span style="opacity: 0.2;">|</span>
+                                <i class="fa-solid fa-pen-to-square" style="color: var(--accent-color);"></i> Editados: <strong style="color: var(--text-primary);">${editadosCount}</strong>
+                            </span>
+                        `;
+                    }
+                }, (err) => {
+                    console.error("Erro ao escutar coleção de animais:", err);
+                });
+            }
 
             authSection.innerHTML = `
                 <span style="font-size: 0.85rem; color: var(--text-secondary); display: inline-flex; align-items: center; gap: 6px;">
@@ -141,9 +164,13 @@ export function injectHeader() {
                 </button>
             `;
             document.getElementById('logout-btn').addEventListener('click', async () => {
-                if (unsubscribeUser) {
-                    unsubscribeUser();
-                    unsubscribeUser = null;
+                if (unsubscribeProfile) {
+                    unsubscribeProfile();
+                    unsubscribeProfile = null;
+                }
+                if (unsubscribeAnimais) {
+                    unsubscribeAnimais();
+                    unsubscribeAnimais = null;
                 }
                 await signOut(auth);
                 window.location.href = 'index.html';
