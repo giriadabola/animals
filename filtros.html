@@ -7,7 +7,7 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- CSS Global -->
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/style.css?v=1.0.1">
 </head>
 <body>
 
@@ -201,11 +201,19 @@
             }
 
             document.title = `${filterValue} - Grandes Projetos`;
-            categoryTitle.innerHTML = `<span class="title-with-icon" style="display: flex; align-items: center; gap: 12px;"><i class="fa-solid ${iconClass}"></i> ${titlePrefix}${filterValue}</span> <span id="toggle-icon">▼</span>`;
+            categoryTitle.innerHTML = `
+                <span class="title-with-icon" style="display: flex; align-items: center; gap: 12px;">
+                    <i class="fa-solid ${iconClass}"></i> ${titlePrefix}${filterValue}
+                </span>
+                <span class="title-actions" style="display: flex; align-items: center; gap: 16px;">
+                    <i class="fa-solid fa-table-cells-large" id="view-mode-toggle" style="font-size: 1.5rem; color: var(--primary-color); cursor: pointer; transition: var(--transition);" title="Mudar visualização"></i>
+                    <span id="toggle-icon">▼</span>
+                </span>
+            `;
 
             // Adjust icon styles inside the header dynamically
             setTimeout(() => {
-                const headerIcon = categoryTitle.querySelector('i, svg');
+                const headerIcon = categoryTitle.querySelector('.title-with-icon i, .title-with-icon svg');
                 if (headerIcon) {
                     headerIcon.style.fontSize = "2.2rem";
                     headerIcon.style.width = "40px";
@@ -216,6 +224,23 @@
                     headerIcon.style.background = "var(--accent-gradient)";
                     headerIcon.style.webkitBackgroundClip = "text";
                     headerIcon.style.webkitTextFillColor = "transparent";
+                }
+
+                const viewModeToggle = document.getElementById('view-mode-toggle');
+                if (viewModeToggle) {
+                    viewModeToggle.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const isGridView = viewModeToggle.classList.contains('fa-table-cells-large');
+                        if (isGridView) {
+                            viewModeToggle.classList.remove('fa-table-cells-large');
+                            viewModeToggle.classList.add('fa-list');
+                            listContainer.classList.add('list-view');
+                        } else {
+                            viewModeToggle.classList.remove('fa-list');
+                            viewModeToggle.classList.add('fa-table-cells-large');
+                            listContainer.classList.remove('list-view');
+                        }
+                    });
                 }
             }, 0);
 
