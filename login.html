@@ -277,7 +277,7 @@
     <!-- Componentes e Firebase Logic -->
     <script type="module" src="js/components.js"></script>
     <script type="module">
-        import { auth, db } from "./js/firebase-config.js";
+        import { auth, db } from "./js/firebase-config.js?v=2";
         import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
         import { doc, setDoc } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
 
@@ -385,4 +385,3 @@
     </script>
 </body>
 </html>
- 

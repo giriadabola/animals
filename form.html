@@ -324,7 +324,7 @@
         <div id="loading-status" style="font-size: 1.1rem; font-weight: 600; letter-spacing: 0.5px;">A verificar autorização...</div>
     </div>
     <script type="module">
-        import { auth, db } from "./js/firebase-config.js";
+        import { auth, db } from "./js/firebase-config.js?v=2";
         import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
         import { doc, getDoc } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
 
@@ -886,8 +886,8 @@
     <!-- Componentes e Lógica -->
     <script type="module" src="js/components.js"></script>
     <script type="module">
-        import { db } from "./js/firebase-config.js";
-        import { doc, setDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
+        import { db, auth } from "./js/firebase-config.js?v=2";
+        import { doc, setDoc, collection, getDocs, updateDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
         import { feedingTypes, feedingTypeDescriptions, getFeedingVisualMeta, getFeedingModelSvg } from "./js/feeding-visuals.js";
         import { feedingAnimalOptions } from "./js/feeding-animal-options.js?v=2";
         import { getFeedingStrategyMeta, getFeedingStrategySvg } from "./js/feeding-strategies.js";
@@ -1424,10 +1424,15 @@
                 
                 let timestamp = Date.now();
                 let editado = [];
+                let criadoPor = auth.currentUser ? auth.currentUser.uid : null;
+                
                 if (isEditMode) {
                     const existingAnimal = allAnimals.find(a => a.id === docId);
                     if (existingAnimal && existingAnimal.timestamp) {
                         timestamp = existingAnimal.timestamp;
+                    }
+                    if (existingAnimal && existingAnimal.criadoPor) {
+                        criadoPor = existingAnimal.criadoPor;
                     }
                     if (existingAnimal && existingAnimal.editado) {
                         editado = Array.isArray(existingAnimal.editado) ? [...existingAnimal.editado] : [];
@@ -1446,6 +1451,8 @@
                     categoria: document.getElementById('categoria').value,
                     timestamp: timestamp,
                     editado: editado,
+                    criadoPor: criadoPor,
+                    ...(isEditMode ? { editadoPor: (auth.currentUser ? auth.currentUser.uid : null) } : {}),
                     informacao: {
                         geral: document.getElementById('infoGeral').value,
                         geralDetalhada: getGeneralVisualData(),
@@ -1473,6 +1480,22 @@
                 };
 
                 await setDoc(doc(db, "animais", docId), animalData);
+
+                // Gravar id do animal criado/editado no documento do utilizador correspondente
+                const user = auth.currentUser;
+                if (user) {
+                    const userDocRef = doc(db, "users", user.uid);
+                    if (!isEditMode) {
+                        await updateDoc(userDocRef, {
+                            animaisCriados: arrayUnion(docId)
+                        });
+                    } else {
+                        await updateDoc(userDocRef, {
+                            animaisEditados: arrayUnion(docId)
+                        });
+                    }
+                }
+
                 statusMessage.className = 'grid-span-3 success';
                 statusMessage.textContent = `Animal ${isEditMode ? 'atualizado' : 'gravado'} com sucesso!`;
                 
@@ -3414,4 +3437,3 @@
 </html>
 
 
- 

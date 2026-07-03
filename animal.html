@@ -18,7 +18,7 @@
     <!-- Componentes e Lógica -->
     <script type="module" src="js/components.js"></script>
     <script type="module">
-        import { db } from "./js/firebase-config.js";
+        import { db } from "./js/firebase-config.js?v=2";
         import { doc, getDoc, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
         import { feedingTypeDescriptions, getFeedingVisualMeta, getFeedingModelSvg } from "./js/feeding-visuals.js";
         import { feedingAnimalOptions } from "./js/feeding-animal-options.js?v=2";
