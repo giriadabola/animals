@@ -1458,7 +1458,8 @@
                         editado = Array.isArray(existingAnimal.editado) ? [...existingAnimal.editado] : [];
                     }
                     editado.push({
-                        timestamp: Date.now()
+                        timestamp: Date.now(),
+                        editadoPor: auth.currentUser ? auth.currentUser.uid : null
                     });
                 }
 
@@ -1472,7 +1473,6 @@
                     timestamp: timestamp,
                     editado: editado,
                     criadoPor: criadoPor,
-                    ...(isEditMode ? { editadoPor: (auth.currentUser ? auth.currentUser.uid : null) } : {}),
                     informacao: {
                         geral: document.getElementById('infoGeral').value,
                         geralDetalhada: getGeneralVisualData(),
@@ -1501,20 +1501,7 @@
 
                 await setDoc(doc(db, "animais", docId), animalData);
 
-                // Gravar id do animal criado/editado no documento do utilizador correspondente
-                const user = auth.currentUser;
-                if (user) {
-                    const userDocRef = doc(db, "users", user.uid);
-                    if (!isEditMode) {
-                        await updateDoc(userDocRef, {
-                            animaisCriados: arrayUnion(docId)
-                        });
-                    } else {
-                        await updateDoc(userDocRef, {
-                            animaisEditados: arrayUnion(docId)
-                        });
-                    }
-                }
+
 
                 statusMessage.className = 'grid-span-3 success';
                 statusMessage.textContent = `Animal ${isEditMode ? 'atualizado' : 'gravado'} com sucesso!`;
