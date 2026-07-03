@@ -315,9 +315,10 @@
 
         function renderGeneralVisual(animalData) {
             const models = animalData.informacao?.geralDetalhada || [];
-            const valid = Array.isArray(models) ? models.filter(item => item.tipo && item.valor && !normalizeDimensionKey(item.tipo).includes('zona')) : [];
+            const valid = Array.isArray(models) ? models.filter(item => item.tipo && item.valor && !normalizeDimensionKey(item.tipo).includes('zona') && !normalizeDimensionKey(item.tipo).includes('habitat')) : [];
             const climateBadge = renderClimateZoneBadge(animalData);
-            if (!valid.length && !climateBadge) return '';
+            const habitatBadge = renderHabitatBadge(animalData);
+            if (!valid.length && !climateBadge && !habitatBadge) return '';
 
             return `
                 <div class="general-visual-card">
@@ -325,6 +326,7 @@
                         <strong>Dados rápidos</strong>
                     </div>
                     ${climateBadge}
+                    ${habitatBadge}
                     <div class="general-visual-models">
                         ${valid.map(renderGeneralVisualCard).join('')}
                     </div>
@@ -348,6 +350,27 @@
                     </div>
                     <div class="climate-zone-divider"></div>
                     <img src="${climateMeta.image}" alt="Zona climática: ${escapeHtml(value)}" class="climate-zone-badge-image">
+                </div>
+            `;
+        }
+
+        function renderHabitatBadge(animalData) {
+            const models = animalData.informacao?.geralDetalhada || [];
+            const habitatItem = Array.isArray(models) ? models.find(item => item.tipo && normalizeDimensionKey(item.tipo).includes('habitat')) : null;
+            if (!habitatItem || !habitatItem.valor) return '';
+
+            const value = habitatItem.valor;
+            const habitatMeta = getHabitatMeta(value);
+            if (!habitatMeta) return '';
+
+            return `
+                <div class="animal-climate-zone animal-habitat-badge">
+                    <div class="climate-zone-info">
+                        <span class="climate-zone-label">Habitat</span>
+                        <span class="climate-zone-name">${escapeHtml(value)}</span>
+                    </div>
+                    <div class="climate-zone-divider"></div>
+                    <img src="${habitatMeta.image}" alt="Habitat: ${escapeHtml(value)}" class="climate-zone-badge-image">
                 </div>
             `;
         }
