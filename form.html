@@ -285,9 +285,88 @@
         .collapsible-fieldset {
             transition: border-color 0.3s ease;
         }
+
+        /* Loading Overlay for Authentication Check */
+        #loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: #121116;
+            z-index: 999999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: #f5efe7;
+            font-family: system-ui, -apple-system, sans-serif;
+            transition: opacity 0.4s ease, visibility 0.4s ease;
+        }
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(211, 154, 93, 0.1);
+            border-radius: 50%;
+            border-top-color: #d39a5d;
+            animation: spin 1s ease-in-out infinite;
+            margin-bottom: 20px;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body class="form-light">
+    <!-- Authorization Guard Overlay -->
+    <div id="loading-overlay">
+        <div class="spinner"></div>
+        <div id="loading-status" style="font-size: 1.1rem; font-weight: 600; letter-spacing: 0.5px;">A verificar autorização...</div>
+    </div>
+    <script type="module">
+        import { auth, db } from "./js/firebase-config.js";
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
+        import { doc, getDoc } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
+
+        const overlay = document.getElementById('loading-overlay');
+        const statusText = document.getElementById('loading-status');
+
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                statusText.textContent = "Não autenticado. A redirecionar...";
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 1000);
+                return;
+            }
+
+            try {
+                const userDocSnap = await getDoc(doc(db, "users", user.uid));
+                if (userDocSnap.exists()) {
+                    const userData = userDocSnap.data();
+                    if (userData.status === 'on' && (userData.rule === 'ruler' || userData.rule === 'estafeta')) {
+                        // Authorized: Fade out overlay
+                        overlay.style.opacity = '0';
+                        overlay.style.visibility = 'hidden';
+                        setTimeout(() => {
+                            overlay.remove();
+                        }, 400);
+                        return;
+                    }
+                }
+                statusText.textContent = "Acesso recusado. Sem permissões de acesso.";
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 1500);
+            } catch (error) {
+                console.error("Erro na verificação de permissões:", error);
+                statusText.textContent = "Erro ao verificar permissões. Tente novamente.";
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 1500);
+            }
+        });
+    </script>
 
     <div class="top-menu">
         <a href="gestor-index.html" class="menu-button"><i class="fa-solid fa-list-check" style="margin-right: 8px;"></i> Gestor do Index</a>
