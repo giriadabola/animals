@@ -269,6 +269,22 @@
             background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
             box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
         }
+
+        /* Collapsible Fieldset */
+        .collapsible-fieldset legend {
+            cursor: pointer;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: color 0.2s ease;
+        }
+        .collapsible-fieldset legend:hover {
+            color: var(--primary-color);
+        }
+        .collapsible-fieldset {
+            transition: border-color 0.3s ease;
+        }
     </style>
 </head>
 <body class="form-light">
@@ -344,21 +360,13 @@
                     <!-- Aba: Geral -->
                     <div class="form-tab-panel active" id="tabpanel-geral" role="tabpanel">
                         <div class="sub-tabs-navigation" role="tablist">
-                            <button type="button" class="form-subtab-nav-btn active" data-subtab="geral-resumo-textual" role="tab" aria-selected="true" aria-controls="subtabpanel-geral-resumo-textual">Resumo textual</button>
-                            <button type="button" class="form-subtab-nav-btn" data-subtab="geral-modelo-visual" role="tab" aria-selected="false" aria-controls="subtabpanel-geral-modelo-visual">Modelo Visual</button>
+                            <button type="button" class="form-subtab-nav-btn active" data-subtab="geral-modelo-visual" role="tab" aria-selected="true" aria-controls="subtabpanel-geral-modelo-visual">Modelo Visual</button>
+                            <button type="button" class="form-subtab-nav-btn" data-subtab="geral-resumo-textual" role="tab" aria-selected="false" aria-controls="subtabpanel-geral-resumo-textual">Resumo textual</button>
                         </div>
 
                         <div class="sub-tabs-content">
-                            <!-- Sub-aba: Resumo textual -->
-                            <div class="form-subtab-panel active" id="subtabpanel-geral-resumo-textual" role="tabpanel">
-                                <div class="form-group">
-                                    <label for="infoGeral">Informação Geral</label>
-                                    <textarea id="infoGeral" rows="8" placeholder="Escreva uma descrição geral detalhada sobre o animal..."></textarea>
-                                </div>
-                            </div>
-
                             <!-- Sub-aba: Modelo Visual -->
-                            <div class="form-subtab-panel" id="subtabpanel-geral-modelo-visual" role="tabpanel">
+                            <div class="form-subtab-panel active" id="subtabpanel-geral-modelo-visual" role="tabpanel">
                                 <div class="general-visual-layout">
                                     <div class="general-visual-editor">
                                         <div class="general-visual-row-header">
@@ -438,27 +446,27 @@
                                     </div>
                                 </div>
                             </div>
+
+                            <!-- Sub-aba: Resumo textual -->
+                            <div class="form-subtab-panel" id="subtabpanel-geral-resumo-textual" role="tabpanel">
+                                <div class="form-group">
+                                    <label for="infoGeral">Informação Geral</label>
+                                    <textarea id="infoGeral" rows="8" placeholder="Escreva uma descrição geral detalhada sobre o animal..."></textarea>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
                     <!-- Aba: Dimensões -->
                     <div class="form-tab-panel" id="tabpanel-dimensoes" role="tabpanel">
                         <div class="sub-tabs-navigation" role="tablist">
-                            <button type="button" class="form-subtab-nav-btn active" data-subtab="resumo-textual" role="tab" aria-selected="true" aria-controls="subtabpanel-resumo">Resumo textual</button>
-                            <button type="button" class="form-subtab-nav-btn" data-subtab="modelo-visual" role="tab" aria-selected="false" aria-controls="subtabpanel-modelo">Modelo Visual</button>
+                            <button type="button" class="form-subtab-nav-btn active" data-subtab="modelo-visual" role="tab" aria-selected="true" aria-controls="subtabpanel-modelo">Modelo Visual</button>
+                            <button type="button" class="form-subtab-nav-btn" data-subtab="resumo-textual" role="tab" aria-selected="false" aria-controls="subtabpanel-resumo">Resumo textual</button>
                         </div>
                         
                         <div class="sub-tabs-content">
-                            <!-- Sub-aba: Resumo textual -->
-                            <div class="form-subtab-panel active" id="subtabpanel-resumo-textual" role="tabpanel">
-                                <div class="form-group">
-                                    <label for="infoDimensoes">Resumo textual</label>
-                                    <textarea id="infoDimensoes" rows="10" placeholder="Ex: Animal de grande porte, com corpo robusto e cauda comprida..."></textarea>
-                                </div>
-                            </div>
-                            
                             <!-- Sub-aba: Modelo Visual -->
-                            <div class="form-subtab-panel" id="subtabpanel-modelo-visual" role="tabpanel">
+                            <div class="form-subtab-panel active" id="subtabpanel-modelo-visual" role="tabpanel">
                                 <div class="dimensions-layout">
                                     <div class="dimensions-editor">
                                         <div class="dimension-row-header">
@@ -486,25 +494,26 @@
                                     </div>
                                 </div>
                             </div>
+
+                            <!-- Sub-aba: Resumo textual -->
+                            <div class="form-subtab-panel" id="subtabpanel-resumo-textual" role="tabpanel">
+                                <div class="form-group">
+                                    <label for="infoDimensoes">Resumo textual</label>
+                                    <textarea id="infoDimensoes" rows="10" placeholder="Ex: Animal de grande porte, com corpo robusto e cauda comprida..."></textarea>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
                     <!-- Aba: Alimentação -->
                     <div class="form-tab-panel" id="tabpanel-alimentacao" role="tabpanel">
                         <div class="sub-tabs-navigation" role="tablist">
-                            <button type="button" class="form-subtab-nav-btn active" data-subtab="alimentacao-resumo-textual" role="tab" aria-selected="true" aria-controls="subtabpanel-alimentacao-resumo-textual">Resumo textual</button>
-                            <button type="button" class="form-subtab-nav-btn" data-subtab="alimentacao-modelo-visual" role="tab" aria-selected="false" aria-controls="subtabpanel-alimentacao-modelo-visual">Modelo Visual</button>
+                            <button type="button" class="form-subtab-nav-btn active" data-subtab="alimentacao-modelo-visual" role="tab" aria-selected="true" aria-controls="subtabpanel-alimentacao-modelo-visual">Modelo Visual</button>
+                            <button type="button" class="form-subtab-nav-btn" data-subtab="alimentacao-resumo-textual" role="tab" aria-selected="false" aria-controls="subtabpanel-alimentacao-resumo-textual">Resumo textual</button>
                         </div>
 
                         <div class="sub-tabs-content">
-                            <div class="form-subtab-panel active" id="subtabpanel-alimentacao-resumo-textual" role="tabpanel">
-                                <div class="form-group">
-                                    <label for="infoAlimentacao">Alimentação</label>
-                                    <textarea id="infoAlimentacao" rows="10" placeholder="Tipo de dieta, presas favoritas..."></textarea>
-                                </div>
-                            </div>
-
-                            <div class="form-subtab-panel" id="subtabpanel-alimentacao-modelo-visual" role="tabpanel">
+                            <div class="form-subtab-panel active" id="subtabpanel-alimentacao-modelo-visual" role="tabpanel">
                                 <div class="reproduction-layout feeding-layout">
                                     <div class="reproduction-editor feeding-editor">
                                         <div class="reproduction-row-header">
@@ -539,25 +548,25 @@
                                     </div>
                                 </div>
                             </div>
+
+                            <div class="form-subtab-panel" id="subtabpanel-alimentacao-resumo-textual" role="tabpanel">
+                                <div class="form-group">
+                                    <label for="infoAlimentacao">Alimentação</label>
+                                    <textarea id="infoAlimentacao" rows="10" placeholder="Tipo de dieta, presas favoritas..."></textarea>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
                     <!-- Aba: Reprodução -->
                     <div class="form-tab-panel" id="tabpanel-reproducao" role="tabpanel">
                         <div class="sub-tabs-navigation" role="tablist">
-                            <button type="button" class="form-subtab-nav-btn active" data-subtab="reproducao-resumo-textual" role="tab" aria-selected="true" aria-controls="subtabpanel-reproducao-resumo-textual">Resumo textual</button>
-                            <button type="button" class="form-subtab-nav-btn" data-subtab="reproducao-modelo-visual" role="tab" aria-selected="false" aria-controls="subtabpanel-reproducao-modelo-visual">Modelo Visual</button>
+                            <button type="button" class="form-subtab-nav-btn active" data-subtab="reproducao-modelo-visual" role="tab" aria-selected="true" aria-controls="subtabpanel-reproducao-modelo-visual">Modelo Visual</button>
+                            <button type="button" class="form-subtab-nav-btn" data-subtab="reproducao-resumo-textual" role="tab" aria-selected="false" aria-controls="subtabpanel-reproducao-resumo-textual">Resumo textual</button>
                         </div>
 
                         <div class="sub-tabs-content">
-                            <div class="form-subtab-panel active" id="subtabpanel-reproducao-resumo-textual" role="tabpanel">
-                                <div class="form-group">
-                                    <label for="infoReproducao">Resumo textual</label>
-                                    <textarea id="infoReproducao" rows="10" placeholder="Gestação, época de acasalamento, número de ovos ou crias..."></textarea>
-                                </div>
-                            </div>
-
-                            <div class="form-subtab-panel" id="subtabpanel-reproducao-modelo-visual" role="tabpanel">
+                            <div class="form-subtab-panel active" id="subtabpanel-reproducao-modelo-visual" role="tabpanel">
                                 <div class="reproduction-layout">
                                     <div class="reproduction-editor">
                                         <div class="reproduction-row-header">
@@ -582,25 +591,25 @@
                                     </div>
                                 </div>
                             </div>
+
+                            <div class="form-subtab-panel" id="subtabpanel-reproducao-resumo-textual" role="tabpanel">
+                                <div class="form-group">
+                                    <label for="infoReproducao">Resumo textual</label>
+                                    <textarea id="infoReproducao" rows="10" placeholder="Gestação, época de acasalamento, número de ovos ou crias..."></textarea>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
                     <!-- Aba: Plumagem -->
                     <div class="form-tab-panel" id="tabpanel-plumagem" role="tabpanel">
                         <div class="sub-tabs-navigation" role="tablist">
-                            <button type="button" class="form-subtab-nav-btn active" data-subtab="plumagem-resumo-textual" role="tab" aria-selected="true" aria-controls="subtabpanel-plumagem-resumo-textual">Resumo textual</button>
-                            <button type="button" class="form-subtab-nav-btn" data-subtab="plumagem-modelo-visual" role="tab" aria-selected="false" aria-controls="subtabpanel-plumagem-modelo-visual">Modelo Visual</button>
+                            <button type="button" class="form-subtab-nav-btn active" data-subtab="plumagem-modelo-visual" role="tab" aria-selected="true" aria-controls="subtabpanel-plumagem-modelo-visual">Modelo Visual</button>
+                            <button type="button" class="form-subtab-nav-btn" data-subtab="plumagem-resumo-textual" role="tab" aria-selected="false" aria-controls="subtabpanel-plumagem-resumo-textual">Resumo textual</button>
                         </div>
 
                         <div class="sub-tabs-content">
-                            <div class="form-subtab-panel active" id="subtabpanel-plumagem-resumo-textual" role="tabpanel">
-                                <div class="form-group">
-                                    <label for="infoPlumagem">Plumagem (Apenas para Aves)</label>
-                                    <textarea id="infoPlumagem" rows="10" placeholder="Ex: Plumagem colorida, com tons de azul e verde brilhantes..."></textarea>
-                                </div>
-                            </div>
-
-                            <div class="form-subtab-panel" id="subtabpanel-plumagem-modelo-visual" role="tabpanel">
+                            <div class="form-subtab-panel active" id="subtabpanel-plumagem-modelo-visual" role="tabpanel">
                                 <div class="plumage-layout">
                                     <div class="plumage-editor">
                                         <div class="plumage-row-header">
@@ -628,8 +637,15 @@
                                         <div class="plumage-model-grid" id="previewPlumageModels"></div>
                                     </div>
                                 </div>
+                            </div>
+
+                            <div class="form-subtab-panel" id="subtabpanel-plumagem-resumo-textual" role="tabpanel">
+                                <div class="form-group">
+                                    <label for="infoPlumagem">Plumagem (Apenas para Aves)</label>
+                                    <textarea id="infoPlumagem" rows="10" placeholder="Ex: Plumagem colorida, com tons de azul e verde brilhantes..."></textarea>
+                                </div>
+                            </div>
                         </div>
-                    </div>
                     </div>
 
                     <!-- Aba: Distribuição -->
@@ -663,9 +679,11 @@
                 </div>
             </div>
             
-            <fieldset class="grid-span-3">
-                <legend>Vídeos Complementares (YouTube)</legend>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+            <fieldset class="grid-span-3 collapsible-fieldset collapsed" id="videosFieldset">
+                <legend id="videosLegend">
+                    Vídeos Complementares (YouTube) <i class="fa-solid fa-chevron-down" style="margin-left: 8px; font-size: 0.8em; transition: transform 0.3s ease;"></i>
+                </legend>
+                <div class="fieldset-content" style="display: none; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-top: 15px;">
                     <div class="form-group">
                         <label for="video1">Vídeo 1</label>
                         <input type="url" id="video1" placeholder="URL do YouTube">
@@ -1884,16 +1902,16 @@
         function getClimateZoneMeta(value = '') {
             const normalized = normalizeSearchText(value);
             const zones = {
-                tropical: { image: 'assets/zonas-climaticas/tropical.png', accent: 'accent-climate-tropical' },
-                subtropical: { image: 'assets/zonas-climaticas/subtropical.png', accent: 'accent-climate-subtropical' },
-                temperada: { image: 'assets/zonas-climaticas/temperada.png', accent: 'accent-climate-temperada' },
-                polar: { image: 'assets/zonas-climaticas/polar.png', accent: 'accent-climate-polar' },
-                artica: { image: 'assets/zonas-climaticas/artica.png', accent: 'accent-climate-artica' },
-                antartica: { image: 'assets/zonas-climaticas/antartica.png', accent: 'accent-climate-antartica' },
-                desertica: { image: 'assets/zonas-climaticas/desertica.png', accent: 'accent-climate-desertica' },
-                semiarida: { image: 'assets/zonas-climaticas/semiarida.png', accent: 'accent-climate-semiarida' },
-                mediterranica: { image: 'assets/zonas-climaticas/mediterranica.png', accent: 'accent-climate-mediterranica' },
-                montanhosa_alpina: { image: 'assets/zonas-climaticas/montanhosa-alpina.png', accent: 'accent-climate-montanhosa' }
+                tropical: { image: 'assets/zonas-climaticas/01_Tropical.png', accent: 'accent-climate-tropical' },
+                subtropical: { image: 'assets/zonas-climaticas/02_Subtropical.png', accent: 'accent-climate-subtropical' },
+                temperada: { image: 'assets/zonas-climaticas/03_Temperada.png', accent: 'accent-climate-temperada' },
+                polar: { image: 'assets/zonas-climaticas/04_Polar.png', accent: 'accent-climate-polar' },
+                artica: { image: 'assets/zonas-climaticas/05_Artica.png', accent: 'accent-climate-artica' },
+                antartica: { image: 'assets/zonas-climaticas/06_Antartica.png', accent: 'accent-climate-antartica' },
+                desertica: { image: 'assets/zonas-climaticas/07_Desertica.png', accent: 'accent-climate-desertica' },
+                semiarida: { image: 'assets/zonas-climaticas/08_Semiarida.png', accent: 'accent-climate-semiarida' },
+                mediterranica: { image: 'assets/zonas-climaticas/09_Mediterranica.png', accent: 'accent-climate-mediterranica' },
+                montanhosa_alpina: { image: 'assets/zonas-climaticas/10_Montanhosa_Alpina.png', accent: 'accent-climate-montanhosa' }
             };
             if (normalized.includes('montanhosa') || normalized.includes('alpina')) return zones.montanhosa_alpina;
             return zones[normalized.replace(/\s+/g, '_')] || zones[normalized] || null;
@@ -2624,9 +2642,13 @@
                 }, 100);
             }
 
+            let hasVideos = false;
             for (let i = 0; i < 5; i++) {
-                document.getElementById(`video${i + 1}`).value = animal.videos && animal.videos[i] ? animal.videos[i] : '';
+                const videoVal = animal.videos && animal.videos[i] ? animal.videos[i] : '';
+                document.getElementById(`video${i + 1}`).value = videoVal;
+                if (videoVal) hasVideos = true;
             }
+            toggleVideosFieldset(hasVideos);
             closeModal();
             switchToEditMode(animalId);
             updatePlumagemTabVisibility();
@@ -2686,6 +2708,7 @@
             nomeCientificoWarning.style.display = 'none';
             statusMessage.style.display = 'none';
             document.body.classList.remove('edit-theme');
+            toggleVideosFieldset(false);
         }
 
         function openModal() {
@@ -2758,6 +2781,26 @@
                 });
             });
         });
+
+        // --- CONTROLO DO FIELDSET COLAPSÁVEL DE VÍDEOS ---
+        function toggleVideosFieldset(open = null) {
+            const fieldset = document.getElementById('videosFieldset');
+            const content = fieldset.querySelector('.fieldset-content');
+            const chevron = document.getElementById('videosLegend').querySelector('i');
+            
+            const shouldOpen = open !== null ? open : fieldset.classList.contains('collapsed');
+            
+            if (shouldOpen) {
+                fieldset.classList.remove('collapsed');
+                content.style.display = 'grid';
+                chevron.style.transform = 'rotate(180deg)';
+            } else {
+                fieldset.classList.add('collapsed');
+                content.style.display = 'none';
+                chevron.style.transform = 'rotate(0deg)';
+            }
+        }
+        document.getElementById('videosLegend').addEventListener('click', () => toggleVideosFieldset());
 
         // --- VISIBILIDADE DA ABA PLUMAGEM PARA AVES ---
         const categorySelect = document.getElementById('categoria');
