@@ -941,30 +941,68 @@ main {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: 12px;
+    gap: 16px;
     margin-top: 14px;
-    margin-bottom: 16px;
+    margin-bottom: 20px;
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.01));
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    padding: 18px 24px;
+    border: 1px solid color-mix(in srgb, var(--model-accent, #818cf8) 35%, rgba(255, 255, 255, 0.08));
+    padding: 24px;
     border-radius: 24px;
     width: fit-content;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    box-shadow: 
+        0 20px 40px rgba(0, 0, 0, 0.35), 
+        inset 0 1px 0 rgba(255, 255, 255, 0.05),
+        0 0 20px var(--model-accent-glow, rgba(255, 255, 255, 0));
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
+    transition: all 0.3s ease;
 }
+
+.animal-climate-zone:hover {
+    border-color: var(--model-accent, rgba(255, 255, 255, 0.2));
+    box-shadow: 
+        0 25px 45px rgba(0, 0, 0, 0.4), 
+        inset 0 1px 0 rgba(255, 255, 255, 0.08),
+        0 0 28px var(--model-accent-glow, rgba(255, 255, 255, 0.1));
+    transform: translateY(-2px);
+}
+
+.animal-climate-zone.accent-climate-tropical { --model-accent: #f97316; --model-accent-soft: rgba(249, 115, 22, 0.18); --model-accent-glow: rgba(234, 88, 12, 0.28); }
+.animal-climate-zone.accent-climate-subtropical { --model-accent: #f59e0b; --model-accent-soft: rgba(245, 158, 11, 0.18); --model-accent-glow: rgba(217, 119, 6, 0.28); }
+.animal-climate-zone.accent-climate-temperada { --model-accent: #22c55e; --model-accent-soft: rgba(34, 197, 94, 0.18); --model-accent-glow: rgba(21, 128, 61, 0.28); }
+.animal-climate-zone.accent-climate-polar { --model-accent: #cbd5e1; --model-accent-soft: rgba(203, 213, 225, 0.18); --model-accent-glow: rgba(148, 163, 184, 0.24); }
+.animal-climate-zone.accent-climate-artica { --model-accent: #7dd3fc; --model-accent-soft: rgba(125, 211, 252, 0.18); --model-accent-glow: rgba(14, 165, 233, 0.28); }
+.animal-climate-zone.accent-climate-antartica { --model-accent: #bfdbfe; --model-accent-soft: rgba(191, 219, 254, 0.18); --model-accent-glow: rgba(96, 165, 250, 0.28); }
+.animal-climate-zone.accent-climate-desertica { --model-accent: #fb7185; --model-accent-soft: rgba(251, 113, 133, 0.18); --model-accent-glow: rgba(244, 63, 94, 0.28); }
+.animal-climate-zone.accent-climate-semiarida { --model-accent: #fbbf24; --model-accent-soft: rgba(251, 191, 36, 0.18); --model-accent-glow: rgba(245, 158, 11, 0.28); }
+.animal-climate-zone.accent-climate-mediterranica { --model-accent: #2dd4bf; --model-accent-soft: rgba(45, 212, 191, 0.18); --model-accent-glow: rgba(13, 148, 136, 0.28); }
+.animal-climate-zone.accent-climate-montanhosa { --model-accent: #a78bfa; --model-accent-soft: rgba(167, 139, 250, 0.18); --model-accent-glow: rgba(124, 58, 237, 0.28); }
+
+.animal-climate-zone.accent-habitat-bosque { --model-accent: #22c55e; --model-accent-soft: rgba(34, 197, 94, 0.18); --model-accent-glow: rgba(21, 128, 61, 0.28); }
+.animal-climate-zone.accent-habitat-calota-gelo { --model-accent: #cbd5e1; --model-accent-soft: rgba(203, 213, 225, 0.18); --model-accent-glow: rgba(148, 163, 184, 0.24); }
+.animal-climate-zone.accent-habitat-caverna { --model-accent: #6b7280; --model-accent-soft: rgba(107, 114, 128, 0.18); --model-accent-glow: rgba(75, 85, 99, 0.28); }
+.animal-climate-zone.accent-habitat-chaparral { --model-accent: #d97706; --model-accent-soft: rgba(217, 119, 6, 0.18); --model-accent-glow: rgba(180, 83, 9, 0.28); }
+.animal-climate-zone.accent-habitat-duna { --model-accent: #f59e0b; --model-accent-soft: rgba(245, 158, 11, 0.18); --model-accent-glow: rgba(217, 119, 6, 0.28); }
+.animal-climate-zone.accent-habitat-estepe { --model-accent: #ca8a04; --model-accent-soft: rgba(202, 138, 4, 0.18); --model-accent-glow: rgba(161, 98, 7, 0.28); }
+.animal-climate-zone.accent-habitat-fauna-urbana { --model-accent: #9ca3af; --model-accent-soft: rgba(156, 163, 175, 0.18); --model-accent-glow: rgba(107, 114, 128, 0.28); }
+.animal-climate-zone.accent-habitat-marinho { --model-accent: #06b6d4; --model-accent-soft: rgba(6, 182, 212, 0.18); --model-accent-glow: rgba(8, 145, 178, 0.28); }
+.animal-climate-zone.accent-habitat-montanha { --model-accent: #64748b; --model-accent-soft: rgba(100, 116, 139, 0.18); --model-accent-glow: rgba(71, 85, 105, 0.28); }
+.animal-climate-zone.accent-habitat-pantano { --model-accent: #0f766e; --model-accent-soft: rgba(15, 118, 110, 0.18); --model-accent-glow: rgba(17, 94, 89, 0.28); }
+.animal-climate-zone.accent-habitat-pradaria { --model-accent: #84cc16; --model-accent-soft: rgba(132, 204, 22, 0.18); --model-accent-glow: rgba(101, 163, 13, 0.28); }
+.animal-climate-zone.accent-habitat-savana { --model-accent: #eab308; --model-accent-soft: rgba(234, 179, 8, 0.18); --model-accent-glow: rgba(202, 138, 4, 0.28); }
+
 
 .climate-zone-badge-image {
     width: 320px;
     max-width: 100%;
-    height: 105px;
-    object-fit: cover;
+    height: 160px;
+    object-fit: contain;
     border-radius: 12px;
     border: none;
 }
 
-.animal-habitat-badge .climate-zone-label {
-    color: #10b981;
+.animal-habitat-badge .climate-zone-badge-image {
+    transform: scale(1.22);
 }
 
 .climate-zone-info {
@@ -976,7 +1014,7 @@ main {
 .climate-zone-label {
     font-size: 0.72rem;
     font-weight: 800;
-    color: #818cf8;
+    color: var(--model-accent, #818cf8);
     text-transform: uppercase;
     letter-spacing: 2px;
 }
@@ -4067,6 +4105,12 @@ button[type="submit"]:hover {
     border-color: rgba(16, 185, 129, 0.25) !important;
     background: linear-gradient(135deg, rgba(16, 185, 129, 0.03), rgba(9, 9, 20, 0.8)) !important;
     box-shadow: 0 8px 32px rgba(16, 185, 129, 0.03), inset 0 1px 0 rgba(255, 255, 255, 0.02) !important;
+}
+
+#info-habitat {
+    border-color: rgba(6, 182, 212, 0.25) !important;
+    background: linear-gradient(135deg, rgba(6, 182, 212, 0.03), rgba(9, 9, 20, 0.8)) !important;
+    box-shadow: 0 8px 32px rgba(6, 182, 212, 0.03), inset 0 1px 0 rgba(255, 255, 255, 0.02) !important;
 }
 
 #info-alimentacao {
