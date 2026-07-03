@@ -1,6 +1,6 @@
 import { auth, db } from "./firebase-config.js?v=2";
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
-import { doc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
+import { doc, getDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
 
 export function injectHeader() {
     // Evita duplicar se já existir
