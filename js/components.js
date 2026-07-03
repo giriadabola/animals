@@ -1,3 +1,7 @@
+import { auth, db } from "./firebase-config.js";
+import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
+import { doc, getDoc } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
+
 export function injectHeader() {
     // Evita duplicar se já existir
     if (document.querySelector('.global-header')) return;
@@ -46,10 +50,46 @@ export function injectHeader() {
             <nav class="nav-links">
                 <a href="index.html" class="nav-link ${isHome ? 'active' : ''}"><i class="fa-solid fa-house"></i> Início</a>
                 <a href="form.html" class="nav-link ${isForm ? 'active' : ''}"><i class="fa-solid fa-sliders"></i> Gerir Portal</a>
+                <span id="header-auth-section" style="display: flex; align-items: center; gap: 15px; margin-left: 10px;">
+                    <!-- Auth info dynamically inserted -->
+                </span>
             </nav>
         </div>
     `;
     document.body.insertBefore(header, document.body.firstChild);
+
+    // Dynamic auth UI update
+    const authSection = document.getElementById('header-auth-section');
+    onAuthStateChanged(auth, async (user) => {
+        if (user) {
+            let nome = user.displayName || user.email.split('@')[0];
+            try {
+                const userDoc = await getDoc(doc(db, "users", user.uid));
+                if (userDoc.exists() && userDoc.data().nome) {
+                    nome = userDoc.data().nome;
+                }
+            } catch (err) {
+                console.error("Erro ao carregar dados do utilizador no cabeçalho:", err);
+            }
+            authSection.innerHTML = `
+                <span style="font-size: 0.85rem; color: var(--text-secondary); display: inline-flex; align-items: center; gap: 6px;">
+                    <i class="fa-solid fa-circle-user" style="color: var(--primary-color);"></i>
+                    Olá, <strong>${nome}</strong>
+                </span>
+                <button id="logout-btn" class="nav-link" style="background: none; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; padding: 0;">
+                    <i class="fa-solid fa-right-from-bracket"></i> Sair
+                </button>
+            `;
+            document.getElementById('logout-btn').addEventListener('click', async () => {
+                await signOut(auth);
+                window.location.href = 'index.html';
+            });
+        } else {
+            authSection.innerHTML = `
+                <a href="login.html" class="nav-link"><i class="fa-solid fa-right-to-bracket"></i> Entrar</a>
+            `;
+        }
+    });
 }
 
 // Injetar automaticamente se o body estiver pronto, senão esperar pelo DOMContentLoaded
