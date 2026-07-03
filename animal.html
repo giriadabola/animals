@@ -230,6 +230,7 @@
             if (normalized.includes('estrategia')) return { key: 'estrategia', title: type || 'Estratégia para obter alimento', accent: 'accent-generic' };
             if (normalized.includes('acasalamento')) return { key: 'acasalamento', title: type || 'Acasalamento', accent: 'accent-generic' };
             if (normalized.includes('zona')) return { key: 'zona-climatica', title: type || 'Zona Climática', accent: 'accent-climate' };
+            if (normalized.includes('habitat')) return { key: 'habitat', title: type || 'Habitat', accent: 'accent-habitat' };
             return { key: 'geral', title: type || 'Modelo geral', accent: 'accent-generic' };
         }
 
@@ -251,6 +252,25 @@
             return zones[normalized] || null;
         }
 
+        function getHabitatMeta(value = '') {
+            const normalized = normalizeDimensionKey(value).replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
+            const habitats = {
+                bosque: { image: 'assets/habitats/03_Bosque.png', accent: 'accent-habitat-bosque' },
+                calota_de_gelo: { image: 'assets/habitats/07_Calota_de_Gelo.png', accent: 'accent-habitat-calota-gelo' },
+                caverna: { image: 'assets/habitats/05_Caverna.png', accent: 'accent-habitat-caverna' },
+                chaparral: { image: 'assets/habitats/10_Chaparral.png', accent: 'accent-habitat-chaparral' },
+                duna: { image: 'assets/habitats/06_Duna.png', accent: 'accent-habitat-duna' },
+                estepe: { image: 'assets/habitats/09_Estepe.png', accent: 'accent-habitat-estepe' },
+                fauna_urbana: { image: 'assets/habitats/12_Fauna_Urbana.png', accent: 'accent-habitat-fauna-urbana' },
+                marinho: { image: 'assets/habitats/01_Marinho.png', accent: 'accent-habitat-marinho' },
+                montanha: { image: 'assets/habitats/11_Montanha.png', accent: 'accent-habitat-montanha' },
+                pantano: { image: 'assets/habitats/04_Pantano.png', accent: 'accent-habitat-pantano' },
+                pradaria: { image: 'assets/habitats/08_Pradaria.png', accent: 'accent-habitat-pradaria' },
+                savana: { image: 'assets/habitats/02_Savana.png', accent: 'accent-habitat-savana' }
+            };
+            return habitats[normalized] || null;
+        }
+
         function getGeneralModelSvg(key = 'geral') {
             const icons = {
                 vida: `<svg class="metric-model-svg general-model-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M28 10h24"/><path d="M28 70h24"/><path d="M31 10c0 15 18 16 18 30S31 55 31 70"/><path d="M49 10c0 15-18 16-18 30s18 15 18 30"/><path d="M34 53h12"/><path d="M37 59h6"/></svg>`,
@@ -268,20 +288,24 @@
             const isStrategy = normalizedType.includes('estrategia');
             const isMating = normalizedType.includes('acasalamento');
             const isClimateZone = normalizedType.includes('zona');
+            const isHabitat = normalizedType.includes('habitat');
             const value = item.valorMin || item.valor || '';
             const strategyMeta = isStrategy ? getFeedingStrategyMeta(value) : null;
             const matingMeta = isMating ? getMatingMeta(value) : null;
             const climateMeta = isClimateZone ? getClimateZoneMeta(value) : null;
+            const habitatMeta = isHabitat ? getHabitatMeta(value) : null;
             const icon = climateMeta
                 ? `<img class="climate-zone-model-image" src="${climateMeta.image}" alt="Zona climática ${escapeHtml(value)}" loading="lazy">`
-                : strategyMeta
-                    ? getFeedingStrategySvg(strategyMeta.key)
-                    : matingMeta
-                        ? getMatingSystemSvg(matingMeta.key)
-                        : getGeneralModelSvg(meta.key);
+                : habitatMeta
+                    ? `<img class="climate-zone-model-image" src="${habitatMeta.image}" alt="Habitat ${escapeHtml(value)}" loading="lazy">`
+                    : strategyMeta
+                        ? getFeedingStrategySvg(strategyMeta.key)
+                        : matingMeta
+                            ? getMatingSystemSvg(matingMeta.key)
+                            : getGeneralModelSvg(meta.key);
             return `
-                <article class="dimension-model-card general-model-card ${climateMeta?.accent || strategyMeta?.accent || matingMeta?.accent || meta.accent}">
-                    <div class="dimension-model-icon ${climateMeta ? 'climate-zone-model-icon' : ''}">${icon}</div>
+                <article class="dimension-model-card general-model-card ${climateMeta?.accent || habitatMeta?.accent || strategyMeta?.accent || matingMeta?.accent || meta.accent}">
+                    <div class="dimension-model-icon ${climateMeta || habitatMeta ? 'climate-zone-model-icon' : ''}">${icon}</div>
                     <div class="dimension-model-copy">
                         <div class="dimension-model-label">${escapeHtml(meta.title)}</div>
                         <div class="dimension-model-value">${formatGeneralVisualValue(item)}</div>
