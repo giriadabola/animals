@@ -2,11 +2,11 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
 
 :root {
-    /* Color Palette - Ultra Premium Dark Theme */
-    --bg-primary: #05050a;
-    --bg-secondary: #090914;
-    --bg-card: rgba(13, 13, 27, 0.6);
-    --bg-card-hover: rgba(22, 22, 46, 0.8);
+    /* Color Palette - Ultra Premium Dark Theme (Slightly lightened) */
+    --bg-primary: #0e0f19;
+    --bg-secondary: #161827;
+    --bg-card: rgba(26, 28, 47, 0.6);
+    --bg-card-hover: rgba(38, 41, 68, 0.8);
     
     --text-primary: #f8fafc;
     --text-secondary: #94a3b8;
@@ -461,15 +461,56 @@ main {
 
 @media (max-width: 992px) {
     .categories-container {
-        grid-template-columns: repeat(3, 1fr);
+        grid-template-columns: repeat(4, 1fr);
         max-width: 600px;
+        gap: 12px;
+    }
+    .category-link {
+        padding: 8px 4px;
+        max-width: 100px;
+        border-radius: 14px;
+    }
+    .category-link span:not(.category-emoji) {
+        font-size: 0.8rem;
+    }
+    .category-emoji {
+        margin-bottom: 4px;
+        height: 28px;
+    }
+    .category-emoji i {
+        font-size: 1.25rem;
+    }
+    .category-emoji svg {
+        width: 20px;
+        height: 20px;
     }
 }
 
 @media (max-width: 500px) {
     .categories-container {
-        grid-template-columns: repeat(2, 1fr);
-        max-width: 320px;
+        grid-template-columns: repeat(4, 1fr);
+        max-width: 100%;
+        gap: 6px;
+        padding: 0 4px;
+    }
+    .category-link {
+        padding: 6px 2px;
+        max-width: 75px;
+        border-radius: 10px;
+    }
+    .category-link span:not(.category-emoji) {
+        font-size: 0.68rem;
+    }
+    .category-emoji {
+        margin-bottom: 2px;
+        height: 20px;
+    }
+    .category-emoji i {
+        font-size: 1rem;
+    }
+    .category-emoji svg {
+        width: 16px;
+        height: 16px;
     }
 }
 
@@ -990,6 +1031,11 @@ main {
 .animal-climate-zone.accent-habitat-pantano { --model-accent: #0f766e; --model-accent-soft: rgba(15, 118, 110, 0.18); --model-accent-glow: rgba(17, 94, 89, 0.28); }
 .animal-climate-zone.accent-habitat-pradaria { --model-accent: #84cc16; --model-accent-soft: rgba(132, 204, 22, 0.18); --model-accent-glow: rgba(101, 163, 13, 0.28); }
 .animal-climate-zone.accent-habitat-savana { --model-accent: #eab308; --model-accent-soft: rgba(234, 179, 8, 0.18); --model-accent-glow: rgba(202, 138, 4, 0.28); }
+.animal-climate-zone.accent-habitat-areas-rochosas { --model-accent: #78716c; --model-accent-soft: rgba(120, 113, 108, 0.18); --model-accent-glow: rgba(120, 113, 108, 0.28); }
+.animal-climate-zone.accent-habitat-costa { --model-accent: #0284c7; --model-accent-soft: rgba(2, 132, 199, 0.18); --model-accent-glow: rgba(2, 132, 199, 0.28); }
+.animal-climate-zone.accent-habitat-floresta { --model-accent: #047857; --model-accent-soft: rgba(4, 120, 87, 0.18); --model-accent-glow: rgba(4, 120, 87, 0.28); }
+.animal-climate-zone.accent-habitat-marinho-corais { --model-accent: #f43f5e; --model-accent-soft: rgba(244, 63, 94, 0.18); --model-accent-glow: rgba(244, 63, 94, 0.28); }
+.animal-climate-zone.accent-habitat-matagal { --model-accent: #84cc16; --model-accent-soft: rgba(132, 204, 22, 0.18); --model-accent-glow: rgba(132, 204, 22, 0.28); }
 
 
 .climate-zone-badge-image {
@@ -2239,6 +2285,11 @@ button[type="submit"]:hover {
 .dimension-model-card.accent-habitat-pantano { --model-accent: #0f766e; --model-accent-soft: rgba(15, 118, 110, 0.18); --model-accent-glow: rgba(17, 94, 89, 0.28); }
 .dimension-model-card.accent-habitat-pradaria { --model-accent: #84cc16; --model-accent-soft: rgba(132, 204, 22, 0.18); --model-accent-glow: rgba(101, 163, 13, 0.28); }
 .dimension-model-card.accent-habitat-savana { --model-accent: #eab308; --model-accent-soft: rgba(234, 179, 8, 0.18); --model-accent-glow: rgba(202, 138, 4, 0.28); }
+.dimension-model-card.accent-habitat-areas-rochosas { --model-accent: #78716c; --model-accent-soft: rgba(120, 113, 108, 0.18); --model-accent-glow: rgba(120, 113, 108, 0.28); }
+.dimension-model-card.accent-habitat-costa { --model-accent: #0284c7; --model-accent-soft: rgba(2, 132, 199, 0.18); --model-accent-glow: rgba(2, 132, 199, 0.28); }
+.dimension-model-card.accent-habitat-floresta { --model-accent: #047857; --model-accent-soft: rgba(4, 120, 87, 0.18); --model-accent-glow: rgba(4, 120, 87, 0.28); }
+.dimension-model-card.accent-habitat-marinho-corais { --model-accent: #f43f5e; --model-accent-soft: rgba(244, 63, 94, 0.18); --model-accent-glow: rgba(244, 63, 94, 0.28); }
+.dimension-model-card.accent-habitat-matagal { --model-accent: #84cc16; --model-accent-soft: rgba(132, 204, 22, 0.18); --model-accent-glow: rgba(132, 204, 22, 0.28); }
 
 
 .dimension-model-card .dimension-model-label,
@@ -4161,7 +4212,14 @@ button[type="submit"]:hover {
 
 /* Lists Section */
 .lists-section {
-    margin-top: 5rem;
+    margin-top: 4rem;
+    padding-bottom: 3.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.lists-section:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
 }
 
 .lists-section .section-title {
@@ -4170,10 +4228,24 @@ button[type="submit"]:hover {
     margin-bottom: 2rem;
     text-transform: uppercase;
     letter-spacing: 1px;
-    background: var(--accent-gradient);
+    --local-gradient: var(--accent-gradient);
+    background: var(--local-gradient);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     display: inline-block;
+    position: relative;
+    padding-bottom: 10px;
+}
+
+.lists-section .section-title::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 60px;
+    height: 3px;
+    background: var(--local-gradient);
+    border-radius: 2px;
 }
 
 .lists-container {
@@ -4275,28 +4347,33 @@ button[type="submit"]:hover {
     cursor: not-allowed;
 }
 
-/* Section Title Gradients */
+/* Section Title Gradients (Rich Multi-hue Gradients) */
 .lists-section .section-title.gradient-gold {
-    background: linear-gradient(135deg, #fbbf24, #f59e0b) !important;
-    -webkit-background-clip: text !important;
+    --local-gradient: linear-gradient(135deg, #ffe066, #f59e0b) !important;
 }
 .lists-section .section-title.gradient-purple {
-    background: linear-gradient(135deg, #c084fc, #818cf8) !important;
-    -webkit-background-clip: text !important;
+    --local-gradient: linear-gradient(135deg, #e879f9, #6366f1) !important;
 }
 .lists-section .section-title.gradient-teal {
-    background: linear-gradient(135deg, #2dd4bf, #0d9488) !important;
-    -webkit-background-clip: text !important;
+    --local-gradient: linear-gradient(135deg, #2dd4bf, #0284c7) !important;
 }
 .lists-section .section-title.gradient-cyan {
-    background: linear-gradient(135deg, #22d3ee, #0284c7) !important;
-    -webkit-background-clip: text !important;
+    --local-gradient: linear-gradient(135deg, #22d3ee, #4f46e5) !important;
 }
 .lists-section .section-title.gradient-rose {
-    background: linear-gradient(135deg, #fb7185, #db2777) !important;
-    -webkit-background-clip: text !important;
+    --local-gradient: linear-gradient(135deg, #fda4af, #e11d48) !important;
 }
 .lists-section .section-title.gradient-orange {
-    background: linear-gradient(135deg, #fb923c, #ea580c) !important;
-    -webkit-background-clip: text !important;
+    --local-gradient: linear-gradient(135deg, #fdbb2d, #f43f5e) !important;
 }
+
+/* Utilitário para ocultar elementos em ecrãs móveis (PWA / Mobile) */
+@media (max-width: 768px) {
+    .hide-on-mobile {
+        display: none !important;
+    }
+    .hero-section {
+        display: none !important;
+    }
+}
+
