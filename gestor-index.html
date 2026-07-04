@@ -9,6 +9,7 @@
     <link rel="icon" href="assets/logos/admin/favicon.ico">
     <link rel="apple-touch-icon" href="assets/logos/admin/apple-touch-icon.png">
     <meta name="theme-color" content="#0b2f22">
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="Admin">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -640,7 +641,15 @@
                 });
                 showStatus("Definições guardadas com sucesso!", "success");
             } catch (error) {
-                console.error("Erro ao guardar definições no servidor.length) return;
+                console.error("Erro ao guardar definições:", error);
+                showStatus("Erro ao guardar definições no servidor.", "error");
+            }
+        }
+
+        // Move high level item in list
+        function moveItem(index, direction) {
+            const newIndex = index + direction;
+            if (newIndex < 0 || newIndex >= currentOrder.length) return;
 
             const temp = currentOrder[index];
             currentOrder[index] = currentOrder[newIndex];
@@ -697,8 +706,8 @@
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('./sw-admin.js')
-                    .then(reg => console.log('Service Worker de Administração:)
-                    .catch(err => console.log('Erro ao registrar o Service Worker de Administração:);
+                    .then(reg => console.log('Service Worker de Administração registrado:', reg.scope))
+                    .catch(err => console.log('Erro ao registrar o Service Worker de Administração:', err));
             });
         }
     </script>
