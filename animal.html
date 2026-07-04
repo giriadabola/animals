@@ -885,6 +885,29 @@
                         <div class="animal-image">
                             <img src="${animalData.imagemUrl}" alt="Imagem de ${animalData.nome}" style="object-position: ${animalData.imagemObjectPosition || 'center center'};">
                         </div>
+                        ${(animalData.reino || animalData.filo || animalData.subfilo || animalData.classe || animalData.ordem || animalData.subordem || animalData.familia || animalData.genero || animalData.especie || (Array.isArray(animalData.subespeciesDe) && animalData.subespeciesDe.length > 0)) ? `
+                        <div class="info-section-card" id="info-classificacao" style="border-color: rgba(167, 139, 250, 0.25); background: linear-gradient(135deg, rgba(167, 139, 250, 0.03), rgba(9, 9, 20, 0.8)); padding: 24px;">
+                            <h3 style="font-size: 1.25rem; margin-bottom: 14px; padding-bottom: 8px; display: flex; align-items: center; border-bottom: 1px solid var(--border-color); color: var(--text-primary);">
+                                <span class="icon" style="margin-right: 10px; color: var(--primary-color); display: inline-flex;"><i class="fa-solid fa-dna" style="font-size: 1.1rem;"></i></span>Classificação científica
+                            </h3>
+                            <div class="classification-grid" style="display: flex; flex-direction: column; gap: 8px; font-size: 0.95rem;">
+                                ${animalData.reino ? `<div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px;"><strong style="color: var(--text-secondary);">Reino:</strong> <span style="color: var(--text-primary); font-weight: 500;">${escapeHtml(animalData.reino)}</span></div>` : ''}
+                                ${animalData.filo ? `<div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px;"><strong style="color: var(--text-secondary);">Filo:</strong> <span style="color: var(--text-primary); font-weight: 500;">${escapeHtml(animalData.filo)}</span></div>` : ''}
+                                ${animalData.subfilo ? `<div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px;"><strong style="color: var(--text-secondary);">Subfilo:</strong> <span style="color: var(--text-primary); font-weight: 500;">${escapeHtml(animalData.subfilo)}</span></div>` : ''}
+                                ${animalData.classe ? `<div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px;"><strong style="color: var(--text-secondary);">Classe:</strong> <span style="color: var(--text-primary); font-weight: 500;">${escapeHtml(animalData.classe)}</span></div>` : ''}
+                                ${animalData.ordem ? `<div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px;"><strong style="color: var(--text-secondary);">Ordem:</strong> <span style="color: var(--text-primary); font-weight: 500;">${escapeHtml(animalData.ordem)}</span></div>` : ''}
+                                ${animalData.subordem ? `<div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px;"><strong style="color: var(--text-secondary);">Subordem:</strong> <span style="color: var(--text-primary); font-weight: 500;">${escapeHtml(animalData.subordem)}</span></div>` : ''}
+                                ${animalData.familia ? `<div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px;"><strong style="color: var(--text-secondary);">Família:</strong> <span style="color: var(--text-primary); font-weight: 500;">${escapeHtml(animalData.familia)}</span></div>` : ''}
+                                ${animalData.genero ? `<div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px;"><strong style="color: var(--text-secondary);">Género:</strong> <span style="color: var(--text-primary); font-weight: 500; font-style: italic;">${escapeHtml(animalData.genero)}</span></div>` : ''}
+                                ${animalData.especie ? `<div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px;"><strong style="color: var(--text-secondary);">Espécie:</strong> <span style="color: var(--text-primary); font-weight: 500; font-style: italic;">${escapeHtml(animalData.especie)}</span></div>` : ''}
+                                ${(Array.isArray(animalData.subespeciesDe) && animalData.subespeciesDe.length > 0) ? `
+                                <div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px;">
+                                    <strong style="color: var(--text-secondary);">Subespécie de:</strong>
+                                    <span id="subespecies-names" style="color: var(--text-primary); font-weight: 500;">Carregando...</span>
+                                </div>` : ''}
+                            </div>
+                        </div>
+                        ` : ''}
                         <div id="related-animals-container"></div>
                     </div>
                     
@@ -1205,6 +1228,28 @@
                     });
                     namesSpan.textContent = countryNames.length > 0 ? countryNames.join(', ') : 'Nenhum país selecionado.';
                 });
+            }
+
+            // Carregar nomes das subespécies de
+            if (Array.isArray(animalData.subespeciesDe) && animalData.subespeciesDe.length > 0) {
+                const namesContainer = document.getElementById('subespecies-names');
+                if (namesContainer) {
+                    Promise.all(animalData.subespeciesDe.map(async (parentId) => {
+                        try {
+                            const parentDoc = await getDoc(doc(db, "animais", parentId));
+                            if (parentDoc.exists()) {
+                                const data = parentDoc.data();
+                                return `<a href="animal.html?id=${parentId}" style="color: var(--primary-color); text-decoration: underline;">${escapeHtml(data.nome)}</a>`;
+                            }
+                        } catch (e) {
+                            console.error(e);
+                        }
+                        return null;
+                    })).then(links => {
+                        const validLinks = links.filter(Boolean);
+                        namesContainer.innerHTML = validLinks.length > 0 ? validLinks.join(', ') : 'Desconhecido';
+                    });
+                }
             }
 
             document.querySelectorAll('.thumbnail').forEach(thumb => {
