@@ -13,7 +13,7 @@
     <meta name="apple-mobile-web-app-title" content="Animais">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <!-- CSS Global -->
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/style.css?v=1.0.2">
     <!-- jsVectorMap -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsvectormap/dist/css/jsvectormap.min.css">
     <script src="https://cdn.jsdelivr.net/npm/jsvectormap"></script>
@@ -226,11 +226,12 @@
 
         function renderDimensionModelCard(item) {
             const meta = getDimensionVisualMeta(item.tipo);
+            const genderSymbol = item.genero === 'M' ? '<span style="color: #3b82f6; margin-left: 4px; font-weight: bold;">♂</span>' : (item.genero === 'F' ? '<span style="color: #ec4899; margin-left: 4px; font-weight: bold;">♀</span>' : '');
             return `
                 <article class="dimension-model-card ${meta.accent}">
                     <div class="dimension-model-icon">${getMetricModelSvg(meta.key)}</div>
                     <div class="dimension-model-copy">
-                        <div class="dimension-model-label">${escapeHtml(meta.title)}</div>
+                        <div class="dimension-model-label">${escapeHtml(meta.title)}${genderSymbol}</div>
                         <div class="dimension-model-value">${formatDimension(item, '—')}</div>
                     </div>
                 </article>`;
@@ -332,11 +333,12 @@
                         : matingMeta
                             ? getMatingSystemSvg(matingMeta.key)
                             : getGeneralModelSvg(meta.key);
+            const genderSymbol = item.genero === 'M' ? '<span style="color: #3b82f6; margin-left: 4px; font-weight: bold;">♂</span>' : (item.genero === 'F' ? '<span style="color: #ec4899; margin-left: 4px; font-weight: bold;">♀</span>' : '');
             return `
                 <article class="dimension-model-card general-model-card ${climateMeta?.accent || habitatMeta?.accent || strategyMeta?.accent || matingMeta?.accent || meta.accent}">
                     <div class="dimension-model-icon ${climateMeta || habitatMeta ? 'climate-zone-model-icon' : ''}">${icon}</div>
                     <div class="dimension-model-copy">
-                        <div class="dimension-model-label">${escapeHtml(meta.title)}</div>
+                        <div class="dimension-model-label">${escapeHtml(meta.title)}${genderSymbol}</div>
                         <div class="dimension-model-value">${formatGeneralVisualValue(item)}</div>
                     </div>
                 </article>`;
@@ -857,6 +859,18 @@
             const validQuickData = Array.isArray(models) ? models.filter(item => item.tipo && (item.valor || item.valorMin || item.valorMax) && !isEnv(item)) : [];
             const envQuickData = Array.isArray(models) ? models.filter(item => item.tipo && (item.valor || item.valorMin || item.valorMax) && isEnv(item)) : [];
 
+            const allItems = [...validDimensoes, ...validQuickData];
+            const genders = new Set(allItems.map(item => item.genero).filter(Boolean));
+            let genderIconsHTML = '';
+            if (genders.has('M') && genders.has('F')) {
+                genderIconsHTML = `
+                    <span class="info-gender-icons" style="margin-left: 12px; display: inline-flex; gap: 6px; align-items: center; vertical-align: middle;">
+                        <span style="color: #3b82f6; background: rgba(59, 130, 246, 0.15); padding: 2px 8px; border-radius: 6px; font-weight: bold; border: 1px solid rgba(59, 130, 246, 0.3); font-size: 0.85rem;">♂</span>
+                        <span style="color: #ec4899; background: rgba(236, 72, 153, 0.15); padding: 2px 8px; border-radius: 6px; font-weight: bold; border: 1px solid rgba(236, 72, 153, 0.3); font-size: 0.85rem;">♀</span>
+                    </span>
+                `;
+            }
+
             const horizontalMetricsHTML = (validDimensoes.length > 0 || validQuickData.length > 0) ? `
                 <div class="metrics-horizontal-bar desktop-only">
                     ${validDimensoes.map(renderDimensionModelCard).join('')}
@@ -973,7 +987,7 @@
                             const cardsHTML = sorted.map(item => item.isDimension ? renderDimensionModelCard(item) : renderGeneralVisualCard(item)).join('');
                             return `
                             <div class="info-section-card" id="info-modelos-visuais">
-                                <h3><span class="icon svg-icon">${getInfoSectionIconSvg('geral')}</span>Informações</h3>
+                                <h3><span class="icon svg-icon">${getInfoSectionIconSvg('geral')}</span>Informações${genderIconsHTML}</h3>
                                 <div class="visual-models-grid" style="display: flex; flex-direction: column; gap: 14px;">
                                     ${cardsHTML}
                                 </div>

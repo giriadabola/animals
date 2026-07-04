@@ -19,7 +19,7 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- CSS Global -->
-    <link rel="stylesheet" href="css/style.css?v=1.0.1">
+    <link rel="stylesheet" href="css/style.css?v=1.0.2">
     <!-- jsVectorMap -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsvectormap/dist/css/jsvectormap.min.css">
     <script src="https://cdn.jsdelivr.net/npm/jsvectormap"></script>
@@ -577,6 +577,31 @@
                 gap: 15px !important;
             }
         }
+
+        /* Direct Overrides to Bypass Cache */
+        .container {
+            max-width: 1080px !important;
+        }
+        .dimension-row-header,
+        .dimension-row {
+            grid-template-columns: 1.3fr 0.55fr 0.55fr 0.65fr 0.6fr 42px !important;
+        }
+        .general-visual-row-header,
+        .general-visual-row {
+            grid-template-columns: minmax(110px, 1.4fr) minmax(50px, 0.8fr) minmax(50px, 0.8fr) minmax(64px, 0.8fr) minmax(50px, 0.7fr) 42px !important;
+        }
+        @media (max-width: 900px) {
+            .general-visual-row-header,
+            .general-visual-row {
+                grid-template-columns: minmax(110px, 1.2fr) repeat(4, minmax(44px, 0.6fr)) 42px !important;
+            }
+        }
+        @media (max-width: 800px) {
+            .dimension-row-header,
+            .dimension-row {
+                grid-template-columns: 1fr 0.6fr 0.6fr 0.65fr 0.6fr 38px !important;
+            }
+        }
     </style>
 </head>
 <body class="form-light">
@@ -777,6 +802,7 @@
                                             <span>Mín.</span>
                                             <span>Máx.</span>
                                             <span>Unidade</span>
+                                            <span>Género</span>
                                         </div>
                                         <div id="generalVisualRows" class="general-visual-rows"></div>
                                         <datalist id="feedingStrategyOptions">
@@ -896,6 +922,7 @@
                                             <span>Mín.</span>
                                             <span>Máx.</span>
                                             <span>Unidade</span>
+                                            <span>Género</span>
                                         </div>
                                         <div id="dimensionRows" class="dimension-rows"></div>
                                         <button type="button" id="addDimensionBtn" class="secondary-action-btn">+ Adicionar medida</button>
@@ -1952,7 +1979,7 @@
             });
         }
 
-        function createDimensionRow(metric = '', minValue = '', unit = '', maxValue = '') {
+        function createDimensionRow(metric = '', minValue = '', unit = '', maxValue = '', gender = 'M') {
             const row = document.createElement('div');
             row.className = 'dimension-row';
 
@@ -1982,6 +2009,14 @@
             unitSelect.innerHTML = dimensionUnits.map(u => `<option value="${u}">${u}</option>`).join('');
             unitSelect.value = unit || getDimensionOption(metric)?.unit || 'cm';
 
+            const genderSelect = document.createElement('select');
+            genderSelect.className = 'dimension-gender';
+            genderSelect.innerHTML = `
+                <option value="M">♂</option>
+                <option value="F">♀</option>
+            `;
+            genderSelect.value = gender || 'M';
+
             const removeBtn = document.createElement('button');
             removeBtn.type = 'button';
             removeBtn.className = 'remove-dimension-btn';
@@ -1999,13 +2034,14 @@
                 unitSelect.dataset.userChanged = 'true';
                 updateDimensionPreview();
             });
+            genderSelect.addEventListener('change', updateDimensionPreview);
             removeBtn.addEventListener('click', () => {
                 row.remove();
                 if (dimensionRowsContainer.children.length === 0) createDimensionRow();
                 updateDimensionPreview();
             });
 
-            row.append(metricSelect, minInput, maxInput, unitSelect, removeBtn);
+            row.append(metricSelect, minInput, maxInput, unitSelect, genderSelect, removeBtn);
             dimensionRowsContainer.appendChild(row);
             updateDimensionPreview();
         }
@@ -2020,7 +2056,8 @@
                         valor: min,
                         valorMin: min,
                         valorMax: max,
-                        unidade: row.querySelector('.dimension-unit').value
+                        unidade: row.querySelector('.dimension-unit').value,
+                        genero: row.querySelector('.dimension-gender')?.value || 'M'
                     };
                 })
                 .filter(item => item.tipo && (item.valorMin || item.valorMax));
@@ -2029,14 +2066,15 @@
         function setDimensionData(dimensions = []) {
             dimensionRowsContainer.innerHTML = '';
             if (!Array.isArray(dimensions) || dimensions.length === 0) {
-                getDefaultDimensionsForCategory().forEach(item => createDimensionRow(item.tipo, '', item.unidade, ''));
+                getDefaultDimensionsForCategory().forEach(item => createDimensionRow(item.tipo, '', item.unidade, '', item.genero || 'M'));
                 return;
             }
             dimensions.forEach(item => createDimensionRow(
                 item.tipo,
                 item.valorMin ?? item.valor ?? '',
                 item.unidade,
-                item.valorMax ?? ''
+                item.valorMax ?? '',
+                item.genero || 'M'
             ));
             updateDimensionPreview();
         }
@@ -2280,7 +2318,7 @@
             maxInput.placeholder = type && type.includes('Velocidade') ? 'Ex: 80' : 'Ex: 15';
         }
 
-        function createGeneralVisualRow(type = '', minValue = '', unit = '', maxValue = '') {
+        function createGeneralVisualRow(type = '', minValue = '', unit = '', maxValue = '', gender = 'M') {
             const row = document.createElement('div');
             row.className = 'general-visual-row';
 
@@ -2330,6 +2368,14 @@
             unitSelect.value = unit || getGeneralVisualOption(type)?.unidade || 'anos';
             configureGeneralVisualRowControls(type, minInput, maxInput, unitSelect, strategySelect);
 
+            const genderSelect = document.createElement('select');
+            genderSelect.className = 'general-visual-gender';
+            genderSelect.innerHTML = `
+                <option value="M">♂</option>
+                <option value="F">♀</option>
+            `;
+            genderSelect.value = gender || 'M';
+
             const removeBtn = document.createElement('button');
             removeBtn.type = 'button';
             removeBtn.className = 'remove-dimension-btn';
@@ -2350,13 +2396,14 @@
                 unitSelect.dataset.userChanged = 'true';
                 updateGeneralVisualPreview();
             });
+            genderSelect.addEventListener('change', updateGeneralVisualPreview);
             removeBtn.addEventListener('click', () => {
                 row.remove();
                 if (generalVisualRowsContainer.children.length === 0) setGeneralVisualData();
                 updateGeneralVisualPreview();
             });
 
-            row.append(typeSelect, minInput, strategySelect, maxInput, unitSelect, removeBtn);
+            row.append(typeSelect, minInput, strategySelect, maxInput, unitSelect, genderSelect, removeBtn);
             generalVisualRowsContainer.appendChild(row);
             updateGeneralVisualPreview();
         }
@@ -2375,7 +2422,8 @@
                         valor: min,
                         valorMin: min,
                         valorMax: max,
-                        unidade: isStrategy ? '' : (row.querySelector('.general-visual-unit')?.value || '')
+                        unidade: isStrategy ? '' : (row.querySelector('.general-visual-unit')?.value || ''),
+                        genero: row.querySelector('.general-visual-gender')?.value || 'M'
                     };
                 })
                 .filter(item => item.tipo && (item.valorMin || item.valorMax || item.valor));
@@ -2386,7 +2434,7 @@
             if (!Array.isArray(items) || items.length === 0) {
                 generalVisualOptions.forEach(option => {
                     if (option.tipo !== 'Velocidade média' && option.tipo !== 'Força da mordida') {
-                        createGeneralVisualRow(option.tipo, '', option.unidade, '');
+                        createGeneralVisualRow(option.tipo, '', option.unidade, '', option.genero || 'M');
                     }
                 });
                 updateGeneralVisualPreview();
@@ -2396,7 +2444,8 @@
                 item.tipo || '',
                 item.valorMin ?? item.valor ?? '',
                 item.unidade || getGeneralVisualOption(item.tipo)?.unidade || '',
-                item.valorMax ?? ''
+                item.valorMax ?? '',
+                item.genero || 'M'
             ));
             updateGeneralVisualPreview();
         }
