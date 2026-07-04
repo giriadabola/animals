@@ -337,13 +337,95 @@
 
         /* Responsividade para telas menores */
         @media (max-width: 900px) {
+            /* Ocultar o texto do logo (Grandes Projetos) */
+            .global-header .logo-text {
+                display: none !important;
+            }
+            
+            /* Ocultar o ícone da pata */
+            .global-header .logo-emoji .fa-paw {
+                display: none !important;
+            }
+            
+            /* Mostrar ícone de início/home */
+            .global-header .logo-emoji::after {
+                content: "\f015" !important;
+                font-family: "Font Awesome 6 Free" !important;
+                font-weight: 900 !important;
+                font-size: 1.3rem !important;
+                display: inline-block !important;
+            }
+            
+            /* Ocultar o atalho "Gerir Portal" */
+            #nav-link-gerir-portal {
+                display: none !important;
+            }
+            
+            /* Ajustar altura e espaçamento do cabeçalho */
+            .global-header {
+                height: 60px !important;
+            }
+            
+            .global-header .header-container {
+                padding: 0 15px !important;
+            }
+            
+            /* Centralizar e formatar as estatísticas */
+            #header-center-info {
+                display: flex !important;
+                margin: 0 auto !important;
+            }
+            
+            #header-center-info span {
+                padding: 6px 12px !important;
+                font-size: 0.8rem !important;
+            }
+
+            /* Barra abaixo do cabeçalho (segunda barra) no telemóvel */
             .top-menu {
-                position: relative !important;
-                top: 0 !important;
-                right: 0 !important;
-                margin: 20px auto 10px auto !important;
+                position: absolute !important;
+                top: 80px !important;
+                left: 50% !important;
+                transform: translateX(-50%) !important;
+                width: calc(100% - 20px) !important;
+                background: rgba(9, 9, 20, 0.5) !important;
+                backdrop-filter: blur(20px) saturate(180%) !important;
+                -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+                border: 1px solid var(--border-color) !important;
+                padding: 8px 12px !important;
+                display: flex !important;
+                justify-content: space-around !important;
+                gap: 12px !important;
+                z-index: 999 !important;
+                margin: 0 !important;
+                border-radius: var(--border-radius) !important;
+                box-shadow: var(--shadow-md) !important;
+            }
+            
+            .top-menu .menu-button {
+                flex: 1 !important;
+                text-align: center !important;
                 justify-content: center !important;
-                width: 100% !important;
+                font-size: 0.85rem !important;
+                padding: 10px !important;
+                margin: 0 !important;
+                white-space: nowrap !important;
+            }
+            
+            /* Ajustar margem superior para o formulário começar depois das duas barras */
+            .container {
+                margin-top: 155px !important;
+                margin-bottom: 20px !important;
+            }
+
+            /* Forçar empilhamento vertical de todos os layouts de abas no telemóvel/tablet */
+            .general-visual-layout,
+            .dimensions-layout,
+            .feeding-layout,
+            .reproduction-layout,
+            .plumage-layout {
+                grid-template-columns: 1fr !important;
+                gap: 20px !important;
             }
         }
     </style>
@@ -401,7 +483,7 @@
 
     <div class="top-menu">
         <a href="gestor-index.html" class="menu-button"><i class="fa-solid fa-list-check" style="margin-right: 8px;"></i> Gestor do Index</a>
-        <button id="openEditModalBtn" class="menu-button" disabled>A carregar...</button>
+        <button id="openEditModalBtn" class="menu-button" disabled><i class="fa-solid fa-spinner fa-spin" style="margin-right: 8px;"></i> A carregar...</button>
     </div>
 
     <div class="container">
@@ -3039,10 +3121,10 @@
                 countryList = await countriesRes.json();
                 
                 openEditModalBtn.disabled = false;
-                openEditModalBtn.textContent = 'Procurar Animal p/ Editar';
+                openEditModalBtn.innerHTML = '<i class="fa-solid fa-magnifying-glass" style="margin-right: 8px;"></i> Procurar p/ Editar';
             } catch (error) {
                 console.error("Erro fatal na inicialização:", error);
-                openEditModalBtn.textContent = 'Erro ao Carregar';
+                openEditModalBtn.innerHTML = '<i class="fa-solid fa-circle-exclamation" style="margin-right: 8px;"></i> Erro';
             }
         }
 

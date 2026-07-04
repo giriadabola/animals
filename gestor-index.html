@@ -282,6 +282,31 @@
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
+
+        /* Substituir o ícone da pata pelo ícone de início no cabeçalho */
+        .global-header .logo-emoji .fa-paw {
+            display: none !important;
+        }
+        .global-header .logo-emoji::after {
+            content: "\f015" !important;
+            font-family: "Font Awesome 6 Free" !important;
+            font-weight: 900 !important;
+            font-size: 1.3rem !important;
+            display: inline-block !important;
+            color: var(--primary-color) !important;
+        }
+
+        /* Ocultar o atalho "Gerir Portal" */
+        #nav-link-gerir-portal {
+            display: none !important;
+        }
+
+        @media (max-width: 900px) {
+            /* Ocultar o texto do logo em mobile */
+            .global-header .logo-text {
+                display: none !important;
+            }
+        }
     </style>
 </head>
 <body>
