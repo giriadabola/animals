@@ -1,0 +1,92 @@
+const CACHE_NAME = 'animals-admin-v1.0.0';
+const ASSETS_TO_CACHE = [
+  './form.html',
+  './gestor-index.html',
+  './login.html',
+  './css/style.css',
+  './js/firebase-config.js',
+  './js/loader.js',
+  './js/countries.json',
+  './js/feeding-animal-options.js',
+  './js/feeding-strategies.js',
+  './js/feeding-visuals.js',
+  './js/mating-systems.js',
+  './assets/logos/admin/manifest.webmanifest',
+  './assets/logos/admin/favicon.ico',
+  './assets/logos/admin/apple-touch-icon.png',
+  './assets/logos/admin/logo-admin-512.png',
+  './assets/logos/admin/logo-admin-1024.png',
+  'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css',
+  'https://cdn.jsdelivr.net/npm/jsvectormap/dist/css/jsvectormap.min.css',
+  'https://cdn.jsdelivr.net/npm/jsvectormap',
+  'https://cdn.jsdelivr.net/npm/jsvectormap/dist/maps/world.js'
+];
+
+// Instalar e armazenar em cache os recursos estáticos
+self.addEventListener('install', (event) => {
+  event.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => {
+      return cache.addAll(ASSETS_TO_CACHE);
+    })
+  );
+  self.skipWaiting();
+});
+
+// Limpar caches antigos
+self.addEventListener('activate', (event) => {
+  event.waitUntil(
+    caches.keys().then((cacheNames) => {
+      return Promise.all(
+        cacheNames.map((cache) => {
+          if (cache !== CACHE_NAME && cache.startsWith('animals-admin-')) {
+            return caches.delete(cache);
+          }
+        })
+      );
+    })
+  );
+  self.clients.claim();
+});
+
+// Intercetar pedidos de rede
+self.addEventListener('fetch', (event) => {
+  // Ignorar pedidos que não sejam GET e requisições do Firebase/Firestore
+  if (
+    event.request.method !== 'GET' || 
+    event.request.url.includes('firestore.googleapis.com') || 
+    event.request.url.includes('firebase')
+  ) {
+    return;
+  }
+  
+  event.respondWith(
+    caches.match(event.request, { ignoreSearch: true }).then((cachedResponse) => {
+      if (cachedResponse) {
+        // Padrão Stale-While-Revalidate: serve do cache e atualiza em background
+        fetch(event.request).then((response) => {
+          if (response.status === 200) {
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, response));
+          }
+        }).catch(() => {/* Ignorar erro de fetch em background */});
+        
+        return cachedResponse;
+      }
+      
+      return fetch(event.request).then((response) => {
+        if (!response || response.status !== 200 || response.type !== 'basic') {
+          return response;
+        }
+        const responseToCache = response.clone();
+        caches.open(CACHE_NAME).then((cache) => {
+          cache.put(event.request, responseToCache);
+        });
+        return response;
+      }).catch(() => {
+        // Redirecionar para form.html em caso de falha de navegação offline
+        if (event.request.mode === 'navigate') {
+          return caches.match('./form.html');
+        }
+      });
+    })
+  );
+});
