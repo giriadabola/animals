@@ -4,6 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Categoria - Grandes Projetos</title>
+    <!-- PWA Config -->
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="icon" href="assets/logos/favicon.ico">
+    <link rel="apple-touch-icon" href="assets/logos/apple-touch-icon.png">
+    <meta name="theme-color" content="#0b3022">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="Animais">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- CSS Global -->
@@ -147,6 +155,16 @@
         });
 
         loadCategoryPage();
+    </script>
+    <!-- Service Worker PWA -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(reg => console.log('Service Worker registrado com sucesso:', reg.scope))
+                    .catch(err => console.log('Erro ao registrar o Service Worker:', err));
+            });
+        }
     </script>
 </body>
 </html>

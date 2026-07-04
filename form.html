@@ -524,14 +524,19 @@
                                             <option value="Montanhosa / Alpina"></option>
                                         </datalist>
                                         <datalist id="habitatOptions">
+                                            <option value="Áreas rochosas"></option>
                                             <option value="Bosque"></option>
                                             <option value="Calota de gelo"></option>
                                             <option value="Caverna"></option>
                                             <option value="Chaparral"></option>
+                                            <option value="Costa"></option>
                                             <option value="Duna"></option>
                                             <option value="Estepe"></option>
                                             <option value="Fauna urbana"></option>
+                                            <option value="Floresta"></option>
                                             <option value="Marinho"></option>
+                                            <option value="Marinho (corais)"></option>
+                                            <option value="Matagal"></option>
                                             <option value="Montanha"></option>
                                             <option value="Pântano"></option>
                                             <option value="Pradaria"></option>
@@ -2073,20 +2078,25 @@
         function getHabitatMeta(value = '') {
             const normalized = normalizeSearchText(value);
             const habitats = {
+                areas_rochosas: { image: 'assets/habitats/15_Areas_Rochosas.png', accent: 'accent-habitat-areas-rochosas' },
                 bosque: { image: 'assets/habitats/03_Bosque.png', accent: 'accent-habitat-bosque' },
                 calota_de_gelo: { image: 'assets/habitats/07_Calota_de_Gelo.png', accent: 'accent-habitat-calota-gelo' },
                 caverna: { image: 'assets/habitats/05_Caverna.png', accent: 'accent-habitat-caverna' },
                 chaparral: { image: 'assets/habitats/10_Chaparral.png', accent: 'accent-habitat-chaparral' },
+                costa: { image: 'assets/habitats/14_Costa.png', accent: 'accent-habitat-costa' },
                 duna: { image: 'assets/habitats/06_Duna.png', accent: 'accent-habitat-duna' },
                 estepe: { image: 'assets/habitats/09_Estepe.png', accent: 'accent-habitat-estepe' },
                 fauna_urbana: { image: 'assets/habitats/12_Fauna_Urbana.png', accent: 'accent-habitat-fauna-urbana' },
+                floresta: { image: 'assets/habitats/16_Floresta.png', accent: 'accent-habitat-floresta' },
                 marinho: { image: 'assets/habitats/01_Marinho.png', accent: 'accent-habitat-marinho' },
+                marinho_corais: { image: 'assets/habitats/13_Marinho_corais.png', accent: 'accent-habitat-marinho-corais' },
+                matagal: { image: 'assets/habitats/17_Matagal.png', accent: 'accent-habitat-matagal' },
                 montanha: { image: 'assets/habitats/11_Montanha.png', accent: 'accent-habitat-montanha' },
                 pantano: { image: 'assets/habitats/04_Pantano.png', accent: 'accent-habitat-pantano' },
                 pradaria: { image: 'assets/habitats/08_Pradaria.png', accent: 'accent-habitat-pradaria' },
                 savana: { image: 'assets/habitats/02_Savana.png', accent: 'accent-habitat-savana' }
             };
-            const key = normalized.replace(/\s+/g, '_');
+            const key = normalized.replace(/[^a-z0-9_]+/g, '_').replace(/\s+/g, '_').replace(/__+/g, '_').replace(/^_|_$/g, '');
             return habitats[key] || null;
         }
 
