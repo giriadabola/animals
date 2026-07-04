@@ -290,7 +290,12 @@
                 montanha: { image: 'assets/habitats/11_Montanha.png', accent: 'accent-habitat-montanha' },
                 pantano: { image: 'assets/habitats/04_Pantano.png', accent: 'accent-habitat-pantano' },
                 pradaria: { image: 'assets/habitats/08_Pradaria.png', accent: 'accent-habitat-pradaria' },
-                savana: { image: 'assets/habitats/02_Savana.png', accent: 'accent-habitat-savana' }
+                savana: { image: 'assets/habitats/02_Savana.png', accent: 'accent-habitat-savana' },
+                floresta: { image: 'assets/habitats/16_Floresta.png', accent: 'accent-habitat-floresta' },
+                matagal: { image: 'assets/habitats/17_Matagal.png', accent: 'accent-habitat-matagal' },
+                costa: { image: 'assets/habitats/14_Costa.png', accent: 'accent-habitat-costa' },
+                areas_rochosas: { image: 'assets/habitats/15_Areas_Rochosas.png', accent: 'accent-habitat-areas-rochosas' },
+                marinho_corais: { image: 'assets/habitats/13_Marinho_corais.png', accent: 'accent-habitat-marinho-corais' }
             };
             return habitats[normalized] || null;
         }
@@ -339,22 +344,34 @@
 
         function renderGeneralVisual(animalData) {
             const models = animalData.informacao?.geralDetalhada || [];
-            const valid = Array.isArray(models) ? models.filter(item => item.tipo && (item.valor || item.valorMin || item.valorMax) && !normalizeDimensionKey(item.tipo).includes('zona') && !normalizeDimensionKey(item.tipo).includes('habitat')) : [];
-            const climateBadge = renderClimateZoneBadge(animalData);
-            const habitatBadge = renderHabitatBadge(animalData);
-            if (!valid.length && !climateBadge && !habitatBadge) return '';
+            const isEnv = item => normalizeDimensionKey(item.tipo).includes('zona') || normalizeDimensionKey(item.tipo).includes('habitat');
+            const valid = Array.isArray(models) ? models.filter(item => item.tipo && (item.valor || item.valorMin || item.valorMax) && !isEnv(item)) : [];
+            const envItems = Array.isArray(models) ? models.filter(item => item.tipo && (item.valor || item.valorMin || item.valorMax) && isEnv(item)) : [];
 
-            return `
+            let html = '';
+            if (valid.length) {
+                html += `
                 <div class="general-visual-card">
                     <div class="general-visual-title">
                         <strong>Dados rápidos</strong>
                     </div>
-                    ${climateBadge}
-                    ${habitatBadge}
                     <div class="general-visual-models">
                         ${valid.map(renderGeneralVisualCard).join('')}
                     </div>
                 </div>`;
+            }
+            if (envItems.length) {
+                html += `
+                <div class="general-visual-card" style="margin-top: 15px;">
+                    <div class="general-visual-title">
+                        <strong>Zona Climática & Habitat</strong>
+                    </div>
+                    <div class="general-visual-models">
+                        ${envItems.map(renderGeneralVisualCard).join('')}
+                    </div>
+                </div>`;
+            }
+            return html;
         }
 
         function renderClimateZoneBadge(animalData) {
@@ -836,7 +853,9 @@
             const validDimensoes = Array.isArray(dimensoes) ? dimensoes.filter(item => item.tipo && (item.valor || item.valorMin || item.valorMax)) : [];
 
             const models = animalData.informacao?.geralDetalhada || [];
-            const validQuickData = Array.isArray(models) ? models.filter(item => item.tipo && (item.valor || item.valorMin || item.valorMax) && !normalizeDimensionKey(item.tipo).includes('zona') && !normalizeDimensionKey(item.tipo).includes('habitat')) : [];
+            const isEnv = item => normalizeDimensionKey(item.tipo).includes('zona') || normalizeDimensionKey(item.tipo).includes('habitat');
+            const validQuickData = Array.isArray(models) ? models.filter(item => item.tipo && (item.valor || item.valorMin || item.valorMax) && !isEnv(item)) : [];
+            const envQuickData = Array.isArray(models) ? models.filter(item => item.tipo && (item.valor || item.valorMin || item.valorMax) && isEnv(item)) : [];
 
             const horizontalMetricsHTML = (validDimensoes.length > 0 || validQuickData.length > 0) ? `
                 <div class="metrics-horizontal-bar desktop-only">
@@ -938,14 +957,12 @@
                             </div>`;
                         })() : ''}
 
-                        ${renderClimateZoneBadge(animalData) ? `
-                        <div class="info-section-card" id="info-zona-climatica">
-                            ${renderClimateZoneBadge(animalData)}
-                        </div>` : ''}
-
-                        ${renderHabitatBadge(animalData) ? `
-                        <div class="info-section-card" id="info-habitat">
-                            ${renderHabitatBadge(animalData)}
+                        ${envQuickData.length > 0 ? `
+                        <div class="info-section-card" id="info-ambiente" style="margin-top: 20px;">
+                            <h3><span class="icon svg-icon">${getInfoSectionIconSvg('distribuicao')}</span>Zona Climática & Habitat</h3>
+                            <div class="visual-models-grid" style="display: flex; flex-direction: column; gap: 14px;">
+                                ${envQuickData.map(renderGeneralVisualCard).join('')}
+                            </div>
                         </div>` : ''}
                     </div>
                 </div>
