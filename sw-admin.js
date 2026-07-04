@@ -1,4 +1,4 @@
-const CACHE_NAME = 'animals-admin-v1.0.0';
+const CACHE_NAME = 'animals-admin-v1.0.1';
 const ASSETS_TO_CACHE = [
   './form.html',
   './gestor-index.html',
@@ -59,6 +59,27 @@ self.addEventListener('fetch', (event) => {
     return;
   }
   
+  // Estratégia Network-First para navegação (HTML) para obter sempre o mais recente se online
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      fetch(event.request).then((response) => {
+        if (response.status === 200) {
+          const responseToCache = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseToCache));
+        }
+        return response;
+      }).catch(() => {
+        return caches.match(event.request, { ignoreSearch: true }).then((cachedResponse) => {
+          if (cachedResponse) {
+            return cachedResponse;
+          }
+          return caches.match('./form.html');
+        });
+      })
+    );
+    return;
+  }
+  
   event.respondWith(
     caches.match(event.request, { ignoreSearch: true }).then((cachedResponse) => {
       if (cachedResponse) {
@@ -81,11 +102,6 @@ self.addEventListener('fetch', (event) => {
           cache.put(event.request, responseToCache);
         });
         return response;
-      }).catch(() => {
-        // Redirecionar para form.html em caso de falha de navegação offline
-        if (event.request.mode === 'navigate') {
-          return caches.match('./form.html');
-        }
       });
     })
   );

@@ -17,9 +17,13 @@
     <!-- CSS Global -->
     <link rel="stylesheet" href="css/style.css">
     <style>
+        body {
+            padding-top: 0 !important;
+        }
+
         .settings-container {
             max-width: 900px;
-            margin: 40px auto;
+            margin: 10px auto 40px auto;
             background: var(--bg-card);
             border: 1px solid var(--border-color);
             border-radius: var(--border-radius-lg);
@@ -283,7 +287,7 @@
             to { transform: rotate(360deg); }
         }
 
-        /* Substituir o ícone da pata pelo ícone de início no cabeçalho */
+        /* Substituir o Ã­cone da pata pelo Ã­cone de inÃ­cio no cabeÃ§alho */
         .global-header .logo-emoji .fa-paw {
             display: none !important;
         }
@@ -360,11 +364,14 @@
         });
     </script>
 
-    <main style="padding: 20px;">
+    <main style="padding: 10px 20px 20px 20px;">
         <div class="settings-container">
             <div class="settings-header">
                 <h1>Gestor de Secções do Index</h1>
-                <a href="form.html" class="back-btn"><i class="fa-solid fa-arrow-left"></i> Painel de Gestão</a>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <a href="index.html" class="back-btn"><i class="fa-solid fa-house"></i> Início</a>
+                    <a href="form.html" class="back-btn"><i class="fa-solid fa-arrow-left"></i> Painel de Gestão</a>
+                </div>
             </div>
 
             <div class="settings-list" id="settingsList">
@@ -396,7 +403,7 @@
             },
             "zona-climatica": {
                 title: "Zona climática",
-                desc: "Agrupa animais pelas suas preferências climáticas (Tropical, Polar, Desértica, etc.)."
+                desc: "Agrupa animais pelas suas preferÃªncias climÃ¡ticas (Tropical, Polar, DesÃ©rtica, etc.)."
             },
             "categoria": {
                 title: "Categoria",
@@ -618,7 +625,7 @@
                 }
                 renderSettingsList();
             } catch (error) {
-                console.error("Erro ao carregar definições:", error);
+                console.error("Erro ao carregar definições", error);
                 showStatus("Erro ao carregar as definições do servidor.", "error");
             }
         }
@@ -633,15 +640,7 @@
                 });
                 showStatus("Definições guardadas com sucesso!", "success");
             } catch (error) {
-                console.error("Erro ao guardar definições:", error);
-                showStatus("Erro ao guardar definições no servidor.", "error");
-            }
-        }
-
-        // Move high level item in list
-        function moveItem(index, direction) {
-            const newIndex = index + direction;
-            if (newIndex < 0 || newIndex >= currentOrder.length) return;
+                console.error("Erro ao guardar definições no servidor.length) return;
 
             const temp = currentOrder[index];
             currentOrder[index] = currentOrder[newIndex];
@@ -698,10 +697,12 @@
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('./sw-admin.js')
-                    .then(reg => console.log('Service Worker de Administração registrado:', reg.scope))
-                    .catch(err => console.log('Erro ao registrar o Service Worker de Administração:', err));
+                    .then(reg => console.log('Service Worker de Administração:)
+                    .catch(err => console.log('Erro ao registrar o Service Worker de Administração:);
             });
         }
     </script>
 </body>
 </html>
+
+
