@@ -323,7 +323,7 @@
 
         function renderGeneralVisual(animalData) {
             const models = animalData.informacao?.geralDetalhada || [];
-            const valid = Array.isArray(models) ? models.filter(item => item.tipo && item.valor && !normalizeDimensionKey(item.tipo).includes('zona') && !normalizeDimensionKey(item.tipo).includes('habitat')) : [];
+            const valid = Array.isArray(models) ? models.filter(item => item.tipo && (item.valor || item.valorMin || item.valorMax) && !normalizeDimensionKey(item.tipo).includes('zona') && !normalizeDimensionKey(item.tipo).includes('habitat')) : [];
             const climateBadge = renderClimateZoneBadge(animalData);
             const habitatBadge = renderHabitatBadge(animalData);
             if (!valid.length && !climateBadge && !habitatBadge) return '';
@@ -817,10 +817,10 @@
 
             // Build horizontal metrics bar for desktop
             const dimensoes = animalData.informacao?.dimensoesDetalhadas || [];
-            const validDimensoes = Array.isArray(dimensoes) ? dimensoes.filter(item => item.tipo && item.valor) : [];
+            const validDimensoes = Array.isArray(dimensoes) ? dimensoes.filter(item => item.tipo && (item.valor || item.valorMin || item.valorMax)) : [];
 
             const models = animalData.informacao?.geralDetalhada || [];
-            const validQuickData = Array.isArray(models) ? models.filter(item => item.tipo && item.valor && !normalizeDimensionKey(item.tipo).includes('zona') && !normalizeDimensionKey(item.tipo).includes('habitat')) : [];
+            const validQuickData = Array.isArray(models) ? models.filter(item => item.tipo && (item.valor || item.valorMin || item.valorMax) && !normalizeDimensionKey(item.tipo).includes('zona') && !normalizeDimensionKey(item.tipo).includes('habitat')) : [];
 
             const horizontalMetricsHTML = (validDimensoes.length > 0 || validQuickData.length > 0) ? `
                 <div class="metrics-horizontal-bar desktop-only">
@@ -1095,6 +1095,8 @@
                             map: 'world',
                             regionsSelectable: false,
                             selectedRegions: selectedCodes,
+                            zoomButtons: false,
+                            zoomOnScroll: false,
                             regionStyle: {
                                 initial: {
                                     fill: '#2e2e38',
