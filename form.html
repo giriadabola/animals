@@ -2434,7 +2434,7 @@
                 duna: { image: 'assets/habitats/06_Duna.png', accent: 'accent-habitat-duna' },
                 estepe: { image: 'assets/habitats/09_Estepe.png', accent: 'accent-habitat-estepe' },
                 fauna_urbana: { image: 'assets/habitats/12_Fauna_Urbana.png', accent: 'accent-habitat-fauna-urbana' },
-                floresta: { image: 'assets/habitats/16_Floresta.png', accent: 'accent-habitat-floresta' },
+                floresta: { image: 'assets/habitats/16_floresta.png', accent: 'accent-habitat-floresta' },
                 marinho: { image: 'assets/habitats/01_Marinho.png', accent: 'accent-habitat-marinho' },
                 marinho_corais: { image: 'assets/habitats/13_Marinho_corais.png', accent: 'accent-habitat-marinho-corais' },
                 matagal: { image: 'assets/habitats/17_Matagal.png', accent: 'accent-habitat-matagal' },
@@ -4042,7 +4042,7 @@
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw-admin.js')
+                navigator.serviceWorker.register('./sw-admin.js', { scope: './form.html' })
                     .then(reg => console.log('Service Worker de Administração registrado:', reg.scope))
                     .catch(err => console.log('Erro ao registrar o Service Worker de Administração:', err));
             });
