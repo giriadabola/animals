@@ -21,9 +21,14 @@
 
     <main>
         <div class="category-header">
-            <h1 id="category-title">A carregar categoria... <span id="toggle-icon">▼</span></h1>
+            <h1 id="category-title">A carregar categoria...</h1>
+            <div id="search-bar-container" style="display: none; margin-top: 16px; position: relative;">
+                <input type="text" id="search-input" placeholder="Pesquisar nesta lista..." style="width: 100%; padding: 12px 40px 12px 16px; border-radius: 12px; border: 1px solid var(--border-color); background: rgba(0, 0, 0, 0.25); color: var(--text-primary); font-size: 1rem; outline: none; transition: var(--transition); box-sizing: border-box;">
+                <i class="fa-solid fa-xmark" id="clear-search" style="position: absolute; right: 16px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--text-secondary); font-size: 1.2rem; display: none;"></i>
+            </div>
         </div>
         <div id="animal-list-container"></div>
+        <div class="pagination-container" id="pagination-container"></div>
         <p class="message" id="loading-message">A carregar animais...</p>
     </main>
 
@@ -35,7 +40,16 @@
 
         const categoryTitle = document.getElementById('category-title');
         const listContainer = document.getElementById('animal-list-container');
+        const paginationContainer = document.getElementById('pagination-container');
         const loadingMessage = document.getElementById('loading-message');
+        const searchBarContainer = document.getElementById('search-bar-container');
+        const searchInput = document.getElementById('search-input');
+        const clearSearch = document.getElementById('clear-search');
+
+        const itemsPerPage = 50;
+        let currentPage = 1;
+        let matchedAnimals = [];
+        let filteredAnimals = [];
 
         function createAnimalListItem(animalData, animalId) {
             const card = document.createElement('a');
@@ -53,6 +67,86 @@
             `;
             return card;
         }
+
+        function renderPage(page) {
+            listContainer.innerHTML = '';
+            const startIndex = (page - 1) * itemsPerPage;
+            const endIndex = page * itemsPerPage;
+            const pageItems = filteredAnimals.slice(startIndex, endIndex);
+
+            pageItems.forEach(item => {
+                const listItem = createAnimalListItem(item.data, item.id);
+                listContainer.appendChild(listItem);
+            });
+
+            // Scroll smoothly to top of list container
+            listContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function renderPagination() {
+            paginationContainer.innerHTML = '';
+            const totalPages = Math.ceil(filteredAnimals.length / itemsPerPage);
+
+            if (totalPages <= 1) return;
+
+            for (let i = 1; i <= totalPages; i++) {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = `pagination-btn ${i === currentPage ? 'active' : ''}`;
+                btn.textContent = i;
+                
+                btn.addEventListener('click', () => {
+                    if (i === currentPage) return;
+                    currentPage = i;
+                    
+                    // Update active button classes
+                    document.querySelectorAll('.pagination-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    
+                    renderPage(currentPage);
+                });
+
+                paginationContainer.appendChild(btn);
+            }
+        }
+
+        function handleSearch(queryText) {
+            const normalizedQuery = queryText.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+            if (!normalizedQuery) {
+                filteredAnimals = [...matchedAnimals];
+                clearSearch.style.display = 'none';
+            } else {
+                filteredAnimals = matchedAnimals.filter(item => {
+                    const nome = (item.data.nome || '').normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+                    const nomeCientifico = (item.data.nomeCientifico || '').normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+                    return nome.includes(normalizedQuery) || nomeCientifico.includes(normalizedQuery);
+                });
+                clearSearch.style.display = 'block';
+            }
+            
+            currentPage = 1;
+            renderPage(currentPage);
+            renderPagination();
+        }
+
+        searchInput.addEventListener('input', (e) => {
+            handleSearch(e.target.value);
+        });
+
+        clearSearch.addEventListener('click', () => {
+            searchInput.value = '';
+            handleSearch('');
+            searchInput.focus();
+        });
+
+        searchInput.addEventListener('focus', () => {
+            searchInput.style.borderColor = 'var(--primary-color)';
+            searchInput.style.boxShadow = '0 0 10px var(--primary-glow)';
+        });
+        searchInput.addEventListener('blur', () => {
+            searchInput.style.borderColor = 'var(--border-color)';
+            searchInput.style.boxShadow = 'none';
+        });
 
         const categoryIcons = {
             Mamiferos: '<i class="fa-solid fa-paw"></i>',
@@ -74,7 +168,7 @@
             const categoryName = params.get('category');
 
             if (!categoryName) {
-                categoryTitle.innerHTML = `Erro <span id="toggle-icon">!</span>`;
+                categoryTitle.innerHTML = `Erro`;
                 loadingMessage.textContent = "Nenhuma categoria foi especificada no URL.";
                 return;
             }
@@ -86,8 +180,8 @@
                     ${iconHtml}${categoryName}
                 </span>
                 <span class="title-actions" style="display: flex; align-items: center; gap: 16px;">
+                    <i class="fa-solid fa-magnifying-glass" id="search-toggle-btn" style="font-size: 1.5rem; color: var(--primary-color); cursor: pointer; transition: var(--transition);" title="Pesquisar"></i>
                     <i class="fa-solid fa-table-cells-large" id="view-mode-toggle" style="font-size: 1.5rem; color: var(--primary-color); cursor: pointer; transition: var(--transition);" title="Mudar visualização"></i>
-                    <span id="toggle-icon">▼</span>
                 </span>
             `;
 
@@ -108,6 +202,22 @@
                         headerIcon.style.webkitBackgroundClip = "text";
                         headerIcon.style.webkitTextFillColor = "transparent";
                     }
+                }
+
+                const searchToggleBtn = document.getElementById('search-toggle-btn');
+                if (searchToggleBtn) {
+                    searchToggleBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const isSearchVisible = searchBarContainer.style.display !== 'none';
+                        if (isSearchVisible) {
+                            searchBarContainer.style.display = 'none';
+                            searchInput.value = '';
+                            handleSearch('');
+                        } else {
+                            searchBarContainer.style.display = 'block';
+                            searchInput.focus();
+                        }
+                    });
                 }
 
                 const viewModeToggle = document.getElementById('view-mode-toggle');
@@ -138,21 +248,22 @@
                     listContainer.style.display = 'none';
                 } else {
                     loadingMessage.style.display = 'none';
+                    matchedAnimals = [];
                     querySnapshot.forEach((doc) => {
-                        const listItem = createAnimalListItem(doc.data(), doc.id);
-                        listContainer.appendChild(listItem);
+                        matchedAnimals.push({ data: doc.data(), id: doc.id });
                     });
+
+                    filteredAnimals = [...matchedAnimals];
+                    currentPage = 1;
+                    renderPage(currentPage);
+                    renderPagination();
                 }
             } catch (error) {
                 console.error("Erro ao carregar animais por categoria:", error);
                 loadingMessage.textContent = "Ocorreu um erro ao carregar os dados.";
             }
         }
-        
-        categoryTitle.addEventListener('click', () => {
-            categoryTitle.classList.toggle('is-closed');
-            listContainer.classList.toggle('is-hidden');
-        });
+
 
         loadCategoryPage();
     </script>

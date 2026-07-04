@@ -21,7 +21,11 @@
 
     <main>
         <div class="category-header">
-            <h1 id="category-title">A carregar... <span id="toggle-icon">▼</span></h1>
+            <h1 id="category-title">A carregar...</h1>
+            <div id="search-bar-container" style="display: none; margin-top: 16px; position: relative;">
+                <input type="text" id="search-input" placeholder="Pesquisar nesta lista..." style="width: 100%; padding: 12px 40px 12px 16px; border-radius: 12px; border: 1px solid var(--border-color); background: rgba(0, 0, 0, 0.25); color: var(--text-primary); font-size: 1rem; outline: none; transition: var(--transition); box-sizing: border-box;">
+                <i class="fa-solid fa-xmark" id="clear-search" style="position: absolute; right: 16px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--text-secondary); font-size: 1.2rem; display: none;"></i>
+            </div>
         </div>
         <div id="animal-list-container"></div>
         <div class="pagination-container" id="pagination-container"></div>
@@ -38,10 +42,14 @@
         const listContainer = document.getElementById('animal-list-container');
         const paginationContainer = document.getElementById('pagination-container');
         const loadingMessage = document.getElementById('loading-message');
+        const searchBarContainer = document.getElementById('search-bar-container');
+        const searchInput = document.getElementById('search-input');
+        const clearSearch = document.getElementById('clear-search');
 
         const itemsPerPage = 50;
         let currentPage = 1;
         let matchedAnimals = [];
+        let filteredAnimals = [];
 
         function createAnimalListItem(animalData, animalId, extraText = '') {
             const card = document.createElement('a');
@@ -65,7 +73,7 @@
             listContainer.innerHTML = '';
             const startIndex = (page - 1) * itemsPerPage;
             const endIndex = page * itemsPerPage;
-            const pageItems = matchedAnimals.slice(startIndex, endIndex);
+            const pageItems = filteredAnimals.slice(startIndex, endIndex);
 
             pageItems.forEach(item => {
                 const extra = item.displayValue || '';
@@ -79,7 +87,7 @@
 
         function renderPagination() {
             paginationContainer.innerHTML = '';
-            const totalPages = Math.ceil(matchedAnimals.length / itemsPerPage);
+            const totalPages = Math.ceil(filteredAnimals.length / itemsPerPage);
 
             if (totalPages <= 1) return;
 
@@ -103,6 +111,44 @@
                 paginationContainer.appendChild(btn);
             }
         }
+
+        function handleSearch(queryText) {
+            const normalizedQuery = queryText.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+            if (!normalizedQuery) {
+                filteredAnimals = [...matchedAnimals];
+                clearSearch.style.display = 'none';
+            } else {
+                filteredAnimals = matchedAnimals.filter(item => {
+                    const nome = (item.data.nome || '').normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+                    const nomeCientifico = (item.data.nomeCientifico || '').normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+                    return nome.includes(normalizedQuery) || nomeCientifico.includes(normalizedQuery);
+                });
+                clearSearch.style.display = 'block';
+            }
+            
+            currentPage = 1;
+            renderPage(currentPage);
+            renderPagination();
+        }
+
+        searchInput.addEventListener('input', (e) => {
+            handleSearch(e.target.value);
+        });
+
+        clearSearch.addEventListener('click', () => {
+            searchInput.value = '';
+            handleSearch('');
+            searchInput.focus();
+        });
+
+        searchInput.addEventListener('focus', () => {
+            searchInput.style.borderColor = 'var(--primary-color)';
+            searchInput.style.boxShadow = '0 0 10px var(--primary-glow)';
+        });
+        searchInput.addEventListener('blur', () => {
+            searchInput.style.borderColor = 'var(--border-color)';
+            searchInput.style.boxShadow = 'none';
+        });
 
         function extractNumericMetric(details, searchKeys, exactMatch = false) {
             const item = details.find(d => {
@@ -152,7 +198,7 @@
             let filterValue = params.get('valor') || params.get('estrategia');
 
             if (!filterValue) {
-                categoryTitle.innerHTML = `Erro <span id="toggle-icon">!</span>`;
+                categoryTitle.innerHTML = `Erro`;
                 loadingMessage.textContent = "Nenhum valor de filtro foi especificado no URL.";
                 return;
             }
@@ -214,8 +260,8 @@
                     <i class="fa-solid ${iconClass}"></i> ${titlePrefix}${filterValue}
                 </span>
                 <span class="title-actions" style="display: flex; align-items: center; gap: 16px;">
+                    <i class="fa-solid fa-magnifying-glass" id="search-toggle-btn" style="font-size: 1.5rem; color: var(--primary-color); cursor: pointer; transition: var(--transition);" title="Pesquisar"></i>
                     <i class="fa-solid fa-table-cells-large" id="view-mode-toggle" style="font-size: 1.5rem; color: var(--primary-color); cursor: pointer; transition: var(--transition);" title="Mudar visualização"></i>
-                    <span id="toggle-icon">▼</span>
                 </span>
             `;
 
@@ -232,6 +278,22 @@
                     headerIcon.style.background = "var(--accent-gradient)";
                     headerIcon.style.webkitBackgroundClip = "text";
                     headerIcon.style.webkitTextFillColor = "transparent";
+                }
+
+                const searchToggleBtn = document.getElementById('search-toggle-btn');
+                if (searchToggleBtn) {
+                    searchToggleBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const isSearchVisible = searchBarContainer.style.display !== 'none';
+                        if (isSearchVisible) {
+                            searchBarContainer.style.display = 'none';
+                            searchInput.value = '';
+                            handleSearch('');
+                        } else {
+                            searchBarContainer.style.display = 'block';
+                            searchInput.focus();
+                        }
+                    });
                 }
 
                 const viewModeToggle = document.getElementById('view-mode-toggle');
@@ -321,6 +383,7 @@
                     listContainer.style.display = 'none';
                 } else {
                     loadingMessage.style.display = 'none';
+                    filteredAnimals = [...matchedAnimals];
                     currentPage = 1;
                     renderPage(currentPage);
                     renderPagination();
@@ -330,11 +393,7 @@
                 loadingMessage.textContent = "Ocorreu um erro ao carregar os dados.";
             }
         }
-        
-        categoryTitle.addEventListener('click', () => {
-            categoryTitle.classList.toggle('is-closed');
-            listContainer.classList.toggle('is-hidden');
-        });
+
 
         loadFilteredPage();
     </script>
