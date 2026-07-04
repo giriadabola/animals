@@ -73,6 +73,7 @@
     <script type="module">
         import { db } from "./js/firebase-config.js?v=2";
         import { collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
+        import { hideLoadingOverlay } from "./js/loader.js?v=2";
 
         let allAnimals = [];
         const mainLayout = document.getElementById('mainLayout');
@@ -106,9 +107,11 @@
                 categoriesContainer.style.display = 'grid';
                 populateCategories();
                 populateSurvivalLists();
+                hideLoadingOverlay();
             } catch (error) {
                 console.error("Erro ao carregar animais:", error);
                 loadingMessage.textContent = "Não foi possível carregar os animais.";
+                hideLoadingOverlay();
             }
         }
 

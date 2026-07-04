@@ -1,4 +1,4 @@
-const CACHE_NAME = 'animals-app-v1.0.17';
+const CACHE_NAME = 'animals-app-v1.0.18';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -12,6 +12,7 @@ const ASSETS_TO_CACHE = [
   './js/feeding-strategies.js',
   './js/feeding-visuals.js',
   './js/firebase-config.js',
+  './js/loader.js',
   './js/mating-systems.js',
   './assets/logos/favicon.ico',
   './assets/logos/apple-touch-icon.png',

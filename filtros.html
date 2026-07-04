@@ -37,6 +37,7 @@
     <script type="module">
         import { db } from "./js/firebase-config.js?v=2";
         import { collection, getDocs } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
+        import { hideLoadingOverlay } from "./js/loader.js?v=2";
 
         const categoryTitle = document.getElementById('category-title');
         const listContainer = document.getElementById('animal-list-container');
@@ -388,9 +389,11 @@
                     renderPage(currentPage);
                     renderPagination();
                 }
+                hideLoadingOverlay();
             } catch (error) {
                 console.error("Erro ao carregar animais por filtros:", error);
                 loadingMessage.textContent = "Ocorreu um erro ao carregar os dados.";
+                hideLoadingOverlay();
             }
         }
 
