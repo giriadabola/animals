@@ -15,14 +15,18 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
-// Ativar persistência offline do Firestore
-enableIndexedDbPersistence(db).catch((err) => {
-    if (err.code == 'failed-precondition') {
-        console.warn("A persistência falhou: Múltiplas abas abertas.");
-    } else if (err.code == 'unimplemented') {
-        console.warn("O browser não suporta persistência de dados offline.");
-    }
-});
+// Ativar persistência offline do Firestore (desativado no iOS para prevenir travamento silencioso)
+const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+if (!isIOS) {
+    enableIndexedDbPersistence(db).catch((err) => {
+        if (err.code == 'failed-precondition') {
+            console.warn("A persistência falhou: Múltiplas abas abertas.");
+        } else if (err.code == 'unimplemented') {
+            console.warn("O browser não suporta persistência de dados offline.");
+        }
+    });
+}
 
 export { db, auth };
 
