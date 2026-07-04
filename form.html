@@ -19,7 +19,7 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- CSS Global -->
-    <link rel="stylesheet" href="css/style.css?v=1.0.2">
+    <link rel="stylesheet" href="css/style.css?v=1.0.3">
     <!-- jsVectorMap -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsvectormap/dist/css/jsvectormap.min.css">
     <script src="https://cdn.jsdelivr.net/npm/jsvectormap"></script>
@@ -584,22 +584,67 @@
         }
         .dimension-row-header,
         .dimension-row {
-            grid-template-columns: 1.3fr 0.55fr 0.55fr 0.65fr 0.6fr 42px !important;
+            grid-template-columns: 1.3fr 0.55fr 0.55fr 0.65fr 0.45fr 0.45fr 42px !important;
         }
         .general-visual-row-header,
         .general-visual-row {
-            grid-template-columns: minmax(110px, 1.4fr) minmax(50px, 0.8fr) minmax(50px, 0.8fr) minmax(64px, 0.8fr) minmax(50px, 0.7fr) 42px !important;
+            grid-template-columns: minmax(110px, 1.4fr) minmax(50px, 0.8fr) minmax(50px, 0.8fr) minmax(64px, 0.8fr) minmax(50px, 0.55fr) minmax(50px, 0.55fr) 42px !important;
         }
         @media (max-width: 900px) {
             .general-visual-row-header,
             .general-visual-row {
-                grid-template-columns: minmax(110px, 1.2fr) repeat(4, minmax(44px, 0.6fr)) 42px !important;
+                grid-template-columns: minmax(110px, 1.2fr) repeat(5, minmax(44px, 0.6fr)) 42px !important;
             }
         }
         @media (max-width: 800px) {
             .dimension-row-header,
             .dimension-row {
-                grid-template-columns: 1fr 0.6fr 0.6fr 0.65fr 0.6fr 38px !important;
+                grid-template-columns: 1fr 0.6fr 0.6fr 0.65fr 0.45fr 0.45fr 38px !important;
+            }
+        }
+        .gender-toggle-btn,
+        .fase-toggle-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-sm);
+            color: var(--text-primary);
+            cursor: pointer;
+            font-size: 1.05rem;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            box-sizing: border-box;
+            outline: none;
+            padding: 0;
+        }
+        .gender-toggle-btn:hover,
+        .fase-toggle-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Override reproduction layout grid columns to bypass CSS caching */
+        .reproduction-row-header,
+        .reproduction-row {
+            display: grid !important;
+            grid-template-columns: minmax(150px, 1.2fr) minmax(80px, 0.8fr) minmax(80px, 0.8fr) minmax(100px, 1fr) 42px !important;
+            gap: 10px !important;
+            align-items: center !important;
+        }
+
+        .reproduction-row .reproduction-type {
+            grid-column: span 3 !important;
+        }
+
+        @media (max-width: 600px) {
+            .reproduction-row-header {
+                display: none !important;
+            }
+            .reproduction-row {
+                grid-template-columns: minmax(110px, 1.2fr) minmax(50px, 0.7fr) minmax(50px, 0.7fr) minmax(80px, 0.9fr) 42px !important;
+                gap: 6px !important;
             }
         }
     </style>
@@ -803,6 +848,7 @@
                                             <span>Máx.</span>
                                             <span>Unidade</span>
                                             <span>Género</span>
+                                            <span>Fase</span>
                                         </div>
                                         <div id="generalVisualRows" class="general-visual-rows"></div>
                                         <datalist id="feedingStrategyOptions">
@@ -923,6 +969,7 @@
                                             <span>Máx.</span>
                                             <span>Unidade</span>
                                             <span>Género</span>
+                                            <span>Fase</span>
                                         </div>
                                         <div id="dimensionRows" class="dimension-rows"></div>
                                         <button type="button" id="addDimensionBtn" class="secondary-action-btn">+ Adicionar medida</button>
@@ -1019,8 +1066,10 @@
                                 <div class="reproduction-layout">
                                     <div class="reproduction-editor">
                                         <div class="reproduction-row-header">
-                                            <span id="reproductionTypeHeader">Tipo de reprodução</span>
-                                            <span id="reproductionDetailHeader">Detalhe curto</span>
+                                            <span>Propriedade</span>
+                                            <span>Mín.</span>
+                                            <span>Máx.</span>
+                                            <span>Unidade</span>
                                         </div>
                                         <div id="reproductionRows" class="reproduction-rows"></div>
                                         <button type="button" id="addReproductionBtn" class="secondary-action-btn">+ Adicionar tipo</button>
@@ -1979,7 +2028,7 @@
             });
         }
 
-        function createDimensionRow(metric = '', minValue = '', unit = '', maxValue = '', gender = 'M') {
+        function createDimensionRow(metric = '', minValue = '', unit = '', maxValue = '', gender = 'M', fase = 'Adulto') {
             const row = document.createElement('div');
             row.className = 'dimension-row';
 
@@ -2009,13 +2058,35 @@
             unitSelect.innerHTML = dimensionUnits.map(u => `<option value="${u}">${u}</option>`).join('');
             unitSelect.value = unit || getDimensionOption(metric)?.unit || 'cm';
 
-            const genderSelect = document.createElement('select');
-            genderSelect.className = 'dimension-gender';
-            genderSelect.innerHTML = `
-                <option value="M">♂</option>
-                <option value="F">♀</option>
-            `;
-            genderSelect.value = gender || 'M';
+            const genderBtn = document.createElement('button');
+            genderBtn.type = 'button';
+            genderBtn.className = 'gender-toggle-btn dimension-gender-toggle';
+            genderBtn.dataset.value = gender || 'M';
+            function updateGenderBtnUI() {
+                if (genderBtn.dataset.value === 'M') {
+                    genderBtn.innerHTML = '<span style="color: #3b82f6; font-weight: bold;">♂</span>';
+                    genderBtn.title = 'Macho';
+                } else {
+                    genderBtn.innerHTML = '<span style="color: #ec4899; font-weight: bold;">♀</span>';
+                    genderBtn.title = 'Fêmea';
+                }
+            }
+            updateGenderBtnUI();
+
+            const faseBtn = document.createElement('button');
+            faseBtn.type = 'button';
+            faseBtn.className = 'fase-toggle-btn dimension-fase-toggle';
+            faseBtn.dataset.value = fase || 'Adulto';
+            function updateFaseBtnUI() {
+                if (faseBtn.dataset.value === 'Adulto') {
+                    faseBtn.innerHTML = '<i class="fa-solid fa-paw" style="color: #10b981; font-size: 0.9rem;"></i>';
+                    faseBtn.title = 'Adulto';
+                } else {
+                    faseBtn.innerHTML = '<i class="fa-solid fa-baby" style="color: #f59e0b; font-size: 0.9rem;"></i>';
+                    faseBtn.title = 'Cria';
+                }
+            }
+            updateFaseBtnUI();
 
             const removeBtn = document.createElement('button');
             removeBtn.type = 'button';
@@ -2034,14 +2105,23 @@
                 unitSelect.dataset.userChanged = 'true';
                 updateDimensionPreview();
             });
-            genderSelect.addEventListener('change', updateDimensionPreview);
+            genderBtn.addEventListener('click', () => {
+                genderBtn.dataset.value = genderBtn.dataset.value === 'M' ? 'F' : 'M';
+                updateGenderBtnUI();
+                updateDimensionPreview();
+            });
+            faseBtn.addEventListener('click', () => {
+                faseBtn.dataset.value = faseBtn.dataset.value === 'Adulto' ? 'Cria' : 'Adulto';
+                updateFaseBtnUI();
+                updateDimensionPreview();
+            });
             removeBtn.addEventListener('click', () => {
                 row.remove();
                 if (dimensionRowsContainer.children.length === 0) createDimensionRow();
                 updateDimensionPreview();
             });
 
-            row.append(metricSelect, minInput, maxInput, unitSelect, genderSelect, removeBtn);
+            row.append(metricSelect, minInput, maxInput, unitSelect, genderBtn, faseBtn, removeBtn);
             dimensionRowsContainer.appendChild(row);
             updateDimensionPreview();
         }
@@ -2057,7 +2137,8 @@
                         valorMin: min,
                         valorMax: max,
                         unidade: row.querySelector('.dimension-unit').value,
-                        genero: row.querySelector('.dimension-gender')?.value || 'M'
+                        genero: row.querySelector('.dimension-gender-toggle')?.dataset.value || 'M',
+                        fase: row.querySelector('.dimension-fase-toggle')?.dataset.value || 'Adulto'
                     };
                 })
                 .filter(item => item.tipo && (item.valorMin || item.valorMax));
@@ -2066,7 +2147,7 @@
         function setDimensionData(dimensions = []) {
             dimensionRowsContainer.innerHTML = '';
             if (!Array.isArray(dimensions) || dimensions.length === 0) {
-                getDefaultDimensionsForCategory().forEach(item => createDimensionRow(item.tipo, '', item.unidade, '', item.genero || 'M'));
+                getDefaultDimensionsForCategory().forEach(item => createDimensionRow(item.tipo, '', item.unidade, '', item.genero || 'M', item.fase || 'Adulto'));
                 return;
             }
             dimensions.forEach(item => createDimensionRow(
@@ -2074,7 +2155,8 @@
                 item.valorMin ?? item.valor ?? '',
                 item.unidade,
                 item.valorMax ?? '',
-                item.genero || 'M'
+                item.genero || 'M',
+                item.fase || 'Adulto'
             ));
             updateDimensionPreview();
         }
@@ -2318,7 +2400,7 @@
             maxInput.placeholder = type && type.includes('Velocidade') ? 'Ex: 80' : 'Ex: 15';
         }
 
-        function createGeneralVisualRow(type = '', minValue = '', unit = '', maxValue = '', gender = 'M') {
+        function createGeneralVisualRow(type = '', minValue = '', unit = '', maxValue = '', gender = 'M', fase = 'Adulto') {
             const row = document.createElement('div');
             row.className = 'general-visual-row';
 
@@ -2368,13 +2450,35 @@
             unitSelect.value = unit || getGeneralVisualOption(type)?.unidade || 'anos';
             configureGeneralVisualRowControls(type, minInput, maxInput, unitSelect, strategySelect);
 
-            const genderSelect = document.createElement('select');
-            genderSelect.className = 'general-visual-gender';
-            genderSelect.innerHTML = `
-                <option value="M">♂</option>
-                <option value="F">♀</option>
-            `;
-            genderSelect.value = gender || 'M';
+            const genderBtn = document.createElement('button');
+            genderBtn.type = 'button';
+            genderBtn.className = 'gender-toggle-btn general-visual-gender-toggle';
+            genderBtn.dataset.value = gender || 'M';
+            function updateGenderBtnUI() {
+                if (genderBtn.dataset.value === 'M') {
+                    genderBtn.innerHTML = '<span style="color: #3b82f6; font-weight: bold;">♂</span>';
+                    genderBtn.title = 'Macho';
+                } else {
+                    genderBtn.innerHTML = '<span style="color: #ec4899; font-weight: bold;">♀</span>';
+                    genderBtn.title = 'Fêmea';
+                }
+            }
+            updateGenderBtnUI();
+
+            const faseBtn = document.createElement('button');
+            faseBtn.type = 'button';
+            faseBtn.className = 'fase-toggle-btn general-visual-fase-toggle';
+            faseBtn.dataset.value = fase || 'Adulto';
+            function updateFaseBtnUI() {
+                if (faseBtn.dataset.value === 'Adulto') {
+                    faseBtn.innerHTML = '<i class="fa-solid fa-paw" style="color: #10b981; font-size: 0.9rem;"></i>';
+                    faseBtn.title = 'Adulto';
+                } else {
+                    faseBtn.innerHTML = '<i class="fa-solid fa-baby" style="color: #f59e0b; font-size: 0.9rem;"></i>';
+                    faseBtn.title = 'Cria';
+                }
+            }
+            updateFaseBtnUI();
 
             const removeBtn = document.createElement('button');
             removeBtn.type = 'button';
@@ -2396,14 +2500,23 @@
                 unitSelect.dataset.userChanged = 'true';
                 updateGeneralVisualPreview();
             });
-            genderSelect.addEventListener('change', updateGeneralVisualPreview);
+            genderBtn.addEventListener('click', () => {
+                genderBtn.dataset.value = genderBtn.dataset.value === 'M' ? 'F' : 'M';
+                updateGenderBtnUI();
+                updateGeneralVisualPreview();
+            });
+            faseBtn.addEventListener('click', () => {
+                faseBtn.dataset.value = faseBtn.dataset.value === 'Adulto' ? 'Cria' : 'Adulto';
+                updateFaseBtnUI();
+                updateGeneralVisualPreview();
+            });
             removeBtn.addEventListener('click', () => {
                 row.remove();
                 if (generalVisualRowsContainer.children.length === 0) setGeneralVisualData();
                 updateGeneralVisualPreview();
             });
 
-            row.append(typeSelect, minInput, strategySelect, maxInput, unitSelect, genderSelect, removeBtn);
+            row.append(typeSelect, minInput, strategySelect, maxInput, unitSelect, genderBtn, faseBtn, removeBtn);
             generalVisualRowsContainer.appendChild(row);
             updateGeneralVisualPreview();
         }
@@ -2423,7 +2536,8 @@
                         valorMin: min,
                         valorMax: max,
                         unidade: isStrategy ? '' : (row.querySelector('.general-visual-unit')?.value || ''),
-                        genero: row.querySelector('.general-visual-gender')?.value || 'M'
+                        genero: row.querySelector('.general-visual-gender-toggle')?.dataset.value || 'M',
+                        fase: row.querySelector('.general-visual-fase-toggle')?.dataset.value || 'Adulto'
                     };
                 })
                 .filter(item => item.tipo && (item.valorMin || item.valorMax || item.valor));
@@ -2434,7 +2548,7 @@
             if (!Array.isArray(items) || items.length === 0) {
                 generalVisualOptions.forEach(option => {
                     if (option.tipo !== 'Velocidade média' && option.tipo !== 'Força da mordida') {
-                        createGeneralVisualRow(option.tipo, '', option.unidade, '', option.genero || 'M');
+                        createGeneralVisualRow(option.tipo, '', option.unidade, '', option.genero || 'M', option.fase || 'Adulto');
                     }
                 });
                 updateGeneralVisualPreview();
@@ -2787,27 +2901,21 @@
 
         function updateReproductionEditorLabels() {
             if (isBirdCategory()) {
-                reproductionTypeHeader.textContent = 'Tipo de ovo';
-                reproductionDetailHeader.textContent = 'N.º de ovos';
-                addReproductionBtn.textContent = '+ Adicionar ovo';
-                reproductionHint.textContent = 'Para aves, escolhe a cor/padrão do ovo e escreve à frente quantos ovos essa espécie coloca em média. A imagem muda automaticamente conforme o ovo escolhido.';
+                addReproductionBtn.textContent = '+ Adicionar campo';
+                reproductionHint.textContent = 'Seleciona "Tipo de reprodução" para escolher a cor do ovo ou "Tempo de Gestação" para a incubação.';
             } else {
-                reproductionTypeHeader.textContent = 'Tipo de reprodução';
-                reproductionDetailHeader.textContent = 'Detalhe curto';
-                addReproductionBtn.textContent = '+ Adicionar tipo';
-                reproductionHint.textContent = 'As opções mudam conforme a categoria escolhida. Ex: aves mostram ovos por cor/padrão; mamíferos mostram vivíparo/placental/marsupial.';
+                addReproductionBtn.textContent = '+ Adicionar campo';
+                reproductionHint.textContent = 'Escolhe as opções de reprodução ou tempo de gestação para esta espécie.';
             }
         }
 
         function updateAllReproductionTypeSelects() {
             updateReproductionEditorLabels();
             reproductionRowsContainer.querySelectorAll('.reproduction-row').forEach(row => {
+                const rowModeSelect = row.querySelector('.reproduction-row-mode');
                 const typeSelect = row.querySelector('.reproduction-type');
-                const detailInput = row.querySelector('.reproduction-detail');
-                fillReproductionTypeSelect(typeSelect, typeSelect.value);
-                if (detailInput) {
-                    detailInput.placeholder = isBirdCategory() ? 'Ex: 2 ovos, 3-5 ovos, 1 ovo...' : 'Ex: 1-3 crias, ovos na água, fase larvar...';
-                    detailInput.inputMode = isBirdCategory() ? 'text' : '';
+                if (rowModeSelect && rowModeSelect.value === 'tipo' && typeSelect) {
+                    fillReproductionTypeSelect(typeSelect, typeSelect.value);
                 }
             });
         }
@@ -2816,42 +2924,153 @@
             const row = document.createElement('div');
             row.className = 'reproduction-row';
 
+            const rowModeSelect = document.createElement('select');
+            rowModeSelect.className = 'reproduction-row-mode';
+            
+            const optTipo = document.createElement('option');
+            optTipo.value = 'tipo';
+            optTipo.textContent = 'Tipo de reprodução';
+            
+            const optGestacao = document.createElement('option');
+            optGestacao.value = 'gestacao';
+            optGestacao.textContent = 'Tempo de Gestação';
+            
+            rowModeSelect.append(optTipo, optGestacao);
+
             const typeSelect = document.createElement('select');
             typeSelect.className = 'reproduction-type';
-            fillReproductionTypeSelect(typeSelect, type);
 
-            const detailInput = document.createElement('input');
-            detailInput.className = 'reproduction-detail';
-            detailInput.type = 'text';
-            detailInput.placeholder = isBirdCategory() ? 'Ex: 2 ovos, 3-5 ovos, 1 ovo...' : 'Ex: 1-3 crias, ovos na água, fase larvar...';
-            detailInput.value = detail;
+            const minInput = document.createElement('input');
+            minInput.className = 'reproduction-gestation-min';
+            minInput.type = 'text';
+            minInput.placeholder = 'Ex: 10';
+
+            const maxInput = document.createElement('input');
+            maxInput.className = 'reproduction-gestation-max';
+            maxInput.type = 'text';
+            maxInput.placeholder = 'Ex: 15';
+
+            const unitSelect = document.createElement('select');
+            unitSelect.className = 'reproduction-gestation-unit';
+            
+            const optDias = document.createElement('option');
+            optDias.value = 'dias';
+            optDias.textContent = 'dias';
+            
+            const optSemanas = document.createElement('option');
+            optSemanas.value = 'semanas';
+            optSemanas.textContent = 'semanas';
+            
+            const optMeses = document.createElement('option');
+            optMeses.value = 'meses';
+            optMeses.textContent = 'meses';
+            
+            unitSelect.append(optDias, optSemanas, optMeses);
 
             const removeBtn = document.createElement('button');
             removeBtn.type = 'button';
             removeBtn.className = 'remove-dimension-btn';
             removeBtn.innerHTML = '&times;';
-            removeBtn.title = isBirdCategory() ? 'Remover ovo' : 'Remover tipo de reprodução';
+            removeBtn.title = 'Remover campo';
 
+            const isGestation = type === 'Tempo de Gestação' || type.toLowerCase().includes('gestação') || type.toLowerCase().includes('gestacao');
+            if (isGestation) {
+                rowModeSelect.value = 'gestacao';
+                if (detail) {
+                    let minVal = '';
+                    let maxVal = '';
+                    let unitVal = 'dias';
+                    const match = detail.match(/(\d+)(?:\s*-\s*(\d+))?\s*(dias|dia|meses|mês|mes|semanas|semana)/i);
+                    if (match) {
+                        minVal = match[1] || '';
+                        maxVal = match[2] || '';
+                        const matchedUnit = match[3].toLowerCase();
+                        if (matchedUnit.includes('mes')) {
+                            unitVal = 'meses';
+                        } else if (matchedUnit.includes('semana')) {
+                            unitVal = 'semanas';
+                        } else {
+                            unitVal = 'dias';
+                        }
+                    } else {
+                        const numbers = detail.match(/\d+/g);
+                        if (numbers) {
+                            minVal = numbers[0] || '';
+                            maxVal = numbers[1] || '';
+                        }
+                        if (detail.toLowerCase().includes('mes')) unitVal = 'meses';
+                        if (detail.toLowerCase().includes('semana')) unitVal = 'semanas';
+                    }
+                    minInput.value = minVal;
+                    maxInput.value = maxVal;
+                    unitSelect.value = unitVal;
+                }
+            } else {
+                rowModeSelect.value = 'tipo';
+                fillReproductionTypeSelect(typeSelect, type);
+            }
+
+            function updateRowVisibility() {
+                row.innerHTML = '';
+                row.append(rowModeSelect);
+                if (rowModeSelect.value === 'tipo') {
+                    fillReproductionTypeSelect(typeSelect, typeSelect.value || (!isGestation ? type : ''));
+                    row.append(typeSelect, removeBtn);
+                } else {
+                    row.append(minInput, maxInput, unitSelect, removeBtn);
+                }
+            }
+
+            rowModeSelect.addEventListener('change', () => {
+                updateRowVisibility();
+                updateReproductionPreview();
+            });
             typeSelect.addEventListener('change', updateReproductionPreview);
-            detailInput.addEventListener('input', updateReproductionPreview);
+            minInput.addEventListener('input', updateReproductionPreview);
+            maxInput.addEventListener('input', updateReproductionPreview);
+            unitSelect.addEventListener('change', updateReproductionPreview);
+
             removeBtn.addEventListener('click', () => {
                 row.remove();
                 if (reproductionRowsContainer.children.length === 0) createReproductionRow();
                 updateReproductionPreview();
             });
 
-            row.append(typeSelect, detailInput, removeBtn);
+            updateRowVisibility();
             reproductionRowsContainer.appendChild(row);
             updateReproductionPreview();
         }
 
         function getReproductionData() {
             return [...reproductionRowsContainer.querySelectorAll('.reproduction-row')]
-                .map(row => ({
-                    tipo: row.querySelector('.reproduction-type')?.value || '',
-                    detalhe: row.querySelector('.reproduction-detail')?.value.trim() || ''
-                }))
-                .filter(item => item.tipo || item.detalhe);
+                .map(row => {
+                    const rowModeSelect = row.querySelector('.reproduction-row-mode');
+                    if (!rowModeSelect) return null;
+                    if (rowModeSelect.value === 'tipo') {
+                        const typeVal = row.querySelector('.reproduction-type')?.value || '';
+                        return {
+                            tipo: typeVal,
+                            detalhe: ''
+                        };
+                    } else {
+                        const min = row.querySelector('.reproduction-gestation-min')?.value || '';
+                        const max = row.querySelector('.reproduction-gestation-max')?.value || '';
+                        const unit = row.querySelector('.reproduction-gestation-unit')?.value || 'dias';
+                        let detail = '';
+                        if (min && max) {
+                            detail = `${min}-${max} ${unit}`;
+                        } else if (min) {
+                            detail = `${min} ${unit}`;
+                        } else if (max) {
+                            detail = `${max} ${unit}`;
+                        }
+                        return {
+                            tipo: 'Tempo de Gestação',
+                            detalhe: detail
+                        };
+                    }
+                })
+                .filter(item => item && (item.tipo || item.detalhe));
         }
 
         function setReproductionData(reproduction = []) {
@@ -2866,6 +3085,9 @@
 
         function getReproductionVisualMeta(type = '') {
             const normalized = normalizeDimensionKey(type);
+            if (normalized.includes('gestacao') || normalized.includes('gestação') || normalized.includes('gravidez') || normalized.includes('tempo')) {
+                return { key: 'viviparo', title: type || 'Gestação', accent: 'accent-weight' };
+            }
             if (normalized.includes('oviparo') || normalized.includes('ovo')) return { key: 'ovo', title: type || 'Ovíparo', accent: 'accent-egg' };
             if (normalized.includes('viviparo') || normalized.includes('placental')) return { key: 'viviparo', title: type || 'Vivíparo', accent: 'accent-weight' };
             if (normalized.includes('marsupial')) return { key: 'marsupial', title: type || 'Marsupial', accent: 'accent-tail' };

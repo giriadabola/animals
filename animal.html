@@ -89,6 +89,44 @@
             return String(label).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
         }
 
+        function getGenderTabsHTML(allItems) {
+            const genders = new Set(allItems.map(item => item.genero).filter(Boolean));
+            const phases = new Set(allItems.map(item => item.fase).filter(Boolean));
+            const hasGenders = genders.has('M') || genders.has('F');
+            const hasPhases = phases.has('Cria');
+            
+            if (!hasGenders && !hasPhases) return '';
+            
+            const defaultGender = genders.has('M') ? 'M' : 'F';
+            let html = `<span class="info-gender-tabs" style="display: inline-flex; gap: 10px; align-items: center; vertical-align: middle;">`;
+            
+            // Abas de Fase (à esquerda)
+            if (hasPhases) {
+                html += `
+                    <span class="glass-pill-toggle phase-toggle-container" style="display: inline-flex; background: rgba(255, 255, 255, 0.04); backdrop-filter: blur(8px); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 30px; padding: 3px; gap: 2px; align-items: center; box-shadow: inset 0 1px 1px rgba(255,255,255,0.05);">
+                        <button class="phase-tab-btn active" data-phase="Adulto" style="color: #10b981; background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.15); border-radius: 20px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; outline: none; padding: 0;"><i class="fa-solid fa-paw" style="font-size: 0.95rem;"></i></button>
+                        <button class="phase-tab-btn" data-phase="Cria" style="color: rgba(255,255,255,0.4); background: transparent; border: 1px solid transparent; border-radius: 20px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; outline: none; padding: 0;"><i class="fa-solid fa-baby" style="font-size: 0.95rem;"></i></button>
+                    </span>
+                `;
+                if (hasGenders) {
+                    html += `<span style="width: 1px; height: 18px; background: rgba(255,255,255,0.12);"></span>`;
+                }
+            }
+            
+            // Abas de Género (à direita)
+            if (hasGenders) {
+                html += `
+                    <span class="glass-pill-toggle gender-toggle-container" style="display: inline-flex; background: rgba(255, 255, 255, 0.04); backdrop-filter: blur(8px); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 30px; padding: 3px; gap: 2px; align-items: center; box-shadow: inset 0 1px 1px rgba(255,255,255,0.05);">
+                        ${genders.has('M') ? `<button class="gender-tab-btn ${defaultGender === 'M' ? 'active' : ''}" data-gender="M" style="color: ${defaultGender === 'M' ? '#3b82f6' : 'rgba(255,255,255,0.4)'}; background: ${defaultGender === 'M' ? 'rgba(59, 130, 246, 0.12)' : 'transparent'}; border: 1px solid ${defaultGender === 'M' ? 'rgba(59, 130, 246, 0.15)' : 'transparent'}; border-radius: 20px; width: 36px; height: 36px; font-weight: bold; font-size: 1.05rem; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; outline: none; padding: 0; line-height: 1;">♂</button>` : ''}
+                        ${genders.has('F') ? `<button class="gender-tab-btn ${defaultGender === 'F' ? 'active' : ''}" data-gender="F" style="color: ${defaultGender === 'F' ? '#ec4899' : 'rgba(255,255,255,0.4)'}; background: ${defaultGender === 'F' ? 'rgba(236, 72, 153, 0.12)' : 'transparent'}; border: 1px solid ${defaultGender === 'F' ? 'rgba(236, 72, 153, 0.15)' : 'transparent'}; border-radius: 20px; width: 36px; height: 36px; font-weight: bold; font-size: 1.05rem; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; outline: none; padding: 0; line-height: 1;">♀</button>` : ''}
+                    </span>
+                `;
+            }
+            
+            html += `</span>`;
+            return html;
+        }
+
         function getCategoryModelSvg(category = '') {
             const normalized = normalizeDimensionKey(category);
             const bird = `<svg class="animal-model-svg bird-model-svg real-bird-model" viewBox="0 0 220 120" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -226,12 +264,11 @@
 
         function renderDimensionModelCard(item) {
             const meta = getDimensionVisualMeta(item.tipo);
-            const genderSymbol = item.genero === 'M' ? '<span style="color: #3b82f6; margin-left: 4px; font-weight: bold;">♂</span>' : (item.genero === 'F' ? '<span style="color: #ec4899; margin-left: 4px; font-weight: bold;">♀</span>' : '');
             return `
-                <article class="dimension-model-card ${meta.accent}">
+                <article class="dimension-model-card ${meta.accent}" data-gender="${item.genero || ''}" data-phase="${item.fase || 'Adulto'}">
                     <div class="dimension-model-icon">${getMetricModelSvg(meta.key)}</div>
                     <div class="dimension-model-copy">
-                        <div class="dimension-model-label">${escapeHtml(meta.title)}${genderSymbol}</div>
+                        <div class="dimension-model-label">${escapeHtml(meta.title)}</div>
                         <div class="dimension-model-value">${formatDimension(item, '—')}</div>
                     </div>
                 </article>`;
@@ -333,12 +370,11 @@
                         : matingMeta
                             ? getMatingSystemSvg(matingMeta.key)
                             : getGeneralModelSvg(meta.key);
-            const genderSymbol = item.genero === 'M' ? '<span style="color: #3b82f6; margin-left: 4px; font-weight: bold;">♂</span>' : (item.genero === 'F' ? '<span style="color: #ec4899; margin-left: 4px; font-weight: bold;">♀</span>' : '');
             return `
-                <article class="dimension-model-card general-model-card ${climateMeta?.accent || habitatMeta?.accent || strategyMeta?.accent || matingMeta?.accent || meta.accent}">
+                <article class="dimension-model-card general-model-card ${climateMeta?.accent || habitatMeta?.accent || strategyMeta?.accent || matingMeta?.accent || meta.accent}" data-gender="${item.genero || ''}" data-phase="${item.fase || 'Adulto'}">
                     <div class="dimension-model-icon ${climateMeta || habitatMeta ? 'climate-zone-model-icon' : ''}">${icon}</div>
                     <div class="dimension-model-copy">
-                        <div class="dimension-model-label">${escapeHtml(meta.title)}${genderSymbol}</div>
+                        <div class="dimension-model-label">${escapeHtml(meta.title)}</div>
                         <div class="dimension-model-value">${formatGeneralVisualValue(item)}</div>
                     </div>
                 </article>`;
@@ -349,16 +385,40 @@
             const isEnv = item => normalizeDimensionKey(item.tipo).includes('zona') || normalizeDimensionKey(item.tipo).includes('habitat');
             const valid = Array.isArray(models) ? models.filter(item => item.tipo && (item.valor || item.valorMin || item.valorMax) && !isEnv(item)) : [];
             const envItems = Array.isArray(models) ? models.filter(item => item.tipo && (item.valor || item.valorMin || item.valorMax) && isEnv(item)) : [];
+            
+            const genders = new Set(valid.map(i => i.genero).filter(Boolean));
+            const phases = new Set(valid.map(i => i.fase).filter(Boolean));
+            
+            const hasBothGenders = genders.has('M') && genders.has('F');
+            const hasCriaPhase = phases.has('Cria');
+            
+            const defaultGender = genders.has('M') ? 'M' : 'F';
+            const defaultPhase = 'Adulto';
 
             let html = '';
             if (valid.length) {
+                const cardsHTML = valid.map(item => {
+                    const cardHtml = renderGeneralVisualCard(item);
+                    const itemGender = item.genero || '';
+                    const itemPhase = item.fase || 'Adulto';
+                    
+                    const matchesGender = !hasBothGenders || !itemGender || itemGender === defaultGender;
+                    const matchesPhase = !hasCriaPhase || itemPhase === defaultPhase;
+                    
+                    if (matchesGender && matchesPhase) {
+                        return cardHtml;
+                    }
+                    return cardHtml.replace('<article class="', '<article style="display: none;" class="');
+                }).join('');
+
                 html += `
                 <div class="general-visual-card">
-                    <div class="general-visual-title">
+                    <div class="general-visual-title" style="display: flex; align-items: center; justify-content: space-between;">
                         <strong>Dados rápidos</strong>
+                        ${getGenderTabsHTML(valid)}
                     </div>
                     <div class="general-visual-models">
-                        ${valid.map(renderGeneralVisualCard).join('')}
+                        ${cardsHTML}
                     </div>
                 </div>`;
             }
@@ -569,6 +629,7 @@
         
         function getReproductionVisualMeta(type = '') {
             const normalized = normalizeDimensionKey(type);
+            if (normalized.includes('gestacao') || normalized.includes('gestação') || normalized.includes('gravidez') || normalized.includes('tempo')) return { key: 'viviparo', title: type || 'Gestação', accent: 'accent-weight' };
             if (normalized.includes('oviparo') || normalized.includes('ovo')) return { key: 'ovo', title: type || 'Ovíparo', accent: 'accent-egg' };
             if (normalized.includes('viviparo') || normalized.includes('placental')) return { key: 'viviparo', title: type || 'Vivíparo', accent: 'accent-weight' };
             if (normalized.includes('marsupial')) return { key: 'marsupial', title: type || 'Marsupial', accent: 'accent-tail' };
@@ -860,16 +921,7 @@
             const envQuickData = Array.isArray(models) ? models.filter(item => item.tipo && (item.valor || item.valorMin || item.valorMax) && isEnv(item)) : [];
 
             const allItems = [...validDimensoes, ...validQuickData];
-            const genders = new Set(allItems.map(item => item.genero).filter(Boolean));
-            let genderIconsHTML = '';
-            if (genders.has('M') && genders.has('F')) {
-                genderIconsHTML = `
-                    <span class="info-gender-icons" style="margin-left: 12px; display: inline-flex; gap: 6px; align-items: center; vertical-align: middle;">
-                        <span style="color: #3b82f6; background: rgba(59, 130, 246, 0.15); padding: 2px 8px; border-radius: 6px; font-weight: bold; border: 1px solid rgba(59, 130, 246, 0.3); font-size: 0.85rem;">♂</span>
-                        <span style="color: #ec4899; background: rgba(236, 72, 153, 0.15); padding: 2px 8px; border-radius: 6px; font-weight: bold; border: 1px solid rgba(236, 72, 153, 0.3); font-size: 0.85rem;">♀</span>
-                    </span>
-                `;
-            }
+            const genderIconsHTML = getGenderTabsHTML(allItems);
 
             const horizontalMetricsHTML = (validDimensoes.length > 0 || validQuickData.length > 0) ? `
                 <div class="metrics-horizontal-bar desktop-only">
@@ -900,9 +952,9 @@
                             <img src="${animalData.imagemUrl}" alt="Imagem de ${animalData.nome}" style="object-position: ${animalData.imagemObjectPosition || 'center center'};">
                         </div>
                         ${(animalData.reino || animalData.filo || animalData.subfilo || animalData.classe || animalData.ordem || animalData.subordem || animalData.familia || animalData.genero || animalData.especie || (Array.isArray(animalData.subespeciesDe) && animalData.subespeciesDe.length > 0)) ? `
-                        <div class="info-section-card" id="info-classificacao" style="border-color: rgba(167, 139, 250, 0.25); background: linear-gradient(135deg, rgba(167, 139, 250, 0.03), rgba(9, 9, 20, 0.8)); padding: 24px;">
+                        <div class="info-section-card" id="info-classificacao" style="border-color: rgba(139, 92, 246, 0.3); background: linear-gradient(135deg, rgba(6, 182, 212, 0.04), rgba(236, 72, 153, 0.04), rgba(9, 9, 20, 0.85)); padding: 24px; box-shadow: 0 8px 32px rgba(139, 92, 246, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.02);">
                             <h3 style="font-size: 1.25rem; margin-bottom: 14px; padding-bottom: 8px; display: flex; align-items: center; border-bottom: 1px solid var(--border-color); color: var(--text-primary);">
-                                <span class="icon" style="margin-right: 10px; color: var(--primary-color); display: inline-flex;"><i class="fa-solid fa-dna" style="font-size: 1.1rem;"></i></span>Classificação científica
+                                <span class="icon" style="margin-right: 10px; display: inline-flex;"><i class="fa-solid fa-dna" style="font-size: 1.1rem; background: linear-gradient(135deg, #06b6d4, #ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"></i></span>Classificação científica
                             </h3>
                             <div class="classification-grid" style="display: flex; flex-direction: column; gap: 8px; font-size: 0.95rem;">
                                 ${animalData.reino ? `<div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px;"><strong style="color: var(--text-secondary);">Reino:</strong> <span style="color: var(--text-primary); font-weight: 500;">${escapeHtml(animalData.reino)}</span></div>` : ''}
@@ -984,10 +1036,31 @@
                                 ...validQuickData.map(item => ({ ...item, isDimension: false }))
                             ];
                             const sorted = combined.sort((a, b) => a.tipo.localeCompare(b.tipo));
-                            const cardsHTML = sorted.map(item => item.isDimension ? renderDimensionModelCard(item) : renderGeneralVisualCard(item)).join('');
+                            const genders = new Set(allItems.map(i => i.genero).filter(Boolean));
+                            const phases = new Set(allItems.map(i => i.fase).filter(Boolean));
+                            
+                            const hasBothGenders = genders.has('M') && genders.has('F');
+                            const hasCriaPhase = phases.has('Cria');
+                            
+                            const defaultGender = genders.has('M') ? 'M' : 'F';
+                            const defaultPhase = 'Adulto';
+                            
+                            const cardsHTML = sorted.map(item => {
+                                const cardHtml = item.isDimension ? renderDimensionModelCard(item) : renderGeneralVisualCard(item);
+                                const itemGender = item.genero || '';
+                                const itemPhase = item.fase || 'Adulto';
+                                
+                                const matchesGender = !hasBothGenders || !itemGender || itemGender === defaultGender;
+                                const matchesPhase = !hasCriaPhase || itemPhase === defaultPhase;
+                                
+                                if (matchesGender && matchesPhase) {
+                                    return cardHtml;
+                                }
+                                return cardHtml.replace('<article class="', '<article style="display: none;" class="');
+                            }).join('');
                             return `
                             <div class="info-section-card" id="info-modelos-visuais">
-                                <h3><span class="icon svg-icon">${getInfoSectionIconSvg('geral')}</span>Informações${genderIconsHTML}</h3>
+                                <h3 style="display: flex; align-items: center; justify-content: space-between; width: 100%;"><span style="display: flex; align-items: center;"><span class="icon svg-icon">${getInfoSectionIconSvg('geral')}</span>Infos</span>${genderIconsHTML}</h3>
                                 <div class="visual-models-grid" style="display: flex; flex-direction: column; gap: 14px;">
                                     ${cardsHTML}
                                 </div>
@@ -1269,6 +1342,70 @@
             document.querySelectorAll('.thumbnail').forEach(thumb => {
                 thumb.addEventListener('click', () => {
                     playVideo(thumb.dataset.videoUrl, thumb);
+                });
+            });
+
+            // Lógica para abas de género (Macho/Fêmea) e fase (Adulto/Cria)
+            function applyCombinedFilters(container) {
+                if (!container) return;
+                
+                const activeGenderBtn = container.querySelector('.gender-tab-btn.active');
+                const activePhaseBtn = container.querySelector('.phase-tab-btn.active');
+                
+                const selectedGender = activeGenderBtn ? activeGenderBtn.dataset.gender : null;
+                const selectedPhase = activePhaseBtn ? activePhaseBtn.dataset.phase : 'Adulto';
+                
+                const cards = container.querySelectorAll('.dimension-model-card');
+                cards.forEach(card => {
+                    const cardGender = card.dataset.gender || '';
+                    const cardPhase = card.dataset.phase || 'Adulto';
+                    
+                    const matchesGender = !selectedGender || !cardGender || cardGender === selectedGender;
+                    const matchesPhase = cardPhase === selectedPhase;
+                    
+                    if (matchesGender && matchesPhase) {
+                        card.style.display = '';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            }
+
+            // Registrar cliques nas abas de género
+            document.querySelectorAll('.gender-tab-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    btn.parentElement.querySelectorAll('.gender-tab-btn').forEach(b => {
+                        b.classList.remove('active');
+                        b.style.background = 'transparent';
+                        b.style.borderColor = 'transparent';
+                        b.style.color = 'rgba(255, 255, 255, 0.4)';
+                    });
+                    btn.classList.add('active');
+                    btn.style.color = btn.dataset.gender === 'M' ? '#3b82f6' : '#ec4899';
+                    btn.style.background = btn.dataset.gender === 'M' ? 'rgba(59, 130, 246, 0.12)' : 'rgba(236, 72, 153, 0.12)';
+                    btn.style.borderColor = btn.dataset.gender === 'M' ? 'rgba(59, 130, 246, 0.15)' : 'rgba(236, 72, 153, 0.15)';
+                    
+                    const container = btn.closest('.info-section-card') || btn.closest('.general-visual-card');
+                    applyCombinedFilters(container);
+                });
+            });
+
+            // Registrar cliques nas abas de fase
+            document.querySelectorAll('.phase-tab-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    btn.parentElement.querySelectorAll('.phase-tab-btn').forEach(b => {
+                        b.classList.remove('active');
+                        b.style.background = 'transparent';
+                        b.style.borderColor = 'transparent';
+                        b.style.color = 'rgba(255, 255, 255, 0.4)';
+                    });
+                    btn.classList.add('active');
+                    btn.style.color = btn.dataset.phase === 'Adulto' ? '#10b981' : '#f59e0b';
+                    btn.style.background = btn.dataset.phase === 'Adulto' ? 'rgba(16, 185, 129, 0.12)' : 'rgba(245, 158, 11, 0.12)';
+                    btn.style.borderColor = btn.dataset.phase === 'Adulto' ? 'rgba(16, 185, 129, 0.15)' : 'rgba(245, 158, 11, 0.15)';
+                    
+                    const container = btn.closest('.info-section-card') || btn.closest('.general-visual-card');
+                    applyCombinedFilters(container);
                 });
             });
 
