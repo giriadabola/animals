@@ -336,8 +336,10 @@
             try {
                 await signInWithEmailAndPassword(auth, email, password);
                 showToast("Sessão iniciada com sucesso! A redirecionar...", true);
+                const params = new URLSearchParams(window.location.search);
+                const redirect = params.get('redirect');
                 setTimeout(() => {
-                    window.location.href = 'index.html';
+                    window.location.href = redirect ? decodeURIComponent(redirect) : 'index.html';
                 }, 1000);
             } catch (err) {
                 console.error("Erro ao iniciar sessão:", err);

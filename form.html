@@ -457,7 +457,7 @@
             if (!user) {
                 statusText.textContent = "Não autenticado. A redirecionar...";
                 setTimeout(() => {
-                    window.location.href = 'login.html';
+                    window.location.href = 'login.html?redirect=' + encodeURIComponent(window.location.pathname.split('/').pop() + window.location.search);
                 }, 1000);
                 return;
             }
@@ -478,13 +478,13 @@
                 }
                 statusText.textContent = "Acesso recusado. Sem permissões de acesso.";
                 setTimeout(() => {
-                    window.location.href = 'login.html';
+                    window.location.href = 'login.html?redirect=' + encodeURIComponent(window.location.pathname.split('/').pop() + window.location.search);
                 }, 1500);
             } catch (error) {
                 console.error("Erro na verificação de permissões:", error);
                 statusText.textContent = "Erro ao verificar permissões. Tente novamente.";
                 setTimeout(() => {
-                    window.location.href = 'login.html';
+                    window.location.href = 'login.html?redirect=' + encodeURIComponent(window.location.pathname.split('/').pop() + window.location.search);
                 }, 1500);
             }
         });
