@@ -49,8 +49,8 @@ export function injectHeader() {
             </a>
             <div id="header-center-info" style="display: flex; justify-content: center; align-items: center;"></div>
             <nav class="nav-links">
-                ${!isHome ? `<a href="index.html" class="nav-link"><i class="fa-solid fa-house"></i> Início</a>` : ''}
-                <span id="header-auth-section" style="display: flex; align-items: center; gap: 15px; margin-left: 10px;">
+                ${!isHome ? `<a href="index.html" class="nav-link hide-on-mobile"><i class="fa-solid fa-house"></i> Início</a>` : ''}
+                <span id="header-auth-section" class="hide-on-mobile" style="display: flex; align-items: center; gap: 15px; margin-left: 10px;">
                     <!-- Auth info dynamically inserted -->
                 </span>
             </nav>
@@ -179,7 +179,7 @@ export function injectHeader() {
             if (gerirPortalLink) gerirPortalLink.remove();
             if (centerInfo) centerInfo.innerHTML = '';
             authSection.innerHTML = `
-                <a href="login.html" class="nav-link ${isHome ? 'hide-on-mobile' : ''}"><i class="fa-solid fa-right-to-bracket"></i> Entrar</a>
+                <a href="login.html" class="nav-link"><i class="fa-solid fa-right-to-bracket"></i> Entrar</a>
             `;
         }
     });
