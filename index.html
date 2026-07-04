@@ -97,6 +97,47 @@
             Extintos: '<i class="fa-solid fa-bone"></i>'
         };
 
+        // Helpers de compatibilidade de categorias (Suporte a String e Map)
+        function getFirstActiveCategory(categoria) {
+            if (typeof categoria === 'string') return categoria;
+            if (categoria && typeof categoria === 'object') {
+                const active = Object.keys(categoria).filter(k => categoria[k] === true);
+                return active[0] || '';
+            }
+            return '';
+        }
+
+        function formatCategoryDisplay(categoria) {
+            if (typeof categoria === 'string') {
+                return translateCategory(categoria);
+            }
+            if (categoria && typeof categoria === 'object') {
+                const active = Object.keys(categoria)
+                    .filter(k => categoria[k] === true)
+                    .map(translateCategory);
+                return active.join(', ');
+            }
+            return '';
+        }
+        
+        function translateCategory(cat) {
+            const translations = {
+                'Mamiferos': 'Mamíferos',
+                'Aves': 'Aves',
+                'Peixes': 'Peixes',
+                'Moluscos': 'Moluscos',
+                'Crustaceos': 'Crustáceos',
+                'Aracnideos': 'Aracnídeos',
+                'Vermes': 'Vermes',
+                'Repteis': 'Répteis',
+                'Anfibios': 'Anfíbios',
+                'Insetos': 'Insetos',
+                'Microscopicos': 'Microscópicos',
+                'Extintos': 'Extintos'
+            };
+            return translations[cat] || cat;
+        }
+
         async function fetchAllAnimals() {
             try {
                 const querySnapshot = await getDocs(collection(db, "animais"));
@@ -272,7 +313,7 @@
                     tag: 'Categoria',
                     icon: 'fa-paw',
                     gradientClass: 'gradient-rose',
-                    extract: (animal) => animal.categoria || null
+                    extract: (animal) => getFirstActiveCategory(animal.categoria) || null
                 },
                 {
                     key: 'familia',
@@ -475,7 +516,7 @@
                             <span class="nome-cientifico">(${animal.nomeCientifico})</span>
                         </div>
                     </div>
-                    <div class="result-category">${animal.categoria}</div>
+                    <div class="result-category">${formatCategoryDisplay(animal.categoria)}</div>
                 `;
                 searchResultsContainer.appendChild(resultElement);
             });

@@ -349,7 +349,13 @@
                     } else {
                         let match = false;
                         if (filterType === 'categoria') {
-                            match = animalData.categoria && animalData.categoria.trim().toLowerCase() === filterValue.trim().toLowerCase();
+                            const cat = animalData.categoria;
+                            const target = filterValue.trim().toLowerCase();
+                            if (typeof cat === 'string') {
+                                match = cat.trim().toLowerCase() === target;
+                            } else if (cat && typeof cat === 'object') {
+                                match = Object.keys(cat).some(k => cat[k] === true && k.toLowerCase() === target);
+                            }
                         } else if (filterType === 'familia') {
                             match = animalData.familia && animalData.familia.trim().toLowerCase() === filterValue.trim().toLowerCase();
                         } else {

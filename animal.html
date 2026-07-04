@@ -35,6 +35,22 @@
         
         const mainContent = document.getElementById('main-content-area');
 
+        // Helpers de compatibilidade de categorias (Suporte a String e Map)
+        function getFirstActiveCategory(categoria) {
+            if (typeof categoria === 'string') return categoria;
+            if (categoria && typeof categoria === 'object') {
+                const active = Object.keys(categoria).filter(k => categoria[k] === true);
+                return active[0] || '';
+            }
+            return '';
+        }
+
+        function hasCategory(categoria, target) {
+            if (typeof categoria === 'string') return categoria === target;
+            if (categoria && typeof categoria === 'object') return !!categoria[target];
+            return false;
+        }
+
         let countryList = {};
         async function loadCountryList() {
             try {
@@ -411,7 +427,7 @@
                 <div class="dimensions-visual-card">
                     <div class="visual-stage">
                         ${height ? `<div class="visual-height"><span>${formatDimension(height, '')}</span></div>` : ''}
-                        <div class="visual-icon">${getCategoryModelSvg(animalData.categoria)}</div>
+                        <div class="visual-icon">${getCategoryModelSvg(getFirstActiveCategory(animalData.categoria))}</div>
                         ${length ? `<div class="visual-length">${formatDimension(length, '')}</div>` : ''}
                     </div>
                     <div class="dimension-model-grid mobile-only">
@@ -563,7 +579,7 @@
         }
 
         function renderReproductionModelCard(item, animalData = {}) {
-            const egg = animalData.categoria === 'Aves' ? getBirdEggVisualByLabel(item.tipo) : null;
+            const egg = hasCategory(animalData.categoria, 'Aves') ? getBirdEggVisualByLabel(item.tipo) : null;
             if (egg) {
                 return `
                     <article class="dimension-model-card reproduction-model-card bird-egg-selected-card">
@@ -792,7 +808,7 @@
 
             const hasReproducaoText = animalData.informacao?.reproducao && animalData.informacao.reproducao.trim() !== "";
             const hasReproducaoVisual = Array.isArray(animalData.informacao?.reproducaoDetalhada) && animalData.informacao.reproducaoDetalhada.length > 0;
-            const hasBirdEggVisual = animalData.categoria === 'Aves';
+            const hasBirdEggVisual = hasCategory(animalData.categoria, 'Aves');
             const hasReproducao = hasReproducaoText || hasReproducaoVisual || hasBirdEggVisual;
 
             const hasPlumagemText = animalData.informacao && animalData.informacao.plumagem && animalData.informacao.plumagem.trim() !== "";

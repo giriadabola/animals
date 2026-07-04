@@ -241,19 +241,40 @@
 
             try {
                 const animalsRef = collection(db, "animais");
-                const q = query(animalsRef, where("categoria", "==", categoryName));
-                const querySnapshot = await getDocs(q);
+                
+                // Executar duas pesquisas em paralelo para suportar dados legados (String) e novos (Map)
+                const qLegacy = query(animalsRef, where("categoria", "==", categoryName));
+                const qMap = query(animalsRef, where("categoria." + categoryName, "==", true));
+                
+                const [snapLegacy, snapMap] = await Promise.all([
+                    getDocs(qLegacy),
+                    getDocs(qMap)
+                ]);
 
-                if (querySnapshot.empty) {
+                matchedAnimals = [];
+                const seenIds = new Set();
+
+                // Adicionar resultados da estrutura legada
+                snapLegacy.forEach((doc) => {
+                    if (!seenIds.has(doc.id)) {
+                        seenIds.add(doc.id);
+                        matchedAnimals.push({ data: doc.data(), id: doc.id });
+                    }
+                });
+
+                // Adicionar resultados da estrutura de Map
+                snapMap.forEach((doc) => {
+                    if (!seenIds.has(doc.id)) {
+                        seenIds.add(doc.id);
+                        matchedAnimals.push({ data: doc.data(), id: doc.id });
+                    }
+                });
+
+                if (matchedAnimals.length === 0) {
                     loadingMessage.textContent = `Nenhum animal encontrado na categoria "${categoryName}".`;
                     listContainer.style.display = 'none';
                 } else {
                     loadingMessage.style.display = 'none';
-                    matchedAnimals = [];
-                    querySnapshot.forEach((doc) => {
-                        matchedAnimals.push({ data: doc.data(), id: doc.id });
-                    });
-
                     filteredAnimals = [...matchedAnimals];
                     currentPage = 1;
                     renderPage(currentPage);
