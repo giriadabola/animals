@@ -1,4 +1,4 @@
-const CACHE_NAME = 'animals-app-v1.0.3';
+const CACHE_NAME = 'animals-app-v1.0.10';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
