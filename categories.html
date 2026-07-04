@@ -240,33 +240,29 @@
             }, 0);
 
             try {
-                const animalsRef = collection(db, "animais");
+                const querySnapshot = await getDocs(collection(db, "animais"));
                 
-                // Executar duas pesquisas em paralelo para suportar dados legados (String) e novos (Map)
-                const qLegacy = query(animalsRef, where("categoria", "==", categoryName));
-                const qMap = query(animalsRef, where("categoria." + categoryName, "==", true));
-                
-                const [snapLegacy, snapMap] = await Promise.all([
-                    getDocs(qLegacy),
-                    getDocs(qMap)
-                ]);
-
                 matchedAnimals = [];
-                const seenIds = new Set();
+                const target = categoryName.trim().toLowerCase();
 
-                // Adicionar resultados da estrutura legada
-                snapLegacy.forEach((doc) => {
-                    if (!seenIds.has(doc.id)) {
-                        seenIds.add(doc.id);
-                        matchedAnimals.push({ data: doc.data(), id: doc.id });
+                querySnapshot.forEach((doc) => {
+                    const animalData = doc.data();
+                    const cat = animalData.categoria;
+                    let match = false;
+
+                    if (typeof cat === 'string') {
+                        match = cat.trim().toLowerCase() === target;
+                    } else if (cat && typeof cat === 'object') {
+                        // Compara normalizando acentos se necessário, mas toLowerCase resolve os casos principais
+                        match = Object.keys(cat).some(k => {
+                            const keyClean = k.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+                            const targetClean = target.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+                            return cat[k] === true && keyClean === targetClean;
+                        });
                     }
-                });
 
-                // Adicionar resultados da estrutura de Map
-                snapMap.forEach((doc) => {
-                    if (!seenIds.has(doc.id)) {
-                        seenIds.add(doc.id);
-                        matchedAnimals.push({ data: doc.data(), id: doc.id });
+                    if (match) {
+                        matchedAnimals.push({ data: animalData, id: doc.id });
                     }
                 });
 

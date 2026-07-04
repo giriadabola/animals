@@ -351,10 +351,15 @@
                         if (filterType === 'categoria') {
                             const cat = animalData.categoria;
                             const target = filterValue.trim().toLowerCase();
+                            const targetClean = target.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
                             if (typeof cat === 'string') {
-                                match = cat.trim().toLowerCase() === target;
+                                const catClean = cat.trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                                match = catClean === targetClean;
                             } else if (cat && typeof cat === 'object') {
-                                match = Object.keys(cat).some(k => cat[k] === true && k.toLowerCase() === target);
+                                match = Object.keys(cat).some(k => {
+                                    const keyClean = k.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+                                    return cat[k] === true && keyClean === targetClean;
+                                });
                             }
                         } else if (filterType === 'familia') {
                             match = animalData.familia && animalData.familia.trim().toLowerCase() === filterValue.trim().toLowerCase();
