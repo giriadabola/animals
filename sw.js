@@ -1,4 +1,4 @@
-const CACHE_NAME = 'animals-app-v1.0.16';
+const CACHE_NAME = 'animals-app-v1.0.17';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -59,7 +59,7 @@ self.addEventListener('fetch', (event) => {
   }
   
   event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
+    caches.match(event.request, { ignoreSearch: true }).then((cachedResponse) => {
       if (cachedResponse) {
         // Padrão Stale-While-Revalidate: serve do cache e atualiza em background
         fetch(event.request).then((response) => {
