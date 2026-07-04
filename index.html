@@ -16,6 +16,22 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- CSS Global -->
     <link rel="stylesheet" href="css/style.css?v=1.0.1">
+    <script>
+        window.addEventListener('error', function(e) {
+            const loadMsg = document.getElementById('loading-message');
+            if (loadMsg) {
+                loadMsg.innerHTML = "Erro no Script: " + e.message + "<br><small>" + e.filename + ":" + e.lineno + "</small>";
+                loadMsg.style.color = "#f87171";
+            }
+        });
+        window.addEventListener('unhandledrejection', function(e) {
+            const loadMsg = document.getElementById('loading-message');
+            if (loadMsg) {
+                loadMsg.innerHTML = "Erro de Promessa: " + e.reason + "<br><small>" + (e.reason && e.reason.stack ? e.reason.stack : '') + "</small>";
+                loadMsg.style.color = "#f87171";
+            }
+        });
+    </script>
 </head>
 <body>
     <!-- SVG Gradient para ícones do Lucide -->
