@@ -336,6 +336,14 @@
             z-index: 999 !important;
         }
 
+        /* Ocultar botões "Início" e "Gerir Portal" apenas na versão PC */
+        @media (min-width: 901px) {
+            .global-header .nav-links a[href="index.html"],
+            #nav-link-gerir-portal {
+                display: none !important;
+            }
+        }
+
         /* Responsividade para telas menores */
         @media (max-width: 900px) {
             /* Ocultar o texto do logo (Grandes Projetos) */
