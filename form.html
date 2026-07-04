@@ -3086,7 +3086,7 @@
         function getReproductionVisualMeta(type = '') {
             const normalized = normalizeDimensionKey(type);
             if (normalized.includes('gestacao') || normalized.includes('gestação') || normalized.includes('gravidez') || normalized.includes('tempo')) {
-                return { key: 'viviparo', title: type || 'Gestação', accent: 'accent-weight' };
+                return { key: 'gestacao', title: type || 'Gestação', accent: 'accent-weight' };
             }
             if (normalized.includes('oviparo') || normalized.includes('ovo')) return { key: 'ovo', title: type || 'Ovíparo', accent: 'accent-egg' };
             if (normalized.includes('viviparo') || normalized.includes('placental')) return { key: 'viviparo', title: type || 'Vivíparo', accent: 'accent-weight' };
@@ -3102,6 +3102,7 @@
 
         function getReproductionModelSvg(key = 'reproducao') {
             const icons = {
+                gestacao: `<svg class="metric-model-svg reproduction-icon-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M22 26h36v36H22V26Z"/><path d="M22 38h36"/><path d="M31 16v10"/><path d="M49 16v10"/><circle cx="40" cy="50" r="7"/><path d="M40 46v4h4"/></svg>`,
                 ovo: `<svg class="metric-model-svg reproduction-icon-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M40 10c13 0 23 17 23 33c0 15-9 27-23 27S17 58 17 43C17 27 27 10 40 10Z"/><path d="M29 47c7 5 15 5 22 0"/></svg>`,
                 viviparo: `<svg class="metric-model-svg reproduction-icon-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M40 12c15 12 24 24 24 38c0 13-10 22-24 22S16 63 16 50c0-14 9-26 24-38Z"/><circle cx="40" cy="48" r="12"/><path d="M40 36v-9"/></svg>`,
                 marsupial: `<svg class="metric-model-svg reproduction-icon-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M20 62c2-26 13-43 33-48c9 9 13 19 11 32c-2 13-11 22-26 27"/><path d="M28 48c7 12 20 14 31 3"/><circle cx="42" cy="51" r="6"/></svg>`,

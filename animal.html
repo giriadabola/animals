@@ -504,6 +504,10 @@
 
             return `
                 <div class="dimensions-visual-card">
+                    <div class="general-visual-title" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; padding: 0 10px;">
+                        <strong>Dados rápidos</strong>
+                        ${getGenderTabsHTML(ordered)}
+                    </div>
                     <div class="visual-stage">
                         ${height ? `<div class="visual-height"><span>${formatDimension(height, '')}</span></div>` : ''}
                         <div class="visual-icon">${getCategoryModelSvg(getFirstActiveCategory(animalData.categoria))}</div>
@@ -511,6 +515,23 @@
                     </div>
                     <div class="dimension-model-grid mobile-only">
                         ${ordered.map(renderDimensionModelCard).join('')}
+                    </div>
+                </div>`;
+        }
+
+        function renderDimensionsVisualOnlyStage(animalData) {
+            const dimensions = animalData.informacao?.dimensoesDetalhadas || [];
+            if (!Array.isArray(dimensions) || dimensions.length === 0) return '';
+
+            const height = getDimensionByLabel(dimensions, ['Altura', 'Altura ao ombro']);
+            const length = getDimensionByLabel(dimensions, ['Comprimento total', 'Comprimento do corpo', 'Envergadura']);
+
+            return `
+                <div class="dimensions-visual-card" style="border: none; background: transparent; padding: 0; box-shadow: none; margin-bottom: 0;">
+                    <div class="visual-stage" style="margin-top: 15px;">
+                        ${height ? `<div class="visual-height"><span>${formatDimension(height, '')}</span></div>` : ''}
+                        <div class="visual-icon">${getCategoryModelSvg(getFirstActiveCategory(animalData.categoria))}</div>
+                        ${length ? `<div class="visual-length">${formatDimension(length, '')}</div>` : ''}
                     </div>
                 </div>`;
         }
@@ -629,7 +650,7 @@
         
         function getReproductionVisualMeta(type = '') {
             const normalized = normalizeDimensionKey(type);
-            if (normalized.includes('gestacao') || normalized.includes('gestação') || normalized.includes('gravidez') || normalized.includes('tempo')) return { key: 'viviparo', title: type || 'Gestação', accent: 'accent-weight' };
+            if (normalized.includes('gestacao') || normalized.includes('gestação') || normalized.includes('gravidez') || normalized.includes('tempo')) return { key: 'gestacao', title: type || 'Gestação', accent: 'accent-weight' };
             if (normalized.includes('oviparo') || normalized.includes('ovo')) return { key: 'ovo', title: type || 'Ovíparo', accent: 'accent-egg' };
             if (normalized.includes('viviparo') || normalized.includes('placental')) return { key: 'viviparo', title: type || 'Vivíparo', accent: 'accent-weight' };
             if (normalized.includes('marsupial')) return { key: 'marsupial', title: type || 'Marsupial', accent: 'accent-tail' };
@@ -644,6 +665,7 @@
 
         function getReproductionModelSvg(key = 'reproducao') {
             const icons = {
+                gestacao: `<svg class="metric-model-svg reproduction-icon-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M22 26h36v36H22V26Z"/><path d="M22 38h36"/><path d="M31 16v10"/><path d="M49 16v10"/><circle cx="40" cy="50" r="7"/><path d="M40 46v4h4"/></svg>`,
                 ovo: `<svg class="metric-model-svg reproduction-icon-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M40 10c13 0 23 17 23 33c0 15-9 27-23 27S17 58 17 43C17 27 27 10 40 10Z"/><path d="M29 47c7 5 15 5 22 0"/></svg>`,
                 viviparo: `<svg class="metric-model-svg reproduction-icon-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M40 12c15 12 24 24 24 38c0 13-10 22-24 22S16 63 16 50c0-14 9-26 24-38Z"/><circle cx="40" cy="48" r="12"/><path d="M40 36v-9"/></svg>`,
                 marsupial: `<svg class="metric-model-svg reproduction-icon-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M20 62c2-26 13-43 33-48c9 9 13 19 11 32c-2 13-11 22-26 27"/><path d="M28 48c7 12 20 14 31 3"/><circle cx="42" cy="51" r="6"/></svg>`,
@@ -859,6 +881,7 @@
         }
 
         function renderAnimalData(animalData, animalId) {
+            console.log("Loaded animalData in browser:", animalData);
             document.title = `${animalData.nome} - Grandes Projetos`;
             let thumbnailsHTML = '';
             if (animalData.videos && animalData.videos.length > 0) {
@@ -900,16 +923,42 @@
                                    ((Array.isArray(animalData.informacao.distribuicao.paises) && animalData.informacao.distribuicao.paises.length > 0) || 
                                     hasDistribicaoText);
 
+            console.log("Section flags:", {
+                hasGeralText,
+                hasGeralVisual,
+                hasGeral,
+                hasDimensoesText,
+                hasDimensoesVisual,
+                hasDimensoes,
+                hasAlimentacaoText,
+                hasAlimentacaoVisual,
+                hasAlimentacao,
+                hasReproducaoText,
+                hasReproducaoVisual,
+                hasReproducao,
+                hasPlumagemText,
+                hasPlumagemVisual,
+                hasPlumagem,
+                hasDistribicaoText,
+                hasDistribicao
+            });
+
             const navItems = [];
-            if (hasGeralText) navItems.push({ href: '#info-geral', label: 'Geral' });
+            if (hasGeralText) navItems.push({ desktopHref: '#info-geral', mobileHref: '#info-geral-mobile', label: 'Geral' });
             if (hasDimensoesText) navItems.push({ href: '#info-dimensoes', label: 'Dimensões' });
-            if (hasAlimentacaoText) navItems.push({ href: '#info-alimentacao', label: 'Alimentação' });
-            if (hasReproducaoText) navItems.push({ href: '#info-reproducao', label: 'Reprodução' });
-            if (hasPlumagemText) navItems.push({ href: '#info-plumagem', label: 'Plumagem' });
+            if (hasAlimentacao) navItems.push({ href: '#info-alimentacao', label: 'Alimentação' });
+            if (hasReproducao) navItems.push({ href: '#info-reproducao', label: 'Reprodução' });
+            if (hasPlumagem) navItems.push({ href: '#info-plumagem', label: 'Plumagem' });
             if (hasDistribicao) navItems.push({ href: '#info-distribuicao', label: 'Distribuição' });
-            const navHTML = navItems.map((item, idx) => `
-                <a href="${item.href}" class="nav-anchor ${idx === 0 ? 'active' : ''}">${item.label}</a>
-            `).join('');
+            const navHTMLDesktop = navItems.map((item, idx) => {
+                const desktopHref = item.desktopHref || item.href;
+                return `<a href="${desktopHref}" class="nav-anchor ${idx === 0 ? 'active' : ''}">${item.label}</a>`;
+            }).join('');
+            const navHTMLMobile = navItems.map((item, idx) => {
+                const desktopHref = item.desktopHref || item.href;
+                const mobileHref = item.mobileHref || `${desktopHref}-mobile`;
+                return `<a href="${mobileHref}" class="nav-anchor ${idx === 0 ? 'active' : ''}">${item.label}</a>`;
+            }).join('');
 
             // Build horizontal metrics bar for desktop
             const dimensoes = animalData.informacao?.dimensoesDetalhadas || [];
@@ -923,11 +972,89 @@
             const allItems = [...validDimensoes, ...validQuickData];
             const genderIconsHTML = getGenderTabsHTML(allItems);
 
+            const genders = new Set(allItems.map(i => i.genero).filter(Boolean));
+            const phases = new Set(allItems.map(i => i.fase).filter(Boolean));
+            const hasBothGenders = genders.has('M') && genders.has('F');
+            const hasCriaPhase = phases.has('Cria');
+            const defaultGender = genders.has('M') ? 'M' : 'F';
+            const defaultPhase = 'Adulto';
+
             const horizontalMetricsHTML = (validDimensoes.length > 0 || validQuickData.length > 0) ? `
                 <div class="metrics-horizontal-bar desktop-only">
                     ${validDimensoes.map(renderDimensionModelCard).join('')}
                     ${validQuickData.map(renderGeneralVisualCard).join('')}
                 </div>` : '';
+
+            const hasScientificClassification = Boolean(
+                animalData.reino ||
+                animalData.filo ||
+                animalData.subfilo ||
+                animalData.classe ||
+                animalData.ordem ||
+                animalData.subordem ||
+                animalData.familia ||
+                animalData.genero ||
+                animalData.especie ||
+                (Array.isArray(animalData.subespeciesDe) && animalData.subespeciesDe.length > 0)
+            );
+
+            const scientificClassificationRowsHTML = hasScientificClassification ? `
+                ${animalData.reino ? `<div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px;"><strong style="color: var(--text-secondary);">Reino:</strong> <span style="color: var(--text-primary); font-weight: 500;">${escapeHtml(animalData.reino)}</span></div>` : ''}
+                ${animalData.filo ? `<div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px;"><strong style="color: var(--text-secondary);">Filo:</strong> <span style="color: var(--text-primary); font-weight: 500;">${escapeHtml(animalData.filo)}</span></div>` : ''}
+                ${animalData.subfilo ? `<div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px;"><strong style="color: var(--text-secondary);">Subfilo:</strong> <span style="color: var(--text-primary); font-weight: 500;">${escapeHtml(animalData.subfilo)}</span></div>` : ''}
+                ${animalData.classe ? `<div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px;"><strong style="color: var(--text-secondary);">Classe:</strong> <span style="color: var(--text-primary); font-weight: 500;">${escapeHtml(animalData.classe)}</span></div>` : ''}
+                ${animalData.ordem ? `<div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px;"><strong style="color: var(--text-secondary);">Ordem:</strong> <span style="color: var(--text-primary); font-weight: 500;">${escapeHtml(animalData.ordem)}</span></div>` : ''}
+                ${animalData.subordem ? `<div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px;"><strong style="color: var(--text-secondary);">Subordem:</strong> <span style="color: var(--text-primary); font-weight: 500;">${escapeHtml(animalData.subordem)}</span></div>` : ''}
+                ${animalData.familia ? `<div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px;"><strong style="color: var(--text-secondary);">FamÃ­lia:</strong> <span style="color: var(--text-primary); font-weight: 500;">${escapeHtml(animalData.familia)}</span></div>` : ''}
+                ${animalData.genero ? `<div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px;"><strong style="color: var(--text-secondary);">GÃ©nero:</strong> <span style="color: var(--text-primary); font-weight: 500; font-style: italic;">${escapeHtml(animalData.genero)}</span></div>` : ''}
+                ${animalData.especie ? `<div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px;"><strong style="color: var(--text-secondary);">EspÃ©cie:</strong> <span style="color: var(--text-primary); font-weight: 500; font-style: italic;">${escapeHtml(animalData.especie)}</span></div>` : ''}
+                ${(Array.isArray(animalData.subespeciesDe) && animalData.subespeciesDe.length > 0) ? `
+                <div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px;">
+                    <strong style="color: var(--text-secondary);">SubespÃ©cie de:</strong>
+                    <span class="subespecies-names" style="color: var(--text-primary); font-weight: 500;">Carregando...</span>
+                </div>` : ''}
+            ` : '';
+
+            const scientificClassificationSectionDesktopHTML = hasScientificClassification ? `
+                <div class="info-section-card desktop-only" id="info-classificacao" style="margin-top: 24px; border-color: rgba(139, 92, 246, 0.3); background: linear-gradient(135deg, rgba(6, 182, 212, 0.04), rgba(236, 72, 153, 0.04), rgba(9, 9, 20, 0.85)); padding: 24px; box-shadow: 0 8px 32px rgba(139, 92, 246, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.02);">
+                    <h3 style="font-size: 1.25rem; margin-bottom: 14px; padding-bottom: 8px; display: flex; align-items: center; border-bottom: 1px solid var(--border-color); color: var(--text-primary);">
+                        <span class="icon" style="margin-right: 10px; display: inline-flex;"><i class="fa-solid fa-dna" style="font-size: 1.1rem; background: linear-gradient(135deg, #06b6d4, #ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"></i></span>ClassificaÃ§Ã£o cientÃ­fica
+                    </h3>
+                    <div class="classification-grid" style="display: flex; flex-direction: column; gap: 8px; font-size: 0.95rem;">
+                        ${scientificClassificationRowsHTML}
+                    </div>
+                </div>
+            ` : '';
+
+            const scientificClassificationSectionMobileHTML = hasScientificClassification ? `
+                <div class="info-section" id="info-classificacao-mobile">
+                    <h3><span class="icon" style="margin-right: 10px; display: inline-flex;"><i class="fa-solid fa-dna" style="font-size: 1.1rem; background: linear-gradient(135deg, #06b6d4, #ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"></i></span>ClassificaÃ§Ã£o cientÃ­fica</h3>
+                    <div class="classification-grid" style="display: flex; flex-direction: column; gap: 8px; font-size: 0.95rem; margin-top: 15px;">
+                        ${scientificClassificationRowsHTML}
+                    </div>
+                </div>
+            ` : '';
+
+            const sanitizeScientificClassificationHtml = (html = '') => html
+                .replaceAll('ClassificaÃƒÂ§ÃƒÂ£o cientÃƒÂ­fica', 'Classificação científica')
+                .replaceAll('FamÃƒÂ­lia:', 'Família:')
+                .replaceAll('GÃƒÂ©nero:', 'Género:')
+                .replaceAll('EspÃƒÂ©cie:', 'Espécie:')
+                .replaceAll('SubespÃƒÂ©cie de:', 'Subespécie de:')
+                .replaceAll('FamÃ­lia:', 'Família:')
+                .replaceAll('GÃ©nero:', 'Género:')
+                .replaceAll('EspÃ©cie:', 'Espécie:')
+                .replaceAll('SubespÃ©cie de:', 'Subespécie de:');
+            const scientificClassificationSectionDesktopCleanHTML = sanitizeScientificClassificationHtml(scientificClassificationSectionDesktopHTML);
+            const scientificClassificationSectionMobileCleanHTML = sanitizeScientificClassificationHtml(scientificClassificationSectionMobileHTML);
+            const forceScientificClassificationHtml = (html = '') => html
+                .replace(/Classifica[^<]*cient[^<]*fica/g, 'Classifica\u00e7\u00e3o cient\u00edfica')
+                .replace(/Fam[^<]*lia:/g, 'Fam\u00edlia:')
+                .replace(/G[^<]*nero:/g, 'G\u00e9nero:')
+                .replace(/Esp[^<]*cie:/g, 'Esp\u00e9cie:')
+                .replace(/Subesp[^<]*cie de:/g, 'Subesp\u00e9cie de:');
+            const scientificClassificationSectionDesktopFinalHTML = forceScientificClassificationHtml(scientificClassificationSectionDesktopCleanHTML);
+            const scientificClassificationSectionMobileFinalHTML = forceScientificClassificationHtml(scientificClassificationSectionMobileCleanHTML);
 
             mainContent.innerHTML = `
                 <div class="video-section">
@@ -943,7 +1070,7 @@
                     </div>
                 </div>
                 <nav class="page-nav desktop-only">
-                    ${navHTML}
+                    ${navHTMLDesktop}
                 </nav>
                 <div class="content-grid has-3-cols">
                     <!-- Column 1: Image & Related Animals -->
@@ -951,7 +1078,7 @@
                         <div class="animal-image">
                             <img src="${animalData.imagemUrl}" alt="Imagem de ${animalData.nome}" style="object-position: ${animalData.imagemObjectPosition || 'center center'};">
                         </div>
-                        ${(animalData.reino || animalData.filo || animalData.subfilo || animalData.classe || animalData.ordem || animalData.subordem || animalData.familia || animalData.genero || animalData.especie || (Array.isArray(animalData.subespeciesDe) && animalData.subespeciesDe.length > 0)) ? `
+                        ${false ? `
                         <div class="info-section-card" id="info-classificacao" style="border-color: rgba(139, 92, 246, 0.3); background: linear-gradient(135deg, rgba(6, 182, 212, 0.04), rgba(236, 72, 153, 0.04), rgba(9, 9, 20, 0.85)); padding: 24px; box-shadow: 0 8px 32px rgba(139, 92, 246, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.02);">
                             <h3 style="font-size: 1.25rem; margin-bottom: 14px; padding-bottom: 8px; display: flex; align-items: center; border-bottom: 1px solid var(--border-color); color: var(--text-primary);">
                                 <span class="icon" style="margin-right: 10px; display: inline-flex;"><i class="fa-solid fa-dna" style="font-size: 1.1rem; background: linear-gradient(135deg, #06b6d4, #ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"></i></span>Classificação científica
@@ -969,7 +1096,7 @@
                                 ${(Array.isArray(animalData.subespeciesDe) && animalData.subespeciesDe.length > 0) ? `
                                 <div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px;">
                                     <strong style="color: var(--text-secondary);">Subespécie de:</strong>
-                                    <span id="subespecies-names" style="color: var(--text-primary); font-weight: 500;">Carregando...</span>
+                                    <span class="subespecies-names" style="color: var(--text-primary); font-weight: 500;">Carregando...</span>
                                 </div>` : ''}
                             </div>
                         </div>
@@ -991,24 +1118,24 @@
                             <p>${animalData.informacao.dimensoes}</p>
                         </div>` : ''}
 
-                        ${hasAlimentacaoText ? `
+                        ${hasAlimentacao ? `
                         <div class="info-section-card" id="info-alimentacao">
                             <h3><span class="icon svg-icon">${getInfoSectionIconSvg('alimentacao')}</span>Alimentação</h3>
-                            <p>${animalData.informacao.alimentacao}</p>
+                            ${animalData.informacao.alimentacao ? `<p>${animalData.informacao.alimentacao}</p>` : ''}
                             ${renderFeedingVisual(animalData)}
                         </div>` : ''}
 
-                        ${hasReproducaoText ? `
+                        ${hasReproducao ? `
                         <div class="info-section-card" id="info-reproducao">
                             <h3><span class="icon svg-icon">${getInfoSectionIconSvg('reproducao')}</span>Reprodução</h3>
-                            <p>${animalData.informacao.reproducao || ''}</p>
+                            ${animalData.informacao.reproducao ? `<p>${animalData.informacao.reproducao}</p>` : ''}
                             ${renderReproductionVisual(animalData)}
                         </div>` : ''}
 
-                        ${hasPlumagemText ? `
+                        ${hasPlumagem ? `
                         <div class="info-section-card" id="info-plumagem">
                             <h3><span class="icon svg-icon">${getInfoSectionIconSvg('plumagem')}</span>Plumagem</h3>
-                            <p>${animalData.informacao.plumagem || 'Sem detalhes sobre a plumagem.'}</p>
+                            ${animalData.informacao.plumagem ? `<p>${animalData.informacao.plumagem}</p>` : ''}
                             ${renderPlumageVisual(animalData)}
                         </div>` : ''}
 
@@ -1076,6 +1203,7 @@
                         </div>` : ''}
                     </div>
                 </div>
+                ${scientificClassificationSectionDesktopFinalHTML}
 
                     <!-- Stacked Mobile Version -->
                     <div class="animal-details mobile-only">
@@ -1084,47 +1212,69 @@
                             <h2 class="scientific-name">(${animalData.nomeCientifico})</h2>
                         </div>
                         <nav class="page-nav">
-                            ${navHTML}
+                            ${navHTMLMobile}
                         </nav>
                         <div class="info-sections">
-                            ${hasGeral ? `
-                            <div class="info-section" id="info-geral">
+                            ${(validDimensoes.length > 0 || validQuickData.length > 0) ? (() => {
+                                const combined = [
+                                    ...validDimensoes.map(item => ({ ...item, isDimension: true })),
+                                    ...validQuickData.map(item => ({ ...item, isDimension: false }))
+                                ];
+                                const sorted = combined.sort((a, b) => a.tipo.localeCompare(b.tipo));
+                                const cardsHTML = sorted.map(item => {
+                                    const cardHtml = item.isDimension ? renderDimensionModelCard(item) : renderGeneralVisualCard(item);
+                                    const itemGender = item.genero || '';
+                                    const itemPhase = item.fase || 'Adulto';
+                                    
+                                    const matchesGender = !hasBothGenders || !itemGender || itemGender === defaultGender;
+                                    const matchesPhase = !hasCriaPhase || itemPhase === defaultPhase;
+                                    
+                                    if (matchesGender && matchesPhase) {
+                                        return cardHtml;
+                                    }
+                                    return cardHtml.replace('<article class="', '<article style="display: none;" class="');
+                                }).join('');
+                                
+                                return `
+                                <div class="info-section mobile-only" id="info-modelos-visuais-mobile" style="margin-bottom: 20px;">
+                                    <h3 style="display: flex; align-items: center; justify-content: space-between; width: 100%;"><span style="display: flex; align-items: center;"><span class="icon svg-icon">${getInfoSectionIconSvg('geral')}</span>Infos</span>${genderIconsHTML}</h3>
+                                    <div class="visual-models-grid" style="display: flex; flex-direction: column; gap: 14px; margin-top: 15px;">
+                                        ${cardsHTML}
+                                    </div>
+                                </div>`;
+                            })() : ''}
+
+                            ${hasGeralText ? `
+                            <div class="info-section" id="info-geral-mobile">
                                 <h3><span class="icon svg-icon">${getInfoSectionIconSvg('geral')}</span>Informação Geral</h3>
-                                ${hasGeralText ? `<p>${animalData.informacao.geral}</p>` : ''}
-                                ${hasGeralVisual ? `
-                                <div class="mobile-only">
-                                    ${renderGeneralVisual(animalData)}
-                                </div>` : ''}
+                                <p>${animalData.informacao.geral}</p>
                             </div>` : ''}
-                            ${hasDimensoes ? `
-                            <div class="info-section ${!hasDimensoesText ? 'mobile-only' : ''}" id="info-dimensoes">
+
+                            ${hasDimensoesText ? `
+                            <div class="info-section" id="info-dimensoes-mobile">
                                 <h3><span class="icon svg-icon">${getInfoSectionIconSvg('dimensoes')}</span>Dimensões</h3>
-                                ${hasDimensoesText ? `<p>${animalData.informacao.dimensoes || ''}</p>` : ''}
-                                ${hasDimensoesVisual ? `
-                                <div class="mobile-only">
-                                    ${renderDimensionsVisual(animalData)}
-                                </div>` : ''}
+                                <p>${animalData.informacao.dimensoes || ''}</p>
                             </div>` : ''}
                             ${hasAlimentacao ? `
-                            <div class="info-section" id="info-alimentacao">
+                            <div class="info-section" id="info-alimentacao-mobile">
                                 <h3><span class="icon svg-icon">${getInfoSectionIconSvg('alimentacao')}</span>Alimentação</h3>
                                 ${hasAlimentacaoText ? `<p>${animalData.informacao.alimentacao}</p>` : ''}
                                 ${renderFeedingVisual(animalData)}
                             </div>` : ''}
                             ${hasReproducao ? `
-                            <div class="info-section" id="info-reproducao">
+                            <div class="info-section" id="info-reproducao-mobile">
                                 <h3><span class="icon svg-icon">${getInfoSectionIconSvg('reproducao')}</span>Reprodução</h3>
                                 <p>${animalData.informacao.reproducao || ''}</p>
                                 ${renderReproductionVisual(animalData)}
                             </div>` : ''}
                             ${hasPlumagem ? `
-                            <div class="info-section" id="info-plumagem">
+                            <div class="info-section" id="info-plumagem-mobile">
                                 <h3><span class="icon svg-icon">${getInfoSectionIconSvg('plumagem')}</span>Plumagem</h3>
                                 <p>${animalData.informacao.plumagem || 'Sem detalhes sobre a plumagem.'}</p>
                                 ${renderPlumageVisual(animalData)}
                             </div>` : ''}
                             ${hasDistribicao ? `
-                            <div class="info-section" id="info-distribuicao">
+                            <div class="info-section" id="info-distribuicao-mobile">
                                 <h3><span class="icon svg-icon">${getInfoSectionIconSvg('distribuicao')}</span>Distribuição</h3>
                                 <div class="distribution-stacked-layout" style="margin-top: 20px; display: flex; flex-direction: column; gap: 16px;">
                                     ${animalData.informacao.distribuicao.descricao && animalData.informacao.distribuicao.descricao.trim() !== "" ? `<p>${animalData.informacao.distribuicao.descricao}</p>` : ''}
@@ -1137,6 +1287,7 @@
                                     </div>
                                 </div>
                             </div>` : ''}
+                            ${scientificClassificationSectionMobileFinalHTML}
                         </div>
                     </div>
                 </div>`;
@@ -1319,8 +1470,8 @@
 
             // Carregar nomes das subespécies de
             if (Array.isArray(animalData.subespeciesDe) && animalData.subespeciesDe.length > 0) {
-                const namesContainer = document.getElementById('subespecies-names');
-                if (namesContainer) {
+                const namesContainers = document.querySelectorAll('.subespecies-names');
+                if (namesContainers.length > 0) {
                     Promise.all(animalData.subespeciesDe.map(async (parentId) => {
                         try {
                             const parentDoc = await getDoc(doc(db, "animais", parentId));
@@ -1334,7 +1485,10 @@
                         return null;
                     })).then(links => {
                         const validLinks = links.filter(Boolean);
-                        namesContainer.innerHTML = validLinks.length > 0 ? validLinks.join(', ') : 'Desconhecido';
+                        const linksHTML = validLinks.length > 0 ? validLinks.join(', ') : 'Desconhecido';
+                        namesContainers.forEach(container => {
+                            container.innerHTML = linksHTML;
+                        });
                     });
                 }
             }
@@ -1385,7 +1539,7 @@
                     btn.style.background = btn.dataset.gender === 'M' ? 'rgba(59, 130, 246, 0.12)' : 'rgba(236, 72, 153, 0.12)';
                     btn.style.borderColor = btn.dataset.gender === 'M' ? 'rgba(59, 130, 246, 0.15)' : 'rgba(236, 72, 153, 0.15)';
                     
-                    const container = btn.closest('.info-section-card') || btn.closest('.general-visual-card');
+                    const container = btn.closest('.info-section-card') || btn.closest('.general-visual-card') || btn.closest('.dimensions-visual-card') || btn.closest('.info-section');
                     applyCombinedFilters(container);
                 });
             });
@@ -1404,7 +1558,7 @@
                     btn.style.background = btn.dataset.phase === 'Adulto' ? 'rgba(16, 185, 129, 0.12)' : 'rgba(245, 158, 11, 0.12)';
                     btn.style.borderColor = btn.dataset.phase === 'Adulto' ? 'rgba(16, 185, 129, 0.15)' : 'rgba(245, 158, 11, 0.15)';
                     
-                    const container = btn.closest('.info-section-card') || btn.closest('.general-visual-card');
+                    const container = btn.closest('.info-section-card') || btn.closest('.general-visual-card') || btn.closest('.dimensions-visual-card') || btn.closest('.info-section');
                     applyCombinedFilters(container);
                 });
             });
@@ -1420,7 +1574,13 @@
 
             navAnchors.forEach(anchor => {
                 anchor.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const targetId = anchor.getAttribute('href');
+                    const targetSection = targetId ? document.querySelector(targetId) : null;
                     makeActive(anchor);
+                    if (targetSection) {
+                        targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
                 });
             });
 

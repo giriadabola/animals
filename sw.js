@@ -1,4 +1,4 @@
-const CACHE_NAME = 'animals-app-v1.0.33';
+const CACHE_NAME = 'animals-app-v1.0.35';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -56,6 +56,27 @@ self.addEventListener('fetch', (event) => {
     event.request.url.includes('firestore.googleapis.com') || 
     event.request.url.includes('firebase')
   ) {
+    return;
+  }
+  
+  // Estratégia Network-First para navegação (HTML) para obter sempre o mais recente se online
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      fetch(event.request).then((response) => {
+        if (response.status === 200) {
+          const responseToCache = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseToCache));
+        }
+        return response;
+      }).catch(() => {
+        return caches.match(event.request, { ignoreSearch: true }).then((cachedResponse) => {
+          if (cachedResponse) {
+            return cachedResponse;
+          }
+          return caches.match('./index.html');
+        });
+      })
+    );
     return;
   }
   
