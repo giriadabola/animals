@@ -934,7 +934,7 @@ main {
 }
 
 .info-section-card p {
-    font-size: 1.22rem;
+    font-size: 1.39rem;
     color: var(--text-secondary);
     line-height: 1.8;
     margin-bottom: 20px;
@@ -1733,7 +1733,7 @@ button[type="submit"]:hover {
     }
 
     .info-section h3 {
-        font-size: 1.22rem;
+        font-size: 1.39rem;
     }
 
     .info-section p {
@@ -2786,10 +2786,19 @@ button[type="submit"]:hover {
     margin-top: 16px;
 }
 
-.reproduction-model-card .dimension-model-value {
-    font-size: 0.9rem;
+.reproduction-model-card .dimension-model-label {
+    font-size: 0.82rem;
     font-weight: 700;
-    opacity: 0.95;
+    line-height: 1.15;
+    opacity: 0.9;
+}
+
+.reproduction-model-card .dimension-model-value {
+    font-size: 1.39rem;
+    font-weight: 900;
+    opacity: 1;
+    line-height: 1.18;
+    margin-top: 4px;
 }
 
 .reproduction-model-card.is-suggestion {
@@ -3002,13 +3011,22 @@ button[type="submit"]:hover {
 }
 
 .feeding-model-card .dimension-model-value {
-    font-size: 0.9rem;
-    font-weight: 700;
+    font-size: 1.39rem;
+    font-weight: 800;
     opacity: 0.95;
+    line-height: 1.25;
 }
 
 .feeding-strategy-card .dimension-model-value {
-    font-size: 0.88rem;
+    font-size: 1.39rem;
+    font-weight: 800;
+    line-height: 1.25;
+}
+
+.bird-egg-selected-card .dimension-model-value {
+    font-size: 1.39rem;
+    font-weight: 800;
+    line-height: 1.25;
 }
 
 .feeding-strategy-svg path,
@@ -3332,7 +3350,7 @@ button[type="submit"]:hover {
 
 .plumage-model-value {
     color: var(--text-secondary);
-    font-size: 0.92rem;
+    font-size: 1.39rem;
     font-weight: 700;
     line-height: 1.35;
 }
@@ -3432,7 +3450,7 @@ button[type="submit"]:hover {
 .jvm-tooltip {
     background: #1e1e24 !important;
     border: 1px solid rgba(255,255,255,0.15) !important;
-    color: #ffffff !important;
+    color: #ffffff !important;`r`n    font-weight: 400 !important;
     font-family: inherit !important;
     font-size: 0.85rem !important;
     padding: 6px 10px !important;
@@ -3958,7 +3976,7 @@ button[type="submit"]:hover {
     .mobile-only .reproduction-category-copy span,
     .mobile-only .plumage-hero-copy span,
     .mobile-only .climate-zone-label {
-        color: #ffffff !important;
+        color: #ffffff !important;`r`n    font-weight: 400 !important;
     }
 
     /* Reduce container padding inside details section */
@@ -4274,12 +4292,12 @@ button[type="submit"]:hover {
 }
 
 #info-modelos-visuais .dimension-model-card .dimension-model-label {
-    color: #ffffff !important;
+    color: #ffffff !important;`r`n    font-weight: 400 !important;
     font-weight: 400 !important;
 }
 
 #info-modelos-visuais .dimension-model-card .dimension-model-value {
-    font-size: 1.22rem !important;
+    font-size: 1.39rem !important;
 }
 
 /* Lists Section */
@@ -4519,3 +4537,29 @@ button[type="submit"]:hover {
         color: var(--text-primary);
     }
 }
+
+/* ForÃ§ar o mesmo tamanho para a segunda linha de todos os cards de modelos visuais */
+.dimension-model-card .dimension-model-value,
+.reproduction-model-card .dimension-model-value,
+.feeding-model-card .dimension-model-value,
+.feeding-strategy-card .dimension-model-value,
+.bird-egg-selected-card .dimension-model-value,
+.plumage-model-value,
+#info-modelos-visuais .dimension-model-card .dimension-model-value,
+#info-modelos-visuais-mobile .dimension-model-card .dimension-model-value {
+    font-size: 1.39rem !important;
+}
+
+
+
+
+/* Forçar a primeira linha (rótulos) de todos os cards de modelos visuais em branco */
+.dimension-model-card .dimension-model-label,
+.reproduction-model-card .dimension-model-label,
+.feeding-model-card .dimension-model-label,
+.feeding-strategy-card .dimension-model-label,
+.bird-egg-selected-card .dimension-model-label,
+.plumage-model-label {
+    color: #ffffff !important;`r`n    font-weight: 400 !important;
+}
+
