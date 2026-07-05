@@ -669,7 +669,6 @@
                 setTimeout(() => {
                     window.location.href = 'login.html?redirect=' + encodeURIComponent(window.location.pathname.split('/').pop() + window.location.search);
                 }, 1000);
-                return;
             }
 
             try {
@@ -1329,6 +1328,7 @@
         import { feedingAnimalOptions } from "./js/feeding-animal-options.js?v=2";
         import { getFeedingStrategyMeta, getFeedingStrategySvg } from "./js/feeding-strategies.js";
         import { getMatingMeta, getMatingSystemSvg } from "./js/mating-systems.js";
+        import { GENDER_BOTH, collapseCombinedGenderItems, expandCombinedGenderItems, getGenderUi, getNextGenderValue, normalizeGenderValue } from "./js/gender-utils.js";
 
         let allAnimals = [];
         let existingFamilies = new Set();
@@ -1939,9 +1939,9 @@
                     criadoPor: criadoPor,
                     informacao: {
                         geral: document.getElementById('infoGeral').value,
-                        geralDetalhada: getGeneralVisualData(),
+                        geralDetalhada: expandCombinedGenderItems(getGeneralVisualData()),
                         dimensoes: document.getElementById('infoDimensoes').value,
-                        dimensoesDetalhadas: getDimensionData(),
+                        dimensoesDetalhadas: expandCombinedGenderItems(getDimensionData()),
                         alimentacao: document.getElementById('infoAlimentacao').value,
                         alimentacaoDetalhada: getFeedingData(),
                         reproducao: document.getElementById('infoReproducao').value,
@@ -2028,7 +2028,7 @@
             });
         }
 
-        function createDimensionRow(metric = '', minValue = '', unit = '', maxValue = '', gender = 'M', fase = 'Adulto') {
+        function createDimensionRow(metric = '', minValue = '', unit = '', maxValue = '', gender = GENDER_BOTH, fase = 'Adulto') {
             const row = document.createElement('div');
             row.className = 'dimension-row';
 
@@ -2061,15 +2061,12 @@
             const genderBtn = document.createElement('button');
             genderBtn.type = 'button';
             genderBtn.className = 'gender-toggle-btn dimension-gender-toggle';
-            genderBtn.dataset.value = gender || 'M';
+            genderBtn.dataset.value = normalizeGenderValue(gender, GENDER_BOTH);
             function updateGenderBtnUI() {
-                if (genderBtn.dataset.value === 'M') {
-                    genderBtn.innerHTML = '<span style="color: #3b82f6; font-weight: bold;">♂</span>';
-                    genderBtn.title = 'Macho';
-                } else {
-                    genderBtn.innerHTML = '<span style="color: #ec4899; font-weight: bold;">♀</span>';
-                    genderBtn.title = 'Fêmea';
-                }
+                const ui = getGenderUi(genderBtn.dataset.value);
+                genderBtn.dataset.value = ui.value;
+                genderBtn.innerHTML = ui.html;
+                genderBtn.title = ui.title;
             }
             updateGenderBtnUI();
 
@@ -2106,7 +2103,7 @@
                 updateDimensionPreview();
             });
             genderBtn.addEventListener('click', () => {
-                genderBtn.dataset.value = genderBtn.dataset.value === 'M' ? 'F' : 'M';
+                genderBtn.dataset.value = getNextGenderValue(genderBtn.dataset.value);
                 updateGenderBtnUI();
                 updateDimensionPreview();
             });
@@ -2137,7 +2134,7 @@
                         valorMin: min,
                         valorMax: max,
                         unidade: row.querySelector('.dimension-unit').value,
-                        genero: row.querySelector('.dimension-gender-toggle')?.dataset.value || 'M',
+                        genero: normalizeGenderValue(row.querySelector('.dimension-gender-toggle')?.dataset.value, GENDER_BOTH),
                         fase: row.querySelector('.dimension-fase-toggle')?.dataset.value || 'Adulto'
                     };
                 })
@@ -2146,16 +2143,17 @@
 
         function setDimensionData(dimensions = []) {
             dimensionRowsContainer.innerHTML = '';
-            if (!Array.isArray(dimensions) || dimensions.length === 0) {
-                getDefaultDimensionsForCategory().forEach(item => createDimensionRow(item.tipo, '', item.unidade, '', item.genero || 'M', item.fase || 'Adulto'));
+            const normalizedDimensions = collapseCombinedGenderItems(dimensions);
+            if (!Array.isArray(normalizedDimensions) || normalizedDimensions.length === 0) {
+                getDefaultDimensionsForCategory().forEach(item => createDimensionRow(item.tipo, '', item.unidade, '', item.genero || GENDER_BOTH, item.fase || 'Adulto'));
                 return;
             }
-            dimensions.forEach(item => createDimensionRow(
+            normalizedDimensions.forEach(item => createDimensionRow(
                 item.tipo,
                 item.valorMin ?? item.valor ?? '',
                 item.unidade,
                 item.valorMax ?? '',
-                item.genero || 'M',
+                item.genero || GENDER_BOTH,
                 item.fase || 'Adulto'
             ));
             updateDimensionPreview();
@@ -2400,7 +2398,7 @@
             maxInput.placeholder = type && type.includes('Velocidade') ? 'Ex: 80' : 'Ex: 15';
         }
 
-        function createGeneralVisualRow(type = '', minValue = '', unit = '', maxValue = '', gender = 'M', fase = 'Adulto') {
+        function createGeneralVisualRow(type = '', minValue = '', unit = '', maxValue = '', gender = GENDER_BOTH, fase = 'Adulto') {
             const row = document.createElement('div');
             row.className = 'general-visual-row';
 
@@ -2453,15 +2451,12 @@
             const genderBtn = document.createElement('button');
             genderBtn.type = 'button';
             genderBtn.className = 'gender-toggle-btn general-visual-gender-toggle';
-            genderBtn.dataset.value = gender || 'M';
+            genderBtn.dataset.value = normalizeGenderValue(gender, GENDER_BOTH);
             function updateGenderBtnUI() {
-                if (genderBtn.dataset.value === 'M') {
-                    genderBtn.innerHTML = '<span style="color: #3b82f6; font-weight: bold;">♂</span>';
-                    genderBtn.title = 'Macho';
-                } else {
-                    genderBtn.innerHTML = '<span style="color: #ec4899; font-weight: bold;">♀</span>';
-                    genderBtn.title = 'Fêmea';
-                }
+                const ui = getGenderUi(genderBtn.dataset.value);
+                genderBtn.dataset.value = ui.value;
+                genderBtn.innerHTML = ui.html;
+                genderBtn.title = ui.title;
             }
             updateGenderBtnUI();
 
@@ -2501,7 +2496,7 @@
                 updateGeneralVisualPreview();
             });
             genderBtn.addEventListener('click', () => {
-                genderBtn.dataset.value = genderBtn.dataset.value === 'M' ? 'F' : 'M';
+                genderBtn.dataset.value = getNextGenderValue(genderBtn.dataset.value);
                 updateGenderBtnUI();
                 updateGeneralVisualPreview();
             });
@@ -2536,7 +2531,7 @@
                         valorMin: min,
                         valorMax: max,
                         unidade: isStrategy ? '' : (row.querySelector('.general-visual-unit')?.value || ''),
-                        genero: row.querySelector('.general-visual-gender-toggle')?.dataset.value || 'M',
+                        genero: normalizeGenderValue(row.querySelector('.general-visual-gender-toggle')?.dataset.value, GENDER_BOTH),
                         fase: row.querySelector('.general-visual-fase-toggle')?.dataset.value || 'Adulto'
                     };
                 })
@@ -2545,21 +2540,23 @@
 
         function setGeneralVisualData(items = []) {
             generalVisualRowsContainer.innerHTML = '';
-            if (!Array.isArray(items) || items.length === 0) {
+            const normalizedItems = collapseCombinedGenderItems(items);
+            if (!Array.isArray(normalizedItems) || normalizedItems.length === 0) {
                 generalVisualOptions.forEach(option => {
                     if (option.tipo !== 'Velocidade média' && option.tipo !== 'Força da mordida') {
-                        createGeneralVisualRow(option.tipo, '', option.unidade, '', option.genero || 'M', option.fase || 'Adulto');
+                        createGeneralVisualRow(option.tipo, '', option.unidade, '', option.genero || GENDER_BOTH, option.fase || 'Adulto');
                     }
                 });
                 updateGeneralVisualPreview();
                 return;
             }
-            items.forEach(item => createGeneralVisualRow(
+            normalizedItems.forEach(item => createGeneralVisualRow(
                 item.tipo || '',
                 item.valorMin ?? item.valor ?? '',
                 item.unidade || getGeneralVisualOption(item.tipo)?.unidade || '',
                 item.valorMax ?? '',
-                item.genero || 'M'
+                item.genero || GENDER_BOTH,
+                item.fase || 'Adulto'
             ));
             updateGeneralVisualPreview();
         }
@@ -4369,5 +4366,4 @@
     </script>
 </body>
 </html>
-
 

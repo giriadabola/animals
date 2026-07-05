@@ -32,6 +32,7 @@
         import { feedingAnimalOptions } from "./js/feeding-animal-options.js?v=2";
         import { feedingStrategyDescriptions, getFeedingStrategyMeta, getFeedingStrategySvg } from "./js/feeding-strategies.js";
         import { getMatingMeta, getMatingSystemSvg } from "./js/mating-systems.js";
+        import { collectConcreteGenders, genderMatchesSelection } from "./js/gender-utils.js";
         
         const mainContent = document.getElementById('main-content-area');
 
@@ -90,7 +91,7 @@
         }
 
         function getGenderTabsHTML(allItems) {
-            const genders = new Set(allItems.map(item => item.genero).filter(Boolean));
+            const genders = collectConcreteGenders(allItems);
             const phases = new Set(allItems.map(item => item.fase).filter(Boolean));
             const hasGenders = genders.has('M') || genders.has('F');
             const hasPhases = phases.has('Cria');
@@ -386,7 +387,7 @@
             const valid = Array.isArray(models) ? models.filter(item => item.tipo && (item.valor || item.valorMin || item.valorMax) && !isEnv(item)) : [];
             const envItems = Array.isArray(models) ? models.filter(item => item.tipo && (item.valor || item.valorMin || item.valorMax) && isEnv(item)) : [];
             
-            const genders = new Set(valid.map(i => i.genero).filter(Boolean));
+            const genders = collectConcreteGenders(valid);
             const phases = new Set(valid.map(i => i.fase).filter(Boolean));
             
             const hasBothGenders = genders.has('M') && genders.has('F');
@@ -402,7 +403,7 @@
                     const itemGender = item.genero || '';
                     const itemPhase = item.fase || 'Adulto';
                     
-                    const matchesGender = !hasBothGenders || !itemGender || itemGender === defaultGender;
+                    const matchesGender = !hasBothGenders || genderMatchesSelection(itemGender, defaultGender);
                     const matchesPhase = !hasCriaPhase || itemPhase === defaultPhase;
                     
                     if (matchesGender && matchesPhase) {
@@ -972,7 +973,7 @@
             const allItems = [...validDimensoes, ...validQuickData];
             const genderIconsHTML = getGenderTabsHTML(allItems);
 
-            const genders = new Set(allItems.map(i => i.genero).filter(Boolean));
+            const genders = collectConcreteGenders(allItems);
             const phases = new Set(allItems.map(i => i.fase).filter(Boolean));
             const hasBothGenders = genders.has('M') && genders.has('F');
             const hasCriaPhase = phases.has('Cria');
@@ -1163,7 +1164,7 @@
                                 ...validQuickData.map(item => ({ ...item, isDimension: false }))
                             ];
                             const sorted = combined.sort((a, b) => a.tipo.localeCompare(b.tipo));
-                            const genders = new Set(allItems.map(i => i.genero).filter(Boolean));
+                            const genders = collectConcreteGenders(allItems);
                             const phases = new Set(allItems.map(i => i.fase).filter(Boolean));
                             
                             const hasBothGenders = genders.has('M') && genders.has('F');
@@ -1177,7 +1178,7 @@
                                 const itemGender = item.genero || '';
                                 const itemPhase = item.fase || 'Adulto';
                                 
-                                const matchesGender = !hasBothGenders || !itemGender || itemGender === defaultGender;
+                                const matchesGender = !hasBothGenders || genderMatchesSelection(itemGender, defaultGender);
                                 const matchesPhase = !hasCriaPhase || itemPhase === defaultPhase;
                                 
                                 if (matchesGender && matchesPhase) {
@@ -1226,7 +1227,7 @@
                                     const itemGender = item.genero || '';
                                     const itemPhase = item.fase || 'Adulto';
                                     
-                                    const matchesGender = !hasBothGenders || !itemGender || itemGender === defaultGender;
+                                    const matchesGender = !hasBothGenders || genderMatchesSelection(itemGender, defaultGender);
                                     const matchesPhase = !hasCriaPhase || itemPhase === defaultPhase;
                                     
                                     if (matchesGender && matchesPhase) {
@@ -1514,7 +1515,7 @@
                     const cardGender = card.dataset.gender || '';
                     const cardPhase = card.dataset.phase || 'Adulto';
                     
-                    const matchesGender = !selectedGender || !cardGender || cardGender === selectedGender;
+                    const matchesGender = genderMatchesSelection(cardGender, selectedGender);
                     const matchesPhase = cardPhase === selectedPhase;
                     
                     if (matchesGender && matchesPhase) {
