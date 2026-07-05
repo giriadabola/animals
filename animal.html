@@ -13,11 +13,32 @@
     <meta name="apple-mobile-web-app-title" content="Animais">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <!-- CSS Global -->
-    <link rel="stylesheet" href="css/style.css?v=1.0.2">
+    <link rel="stylesheet" href="css/style.css?v=1.0.3">
     <!-- jsVectorMap -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsvectormap/dist/css/jsvectormap.min.css">
     <script src="https://cdn.jsdelivr.net/npm/jsvectormap"></script>
     <script src="https://cdn.jsdelivr.net/npm/jsvectormap/dist/maps/world.js"></script>
+    <style>
+        /* For�ar o mesmo tamanho para a segunda linha de todos os cards de modelos visuais */
+        .dimension-model-card .dimension-model-value,
+        .reproduction-model-card .dimension-model-value,
+        .feeding-model-card .dimension-model-value,
+        .feeding-strategy-card .dimension-model-value,
+        .bird-egg-selected-card .dimension-model-value,
+        .plumage-model-value,
+        #info-modelos-visuais .dimension-model-card .dimension-model-value,
+        #info-modelos-visuais-mobile .dimension-model-card .dimension-model-value {
+            font-size: 1.39rem !important;
+        }
+        .dimension-model-card .dimension-model-label,
+        .reproduction-model-card .dimension-model-label,
+        .feeding-model-card .dimension-model-label,
+        .feeding-strategy-card .dimension-model-label,
+        .bird-egg-selected-card .dimension-model-label,
+        .plumage-model-label {
+            color: #ffffff !important;`r`n            font-weight: 400 !important;
+        }
+    </style>
 </head>
 <body>
 
@@ -580,11 +601,9 @@
                     <div class="dimension-model-copy">
                         <div class="dimension-model-label">${escapeHtml(meta.title)}</div>
                         <div class="dimension-model-value">${escapeHtml(detail)}</div>
-                        <div class="dimension-model-meta">Alimentação</div>
                     </div>
                 </article>`;
         }
-
         function renderFeedingAnimalCard(animal) {
             return `
                 <article class="feeding-prey-card">
@@ -615,26 +634,22 @@
                     <div class="dimension-model-copy">
                         <div class="dimension-model-label">${escapeHtml(meta.title)}</div>
                         <div class="dimension-model-value">${escapeHtml(detail)}</div>
-                        <div class="dimension-model-meta">Alimentação</div>
                     </div>
                 </article>`;
         }
-
         function renderFeedingStrategyCard(item) {
             const strategy = item.estrategia || item.tipo || '';
             const meta = getFeedingStrategyMeta(strategy);
-            const detail = item.detalhe || feedingStrategyDescriptions[strategy] || 'Estratégia alimentar';
+            const detail = item.detalhe || feedingStrategyDescriptions[strategy] || 'Estrat�gia alimentar';
             return `
                 <article class="dimension-model-card feeding-strategy-card ${meta.accent}">
                     <div class="dimension-model-icon">${getFeedingStrategySvg(meta.key)}</div>
                     <div class="dimension-model-copy">
                         <div class="dimension-model-label">${escapeHtml(strategy)}</div>
                         <div class="dimension-model-value">${escapeHtml(detail)}</div>
-                        <div class="dimension-model-meta">Estratégia alimentar</div>
                     </div>
                 </article>`;
         }
-
         function renderFeedingVisual(animalData) {
             const feeding = animalData.informacao?.alimentacaoDetalhada || [];
             const valid = Array.isArray(feeding) ? feeding.filter(item => item.tipo || item.detalhe) : [];
@@ -692,24 +707,23 @@
                         <div class="dimension-model-copy">
                             <div class="dimension-model-label">${escapeHtml(egg.label)}</div>
                             <div class="dimension-model-value">${escapeHtml(item.detalhe || egg.average)}</div>
-                            <div class="dimension-model-meta">Ovo escolhido</div>
                         </div>
                     </article>`;
             }
 
             const meta = getReproductionVisualMeta(item.tipo);
-            const detail = item.detalhe || 'Modelo visual';
+            const detail = (item.detalhe || '').trim();
+            const label = detail ? meta.title : 'Tipo de Reprodu\u00e7\u00e3o';
+            const value = detail || meta.title;
             return `
                 <article class="dimension-model-card reproduction-model-card ${meta.accent}">
                     <div class="dimension-model-icon">${getReproductionModelSvg(meta.key)}</div>
                     <div class="dimension-model-copy">
-                        <div class="dimension-model-label">${escapeHtml(meta.title)}</div>
-                        <div class="dimension-model-value">${escapeHtml(detail)}</div>
-                        <div class="dimension-model-meta">Reprodução</div>
+                        <div class="dimension-model-label">${escapeHtml(label)}</div>
+                        <div class="dimension-model-value">${escapeHtml(value)}</div>
                     </div>
                 </article>`;
         }
-
         function renderReproductionVisual(animalData) {
             const reproduction = animalData.informacao?.reproducaoDetalhada || [];
             const valid = Array.isArray(reproduction) ? reproduction.filter(item => item.tipo || item.detalhe) : [];
@@ -1662,3 +1676,11 @@
     </script>
 </body>
 </html>
+
+
+
+
+
+
+
+
