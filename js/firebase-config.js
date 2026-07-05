@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
-import { getFirestore, enableIndexedDbPersistence } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
+import { initializeFirestore, enableIndexedDbPersistence } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
 import { getAuth } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
 
 const firebaseConfig = {
@@ -12,10 +12,13 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+const db = initializeFirestore(app, {
+    experimentalForceLongPolling: true
+});
 const auth = getAuth(app);
 
-// Ativar persistência offline do Firestore (desativado no iOS para prevenir travamento silencioso)
+// Ativar persistência offline do Firestore (desativado temporariamente para evitar travamento em navegadores com bloqueio de cookies/storage)
+/*
 const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 
 if (!isIOS) {
@@ -27,6 +30,6 @@ if (!isIOS) {
         }
     });
 }
+*/
 
 export { db, auth };
-
