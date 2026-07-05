@@ -32,7 +32,7 @@
         import { feedingAnimalOptions } from "./js/feeding-animal-options.js?v=2";
         import { feedingStrategyDescriptions, getFeedingStrategyMeta, getFeedingStrategySvg } from "./js/feeding-strategies.js";
         import { getMatingMeta, getMatingSystemSvg } from "./js/mating-systems.js";
-        import { collectConcreteGenders, genderMatchesSelection } from "./js/gender-utils.js";
+        import { collapseCombinedGenderItems, collectConcreteGenders, genderMatchesSelection } from "./js/gender-utils.js";
         
         const mainContent = document.getElementById('main-content-area');
 
@@ -385,7 +385,9 @@
             const models = animalData.informacao?.geralDetalhada || [];
             const isEnv = item => normalizeDimensionKey(item.tipo).includes('zona') || normalizeDimensionKey(item.tipo).includes('habitat');
             const valid = Array.isArray(models) ? models.filter(item => item.tipo && (item.valor || item.valorMin || item.valorMax) && !isEnv(item)) : [];
-            const envItems = Array.isArray(models) ? models.filter(item => item.tipo && (item.valor || item.valorMin || item.valorMax) && isEnv(item)) : [];
+            const envItems = collapseCombinedGenderItems(
+                Array.isArray(models) ? models.filter(item => item.tipo && (item.valor || item.valorMin || item.valorMax) && isEnv(item)) : []
+            );
             
             const genders = collectConcreteGenders(valid);
             const phases = new Set(valid.map(i => i.fase).filter(Boolean));
@@ -968,7 +970,9 @@
             const models = animalData.informacao?.geralDetalhada || [];
             const isEnv = item => normalizeDimensionKey(item.tipo).includes('zona') || normalizeDimensionKey(item.tipo).includes('habitat');
             const validQuickData = Array.isArray(models) ? models.filter(item => item.tipo && (item.valor || item.valorMin || item.valorMax) && !isEnv(item)) : [];
-            const envQuickData = Array.isArray(models) ? models.filter(item => item.tipo && (item.valor || item.valorMin || item.valorMax) && isEnv(item)) : [];
+            const envQuickData = collapseCombinedGenderItems(
+                Array.isArray(models) ? models.filter(item => item.tipo && (item.valor || item.valorMin || item.valorMax) && isEnv(item)) : []
+            );
 
             const allItems = [...validDimensoes, ...validQuickData];
             const genderIconsHTML = getGenderTabsHTML(allItems);
@@ -1079,7 +1083,7 @@
                         <div class="animal-image">
                             <img src="${animalData.imagemUrl}" alt="Imagem de ${animalData.nome}" style="object-position: ${animalData.imagemObjectPosition || 'center center'};">
                         </div>
-                        ${false ? `
+                        ${scientificClassificationSectionDesktopFinalHTML}${false ? `
                         <div class="info-section-card" id="info-classificacao" style="border-color: rgba(139, 92, 246, 0.3); background: linear-gradient(135deg, rgba(6, 182, 212, 0.04), rgba(236, 72, 153, 0.04), rgba(9, 9, 20, 0.85)); padding: 24px; box-shadow: 0 8px 32px rgba(139, 92, 246, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.02);">
                             <h3 style="font-size: 1.25rem; margin-bottom: 14px; padding-bottom: 8px; display: flex; align-items: center; border-bottom: 1px solid var(--border-color); color: var(--text-primary);">
                                 <span class="icon" style="margin-right: 10px; display: inline-flex;"><i class="fa-solid fa-dna" style="font-size: 1.1rem; background: linear-gradient(135deg, #06b6d4, #ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"></i></span>Classificação científica
@@ -1204,7 +1208,6 @@
                         </div>` : ''}
                     </div>
                 </div>
-                ${scientificClassificationSectionDesktopFinalHTML}
 
                     <!-- Stacked Mobile Version -->
                     <div class="animal-details mobile-only">
@@ -1244,6 +1247,13 @@
                                     </div>
                                 </div>`;
                             })() : ''}
+                            ${envQuickData.length > 0 ? `
+                            <div class="info-section mobile-only" id="info-ambiente-mobile" style="margin-bottom: 20px;">
+                                <h3><span class="icon svg-icon">${getInfoSectionIconSvg('distribuicao')}</span>Zona Climática & Habitat</h3>
+                                <div class="visual-models-grid" style="display: flex; flex-direction: column; gap: 14px; margin-top: 15px;">
+                                    ${envQuickData.map(renderGeneralVisualCard).join('')}
+                                </div>
+                            </div>` : ''}
 
                             ${hasGeralText ? `
                             <div class="info-section" id="info-geral-mobile">
