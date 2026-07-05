@@ -1,4 +1,4 @@
-const CACHE_NAME = 'animals-admin-v1.0.1';
+const CACHE_NAME = 'animals-admin-v1.0.3';
 const ASSETS_TO_CACHE = [
   './form.html',
   './gestor-index.html',

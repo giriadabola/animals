@@ -17,6 +17,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- CSS Global -->
     <link rel="stylesheet" href="css/style.css">
+    <script src="js/runtime-guard.js"></script>
     <style>
         body {
             padding-top: 0 !important;
@@ -321,7 +322,7 @@
         <div id="loading-status" style="font-size: 1.1rem; font-weight: 600; letter-spacing: 0.5px;">A verificar autorização...</div>
     </div>
     <script type="module">
-        import { auth, db } from "./js/firebase-config.js?v=2";
+        import { auth, db } from "./js/firebase-config.js?v=5";
         import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
         import { doc, getDoc } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
 
@@ -385,7 +386,7 @@
 
     <!-- Firebase Logic -->
     <script type="module">
-        import { db } from "./js/firebase-config.js?v=2";
+        import { db } from "./js/firebase-config.js?v=5";
         import { doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
 
         const settingsList = document.getElementById('settingsList');

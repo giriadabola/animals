@@ -16,6 +16,33 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- CSS Global -->
     <link rel="stylesheet" href="css/style.css?v=1.0.1">
+    <script src="js/runtime-guard.js"></script>
+    <script>
+        // Forçar limpeza de cache e service workers se houver atualização
+        (async function() {
+            const VERSION = 'v1.0.39';
+            if (localStorage.getItem('app_cache_version') !== VERSION) {
+                try {
+                    if ('serviceWorker' in navigator) {
+                        const regs = await navigator.serviceWorker.getRegistrations();
+                        for (let reg of regs) {
+                            await reg.unregister();
+                        }
+                    }
+                    if ('caches' in window) {
+                        const keys = await caches.keys();
+                        for (let key of keys) {
+                            await caches.delete(key);
+                        }
+                    }
+                    localStorage.setItem('app_cache_version', VERSION);
+                    window.location.reload();
+                } catch (e) {
+                    console.error("Erro ao limpar cache:", e);
+                }
+            }
+        })();
+    </script>
     <script>
         window.addEventListener('error', function(e) {
             const loadMsg = document.getElementById('loading-message');
@@ -69,11 +96,16 @@
     </main>
 
     <!-- Componentes e Lógica -->
-    <script type="module" src="js/components.js?v=4"></script>
+    <script type="module" src="js/components.js?v=5"></script>
     <script type="module">
-        import { db } from "./js/firebase-config.js?v=2";
+        import { db, auth } from "./js/firebase-config.js?v=5";
         import { collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
         import { hideLoadingOverlay } from "./js/loader.js?v=2";
+
+        onAuthStateChanged(auth, (user) => {
+            console.log("AUTH STATE: Estado de autenticação recebido. Utilizador:", user ? (user.email || user.uid) : "Anónimo");
+        });
 
         let allAnimals = [];
         const mainLayout = document.getElementById('mainLayout');
@@ -139,18 +171,34 @@
         }
 
         async function fetchAllAnimals() {
+            console.log("fetchAllAnimals: A iniciar carregamento dos animais do Firestore...");
+            
+            // Teste de conectividade rápida para detetar bloqueios de AdBlocker/Brave Shields
             try {
+                console.log("Teste de Conectividade: A tentar fazer fetch direto ao Firestore...");
+                const testRes = await fetch("https://firestore.googleapis.com/v1/projects/animals-1cb2d/databases/(default)/documents/animais", { method: 'GET', mode: 'cors' });
+                console.log("Teste de Conectividade: Ligação física OK! O servidor respondeu com status:", testRes.status);
+            } catch (err) {
+                console.error("TESTE DE CONECTIVIDADE FALHOU! O browser ou uma extensão (AdBlock/Proteção) está a bloquear ligações ao Firestore.", err);
+            }
+
+            try {
+                console.log("fetchAllAnimals: A chamar getDocs(collection(db, 'animais'))...");
                 const querySnapshot = await getDocs(collection(db, "animais"));
+                console.log("fetchAllAnimals: getDocs concluído com sucesso. Registos obtidos:", querySnapshot.size);
                 querySnapshot.forEach((doc) => {
                     allAnimals.push({ id: doc.id, ...doc.data() });
                 });
                 loadingMessage.style.display = 'none';
                 categoriesContainer.style.display = 'grid';
+                console.log("fetchAllAnimals: A popular categorias...");
                 populateCategories();
+                console.log("fetchAllAnimals: A popular listas de sobrevivência...");
                 populateSurvivalLists();
+                console.log("fetchAllAnimals: A ocultar overlay de loading...");
                 hideLoadingOverlay();
             } catch (error) {
-                console.error("Erro ao carregar animais:", error);
+                console.error("Erro ao carregar animais do Firestore:", error);
                 loadingMessage.textContent = "Não foi possível carregar os animais.";
                 hideLoadingOverlay();
             }

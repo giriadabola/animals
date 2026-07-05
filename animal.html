@@ -14,12 +14,13 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <!-- CSS Global -->
     <link rel="stylesheet" href="css/style.css?v=1.0.3">
+    <script src="js/runtime-guard.js"></script>
     <!-- jsVectorMap -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsvectormap/dist/css/jsvectormap.min.css">
     <script src="https://cdn.jsdelivr.net/npm/jsvectormap"></script>
     <script src="https://cdn.jsdelivr.net/npm/jsvectormap/dist/maps/world.js"></script>
     <style>
-        /* For�ar o mesmo tamanho para a segunda linha de todos os cards de modelos visuais */
+        /* For�ar o mesmo tamanho para a segunda linha de todos os cards de modelos visuais */
         .dimension-model-card .dimension-model-value,
         .reproduction-model-card .dimension-model-value,
         .feeding-model-card .dimension-model-value,
@@ -45,9 +46,9 @@
     <main id="main-content-area"></main>
     
     <!-- Componentes e Lógica -->
-    <script type="module" src="js/components.js?v=2"></script>
+    <script type="module" src="js/components.js?v=5"></script>
     <script type="module">
-        import { db } from "./js/firebase-config.js?v=2";
+        import { db } from "./js/firebase-config.js?v=5";
         import { doc, getDoc, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
         import { feedingTypeDescriptions, getFeedingVisualMeta, getFeedingModelSvg } from "./js/feeding-visuals.js";
         import { feedingAnimalOptions } from "./js/feeding-animal-options.js?v=2";
@@ -640,7 +641,7 @@
         function renderFeedingStrategyCard(item) {
             const strategy = item.estrategia || item.tipo || '';
             const meta = getFeedingStrategyMeta(strategy);
-            const detail = item.detalhe || feedingStrategyDescriptions[strategy] || 'Estrat�gia alimentar';
+            const detail = item.detalhe || feedingStrategyDescriptions[strategy] || 'Estrat�gia alimentar';
             return `
                 <article class="dimension-model-card feeding-strategy-card ${meta.accent}">
                     <div class="dimension-model-icon">${getFeedingStrategySvg(meta.key)}</div>
@@ -668,6 +669,7 @@
         
         function getReproductionVisualMeta(type = '') {
             const normalized = normalizeDimensionKey(type);
+            if (normalized.includes('cria') || normalized.includes('filhote')) return { key: 'cuidado', title: type || 'Número de Crias', accent: 'accent-tail' };
             if (normalized.includes('gestacao') || normalized.includes('gestação') || normalized.includes('gravidez') || normalized.includes('tempo')) return { key: 'gestacao', title: type || 'Gestação', accent: 'accent-weight' };
             if (normalized.includes('oviparo') || normalized.includes('ovo')) return { key: 'ovo', title: type || 'Ovíparo', accent: 'accent-egg' };
             if (normalized.includes('viviparo') || normalized.includes('placental')) return { key: 'viviparo', title: type || 'Vivíparo', accent: 'accent-weight' };

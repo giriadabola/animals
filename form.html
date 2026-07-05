@@ -20,10 +20,37 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- CSS Global -->
     <link rel="stylesheet" href="css/style.css?v=1.0.3">
+    <script src="js/runtime-guard.js"></script>
     <!-- jsVectorMap -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsvectormap/dist/css/jsvectormap.min.css">
     <script src="https://cdn.jsdelivr.net/npm/jsvectormap"></script>
     <script src="https://cdn.jsdelivr.net/npm/jsvectormap/dist/maps/world.js"></script>
+    <script>
+        // Forçar limpeza de cache e service workers se houver atualização
+        (async function() {
+            const VERSION = 'v1.0.40';
+            if (localStorage.getItem('app_cache_version') !== VERSION) {
+                try {
+                    if ('serviceWorker' in navigator) {
+                        const regs = await navigator.serviceWorker.getRegistrations();
+                        for (let reg of regs) {
+                            await reg.unregister();
+                        }
+                    }
+                    if ('caches' in window) {
+                        const keys = await caches.keys();
+                        for (let key of keys) {
+                            await caches.delete(key);
+                        }
+                    }
+                    localStorage.setItem('app_cache_version', VERSION);
+                    window.location.reload();
+                } catch (e) {
+                    console.error("Erro ao limpar cache:", e);
+                }
+            }
+        })();
+    </script>
     <style>
         body.form-light {
             --bg-primary: #121116;
@@ -656,19 +683,24 @@
         <div id="loading-status" style="font-size: 1.1rem; font-weight: 600; letter-spacing: 0.5px;">A verificar autorização...</div>
     </div>
     <script type="module">
-        import { auth, db } from "./js/firebase-config.js?v=2";
+        console.log("Auth Script: A iniciar...");
+        import { auth, db } from "./js/firebase-config.js?v=5";
+        console.log("Auth Script: Imports de Firebase concluídos.", { auth, db });
         import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
         import { doc, getDoc } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
 
         const overlay = document.getElementById('loading-overlay');
         const statusText = document.getElementById('loading-status');
 
+        console.log("Auth Script: A registar escutador onAuthStateChanged...");
         onAuthStateChanged(auth, async (user) => {
+            console.log("Auth Script: Estado de Auth recebido! Utilizador:", user ? (user.email || user.uid) : "Nenhum (Anónimo)");
             if (!user) {
                 statusText.textContent = "Não autenticado. A redirecionar...";
                 setTimeout(() => {
                     window.location.href = 'login.html?redirect=' + encodeURIComponent(window.location.pathname.split('/').pop() + window.location.search);
                 }, 1000);
+                return;
             }
 
             try {
@@ -1320,9 +1352,9 @@
     </div>
 
     <!-- Componentes e Lógica -->
-    <script type="module" src="js/components.js?v=4"></script>
+    <script type="module" src="js/components.js?v=5"></script>
     <script type="module">
-        import { db, auth } from "./js/firebase-config.js?v=2";
+        import { db, auth } from "./js/firebase-config.js?v=5";
         import { doc, setDoc, collection, getDocs, updateDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
         import { feedingTypes, feedingTypeDescriptions, getFeedingVisualMeta, getFeedingModelSvg } from "./js/feeding-visuals.js";
         import { feedingAnimalOptions } from "./js/feeding-animal-options.js?v=2";
@@ -2918,6 +2950,8 @@
         }
 
         function createReproductionRow(type = '', detail = '') {
+            const typeStr = String(type || '');
+            const detailStr = String(detail || '');
             const row = document.createElement('div');
             row.className = 'reproduction-row';
 
@@ -2931,8 +2965,12 @@
             const optGestacao = document.createElement('option');
             optGestacao.value = 'gestacao';
             optGestacao.textContent = 'Tempo de Gestação';
+
+            const optCrias = document.createElement('option');
+            optCrias.value = 'crias';
+            optCrias.textContent = 'Número de Crias';
             
-            rowModeSelect.append(optTipo, optGestacao);
+            rowModeSelect.append(optTipo, optGestacao, optCrias);
 
             const typeSelect = document.createElement('select');
             typeSelect.className = 'reproduction-type';
@@ -2970,14 +3008,15 @@
             removeBtn.innerHTML = '&times;';
             removeBtn.title = 'Remover campo';
 
-            const isGestation = type === 'Tempo de Gestação' || type.toLowerCase().includes('gestação') || type.toLowerCase().includes('gestacao');
+            const isGestation = typeStr === 'Tempo de Gestação' || typeStr.toLowerCase().includes('gestação') || typeStr.toLowerCase().includes('gestacao');
+            const isCrias = typeStr === 'Número de Crias' || typeStr.toLowerCase().includes('cria');
             if (isGestation) {
                 rowModeSelect.value = 'gestacao';
-                if (detail) {
+                if (detailStr) {
                     let minVal = '';
                     let maxVal = '';
                     let unitVal = 'dias';
-                    const match = detail.match(/(\d+)(?:\s*-\s*(\d+))?\s*(dias|dia|meses|mês|mes|semanas|semana)/i);
+                    const match = detailStr.match(/(\d+)(?:\s*-\s*(\d+))?\s*(dias|dia|meses|mês|mes|semanas|semana)/i);
                     if (match) {
                         minVal = match[1] || '';
                         maxVal = match[2] || '';
@@ -2990,30 +3029,56 @@
                             unitVal = 'dias';
                         }
                     } else {
-                        const numbers = detail.match(/\d+/g);
+                        const numbers = detailStr.match(/\d+/g);
                         if (numbers) {
                             minVal = numbers[0] || '';
                             maxVal = numbers[1] || '';
                         }
-                        if (detail.toLowerCase().includes('mes')) unitVal = 'meses';
-                        if (detail.toLowerCase().includes('semana')) unitVal = 'semanas';
+                        if (detailStr.toLowerCase().includes('mes')) unitVal = 'meses';
+                        if (detailStr.toLowerCase().includes('semana')) unitVal = 'semanas';
                     }
                     minInput.value = minVal;
                     maxInput.value = maxVal;
                     unitSelect.value = unitVal;
                 }
+            } else if (isCrias) {
+                rowModeSelect.value = 'crias';
+                if (detailStr) {
+                    let minVal = '';
+                    let maxVal = '';
+                    const match = detailStr.match(/(\d+)(?:\s*-\s*(\d+))?/);
+                    if (match) {
+                        minVal = match[1] || '';
+                        maxVal = match[2] || '';
+                    } else {
+                        const numbers = detailStr.match(/\d+/g);
+                        if (numbers) {
+                            minVal = numbers[0] || '';
+                            maxVal = numbers[1] || '';
+                        }
+                    }
+                    minInput.value = minVal;
+                    maxInput.value = maxVal;
+                }
             } else {
                 rowModeSelect.value = 'tipo';
-                fillReproductionTypeSelect(typeSelect, type);
+                fillReproductionTypeSelect(typeSelect, typeStr);
             }
 
             function updateRowVisibility() {
                 row.innerHTML = '';
                 row.append(rowModeSelect);
                 if (rowModeSelect.value === 'tipo') {
-                    fillReproductionTypeSelect(typeSelect, typeSelect.value || (!isGestation ? type : ''));
+                    fillReproductionTypeSelect(typeSelect, typeSelect.value || (!isGestation && !isCrias ? typeStr : ''));
                     row.append(typeSelect, removeBtn);
+                } else if (rowModeSelect.value === 'crias') {
+                    minInput.placeholder = 'Mín: 1';
+                    maxInput.placeholder = 'Máx: 5';
+                    const spacer = document.createElement('div');
+                    row.append(minInput, maxInput, spacer, removeBtn);
                 } else {
+                    minInput.placeholder = 'Ex: 10';
+                    maxInput.placeholder = 'Ex: 15';
                     row.append(minInput, maxInput, unitSelect, removeBtn);
                 }
             }
@@ -3048,6 +3113,21 @@
                         return {
                             tipo: typeVal,
                             detalhe: ''
+                        };
+                    } else if (rowModeSelect.value === 'crias') {
+                        const min = row.querySelector('.reproduction-gestation-min')?.value || '';
+                        const max = row.querySelector('.reproduction-gestation-max')?.value || '';
+                        let detail = '';
+                        if (min && max) {
+                            detail = `${min}-${max} crias`;
+                        } else if (min) {
+                            detail = `${min} crias`;
+                        } else if (max) {
+                            detail = `${max} crias`;
+                        }
+                        return {
+                            tipo: 'Número de Crias',
+                            detalhe: detail
                         };
                     } else {
                         const min = row.querySelector('.reproduction-gestation-min')?.value || '';
@@ -3084,6 +3164,9 @@
             const normalized = normalizeDimensionKey(type);
             if (normalized.includes('gestacao') || normalized.includes('gestação') || normalized.includes('gravidez') || normalized.includes('tempo')) {
                 return { key: 'gestacao', title: type || 'Gestação', accent: 'accent-weight' };
+            }
+            if (normalized.includes('cria') || normalized.includes('filhote')) {
+                return { key: 'cuidado', title: type || 'Número de Crias', accent: 'accent-tail' };
             }
             if (normalized.includes('oviparo') || normalized.includes('ovo')) return { key: 'ovo', title: type || 'Ovíparo', accent: 'accent-egg' };
             if (normalized.includes('viviparo') || normalized.includes('placental')) return { key: 'viviparo', title: type || 'Vivíparo', accent: 'accent-weight' };
