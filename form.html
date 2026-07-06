@@ -944,6 +944,14 @@
 
                 <!-- Campos Avançados Colapsáveis -->
                 <div class="form-advanced-fields" id="advancedFieldsContainer" style="display: none;">
+                    <div class="advanced-section-header" style="grid-column: span 3; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 8px; margin-bottom: 10px;">
+                        <span style="font-size: 0.95rem; font-weight: 600; color: var(--primary-color); display: flex; align-items: center; gap: 8px;">
+                            <i class="fa-solid fa-dna"></i> Classificação Científica
+                        </span>
+                        <button type="button" id="btnOpenImportTaxModal" class="preview-btn" style="padding: 6px 12px; font-size: 0.8rem; display: flex; align-items: center; gap: 6px; margin: 0; height: auto;" title="Importar Classificação Científica">
+                            <i class="fa-solid fa-file-import"></i> Preenchimento Rápido
+                        </button>
+                    </div>
                     <div class="form-group autocomplete-container">
                         <label for="reino">Reino</label>
                         <input type="text" id="reino" autocomplete="off" placeholder="Ex: Animalia">
@@ -973,6 +981,11 @@
                         <label for="subordem">Subordem</label>
                         <input type="text" id="subordem" autocomplete="off" placeholder="Ex: Haplorhini">
                         <div class="autocomplete-results" id="subordemResults"></div>
+                    </div>
+                    <div class="form-group autocomplete-container">
+                        <label for="infraordem">Infraordem</label>
+                        <input type="text" id="infraordem" autocomplete="off" placeholder="Ex: Simiiformes">
+                        <div class="autocomplete-results" id="infraordemResults"></div>
                     </div>
                     <div class="form-group autocomplete-container">
                         <label for="genero">Género</label>
@@ -1483,6 +1496,21 @@
         </div>
     </div>
 
+    <!-- Modal de Importação de Classificação Científica -->
+    <div class="modal-overlay" id="importTaxModalOverlay" style="z-index: 2500;">
+        <div class="modal" style="max-width: 500px;">
+            <h2>Importar Classificação Científica</h2>
+            <p style="color: var(--text-secondary); margin-top: -10px; font-size: 0.9rem; margin-bottom: 15px;">Cole o texto de classificação (ex: Wikipédia) para preencher os campos automaticamente.</p>
+            <div style="margin-bottom: 15px;">
+                <textarea id="importTaxTextarea" placeholder="Cole o texto aqui...&#10;Exemplo:&#10;Reino&#10;Animalia&#10;Filo&#10;Chordata&#10;..." style="width: 100%; height: 200px; padding: 12px; background: var(--bg-card); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--border-radius-sm); font-family: monospace; resize: vertical; box-sizing: border-box;"></textarea>
+            </div>
+            <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                <button type="button" id="closeImportTaxModalBtn" class="menu-button" style="background: transparent; border: 1px solid var(--border-color); color: var(--text-secondary); margin: 0;">Cancelar</button>
+                <button type="button" id="confirmImportTaxBtn" class="menu-button" style="background: var(--primary-color); color: var(--bg-primary); border: none; margin: 0;">Importar</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Modal de Seleção de Subregião -->
     <div class="modal-overlay" id="subregionModalOverlay" style="z-index: 2000;">
         <div class="modal" style="max-width: 440px;">
@@ -1601,6 +1629,7 @@
         let existingClasses = new Set();
         let existingOrdens = new Set();
         let existingSubordens = new Set();
+        let existingInfraordens = new Set();
         let existingGeneros = new Set();
         let existingEspeciesList = new Set();
         
@@ -1632,6 +1661,8 @@
         const ordemResultsContainer = document.getElementById('ordemResults');
         const subordemInput = document.getElementById('subordem');
         const subordemResultsContainer = document.getElementById('subordemResults');
+        const infraordemInput = document.getElementById('infraordem');
+        const infraordemResultsContainer = document.getElementById('infraordemResults');
         const generoInput = document.getElementById('genero');
         const generoResultsContainer = document.getElementById('generoResults');
         const especiesInput = document.getElementById('especies');
@@ -2191,6 +2222,7 @@
                     classe: document.getElementById('classe').value.trim(),
                     ordem: document.getElementById('ordem').value.trim(),
                     subordem: document.getElementById('subordem').value.trim(),
+                    infraordem: document.getElementById('infraordem').value.trim(),
                     genero: document.getElementById('genero').value.trim(),
                     especie: document.getElementById('especies').value.trim(),
                     subespeciesDe: selectedSubespecies,
@@ -3833,6 +3865,7 @@
             existingClasses.clear();
             existingOrdens.clear();
             existingSubordens.clear();
+            existingInfraordens.clear();
             existingGeneros.clear();
             existingEspeciesList.clear();
             allAnimals.forEach(animal => {
@@ -3843,6 +3876,7 @@
                 if (animal.classe) existingClasses.add(animal.classe);
                 if (animal.ordem) existingOrdens.add(animal.ordem);
                 if (animal.subordem) existingSubordens.add(animal.subordem);
+                if (animal.infraordem) existingInfraordens.add(animal.infraordem);
                 if (animal.genero) existingGeneros.add(animal.genero);
                 if (animal.especie) existingEspeciesList.add(animal.especie);
             });
@@ -3890,6 +3924,7 @@
         setupAutocomplete(classeInput, classeResultsContainer, existingClasses);
         setupAutocomplete(ordemInput, ordemResultsContainer, existingOrdens);
         setupAutocomplete(subordemInput, subordemResultsContainer, existingSubordens);
+        setupAutocomplete(infraordemInput, infraordemResultsContainer, existingInfraordens);
         setupAutocomplete(generoInput, generoResultsContainer, existingGeneros);
         setupAutocomplete(especiesInput, especiesResultsContainer, existingEspeciesList);
 
@@ -4034,6 +4069,7 @@
             document.getElementById('classe').value = animal.classe || '';
             document.getElementById('ordem').value = animal.ordem || '';
             document.getElementById('subordem').value = animal.subordem || '';
+            document.getElementById('infraordem').value = animal.infraordem || '';
             document.getElementById('genero').value = animal.genero || '';
             document.getElementById('especies').value = animal.especie || '';
             selectedSubespecies = animal.subespeciesDe || [];
@@ -4166,6 +4202,107 @@
         editModalOverlay.addEventListener('click', (e) => { if (e.target === editModalOverlay) closeModal(); });
         editListContainer.addEventListener('click', (e) => { if (e.target.classList.contains('edit-item-btn')) { loadDataIntoForm(e.target.dataset.id); } });
         document.addEventListener('click', (e) => { if (!e.target.closest('.autocomplete-container')) { familiaResultsContainer.style.display = 'none'; } });
+
+        // --- IMPORTAÇÃO DE CLASSIFICAÇÃO CIENTÍFICA ---
+        const importTaxModalOverlay = document.getElementById('importTaxModalOverlay');
+        const btnOpenImportTaxModal = document.getElementById('btnOpenImportTaxModal');
+        const closeImportTaxModalBtn = document.getElementById('closeImportTaxModalBtn');
+        const confirmImportTaxBtn = document.getElementById('confirmImportTaxBtn');
+        const importTaxTextarea = document.getElementById('importTaxTextarea');
+
+        if (btnOpenImportTaxModal) {
+            btnOpenImportTaxModal.addEventListener('click', () => {
+                importTaxTextarea.value = '';
+                importTaxModalOverlay.style.display = 'flex';
+                importTaxTextarea.focus();
+            });
+        }
+
+        const closeImportTaxModal = () => {
+            importTaxModalOverlay.style.display = 'none';
+        };
+
+        if (closeImportTaxModalBtn) {
+            closeImportTaxModalBtn.addEventListener('click', closeImportTaxModal);
+        }
+        if (importTaxModalOverlay) {
+            importTaxModalOverlay.addEventListener('click', (e) => {
+                if (e.target === importTaxModalOverlay) closeImportTaxModal();
+            });
+        }
+
+        if (confirmImportTaxBtn) {
+            confirmImportTaxBtn.addEventListener('click', () => {
+                const rawText = importTaxTextarea.value;
+                if (!rawText.trim()) {
+                    closeImportTaxModal();
+                    return;
+                }
+
+                const parsed = parseClassificationText(rawText);
+                
+                const keyToDomId = {
+                    'reino': 'reino',
+                    'filo': 'filo',
+                    'subfilo': 'subfilo',
+                    'classe': 'classe',
+                    'ordem': 'ordem',
+                    'subordem': 'subordem',
+                    'infraordem': 'infraordem',
+                    'família': 'familia',
+                    'familia': 'familia',
+                    'género': 'genero',
+                    'genero': 'genero',
+                    'espécie': 'especies',
+                    'espécies': 'especies',
+                    'especie': 'especies',
+                    'especies': 'especies'
+                };
+
+                for (const [key, value] of Object.entries(parsed)) {
+                    const domId = keyToDomId[key.toLowerCase()];
+                    if (domId) {
+                        const el = document.getElementById(domId);
+                        if (el) {
+                            el.value = value;
+                            el.dispatchEvent(new Event('input', { bubbles: true }));
+                        }
+                    }
+                }
+
+                closeImportTaxModal();
+            });
+        }
+
+        function parseClassificationText(text) {
+            const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+            const result = {};
+            const knownKeys = ['reino', 'filo', 'subfilo', 'classe', 'ordem', 'subordem', 'infraordem', 'família', 'familia', 'género', 'genero', 'espécie', 'espécies', 'especie', 'especies'];
+            
+            let parsedAnySeparator = false;
+            for (let line of lines) {
+                const match = line.match(/^([A-Za-zÀ-ÖØ-öø-ÿ\s]+)[:\-]\s*(.+)$/i);
+                if (match) {
+                    const rawKey = match[1].trim().toLowerCase();
+                    if (knownKeys.includes(rawKey)) {
+                        result[rawKey] = match[2].trim();
+                        parsedAnySeparator = true;
+                    }
+                }
+            }
+            
+            if (!parsedAnySeparator) {
+                for (let i = 0; i < lines.length - 1; i++) {
+                    const potentialKey = lines[i].toLowerCase();
+                    if (knownKeys.includes(potentialKey)) {
+                        result[potentialKey] = lines[i+1];
+                        i++;
+                    }
+                }
+            }
+            
+            return result;
+        }
 
 
         // --- CONTROLO DAS ABAS DO FORMULÁRIO ---
