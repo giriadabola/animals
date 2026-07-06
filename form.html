@@ -5126,15 +5126,108 @@
         const countryAutocompleteDropdown = document.getElementById('countryAutocompleteDropdown');
         const selectedCountriesList = document.getElementById('selectedCountriesList');
 
+        const normalizeStr = (str) => str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+        
+        let englishNames;
+        try {
+            englishNames = new Intl.DisplayNames(['en'], { type: 'region' });
+        } catch (e) {
+            console.error("Intl.DisplayNames is not supported in this browser.", e);
+        }
+
+        function findCountryCode(searchText) {
+            const clean = (s) => {
+                return normalizeStr(s)
+                    .replace(/[\s\-().,]+/g, ' ')
+                    .replace(/\b(de|do|da|dos|das|o|a|os|as|of|the|and|e)\b/g, '')
+                    .replace(/\s+/g, ' ')
+                    .trim();
+            };
+
+            const valClean = clean(searchText);
+            if (!valClean) return null;
+
+            const entries = Object.entries(countryList).map(([code, name]) => {
+                let enName = '';
+                if (englishNames) {
+                    try {
+                        enName = englishNames.of(code.toUpperCase()) || '';
+                    } catch (e) {}
+                }
+                return {
+                    code,
+                    ptClean: clean(name),
+                    enClean: clean(enName),
+                    codeClean: clean(code)
+                };
+            });
+
+            // 1. Exact match on cleaned name
+            let match = entries.find(e => e.ptClean === valClean || e.enClean === valClean || e.codeClean === valClean);
+            if (match) return match.code;
+
+            // 2. StartsWith or includes
+            match = entries.find(e => e.ptClean.includes(valClean) || valClean.includes(e.ptClean) || e.enClean.includes(valClean) || valClean.includes(e.enClean));
+            if (match) return match.code;
+
+            // Common custom variants & typo mappings
+            const normalizedVal = normalizeStr(searchText);
+            if (normalizedVal.includes("burquina fass") || normalizedVal.includes("burkina fas")) {
+                return "BF";
+            }
+            if (normalizedVal.includes("democratica do congo") || normalizedVal.includes("congo dem") || normalizedVal.includes("dr congo")) {
+                return "CD";
+            }
+            if (normalizedVal.includes("republica do congo") || normalizedVal.includes("congo republica")) {
+                return "CG";
+            }
+            if (normalizedVal.includes("marfim") || normalizedVal.includes("ivory coast")) {
+                return "CI";
+            }
+            if (normalizedVal.includes("centro-africana") || normalizedVal.includes("centro africana") || normalizedVal.includes("central african")) {
+                return "CF";
+            }
+            if (normalizedVal.includes("guine-bissau") || normalizedVal.includes("guine bissau")) {
+                return "GW";
+            }
+            if (normalizedVal.includes("guine equatorial") || normalizedVal.includes("equatorial guinea")) {
+                return "GQ";
+            }
+
+            return null;
+        }
+
         countrySearchInput.addEventListener('input', () => {
-            const val = countrySearchInput.value.trim().toLowerCase();
+            const rawVal = countrySearchInput.value;
+            if (rawVal.includes(',')) {
+                const parts = rawVal.split(',').map(p => p.trim()).filter(Boolean);
+                parts.forEach(part => {
+                    const code = findCountryCode(part);
+                    if (code) {
+                        addCountrySilently(code);
+                    }
+                });
+                countrySearchInput.value = '';
+                countryAutocompleteDropdown.style.display = 'none';
+                return;
+            }
+
+            const val = normalizeStr(rawVal.trim());
             if (!val) {
                 countryAutocompleteDropdown.style.display = 'none';
                 return;
             }
 
             const matches = Object.entries(countryList).filter(([code, name]) => {
-                return name.toLowerCase().includes(val) || code.toLowerCase().includes(val);
+                let enName = '';
+                if (englishNames) {
+                    try {
+                        enName = englishNames.of(code.toUpperCase()) || '';
+                    } catch (e) {}
+                }
+                return normalizeStr(name).includes(val) || 
+                       normalizeStr(code).includes(val) || 
+                       normalizeStr(enName).includes(val);
             }).slice(0, 10);
 
             if (matches.length === 0) {
@@ -5172,6 +5265,18 @@
                     mapForm.setSelectedRegions(selectedCountries);
                 }
                 openSubregionModal(code);
+            }
+        }
+
+        function addCountrySilently(code) {
+            if (!selectedCountries.includes(code)) {
+                selectedCountries.push(code);
+                paisesDetalhes[code] = 'inteiro';
+                renderSelectedCountries();
+                if (mapForm) {
+                    mapForm.setSelectedRegions(selectedCountries);
+                }
+                applySubregionGradient(code, 'inteiro');
             }
         }
 
