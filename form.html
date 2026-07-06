@@ -665,6 +665,10 @@
             grid-column: span 3 !important;
         }
 
+        .reproduction-row .reproduction-mating-type {
+            grid-column: span 3 !important;
+        }
+
         @media (max-width: 600px) {
             .reproduction-row-header {
                 display: none !important;
@@ -946,7 +950,7 @@
                                             <option value="Savana"></option>
                                         </datalist>
                                         <button type="button" id="addGeneralVisualBtn" class="secondary-action-btn">+ Adicionar modelo</button>
-                                        <p class="form-hint">Usa esta área para dados gerais com modelo visual: vida útil, velocidade máxima, velocidade média, estratégia para obter alimento, acasalamento, zona climática e habitat.</p>
+                                        <p class="form-hint">Usa esta área para dados gerais com modelo visual: vida útil, velocidades, força da mordida, tamanho da população, tempo de amamentação, atividade, vida social, estratégia para obter alimento, zona climática e habitat.</p>
                                     </div>
 
                                     <div class="general-visual-preview" aria-live="polite">
@@ -1359,7 +1363,8 @@
         import { feedingTypes, feedingTypeDescriptions, getFeedingVisualMeta, getFeedingModelSvg } from "./js/feeding-visuals.js";
         import { feedingAnimalOptions } from "./js/feeding-animal-options.js?v=2";
         import { getFeedingStrategyMeta, getFeedingStrategySvg } from "./js/feeding-strategies.js";
-        import { getMatingMeta, getMatingSystemSvg } from "./js/mating-systems.js";
+        import { matingSystems, getMatingMeta, getMatingSystemSvg } from "./js/mating-systems.js";
+        import { generalVisualOptions as generalVisualCatalogOptions, generalVisualUnits as generalVisualCatalogUnits, getGeneralVisualMeta as getGeneralVisualCatalogMeta, getGeneralVisualOption as getGeneralVisualCatalogOption, getGeneralVisualSelectConfig, getGeneralVisualSelectOptions, getGeneralModelSvg as getGeneralCatalogModelSvg, getActivityMeta, getActivitySvg, getSocialMeta, getSocialSvg, isDropdownOnlyGeneralModel as isGeneralVisualCatalogDropdownOnly } from "./js/general-visual-catalog.js";
         import { GENDER_BOTH, collapseCombinedGenderItems, expandCombinedGenderItems, getGenderUi, getNextGenderValue, normalizeGenderValue } from "./js/gender-utils.js";
 
         let allAnimals = [];
@@ -2377,20 +2382,31 @@
             { tipo: 'Velocidade máxima', unidade: 'km/h' },
             { tipo: 'Velocidade média', unidade: 'km/h' },
             { tipo: 'Força da mordida', unidade: 'PSI' },
+            { tipo: 'Tempo de Amamentação', unidade: 'meses' },
             { tipo: 'Estratégia para obter alimento', unidade: '' },
-            { tipo: 'Acasalamento', unidade: '' },
+            { tipo: 'Tamanho da População', unidade: 'milhares' },
+            { tipo: 'Atividade', unidade: '' },
+            { tipo: 'Vida Social', unidade: '' },
             { tipo: 'Zona Climática', unidade: '' },
             { tipo: 'Habitat', unidade: '' }
         ];
 
-        const generalVisualUnits = ['', 'dias', 'meses', 'anos', 'km/h', 'm/s', 'PSI'];
+        const generalVisualUnits = ['', 'dias', 'meses', 'anos', 'km/h', 'm/s', 'PSI', 'indivíduos', 'dezenas', 'centenas', 'milhares', 'milhões'];
 
         function getGeneralVisualOption(type = '') {
-            return generalVisualOptions.find(option => option.tipo === type);
+            return getGeneralVisualCatalogOption(type);
+        }
+
+        generalVisualOptions.length = 0;
+        generalVisualOptions.push(...generalVisualCatalogOptions);
+        generalVisualUnits.length = 0;
+        generalVisualUnits.push(...generalVisualCatalogUnits);
+        if (!generalVisualOptions.some(option => option.tipo === 'Tempo de Amamentação')) {
+            generalVisualOptions.splice(5, 0, { tipo: 'Tempo de Amamentação', unidade: 'meses' });
         }
 
         function fillGeneralVisualTypeSelect(select, selectedValue = '') {
-            const options = generalVisualOptions.map(option => option.tipo).sort((a, b) => a.localeCompare(b));
+            const options = generalVisualOptions.map(option => option.tipo);
             const hasSelected = selectedValue && options.includes(selectedValue);
             select.innerHTML = `<option value="">Escolhe um modelo</option>` +
                 options.map(option => `<option value="${option}">${option}</option>`).join('') +
@@ -2399,8 +2415,50 @@
         }
 
         function isDropdownOnlyGeneralModel(type = '') {
+            return isGeneralVisualCatalogDropdownOnly(type);
+        }
+
+        function isPopulationGeneralModel(type = '') {
             const normalized = normalizeSearchText(type);
-            return normalized.includes('estrategia') || normalized.includes('acasalamento') || normalized.includes('zona climatica') || normalized.includes('habitat');
+            return normalized.includes('popul');
+        }
+
+        function isNursingGeneralModel(type = '') {
+            const normalized = normalizeSearchText(type);
+            return normalized.includes('amament');
+        }
+
+        function getGeneralUnitOptions(type = '') {
+            if (isNursingGeneralModel(type)) return ['dias', 'meses', 'anos'];
+            if (isPopulationGeneralModel(type)) return ['dezenas', 'centenas', 'milhares', 'milhões'];
+            return [...generalVisualUnits];
+        }
+
+        function getGeneralDefaultUnit(type = '') {
+            if (isNursingGeneralModel(type)) return 'meses';
+            if (isPopulationGeneralModel(type)) return 'milhares';
+            return getGeneralVisualOption(type)?.unidade || 'anos';
+        }
+
+        function updateGeneralUnitSelect(unitSelect, type, selectedUnit = '', preserveUserChoice = false) {
+            const options = getGeneralUnitOptions(type);
+            unitSelect.innerHTML = options.map(option => `<option value="${option}">${option}</option>`).join('');
+            const nextUnit = preserveUserChoice && selectedUnit && options.includes(selectedUnit)
+                ? selectedUnit
+                : (selectedUnit && options.includes(selectedUnit) ? selectedUnit : getGeneralDefaultUnit(type));
+            unitSelect.value = nextUnit;
+        }
+
+        function getGeneralMinPlaceholder(type = '') {
+            if (isPopulationGeneralModel(type)) return 'Ex: 1200';
+            if (isNursingGeneralModel(type)) return 'Ex: 2';
+            return type && type.includes('Velocidade') ? 'Ex: 40' : 'Ex: 10';
+        }
+
+        function getGeneralMaxPlaceholder(type = '') {
+            if (isPopulationGeneralModel(type)) return 'Ex: 3500';
+            if (isNursingGeneralModel(type)) return 'Ex: 8';
+            return type && type.includes('Velocidade') ? 'Ex: 80' : 'Ex: 15';
         }
 
         function configureGeneralVisualRowControls(type, minInput, maxInput, unitSelect, strategySelect) {
@@ -2427,7 +2485,8 @@
                 minInput.step = '0.01';
                 minInput.min = '0';
             }
-            maxInput.placeholder = type && type.includes('Velocidade') ? 'Ex: 80' : 'Ex: 15';
+            minInput.placeholder = getGeneralMinPlaceholder(type);
+            maxInput.placeholder = getGeneralMaxPlaceholder(type);
         }
 
         function createGeneralVisualRow(type = '', minValue = '', unit = '', maxValue = '', gender = GENDER_BOTH, fase = 'Adulto') {
@@ -2443,22 +2502,17 @@
             minInput.type = 'number';
             minInput.step = '0.01';
             minInput.min = '0';
-            minInput.placeholder = type && type.includes('Velocidade') ? 'Ex: 40' : 'Ex: 10';
+            minInput.placeholder = getGeneralMinPlaceholder(type);
             minInput.value = minValue;
 
             const strategySelect = document.createElement('select');
             strategySelect.className = 'general-visual-strategy';
             strategySelect.style.display = 'none';
             function populateDropdownSelect(selectedType) {
-                const normalized = normalizeSearchText(selectedType);
-                const isMating = normalized.includes('acasalamento');
-                const isClimateZone = normalized.includes('zona climatica');
-                const isHabitat = normalized.includes('habitat');
-                const datalistId = isClimateZone ? '#climateZoneOptions' : (isHabitat ? '#habitatOptions' : (isMating ? '#matingOptions' : '#feedingStrategyOptions'));
-                const placeholder = isClimateZone ? 'Escolhe uma zona climática' : (isHabitat ? 'Escolhe um habitat' : (isMating ? 'Escolhe um tipo de acasalamento' : 'Escolhe uma estratégia'));
-                const datalistOpts = document.querySelectorAll(datalistId + ' option');
-                strategySelect.innerHTML = `<option value="">${placeholder}</option>` + 
-                    Array.from(datalistOpts).map(opt => `<option value="${opt.value}">${opt.value}</option>`).join('');
+                const config = getGeneralVisualSelectConfig(selectedType);
+                const options = getGeneralVisualSelectOptions(selectedType);
+                strategySelect.innerHTML = `<option value="">${config?.placeholder || 'Escolhe uma opção'}</option>` +
+                    options.map(option => `<option value="${option}">${option}</option>`).join('');
             }
             populateDropdownSelect(type);
             if (isDropdownOnlyGeneralModel(type)) {
@@ -2470,14 +2524,13 @@
             maxInput.type = 'number';
             maxInput.step = '0.01';
             maxInput.min = '0';
-            maxInput.placeholder = type && type.includes('Velocidade') ? 'Ex: 80' : 'Ex: 15';
+            maxInput.placeholder = getGeneralMaxPlaceholder(type);
             maxInput.value = maxValue;
             maxInput.title = 'Opcional. Usa para intervalos, como 10-15 anos ou 40-80 km/h.';
 
             const unitSelect = document.createElement('select');
             unitSelect.className = 'general-visual-unit';
-            unitSelect.innerHTML = generalVisualUnits.map(u => `<option value="${u}">${u}</option>`).join('');
-            unitSelect.value = unit || getGeneralVisualOption(type)?.unidade || 'anos';
+            updateGeneralUnitSelect(unitSelect, type, unit);
             configureGeneralVisualRowControls(type, minInput, maxInput, unitSelect, strategySelect);
 
             const genderBtn = document.createElement('button');
@@ -2514,8 +2567,8 @@
             removeBtn.title = 'Remover modelo visual';
 
             typeSelect.addEventListener('change', () => {
-                const selected = getGeneralVisualOption(typeSelect.value);
-                if (selected && !unitSelect.dataset.userChanged) unitSelect.value = selected.unidade;
+                const previousUnit = unitSelect.value;
+                updateGeneralUnitSelect(unitSelect, typeSelect.value, previousUnit, unitSelect.dataset.userChanged === 'true');
                 populateDropdownSelect(typeSelect.value);
                 configureGeneralVisualRowControls(typeSelect.value, minInput, maxInput, unitSelect, strategySelect);
                 updateGeneralVisualPreview();
@@ -2570,11 +2623,45 @@
                 .filter(item => item.tipo && (item.valorMin || item.valorMax || item.valor));
         }
 
+        function getDefaultGeneralVisualOptions() {
+            const hiddenByDefault = new Set(['Velocidade média', 'Força da mordida', 'Estratégia para obter alimento', 'Tempo de Amamentação']);
+            return generalVisualOptions.filter(option => !hiddenByDefault.has(option.tipo));
+        }
+
+        function isLegacyGeneralMatingItem(item = {}) {
+            return normalizeSearchText(item?.tipo || '').includes('acasalamento') && !!(item?.valor || item?.valorMin || item?.valorMax);
+        }
+
+        function filterLegacyGeneralMatingItems(items = []) {
+            return Array.isArray(items) ? items.filter(item => !isLegacyGeneralMatingItem(item)) : [];
+        }
+
+        function extractLegacyGeneralMatingItems(items = []) {
+            return collapseCombinedGenderItems(
+                Array.isArray(items) ? items.filter(item => isLegacyGeneralMatingItem(item)) : []
+            )
+                .map(item => ({
+                    tipo: 'Acasalamento',
+                    detalhe: item.valorMin || item.valor || item.valorMax || ''
+                }))
+                .filter(item => item.detalhe);
+        }
+
+        function mergeUniqueReproductionItems(items = []) {
+            const seen = new Set();
+            return items.filter(item => {
+                const key = `${item?.tipo || ''}::${item?.detalhe || ''}`;
+                if (!item?.tipo || seen.has(key)) return false;
+                seen.add(key);
+                return true;
+            });
+        }
+
         function setGeneralVisualData(items = []) {
             generalVisualRowsContainer.innerHTML = '';
-            const normalizedItems = collapseCombinedGenderItems(items);
+            const normalizedItems = collapseCombinedGenderItems(filterLegacyGeneralMatingItems(items));
             if (!Array.isArray(normalizedItems) || normalizedItems.length === 0) {
-                generalVisualOptions.forEach(option => {
+                getDefaultGeneralVisualOptions().forEach(option => {
                     if (option.tipo !== 'Velocidade média' && option.tipo !== 'Força da mordida') {
                         createGeneralVisualRow(option.tipo, '', option.unidade, '', option.genero || GENDER_BOTH, option.fase || 'Adulto');
                     }
@@ -2603,16 +2690,10 @@
         }
 
         function getGeneralVisualMeta(type = '') {
-            const normalized = normalizeDimensionKey(type);
-            if (normalized.includes('vida')) return { key: 'vida', title: type || 'Vida útil', accent: 'accent-life' };
-            if (normalized.includes('maxima')) return { key: 'velocidade-maxima', title: type || 'Velocidade máxima', accent: 'accent-speed-max' };
-            if (normalized.includes('media')) return { key: 'velocidade-media', title: type || 'Velocidade média', accent: 'accent-speed-average' };
-            if (normalized.includes('mordida')) return { key: 'forca-mordida', title: type || 'Força da mordida', accent: 'accent-bite-force' };
-            if (normalized.includes('estrategia')) return { key: 'estrategia', title: type || 'Estratégia para obter alimento', accent: 'accent-generic' };
-            if (normalized.includes('acasalamento')) return { key: 'acasalamento', title: type || 'Acasalamento', accent: 'accent-generic' };
-            if (normalized.includes('zona')) return { key: 'zona-climatica', title: type || 'Zona Climática', accent: 'accent-climate' };
-            if (normalized.includes('habitat')) return { key: 'habitat', title: type || 'Habitat', accent: 'accent-habitat' };
-            return { key: 'geral', title: type || 'Modelo geral', accent: 'accent-generic' };
+            if (isNursingGeneralModel(type)) {
+                return { key: 'amamentacao', title: type || 'Tempo de Amamentação', accent: 'accent-life' };
+            }
+            return getGeneralVisualCatalogMeta(type);
         }
 
         function getClimateZoneMeta(value = '') {
@@ -2659,6 +2740,10 @@
         }
 
         function getGeneralModelSvg(key = 'geral') {
+            if (key === 'amamentacao') {
+                return `<svg class="metric-model-svg general-model-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M26 20c8 0 14 6 14 14v8c0 8-6 14-14 14s-14-6-14-14v-8c0-8 6-14 14-14Z"/><path d="M54 30c7 0 12 5 12 12s-5 12-12 12"/><path d="M40 38h12"/><path d="M52 34v16"/><path d="M24 58h30"/></svg>`;
+            }
+            return getGeneralCatalogModelSvg(key);
             const icons = {
                 vida: `<svg class="metric-model-svg general-model-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M28 10h24"/><path d="M28 70h24"/><path d="M31 10c0 15 18 16 18 30S31 55 31 70"/><path d="M49 10c0 15-18 16-18 30s18 15 18 30"/><path d="M34 53h12"/><path d="M37 59h6"/></svg>`,
                 'velocidade-maxima': `<svg class="metric-model-svg general-model-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M14 58a26 26 0 0 1 52 0"/><path d="M24 58h32"/><path d="M40 58l18-24"/><path d="M28 30l-5-6"/><path d="M52 30l5-6"/><path d="M40 24v-9"/><path d="M61 58h7"/></svg>`,
@@ -2676,11 +2761,13 @@
             const value = isSuggestion ? 'Por preencher' : formatGeneralVisualValue(item);
             const normalizedType = normalizeDimensionKey(type);
             const isStrategy = normalizedType.includes('estrategia');
-            const isMating = normalizedType.includes('acasalamento');
+            const isActivity = normalizedType.includes('atividade');
+            const isSocial = normalizedType.includes('vida social');
             const isClimateZone = normalizedType.includes('zona');
             const isHabitat = normalizedType.includes('habitat');
             const strategyMeta = isStrategy && !isSuggestion ? getFeedingStrategyMeta(item.valorMin || item.valor || '') : null;
-            const matingMeta = isMating && !isSuggestion ? getMatingMeta(item.valorMin || item.valor || '') : null;
+            const activityMeta = isActivity && !isSuggestion ? getActivityMeta(item.valorMin || item.valor || '') : null;
+            const socialMeta = isSocial && !isSuggestion ? getSocialMeta(item.valorMin || item.valor || '') : null;
             const climateMeta = isClimateZone && !isSuggestion ? getClimateZoneMeta(item.valorMin || item.valor || '') : null;
             const habitatMeta = isHabitat && !isSuggestion ? getHabitatMeta(item.valorMin || item.valor || '') : null;
             const icon = climateMeta
@@ -2689,11 +2776,13 @@
                     ? `<img class="climate-zone-model-image" src="${habitatMeta.image}" alt="Habitat ${item.valorMin || item.valor || ''}" loading="lazy">`
                     : strategyMeta
                         ? getFeedingStrategySvg(strategyMeta.key)
-                        : matingMeta
-                            ? getMatingSystemSvg(matingMeta.key)
+                        : activityMeta
+                            ? getActivitySvg(activityMeta.key)
+                            : socialMeta
+                                ? getSocialSvg(socialMeta.key)
                             : getGeneralModelSvg(meta.key);
             return `
-                <article class="dimension-model-card general-model-card ${climateMeta?.accent || habitatMeta?.accent || strategyMeta?.accent || matingMeta?.accent || meta.accent}${isSuggestion ? ' is-suggestion' : ''}">
+                <article class="dimension-model-card general-model-card ${climateMeta?.accent || habitatMeta?.accent || strategyMeta?.accent || activityMeta?.accent || socialMeta?.accent || meta.accent}${isSuggestion ? ' is-suggestion' : ''}">
                     <div class="dimension-model-icon ${climateMeta || habitatMeta ? 'climate-zone-model-icon' : ''}">${icon}</div>
                     <div class="dimension-model-copy">
                         <div class="dimension-model-label">${meta.title}</div>
@@ -2708,7 +2797,7 @@
                 previewGeneralVisualModels.innerHTML = selected.map(item => renderGeneralVisualCard(item)).join('');
                 return;
             }
-            previewGeneralVisualModels.innerHTML = generalVisualOptions.map(option => renderGeneralVisualCard(option, true)).join('');
+            previewGeneralVisualModels.innerHTML = getDefaultGeneralVisualOptions().map(option => renderGeneralVisualCard(option, true)).join('');
         }
 
         addGeneralVisualBtn.addEventListener('click', () => createGeneralVisualRow());
@@ -2928,23 +3017,44 @@
             select.value = selectedValue;
         }
 
-        function updateReproductionEditorLabels() {
+        function fillMatingTypeSelect(select, selectedValue = '') {
+            const options = [...matingSystems];
+            const hasSelected = selectedValue && options.includes(selectedValue);
+            select.innerHTML = `<option value="">Escolhe um tipo de acasalamento</option>` +
+                options.map(option => `<option value="${option}">${option}</option>`).join('') +
+                (selectedValue && !hasSelected ? `<option value="${selectedValue}">${selectedValue}</option>` : '');
+            select.value = selectedValue;
+        }
+
+        function isMatingReproductionItem(type = '') {
+            const normalizedType = normalizeSearchText(type);
+            return normalizedType.includes('acasalamento') || matingSystems.some(option => normalizeSearchText(option) === normalizedType);
+        }
+
+        function applyReproductionEditorLabels() {
+            addReproductionBtn.textContent = '+ Adicionar campo';
             if (isBirdCategory()) {
-                addReproductionBtn.textContent = '+ Adicionar campo';
-                reproductionHint.textContent = 'Seleciona "Tipo de reprodução" para escolher a cor do ovo ou "Tempo de Gestação" para a incubação.';
-            } else {
-                addReproductionBtn.textContent = '+ Adicionar campo';
-                reproductionHint.textContent = 'Escolhe as opções de reprodução ou tempo de gestação para esta espécie.';
+                reproductionHint.textContent = 'Seleciona "Tipo de reprodução" para escolher a cor do ovo, "Acasalamento" para o sistema reprodutivo ou "Tempo de Gestação" para a incubação.';
+                return;
             }
+            reproductionHint.textContent = 'Escolhe as opções de reprodução, o tipo de acasalamento ou o tempo de gestação para esta espécie.';
+        }
+
+        function updateReproductionEditorLabels() {
+            applyReproductionEditorLabels();
         }
 
         function updateAllReproductionTypeSelects() {
-            updateReproductionEditorLabels();
+            applyReproductionEditorLabels();
             reproductionRowsContainer.querySelectorAll('.reproduction-row').forEach(row => {
                 const rowModeSelect = row.querySelector('.reproduction-row-mode');
                 const typeSelect = row.querySelector('.reproduction-type');
                 if (rowModeSelect && rowModeSelect.value === 'tipo' && typeSelect) {
                     fillReproductionTypeSelect(typeSelect, typeSelect.value);
+                }
+                const matingSelect = row.querySelector('.reproduction-mating-type');
+                if (rowModeSelect && rowModeSelect.value === 'acasalamento' && matingSelect) {
+                    fillMatingTypeSelect(matingSelect, matingSelect.value);
                 }
             });
         }
@@ -2960,6 +3070,9 @@
             
             const optTipo = document.createElement('option');
             optTipo.value = 'tipo';
+            const optAcasalamento = document.createElement('option');
+            optAcasalamento.value = 'acasalamento';
+            optAcasalamento.textContent = 'Acasalamento';
             optTipo.textContent = 'Tipo de reprodução';
             
             const optGestacao = document.createElement('option');
@@ -2970,10 +3083,13 @@
             optCrias.value = 'crias';
             optCrias.textContent = 'Número de Crias';
             
-            rowModeSelect.append(optTipo, optGestacao, optCrias);
+            rowModeSelect.append(optTipo, optAcasalamento, optGestacao, optCrias);
 
             const typeSelect = document.createElement('select');
             typeSelect.className = 'reproduction-type';
+
+            const matingSelect = document.createElement('select');
+            matingSelect.className = 'reproduction-mating-type';
 
             const minInput = document.createElement('input');
             minInput.className = 'reproduction-gestation-min';
@@ -3001,12 +3117,15 @@
             optMeses.textContent = 'meses';
             
             unitSelect.append(optDias, optSemanas, optMeses);
+            unitSelect.value = 'meses';
 
             const removeBtn = document.createElement('button');
             removeBtn.type = 'button';
             removeBtn.className = 'remove-dimension-btn';
             removeBtn.innerHTML = '&times;';
             removeBtn.title = 'Remover campo';
+            const initialMatingValue = normalizeSearchText(typeStr).includes('acasalamento') ? detailStr : typeStr;
+            const isMating = isMatingReproductionItem(typeStr);
 
             const isGestation = typeStr === 'Tempo de Gestação' || typeStr.toLowerCase().includes('gestação') || typeStr.toLowerCase().includes('gestacao');
             const isCrias = typeStr === 'Número de Crias' || typeStr.toLowerCase().includes('cria');
@@ -3015,7 +3134,7 @@
                 if (detailStr) {
                     let minVal = '';
                     let maxVal = '';
-                    let unitVal = 'dias';
+                    let unitVal = 'meses';
                     const match = detailStr.match(/(\d+)(?:\s*-\s*(\d+))?\s*(dias|dia|meses|mês|mes|semanas|semana)/i);
                     if (match) {
                         minVal = match[1] || '';
@@ -3060,6 +3179,9 @@
                     minInput.value = minVal;
                     maxInput.value = maxVal;
                 }
+            } else if (isMating) {
+                rowModeSelect.value = 'acasalamento';
+                fillMatingTypeSelect(matingSelect, initialMatingValue);
             } else {
                 rowModeSelect.value = 'tipo';
                 fillReproductionTypeSelect(typeSelect, typeStr);
@@ -3069,8 +3191,11 @@
                 row.innerHTML = '';
                 row.append(rowModeSelect);
                 if (rowModeSelect.value === 'tipo') {
-                    fillReproductionTypeSelect(typeSelect, typeSelect.value || (!isGestation && !isCrias ? typeStr : ''));
+                    fillReproductionTypeSelect(typeSelect, typeSelect.value || (!isGestation && !isCrias && !isMating ? typeStr : ''));
                     row.append(typeSelect, removeBtn);
+                } else if (rowModeSelect.value === 'acasalamento') {
+                    fillMatingTypeSelect(matingSelect, matingSelect.value || initialMatingValue);
+                    row.append(matingSelect, removeBtn);
                 } else if (rowModeSelect.value === 'crias') {
                     minInput.placeholder = 'Mín: 1';
                     maxInput.placeholder = 'Máx: 5';
@@ -3088,6 +3213,7 @@
                 updateReproductionPreview();
             });
             typeSelect.addEventListener('change', updateReproductionPreview);
+            matingSelect.addEventListener('change', updateReproductionPreview);
             minInput.addEventListener('input', updateReproductionPreview);
             maxInput.addEventListener('input', updateReproductionPreview);
             unitSelect.addEventListener('change', updateReproductionPreview);
@@ -3113,6 +3239,12 @@
                         return {
                             tipo: typeVal,
                             detalhe: ''
+                        };
+                    } else if (rowModeSelect.value === 'acasalamento') {
+                        const matingVal = row.querySelector('.reproduction-mating-type')?.value || '';
+                        return {
+                            tipo: 'Acasalamento',
+                            detalhe: matingVal
                         };
                     } else if (rowModeSelect.value === 'crias') {
                         const min = row.querySelector('.reproduction-gestation-min')?.value || '';
@@ -3162,6 +3294,7 @@
 
         function getReproductionVisualMeta(type = '') {
             const normalized = normalizeDimensionKey(type);
+            if (normalized.includes('acasalamento')) return { key: 'acasalamento', title: type || 'Acasalamento', accent: 'accent-generic' };
             if (normalized.includes('gestacao') || normalized.includes('gestação') || normalized.includes('gravidez') || normalized.includes('tempo')) {
                 return { key: 'gestacao', title: type || 'Gestação', accent: 'accent-weight' };
             }
@@ -3208,6 +3341,22 @@
                             <div class="dimension-model-label">${egg.label}</div>
                             <div class="dimension-model-value">${numberOfEggs}</div>
                             <div class="dimension-model-meta">Ovo escolhido</div>
+                        </div>
+                    </article>`;
+            }
+
+            const matingValue = normalizeSearchText(item.tipo || '').includes('acasalamento')
+                ? (item.detalhe || '')
+                : (isMatingReproductionItem(item.tipo || '') ? (item.tipo || '') : '');
+            if (matingValue) {
+                const meta = getMatingMeta(matingValue);
+                return `
+                    <article class="dimension-model-card reproduction-model-card ${meta.accent}${isSuggestion ? ' is-suggestion' : ''}">
+                        <div class="dimension-model-icon">${getMatingSystemSvg(meta.key)}</div>
+                        <div class="dimension-model-copy">
+                            <div class="dimension-model-label">Acasalamento</div>
+                            <div class="dimension-model-value">${matingValue}</div>
+                            <div class="dimension-model-meta">${isSuggestion ? 'Disponível para a categoria' : 'Modelo visual'}</div>
                         </div>
                     </article>`;
             }
@@ -3659,15 +3808,18 @@
             selectedSubespecies = animal.subespeciesDe || [];
             renderSubespeciesTags();
 
+            const generalVisualData = animal.informacao.geralDetalhada || [];
+            const legacyMatingItems = extractLegacyGeneralMatingItems(generalVisualData);
+
             document.getElementById('infoGeral').value = animal.informacao.geral || '';
-            setGeneralVisualData(animal.informacao.geralDetalhada || []);
+            setGeneralVisualData(generalVisualData);
             document.getElementById('infoDimensoes').value = animal.informacao.dimensoes || '';
             setDimensionData(animal.informacao.dimensoesDetalhadas || []);
             document.getElementById('infoAlimentacao').value = animal.informacao.alimentacao || '';
             setFeedingData(animal.informacao.alimentacaoDetalhada || []);
             document.getElementById('infoReproducao').value = animal.informacao.reproducao || '';
             document.getElementById('infoPlumagem').value = animal.informacao.plumagem || '';
-            setReproductionData(animal.informacao.reproducaoDetalhada || []);
+            setReproductionData(mergeUniqueReproductionItems([...(animal.informacao.reproducaoDetalhada || []), ...legacyMatingItems]));
             setPlumageData(animal.informacao.plumagemDetalhada || []);
             
             const distData = animal.informacao.distribuicao || { paises: [], paisesDetalhes: {}, descricao: '' };

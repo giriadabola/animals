@@ -54,6 +54,7 @@
         import { feedingAnimalOptions } from "./js/feeding-animal-options.js?v=2";
         import { feedingStrategyDescriptions, getFeedingStrategyMeta, getFeedingStrategySvg } from "./js/feeding-strategies.js";
         import { getMatingMeta, getMatingSystemSvg } from "./js/mating-systems.js";
+        import { getGeneralVisualMeta as getGeneralVisualCatalogMeta, getGeneralModelSvg as getGeneralCatalogModelSvg, getActivityMeta, getActivitySvg, getSocialMeta, getSocialSvg } from "./js/general-visual-catalog.js";
         import { collapseCombinedGenderItems, collectConcreteGenders, genderMatchesSelection } from "./js/gender-utils.js";
         
         const mainContent = document.getElementById('main-content-area');
@@ -308,15 +309,10 @@
         }
 
         function getGeneralVisualMeta(type = '') {
-            const normalized = normalizeDimensionKey(type);
-            if (normalized.includes('vida')) return { key: 'vida', title: type || 'Vida útil', accent: 'accent-life' };
-            if (normalized.includes('maxima')) return { key: 'velocidade-maxima', title: type || 'Velocidade máxima', accent: 'accent-speed-max' };
-            if (normalized.includes('media')) return { key: 'velocidade-media', title: type || 'Velocidade média', accent: 'accent-speed-average' };
-            if (normalized.includes('estrategia')) return { key: 'estrategia', title: type || 'Estratégia para obter alimento', accent: 'accent-generic' };
-            if (normalized.includes('acasalamento')) return { key: 'acasalamento', title: type || 'Acasalamento', accent: 'accent-generic' };
-            if (normalized.includes('zona')) return { key: 'zona-climatica', title: type || 'Zona Climática', accent: 'accent-climate' };
-            if (normalized.includes('habitat')) return { key: 'habitat', title: type || 'Habitat', accent: 'accent-habitat' };
-            return { key: 'geral', title: type || 'Modelo geral', accent: 'accent-generic' };
+            if (normalizeDimensionKey(type).includes('amament')) {
+                return { key: 'amamentacao', title: type || 'Tempo de Amamentação', accent: 'accent-life' };
+            }
+            return getGeneralVisualCatalogMeta(type);
         }
 
         function getClimateZoneMeta(value = '') {
@@ -362,26 +358,39 @@
         }
 
         function getGeneralModelSvg(key = 'geral') {
-            const icons = {
-                vida: `<svg class="metric-model-svg general-model-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M28 10h24"/><path d="M28 70h24"/><path d="M31 10c0 15 18 16 18 30S31 55 31 70"/><path d="M49 10c0 15-18 16-18 30s18 15 18 30"/><path d="M34 53h12"/><path d="M37 59h6"/></svg>`,
-                'velocidade-maxima': `<svg class="metric-model-svg general-model-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M14 58a26 26 0 0 1 52 0"/><path d="M24 58h32"/><path d="M40 58l18-24"/><path d="M28 30l-5-6"/><path d="M52 30l5-6"/><path d="M40 24v-9"/><path d="M61 58h7"/></svg>`,
-                'velocidade-media': `<svg class="metric-model-svg general-model-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M13 58a27 27 0 0 1 54 0"/><path d="M22 58h36"/><path d="M40 58l8-18"/><path d="M23 43h8"/><path d="M49 43h8"/><path d="M30 28l-4-7"/><path d="M50 28l4-7"/></svg>`,
-                geral: `<svg class="metric-model-svg general-model-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><circle cx="40" cy="40" r="25"/><path d="M40 25v18"/><path d="M40 53v2"/></svg>`,
-                acasalamento: `<svg class="metric-model-svg general-model-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><circle cx="28" cy="30" r="8"/><circle cx="52" cy="30" r="8"/><path d="M28 38v10"/><path d="M52 38v10"/><path d="M22 54c4-5 8-8 14-8"/><path d="M58 54c-4-5-8-8-14-8"/><path d="M36 30h8"/><path d="M44 30h8"/></svg>`
-            };
-            return icons[key] || icons.geral;
+            if (key === 'amamentacao') {
+                return `<svg class="metric-model-svg general-model-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M26 20c8 0 14 6 14 14v8c0 8-6 14-14 14s-14-6-14-14v-8c0-8 6-14 14-14Z"/><path d="M54 30c7 0 12 5 12 12s-5 12-12 12"/><path d="M40 38h12"/><path d="M52 34v16"/><path d="M24 58h30"/></svg>`;
+            }
+            return getGeneralCatalogModelSvg(key);
+        }
+
+        function isLegacyGeneralMatingItem(item = {}) {
+            return normalizeDimensionKey(item?.tipo || '').includes('acasalamento') && !!(item?.valor || item?.valorMin || item?.valorMax);
+        }
+
+        function getLegacyGeneralMatingReproductionItems(models = []) {
+            return collapseCombinedGenderItems(
+                Array.isArray(models) ? models.filter(item => isLegacyGeneralMatingItem(item)) : []
+            )
+                .map(item => ({
+                    tipo: 'Acasalamento',
+                    detalhe: item.valorMin || item.valor || item.valorMax || ''
+                }))
+                .filter(item => item.detalhe);
         }
 
         function renderGeneralVisualCard(item) {
             const meta = getGeneralVisualMeta(item.tipo);
             const normalizedType = normalizeDimensionKey(item.tipo);
             const isStrategy = normalizedType.includes('estrategia');
-            const isMating = normalizedType.includes('acasalamento');
+            const isActivity = normalizedType.includes('atividade');
+            const isSocial = normalizedType.includes('vida social');
             const isClimateZone = normalizedType.includes('zona');
             const isHabitat = normalizedType.includes('habitat');
             const value = item.valorMin || item.valor || '';
             const strategyMeta = isStrategy ? getFeedingStrategyMeta(value) : null;
-            const matingMeta = isMating ? getMatingMeta(value) : null;
+            const activityMeta = isActivity ? getActivityMeta(value) : null;
+            const socialMeta = isSocial ? getSocialMeta(value) : null;
             const climateMeta = isClimateZone ? getClimateZoneMeta(value) : null;
             const habitatMeta = isHabitat ? getHabitatMeta(value) : null;
             const icon = climateMeta
@@ -390,11 +399,13 @@
                     ? `<img class="climate-zone-model-image" src="${habitatMeta.image}" alt="Habitat ${escapeHtml(value)}" loading="lazy">`
                     : strategyMeta
                         ? getFeedingStrategySvg(strategyMeta.key)
-                        : matingMeta
-                            ? getMatingSystemSvg(matingMeta.key)
+                        : activityMeta
+                            ? getActivitySvg(activityMeta.key)
+                            : socialMeta
+                                ? getSocialSvg(socialMeta.key)
                             : getGeneralModelSvg(meta.key);
             return `
-                <article class="dimension-model-card general-model-card ${climateMeta?.accent || habitatMeta?.accent || strategyMeta?.accent || matingMeta?.accent || meta.accent}" data-gender="${item.genero || ''}" data-phase="${item.fase || 'Adulto'}">
+                <article class="dimension-model-card general-model-card ${climateMeta?.accent || habitatMeta?.accent || strategyMeta?.accent || activityMeta?.accent || socialMeta?.accent || meta.accent}" data-gender="${item.genero || ''}" data-phase="${item.fase || 'Adulto'}">
                     <div class="dimension-model-icon ${climateMeta || habitatMeta ? 'climate-zone-model-icon' : ''}">${icon}</div>
                     <div class="dimension-model-copy">
                         <div class="dimension-model-label">${escapeHtml(meta.title)}</div>
@@ -669,6 +680,7 @@
         
         function getReproductionVisualMeta(type = '') {
             const normalized = normalizeDimensionKey(type);
+            if (normalized.includes('acasalamento')) return { key: 'acasalamento', title: type || 'Acasalamento', accent: 'accent-generic' };
             if (normalized.includes('cria') || normalized.includes('filhote')) return { key: 'cuidado', title: type || 'Número de Crias', accent: 'accent-tail' };
             if (normalized.includes('gestacao') || normalized.includes('gestação') || normalized.includes('gravidez') || normalized.includes('tempo')) return { key: 'gestacao', title: type || 'Gestação', accent: 'accent-weight' };
             if (normalized.includes('oviparo') || normalized.includes('ovo')) return { key: 'ovo', title: type || 'Ovíparo', accent: 'accent-egg' };
@@ -713,6 +725,21 @@
                     </article>`;
             }
 
+            const matingValue = normalizeDimensionKey(item.tipo || '').includes('acasalamento')
+                ? (item.detalhe || '')
+                : (getMatingMeta(item.tipo || '').key !== 'acasalamento' ? (item.tipo || '') : '');
+            if (matingValue) {
+                const meta = getMatingMeta(matingValue);
+                return `
+                    <article class="dimension-model-card reproduction-model-card ${meta.accent}">
+                        <div class="dimension-model-icon">${getMatingSystemSvg(meta.key)}</div>
+                        <div class="dimension-model-copy">
+                            <div class="dimension-model-label">Acasalamento</div>
+                            <div class="dimension-model-value">${escapeHtml(matingValue)}</div>
+                        </div>
+                    </article>`;
+            }
+
             const meta = getReproductionVisualMeta(item.tipo);
             const detail = (item.detalhe || '').trim();
             const label = detail ? meta.title : 'Tipo de Reprodu\u00e7\u00e3o';
@@ -727,7 +754,10 @@
                 </article>`;
         }
         function renderReproductionVisual(animalData) {
-            const reproduction = animalData.informacao?.reproducaoDetalhada || [];
+            const reproduction = [
+                ...(animalData.informacao?.reproducaoDetalhada || []),
+                ...getLegacyGeneralMatingReproductionItems(animalData.informacao?.geralDetalhada || [])
+            ];
             const valid = Array.isArray(reproduction) ? reproduction.filter(item => item.tipo || item.detalhe) : [];
             if (!valid.length) return '';
 
@@ -917,7 +947,7 @@
             }
 
             const hasGeralText = animalData.informacao && animalData.informacao.geral && animalData.informacao.geral.trim() !== "";
-            const hasGeralVisual = Array.isArray(animalData.informacao?.geralDetalhada) && animalData.informacao.geralDetalhada.some(item => item?.tipo && (item?.valor || item?.valorMin || item?.valorMax));
+            const hasGeralVisual = Array.isArray(animalData.informacao?.geralDetalhada) && animalData.informacao.geralDetalhada.some(item => item?.tipo && (item?.valor || item?.valorMin || item?.valorMax) && !isLegacyGeneralMatingItem(item));
             const hasGeral = hasGeralText || hasGeralVisual;
             const hasDimensoesText = animalData.informacao?.dimensoes && animalData.informacao.dimensoes.trim() !== "";
             const hasDimensoesVisual = Array.isArray(animalData.informacao?.dimensoesDetalhadas) && animalData.informacao.dimensoesDetalhadas.length > 0;
@@ -929,7 +959,9 @@
             const hasAlimentacao = hasAlimentacaoText || hasAlimentacaoVisual;
 
             const hasReproducaoText = animalData.informacao?.reproducao && animalData.informacao.reproducao.trim() !== "";
-            const hasReproducaoVisual = Array.isArray(animalData.informacao?.reproducaoDetalhada) && animalData.informacao.reproducaoDetalhada.length > 0;
+            const hasReproducaoVisual =
+                (Array.isArray(animalData.informacao?.reproducaoDetalhada) && animalData.informacao.reproducaoDetalhada.length > 0) ||
+                getLegacyGeneralMatingReproductionItems(animalData.informacao?.geralDetalhada || []).length > 0;
             const hasBirdEggVisual = hasCategory(animalData.categoria, 'Aves');
             const hasReproducao = hasReproducaoText || hasReproducaoVisual || hasBirdEggVisual;
 
@@ -985,7 +1017,7 @@
 
             const models = animalData.informacao?.geralDetalhada || [];
             const isEnv = item => normalizeDimensionKey(item.tipo).includes('zona') || normalizeDimensionKey(item.tipo).includes('habitat');
-            const validQuickData = Array.isArray(models) ? models.filter(item => item.tipo && (item.valor || item.valorMin || item.valorMax) && !isEnv(item)) : [];
+            const validQuickData = Array.isArray(models) ? models.filter(item => item.tipo && (item.valor || item.valorMin || item.valorMax) && !isEnv(item) && !isLegacyGeneralMatingItem(item)) : [];
             const envQuickData = collapseCombinedGenderItems(
                 Array.isArray(models) ? models.filter(item => item.tipo && (item.valor || item.valorMin || item.valorMax) && isEnv(item)) : []
             );
