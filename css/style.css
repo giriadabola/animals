@@ -57,6 +57,12 @@ html {
     font-size: 16px;
 }
 
+@media (min-width: 1025px) {
+    body {
+        zoom: 0.9;
+    }
+}
+
 body {
     font-family: 'Outfit', sans-serif;
     background-color: var(--bg-primary);
@@ -4481,6 +4487,12 @@ button[type="submit"]:hover {
     justify-content: center;
     z-index: 99999;
     transition: opacity 0.4s ease, visibility 0.4s ease;
+}
+
+@media (min-width: 1025px) {
+    #loading-overlay {
+        zoom: 1.112;
+    }
 }
 
 #loading-overlay.fade-out {
