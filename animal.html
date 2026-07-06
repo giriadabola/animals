@@ -20,15 +20,13 @@
     <script src="https://cdn.jsdelivr.net/npm/jsvectormap"></script>
     <script src="https://cdn.jsdelivr.net/npm/jsvectormap/dist/maps/world.js"></script>
     <style>
-        /* For�ar o mesmo tamanho para a segunda linha de todos os cards de modelos visuais */
+        /* Forçar o mesmo tamanho para a segunda linha de todos os cards de modelos visuais */
         .dimension-model-card .dimension-model-value,
         .reproduction-model-card .dimension-model-value,
         .feeding-model-card .dimension-model-value,
         .feeding-strategy-card .dimension-model-value,
         .bird-egg-selected-card .dimension-model-value,
-        .plumage-model-value,
-        #info-modelos-visuais .dimension-model-card .dimension-model-value,
-        #info-modelos-visuais-mobile .dimension-model-card .dimension-model-value {
+        .plumage-model-value {
             font-size: 1.39rem !important;
         }
         .dimension-model-card .dimension-model-label,
@@ -37,7 +35,61 @@
         .feeding-strategy-card .dimension-model-label,
         .bird-egg-selected-card .dimension-model-label,
         .plumage-model-label {
-            color: #ffffff !important;`r`n            font-weight: 400 !important;
+            color: #ffffff !important;
+            font-weight: 400 !important;
+        }
+
+        /* Reduzir escala na seção de Infos e Ambiente do animal (tanto no desktop quanto mobile) */
+        #info-modelos-visuais .dimension-model-card,
+        #info-modelos-visuais-mobile .dimension-model-card,
+        #info-ambiente .dimension-model-card,
+        #info-ambiente-mobile .dimension-model-card {
+            padding: 6px 0 !important;
+            gap: 10px !important;
+        }
+        #info-modelos-visuais .visual-models-grid,
+        #info-modelos-visuais-mobile .visual-models-grid,
+        #info-ambiente .visual-models-grid,
+        #info-ambiente-mobile .visual-models-grid {
+            gap: 6px !important;
+        }
+        #info-modelos-visuais .dimension-model-card .dimension-model-icon,
+        #info-modelos-visuais-mobile .dimension-model-card .dimension-model-icon,
+        #info-ambiente .dimension-model-card .dimension-model-icon,
+        #info-ambiente-mobile .dimension-model-card .dimension-model-icon {
+            width: 44px !important;
+            height: 44px !important;
+            min-width: 44px !important;
+            border-radius: 12px !important;
+        }
+        #info-modelos-visuais .dimension-model-card .dimension-model-icon svg,
+        #info-modelos-visuais-mobile .dimension-model-card .dimension-model-icon svg,
+        #info-modelos-visuais .dimension-model-card .dimension-model-icon img,
+        #info-modelos-visuais-mobile .dimension-model-card .dimension-model-icon img,
+        #info-ambiente .dimension-model-card .dimension-model-icon svg,
+        #info-ambiente-mobile .dimension-model-card .dimension-model-icon svg,
+        #info-ambiente .dimension-model-card .dimension-model-icon img,
+        #info-ambiente-mobile .dimension-model-card .dimension-model-icon img {
+            width: 26px !important;
+            height: 26px !important;
+        }
+        #info-modelos-visuais .dimension-model-card .dimension-model-value,
+        #info-modelos-visuais-mobile .dimension-model-card .dimension-model-value {
+            font-size: 1.28rem !important;
+        }
+        #info-ambiente .dimension-model-card .dimension-model-value,
+        #info-ambiente-mobile .dimension-model-card .dimension-model-value {
+            font-size: 1.15rem !important;
+        }
+        #info-modelos-visuais .dimension-model-card .dimension-model-label,
+        #info-modelos-visuais-mobile .dimension-model-card .dimension-model-label {
+            font-size: 0.83rem !important;
+            color: rgba(255, 255, 255, 0.7) !important;
+        }
+        #info-ambiente .dimension-model-card .dimension-model-label,
+        #info-ambiente-mobile .dimension-model-card .dimension-model-label {
+            font-size: 0.8rem !important;
+            color: rgba(255, 255, 255, 0.7) !important;
         }
     </style>
 </head>
