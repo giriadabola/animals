@@ -267,6 +267,9 @@
                     }
                 });
 
+                // Ordenar por ordem alfabética do nome do animal
+                matchedAnimals.sort((a, b) => (a.data.nome || '').localeCompare(b.data.nome || '', 'pt'));
+
                 if (matchedAnimals.length === 0) {
                     loadingMessage.textContent = `Nenhum animal encontrado na categoria "${categoryName}".`;
                     listContainer.style.display = 'none';

@@ -20,6 +20,12 @@
     <script src="https://cdn.jsdelivr.net/npm/jsvectormap"></script>
     <script src="https://cdn.jsdelivr.net/npm/jsvectormap/dist/maps/world.js"></script>
     <style>
+        @media (min-width: 1025px) {
+            body {
+                zoom: 0.9;
+            }
+        }
+
         /* Forçar o mesmo tamanho para a segunda linha de todos os cards de modelos visuais */
         .dimension-model-card .dimension-model-value,
         .reproduction-model-card .dimension-model-value,
@@ -91,6 +97,113 @@
             font-size: 0.8rem !important;
             color: rgba(255, 255, 255, 0.7) !important;
         }
+
+        /* Aumentar 30% em relação ao tamanho reduzido dos cards de Alimentação, Reprodução e Curiosidades */
+        .feeding-model-card,
+        .feeding-strategy-card,
+        .reproduction-model-card,
+        .bird-egg-selected-card,
+        .curiosidades-model-card {
+            padding: 11px 18px !important;
+            gap: 14px !important;
+            border-radius: 14px !important;
+        }
+        .feeding-model-card .dimension-model-icon,
+        .feeding-strategy-card .dimension-model-icon,
+        .reproduction-model-card .dimension-model-icon,
+        .bird-egg-selected-card .dimension-model-icon,
+        .curiosidades-model-card .dimension-model-icon {
+            width: 44px !important;
+            height: 44px !important;
+            min-width: 44px !important;
+            border-radius: 12px !important;
+        }
+        .feeding-model-card .dimension-model-icon svg,
+        .feeding-strategy-card .dimension-model-icon svg,
+        .reproduction-model-card .dimension-model-icon svg,
+        .bird-egg-selected-card .dimension-model-icon svg,
+        .curiosidades-model-card .dimension-model-icon svg {
+            width: 26px !important;
+            height: 26px !important;
+        }
+        .feeding-model-card .dimension-model-value,
+        .feeding-strategy-card .dimension-model-value,
+        .reproduction-model-card .dimension-model-value,
+        .bird-egg-selected-card .dimension-model-value,
+        .curiosidades-model-card .dimension-model-value {
+            font-size: 0.92rem !important;
+            font-weight: 400 !important;
+            color: var(--text-secondary) !important;
+        }
+        .feeding-model-card .dimension-model-label,
+        .feeding-strategy-card .dimension-model-label,
+        .reproduction-model-card .dimension-model-label,
+        .bird-egg-selected-card .dimension-model-label,
+        .curiosidades-model-card .dimension-model-label {
+            font-size: 1.15rem !important;
+            font-weight: 700 !important;
+            color: #ffffff !important;
+        }
+
+        /* Forçar exibição em forma de lista vertical (1 por linha) na Reprodução */
+        .reproduction-model-grid {
+            grid-template-columns: 1fr !important;
+        }
+
+        /* Estilo temático de cor da secção de Curiosidades (Cinzento / Slate Grey) */
+        #info-curiosidades,
+        #info-curiosidades-mobile {
+            border-color: rgba(148, 163, 184, 0.25) !important;
+            background: linear-gradient(135deg, rgba(148, 163, 184, 0.03), rgba(9, 9, 20, 0.8)) !important;
+            box-shadow: 0 8px 32px rgba(148, 163, 184, 0.03), inset 0 1px 0 rgba(255, 255, 255, 0.02) !important;
+        }
+
+        /* Estilo super elegante para animais da mesma família */
+        .related-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .related-item a {
+            display: flex;
+            align-items: center;
+            padding: 8px 12px !important;
+            border-radius: 12px !important;
+            background: rgba(255, 255, 255, 0.015) !important;
+            border: 1px solid rgba(255, 255, 255, 0.05) !important;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.02) !important;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
+        }
+        .related-item a:hover {
+            background: rgba(99, 102, 241, 0.05) !important;
+            border-color: rgba(99, 102, 241, 0.3) !important;
+            box-shadow: 0 8px 24px rgba(99, 102, 241, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.02) !important;
+            transform: translateX(8px) !important;
+        }
+        .related-item img {
+            width: 40px !important;
+            height: 40px !important;
+            border-radius: 8px !important;
+            border: 1.5px solid rgba(255, 255, 255, 0.1) !important;
+            transition: all 0.3s ease !important;
+            margin-right: 12px !important;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3) !important;
+        }
+        .related-item a:hover img {
+            border-color: var(--primary-color) !important;
+            transform: scale(1.05);
+            box-shadow: 0 0 12px rgba(99, 102, 241, 0.4) !important;
+        }
+        .related-item span {
+            font-size: 0.88rem !important;
+            font-weight: 600 !important;
+            color: var(--text-primary) !important;
+            transition: color 0.3s ease !important;
+            line-height: 1.3 !important;
+        }
+        .related-item a:hover span {
+            color: var(--primary-color) !important;
+        }
     </style>
 </head>
 <body>
@@ -145,7 +258,8 @@
                 alimentacao: `<svg class="section-title-icon" viewBox="0 0 64 64" fill="none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><path d="M21 8v20"/><path d="M13 8v17c0 6 4 10 8 10s8-4 8-10V8"/><path d="M21 35v21"/><path d="M44 8c6 7 8 15 8 24c0 8-3 14-8 17v7"/><path d="M44 8v48"/></svg>`,
                 reproducao: `<svg class="section-title-icon" viewBox="0 0 64 64" fill="none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><path d="M32 8c12 10 19 20 19 32c0 10-8 17-19 17s-19-7-19-17C13 28 20 18 32 8Z"/><circle cx="32" cy="39" r="9"/><path d="M32 30v-8"/></svg>`,
                 plumagem: `<svg class="section-title-icon" viewBox="0 0 64 64" fill="none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><path d="M42 6L14 34c-4 4-4 10 0 14s10 4 14 0l28-28c4-4 4-10 0-14s-10-4-14 0Z"/><path d="M28 20l12 12"/><path d="M18 30l10 10"/><path d="M38 10l12 12"/><path d="M14 50l-8 8"/></svg>`,
-                distribuicao: `<svg class="section-title-icon" viewBox="0 0 64 64" fill="none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><circle cx="32" cy="32" r="24" stroke="currentColor" stroke-width="4"/><path d="M10 32h44M32 8v48M14 20h36M14 44h36M22 8c4 8 4 40 0 48M42 8c-4 8-4 40 0 48" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>`
+                distribuicao: `<svg class="section-title-icon" viewBox="0 0 64 64" fill="none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><circle cx="32" cy="32" r="24" stroke="currentColor" stroke-width="4"/><path d="M10 32h44M32 8v48M14 20h36M14 44h36M22 8c4 8 4 40 0 48M42 8c-4 8-4 40 0 48" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>`,
+                curiosidades: `<svg class="section-title-icon" viewBox="0 0 64 64" fill="none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><path d="M32 10C21 10 16 18 16 26c0 7 4 12 7 15c2 2 3 5 3 8h12c0-3 1-6 3-8c3-3 7-8 7-15c0-8-5-16-16-16Z" stroke="currentColor" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/><path d="M26 55h12M28 60h8" stroke="currentColor" stroke-width="4" stroke-linecap="round"/></svg>`
             };
             return icons[type] || icons.geral;
         }
@@ -771,8 +885,8 @@
                     <article class="dimension-model-card reproduction-model-card bird-egg-selected-card">
                         <div class="bird-egg-selected-image"><img src="${egg.image}" alt="Ovo ${escapeHtml(egg.label)}" loading="lazy"></div>
                         <div class="dimension-model-copy">
-                            <div class="dimension-model-label">${escapeHtml(egg.label)}</div>
-                            <div class="dimension-model-value">${escapeHtml(item.detalhe || egg.average)}</div>
+                            <div class="dimension-model-label">${escapeHtml(item.detalhe || egg.average)}</div>
+                            <div class="dimension-model-value">${escapeHtml(egg.label)}</div>
                         </div>
                     </article>`;
             }
@@ -786,8 +900,8 @@
                     <article class="dimension-model-card reproduction-model-card ${meta.accent}">
                         <div class="dimension-model-icon">${getMatingSystemSvg(meta.key)}</div>
                         <div class="dimension-model-copy">
-                            <div class="dimension-model-label">Acasalamento</div>
-                            <div class="dimension-model-value">${escapeHtml(matingValue)}</div>
+                            <div class="dimension-model-label">${escapeHtml(matingValue)}</div>
+                            <div class="dimension-model-value">Acasalamento</div>
                         </div>
                     </article>`;
             }
@@ -800,8 +914,8 @@
                 <article class="dimension-model-card reproduction-model-card ${meta.accent}">
                     <div class="dimension-model-icon">${getReproductionModelSvg(meta.key)}</div>
                     <div class="dimension-model-copy">
-                        <div class="dimension-model-label">${escapeHtml(label)}</div>
-                        <div class="dimension-model-value">${escapeHtml(value)}</div>
+                        <div class="dimension-model-label">${escapeHtml(value)}</div>
+                        <div class="dimension-model-value">${escapeHtml(label)}</div>
                     </div>
                 </article>`;
         }
@@ -926,6 +1040,86 @@
                     </div>
                 </div>`;
         }
+
+        function renderCuriosidadesVisual(animalData) {
+            const curiosidades = animalData.informacao?.curiosidades;
+            if (!curiosidades) return '';
+            
+            const colorVal = curiosidades.cor;
+            const statusVal = curiosidades.estadoConservacao;
+            
+            if (!colorVal && !statusVal) return '';
+            
+            const colorMap = {
+                'Preto': '#111111',
+                'Branco': '#fcfcfc',
+                'Cinzento': '#8c8c8c',
+                'Castanho': '#6b4423',
+                'Bege': '#e8d8c8',
+                'Creme': '#fffbcf',
+                'Amarelo': '#ffd000',
+                'Dourado': '#d4af37',
+                'Laranja': '#ff7700',
+                'Vermelho': '#e01b1b',
+                'Rosa': '#ff94b8',
+                'Azul': '#1a5fb4',
+                'Verde': '#2ec27e',
+                'Roxo': '#9141ac',
+                'Prateado': '#c0c0c0'
+            };
+            
+            const statusColors = {
+                'NE': { bg: '#5c6773', text: '#ffffff', name: 'Não Avaliado' },
+                'DD': { bg: '#835d90', text: '#ffffff', name: 'Dados Insuficientes' },
+                'LC': { bg: '#007a5e', text: '#ffffff', name: 'Pouco Preocupante' },
+                'NT': { bg: '#85bb65', text: '#000000', name: 'Quase Ameaçado' },
+                'VU': { bg: '#e69f00', text: '#000000', name: 'Vulnerável' },
+                'EN': { bg: '#d55e00', text: '#ffffff', name: 'Em Perigo' },
+                'CR': { bg: '#c00000', text: '#ffffff', name: 'Criticamente em Perigo' },
+                'EW': { bg: '#542788', text: '#ffffff', name: 'Extinto na Natureza' },
+                'EX': { bg: '#000000', text: '#ffffff', name: 'Extinto' }
+            };
+            
+            let colorHTML = '';
+            if (colorVal) {
+                const hexColor = colorMap[colorVal] || '#cccccc';
+                const circleBorder = (colorVal === 'Branco' || colorVal === 'Creme') ? '1px solid rgba(0,0,0,0.2)' : '1px solid rgba(255,255,255,0.1)';
+                colorHTML = `
+                    <article class="dimension-model-card curiosidades-model-card" style="width: 100%; box-sizing: border-box; display: flex; align-items: center;">
+                        <div class="dimension-model-icon" style="flex-shrink: 0; background: rgba(0,0,0,0.3); border: 2px solid rgba(255, 255, 255, 0.2); display: flex; align-items: center; justify-content: center;">
+                            <div style="width: 22px; height: 22px; border-radius: 50%; border: ${circleBorder}; background-color: ${hexColor};"></div>
+                        </div>
+                        <div class="dimension-model-copy" style="display: flex; flex-direction: column; align-items: flex-start; text-align: left;">
+                            <span class="dimension-model-label">${escapeHtml(colorVal)}</span>
+                            <strong class="dimension-model-value">Cor do Animal</strong>
+                        </div>
+                    </article>
+                `;
+            }
+            
+            let statusHTML = '';
+            if (statusVal) {
+                const sColor = statusColors[statusVal] || { bg: '#666', text: '#fff', name: '' };
+                statusHTML = `
+                    <article class="dimension-model-card curiosidades-model-card" style="width: 100%; box-sizing: border-box; display: flex; align-items: center;">
+                        <div class="dimension-model-icon" style="flex-shrink: 0; background: ${sColor.bg}; color: ${sColor.text}; font-weight: 800; font-size: 1.05rem; text-transform: uppercase; display: flex; align-items: center; justify-content: center;">
+                            ${escapeHtml(statusVal)}
+                        </div>
+                        <div class="dimension-model-copy" style="display: flex; flex-direction: column; align-items: flex-start; text-align: left;">
+                            <span class="dimension-model-label">${escapeHtml(sColor.name)}</span>
+                            <strong class="dimension-model-value">Estado de Conservação</strong>
+                        </div>
+                    </article>
+                `;
+            }
+            
+            return `
+                <div class="curiosidades-model-grid" style="display: flex; flex-direction: column; gap: 12px; margin-top: 16px; width: 100%; box-sizing: border-box;">
+                    ${colorHTML}
+                    ${statusHTML}
+                </div>
+            `;
+        }
         
         function playVideo(videoUrl, thumbnailElement) {
             const videoId = getYouTubeVideoId(videoUrl);
@@ -944,7 +1138,8 @@
         async function fetchAndRenderRelatedAnimals(familia, currentAnimalId) {
             if (!familia) return;
             const container = document.getElementById('related-animals-container');
-            if (!container) return;
+            const containerMobile = document.getElementById('related-animals-container-mobile');
+            if (!container && !containerMobile) return;
             
             try {
                 const animalsRef = collection(db, "animais");
@@ -956,6 +1151,9 @@
                         relatedAnimals.push({ id: doc.id, ...doc.data() });
                     }
                 });
+
+                // Ordenar por ordem alfabética do nome do animal
+                relatedAnimals.sort((a, b) => (a.nome || '').localeCompare(b.nome || '', 'pt'));
 
                 if (relatedAnimals.length > 0) {
                     let listHTML = '<ul class="related-list">';
@@ -971,13 +1169,22 @@
                         `;
                     });
                     listHTML += '</ul>';
-                    container.innerHTML = `<h3>Da mesma família</h3>${listHTML}`;
+                    
+                    if (container) {
+                        container.innerHTML = `<h3>Da mesma família</h3>${listHTML}`;
+                    }
+                    if (containerMobile) {
+                        containerMobile.innerHTML = `<h3>Da mesma família</h3>${listHTML}`;
+                    }
                 } else {
-                    container.style.display = 'none';
+                    if (container) container.style.display = 'none';
+                    if (containerMobile) containerMobile.style.display = 'none';
                 }
             } catch (error) {
                 console.error("Erro ao buscar animais relacionados:", error);
-                container.innerHTML = `<p>Não foi possível carregar animais relacionados.</p>`;
+                const errHTML = `<p>Não foi possível carregar animais relacionados.</p>`;
+                if (container) container.innerHTML = errHTML;
+                if (containerMobile) containerMobile.innerHTML = errHTML;
             }
         }
 
@@ -1026,6 +1233,10 @@
                                    ((Array.isArray(animalData.informacao.distribuicao.paises) && animalData.informacao.distribuicao.paises.length > 0) || 
                                     hasDistribicaoText);
 
+            const hasCuriosidadesText = animalData.informacao?.curiosidades?.texto && animalData.informacao.curiosidades.texto.trim() !== "";
+            const hasCuriosidadesVisual = animalData.informacao?.curiosidades && (animalData.informacao.curiosidades.cor || animalData.informacao.curiosidades.estadoConservacao);
+            const hasCuriosidades = hasCuriosidadesText || hasCuriosidadesVisual;
+
             console.log("Section flags:", {
                 hasGeralText,
                 hasGeralVisual,
@@ -1043,7 +1254,8 @@
                 hasPlumagemVisual,
                 hasPlumagem,
                 hasDistribicaoText,
-                hasDistribicao
+                hasDistribicao,
+                hasCuriosidades
             });
 
             const navItems = [];
@@ -1053,6 +1265,7 @@
             if (hasReproducao) navItems.push({ href: '#info-reproducao', label: 'Reprodução' });
             if (hasPlumagem) navItems.push({ href: '#info-plumagem', label: 'Plumagem' });
             if (hasDistribicao) navItems.push({ href: '#info-distribuicao', label: 'Distribuição' });
+            if (hasCuriosidades) navItems.push({ href: '#info-curiosidades', label: 'Curiosidades' });
             const navHTMLDesktop = navItems.map((item, idx) => {
                 const desktopHref = item.desktopHref || item.href;
                 return `<a href="${desktopHref}" class="nav-anchor ${idx === 0 ? 'active' : ''}">${item.label}</a>`;
@@ -1206,7 +1419,7 @@
                             </div>
                         </div>
                         ` : ''}
-                        <div id="related-animals-container"></div>
+                        <div id="related-animals-container" class="desktop-only"></div>
                     </div>
                     
                     <!-- Column 2: Sections (Geral, Dimensões, Alimentação, Reprodução, Plumagem, Distribuição) -->
@@ -1257,6 +1470,13 @@
                                     <span class="highlightedCountriesNames" style="color: var(--text-secondary);">Carregando...</span>
                                 </div>
                             </div>
+                        </div>` : ''}
+
+                        ${hasCuriosidades ? `
+                        <div class="info-section-card" id="info-curiosidades">
+                            <h3><span class="icon svg-icon">${getInfoSectionIconSvg('curiosidades')}</span>Curiosidades</h3>
+                            ${renderCuriosidadesVisual(animalData)}
+                            ${hasCuriosidadesText ? `<p style="margin-top: 15px; line-height: 1.6;">${animalData.informacao.curiosidades.texto}</p>` : ''}
                         </div>` : ''}
                     </div>
 
@@ -1398,7 +1618,15 @@
                                     </div>
                                 </div>
                             </div>` : ''}
+
+                            ${hasCuriosidades ? `
+                            <div class="info-section" id="info-curiosidades-mobile">
+                                <h3><span class="icon svg-icon">${getInfoSectionIconSvg('curiosidades')}</span>Curiosidades</h3>
+                                ${renderCuriosidadesVisual(animalData)}
+                                ${hasCuriosidadesText ? `<p style="margin-top: 15px; line-height: 1.6;">${animalData.informacao.curiosidades.texto}</p>` : ''}
+                            </div>` : ''}
                             ${scientificClassificationSectionMobileFinalHTML}
+                            <div id="related-animals-container-mobile" class="info-section mobile-only" style="margin-top: 24px;"></div>
                         </div>
                     </div>
                 </div>`;

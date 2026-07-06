@@ -309,6 +309,139 @@
             box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
         }
 
+        /* Curiosidades Theme */
+        .form-tabs-wrapper.active-curiosidades {
+            border-color: rgba(139, 92, 246, 0.4);
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.08);
+        }
+        .form-tabs-wrapper.active-curiosidades .form-tab-nav-btn[data-tab="curiosidades"].active {
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+        }
+
+        #tabpanel-curiosidades {
+            background: rgba(139, 92, 246, 0.05);
+            border-color: rgba(139, 92, 246, 0.15);
+        }
+        body.edit-theme #tabpanel-curiosidades {
+            background: rgba(167, 139, 250, 0.05);
+            border-color: rgba(167, 139, 250, 0.15);
+        }
+
+        /* Curiosidades Layout */
+        .curiosidades-layout {
+            display: grid;
+            grid-template-columns: minmax(0, 1.25fr) minmax(260px, 0.75fr);
+            gap: 28px;
+            align-items: stretch;
+        }
+        @media (max-width: 900px) {
+            .curiosidades-layout {
+                grid-template-columns: 1fr !important;
+                gap: 20px !important;
+            }
+        }
+        .curiosidades-editor {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            justify-content: center;
+        }
+        .curiosidades-visual-preview {
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            background:
+                radial-gradient(circle at 50% 18%, rgba(139, 92, 246, 0.14), transparent 38%),
+                rgba(0, 0, 0, 0.22);
+            padding: 22px;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+            min-height: 250px;
+            display: flex;
+            flex-direction: column;
+        }
+        .curiosidades-preview-stage {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            border: 1px dashed rgba(255, 255, 255, 0.1);
+            border-radius: var(--border-radius-sm);
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.01);
+            position: relative;
+        }
+        .curiosidades-preview-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            background: rgba(255,255,255,0.02);
+            padding: 10px 16px;
+            border-radius: var(--border-radius-sm);
+            border: 1px solid var(--border-color);
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .curiosidades-preview-item .preview-label {
+            font-size: 0.72rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-bottom: 2px;
+        }
+        .curiosidades-preview-info {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            text-align: left;
+        }
+        .color-preview-circle-wrapper {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            padding: 3px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0,0,0,0.3);
+            box-shadow: var(--shadow-sm);
+            flex-shrink: 0;
+        }
+        .color-preview-circle {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 1px solid rgba(255,255,255,0.1);
+            transition: background-color 0.3s ease;
+        }
+        .status-preview-badge {
+            padding: 0 10px;
+            border-radius: 12px;
+            font-weight: 800;
+            font-size: 1.05rem;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 44px;
+            height: 44px;
+            box-sizing: border-box;
+            flex-shrink: 0;
+        }
+        .curiosidades-preview-empty {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
         /* Collapsible Fieldset */
         .collapsible-fieldset legend {
             cursor: pointer;
@@ -341,6 +474,11 @@
             color: #f5efe7;
             font-family: system-ui, -apple-system, sans-serif;
             transition: opacity 0.4s ease, visibility 0.4s ease;
+        }
+        @media (min-width: 1025px) {
+            #loading-overlay {
+                zoom: 1.112; /* Cancela o zoom de 0.9 aplicado ao body */
+            }
         }
         .spinner {
             width: 50px;
@@ -861,6 +999,7 @@
                     <button type="button" class="form-tab-nav-btn" data-tab="alimentacao" role="tab" aria-selected="false" aria-controls="tabpanel-alimentacao" title="Alimentação"><i class="fa-solid fa-utensils"></i></button>
                     <button type="button" class="form-tab-nav-btn" data-tab="reproducao" role="tab" aria-selected="false" aria-controls="tabpanel-reproducao" title="Reprodução"><i class="fa-solid fa-heart"></i></button>
                     <button type="button" class="form-tab-nav-btn" data-tab="distribuicao" role="tab" aria-selected="false" aria-controls="tabpanel-distribuicao" title="Distribuição"><i class="fa-solid fa-map-location-dot"></i></button>
+                    <button type="button" class="form-tab-nav-btn" data-tab="curiosidades" role="tab" aria-selected="false" aria-controls="tabpanel-curiosidades" title="Curiosidades"><i class="fa-solid fa-lightbulb"></i></button>
                     <button type="button" class="form-tab-nav-btn" data-tab="plumagem" id="tab-btn-plumagem" role="tab" aria-selected="false" aria-controls="tabpanel-plumagem" style="display: none;" title="Plumagem"><i class="fa-solid fa-feather"></i></button>
                 </div>
 
@@ -1206,6 +1345,93 @@
                             <div class="map-container-wrapper">
                                 <div class="preview-card-title">Mapa de Distribuição (Pré-visualização)</div>
                                 <div class="map-container" id="distributionMapForm"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Aba: Curiosidades -->
+                    <div class="form-tab-panel" id="tabpanel-curiosidades" role="tabpanel">
+                        <div class="sub-tabs-navigation" role="tablist">
+                            <button type="button" class="form-subtab-nav-btn active" data-subtab="curiosidades-modelo-visual" role="tab" aria-selected="true" aria-controls="subtabpanel-curiosidades-modelo-visual">Modelo Visual</button>
+                            <button type="button" class="form-subtab-nav-btn" data-subtab="curiosidades-resumo-textual" role="tab" aria-selected="false" aria-controls="subtabpanel-curiosidades-resumo-textual">Texto</button>
+                        </div>
+
+                        <div class="sub-tabs-content">
+                            <!-- Sub-aba: Modelo Visual -->
+                            <div class="form-subtab-panel active" id="subtabpanel-curiosidades-modelo-visual" role="tabpanel">
+                                <div class="curiosidades-layout">
+                                    <div class="curiosidades-editor">
+                                        <div class="form-group">
+                                            <label for="animalColor">Cor do animal</label>
+                                            <select id="animalColor">
+                                                <option value="">Selecione uma cor...</option>
+                                                <option value="Preto">Preto</option>
+                                                <option value="Branco">Branco</option>
+                                                <option value="Cinzento">Cinzento</option>
+                                                <option value="Castanho">Castanho</option>
+                                                <option value="Bege">Bege</option>
+                                                <option value="Creme">Creme</option>
+                                                <option value="Amarelo">Amarelo</option>
+                                                <option value="Dourado">Dourado</option>
+                                                <option value="Laranja">Laranja</option>
+                                                <option value="Vermelho">Vermelho</option>
+                                                <option value="Rosa">Rosa</option>
+                                                <option value="Azul">Azul</option>
+                                                <option value="Verde">Verde</option>
+                                                <option value="Roxo">Roxo</option>
+                                                <option value="Prateado">Prateado</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group" style="margin-top: 20px;">
+                                            <label for="conservationStatus">Estado de Conservação</label>
+                                            <select id="conservationStatus">
+                                                <option value="">Selecione o estado...</option>
+                                                <option value="NE">Não Avaliado (NE)</option>
+                                                <option value="DD">Dados Insuficientes (DD)</option>
+                                                <option value="LC">Pouco Preocupante (LC)</option>
+                                                <option value="NT">Quase Ameaçado (NT)</option>
+                                                <option value="VU">Vulnerável (VU)</option>
+                                                <option value="EN">Em Perigo (EN)</option>
+                                                <option value="CR">Criticamente em Perigo (CR)</option>
+                                                <option value="EW">Extinto na Natureza (EW)</option>
+                                                <option value="EX">Extinto (EX)</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="curiosidades-visual-preview" aria-live="polite">
+                                        <div class="preview-card-title">Modelo visual de curiosidades</div>
+                                        <div class="curiosidades-preview-stage">
+                                            <div class="curiosidades-preview-item" id="colorPreviewItem" style="display: none;">
+                                                <div class="color-preview-circle-wrapper">
+                                                    <div class="color-preview-circle" id="colorPreviewCircle"></div>
+                                                </div>
+                                                <div class="curiosidades-preview-info">
+                                                    <span class="preview-label">Cor do Animal</span>
+                                                    <strong id="colorPreviewText" style="font-size: 1.05rem; font-weight: 700; color: var(--text-primary);"></strong>
+                                                </div>
+                                            </div>
+                                            <div class="curiosidades-preview-item" id="statusPreviewItem" style="display: none;">
+                                                <div class="status-preview-badge" id="statusPreviewBadge"></div>
+                                                <div class="curiosidades-preview-info">
+                                                    <span class="preview-label">Estado de Conservação</span>
+                                                    <strong id="statusPreviewText" style="font-size: 1.05rem; font-weight: 700; color: var(--text-primary);"></strong>
+                                                </div>
+                                            </div>
+                                            <div class="curiosidades-preview-empty" id="curiosidadesEmptyPreview">
+                                                <i class="fa-solid fa-eye-slash" style="font-size: 2rem; opacity: 0.3; margin-bottom: 10px;"></i>
+                                                <p>Preencha as opções para ver a pré-visualização.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Sub-aba: Texto -->
+                            <div class="form-subtab-panel" id="subtabpanel-curiosidades-resumo-textual" role="tabpanel">
+                                <div class="form-group">
+                                    <label for="infoCuriosidades">Curiosidades (Texto)</label>
+                                    <textarea id="infoCuriosidades" rows="10" placeholder="Ex: Curiosidades interessantes sobre o animal, comportamento peculiar, hábitos únicos..."></textarea>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -1989,6 +2215,11 @@
                             paises: selectedCountries,
                             paisesDetalhes: paisesDetalhes,
                             descricao: document.getElementById('infoDistribuicao').value || ''
+                        },
+                        curiosidades: {
+                            cor: document.getElementById('animalColor').value,
+                            estadoConservacao: document.getElementById('conservationStatus').value,
+                            texto: document.getElementById('infoCuriosidades').value
                         }
                     },
                     videos: [
@@ -3836,6 +4067,12 @@
                 }, 100);
             }
 
+            const curiData = animal.informacao.curiosidades || { cor: '', estadoConservacao: '', texto: '' };
+            document.getElementById('animalColor').value = curiData.cor || '';
+            document.getElementById('conservationStatus').value = curiData.estadoConservacao || '';
+            document.getElementById('infoCuriosidades').value = curiData.texto || '';
+            updateCuriosidadesPreview();
+
             let hasVideos = false;
             for (let i = 0; i < 5; i++) {
                 const videoVal = animal.videos && animal.videos[i] ? animal.videos[i] : '';
@@ -3878,6 +4115,11 @@
             setReproductionData();
             setPlumageData();
             updatePlumagemTabVisibility();
+            
+            document.getElementById('animalColor').value = '';
+            document.getElementById('conservationStatus').value = '';
+            document.getElementById('infoCuriosidades').value = '';
+            updateCuriosidadesPreview();
             
             selectedCountries = [];
             paisesDetalhes = {};
@@ -3938,7 +4180,7 @@
                 const targetTab = btn.dataset.tab;
                 
                 // Update active tab theme class on wrapper
-                tabsWrapper.classList.remove('active-geral', 'active-dimensoes', 'active-alimentacao', 'active-reproducao', 'active-plumagem', 'active-distribuicao');
+                tabsWrapper.classList.remove('active-geral', 'active-dimensoes', 'active-alimentacao', 'active-reproducao', 'active-plumagem', 'active-distribuicao', 'active-curiosidades');
                 tabsWrapper.classList.add(`active-${targetTab}`);
                 
                 tabButtons.forEach(b => {
@@ -4023,6 +4265,88 @@
             updateReproductionPreview();
             updatePlumagePreview();
         });
+
+        // --- PRE-VISUALIZAÇÃO DE CURIOSIDADES ---
+        function updateCuriosidadesPreview() {
+            const colorSelect = document.getElementById('animalColor');
+            const statusSelect = document.getElementById('conservationStatus');
+            
+            const colorVal = colorSelect.value;
+            const statusVal = statusSelect.value;
+            
+            const colorPreviewItem = document.getElementById('colorPreviewItem');
+            const statusPreviewItem = document.getElementById('statusPreviewItem');
+            const emptyPreview = document.getElementById('curiosidadesEmptyPreview');
+            
+            const colorCircle = document.getElementById('colorPreviewCircle');
+            const colorText = document.getElementById('colorPreviewText');
+            
+            const statusBadge = document.getElementById('statusPreviewBadge');
+            const statusText = document.getElementById('statusPreviewText');
+            
+            const colorMap = {
+                'Preto': '#111111',
+                'Branco': '#fcfcfc',
+                'Cinzento': '#8c8c8c',
+                'Castanho': '#6b4423',
+                'Bege': '#e8d8c8',
+                'Creme': '#fffbcf',
+                'Amarelo': '#ffd000',
+                'Dourado': '#d4af37',
+                'Laranja': '#ff7700',
+                'Vermelho': '#e01b1b',
+                'Rosa': '#ff94b8',
+                'Azul': '#1a5fb4',
+                'Verde': '#2ec27e',
+                'Roxo': '#9141ac',
+                'Prateado': '#c0c0c0'
+            };
+            
+            const statusColors = {
+                'NE': { bg: '#5c6773', text: '#ffffff', name: 'Não Avaliado' },
+                'DD': { bg: '#835d90', text: '#ffffff', name: 'Dados Insuficientes' },
+                'LC': { bg: '#007a5e', text: '#ffffff', name: 'Pouco Preocupante' },
+                'NT': { bg: '#85bb65', text: '#000000', name: 'Quase Ameaçado' },
+                'VU': { bg: '#e69f00', text: '#000000', name: 'Vulnerável' },
+                'EN': { bg: '#d55e00', text: '#ffffff', name: 'Em Perigo' },
+                'CR': { bg: '#c00000', text: '#ffffff', name: 'Criticamente em Perigo' },
+                'EW': { bg: '#542788', text: '#ffffff', name: 'Extinto na Natureza' },
+                'EX': { bg: '#000000', text: '#ffffff', name: 'Extinto' }
+            };
+            
+            if (colorVal) {
+                colorPreviewItem.style.display = 'flex';
+                colorCircle.style.backgroundColor = colorMap[colorVal] || '#cccccc';
+                if (colorVal === 'Branco' || colorVal === 'Creme') {
+                    colorCircle.style.border = '1px solid rgba(0,0,0,0.2)';
+                } else {
+                    colorCircle.style.border = '1px solid rgba(255,255,255,0.1)';
+                }
+                colorText.textContent = colorVal;
+            } else {
+                colorPreviewItem.style.display = 'none';
+            }
+            
+            if (statusVal) {
+                statusPreviewItem.style.display = 'flex';
+                const sColor = statusColors[statusVal] || { bg: '#666', text: '#fff', name: '' };
+                statusBadge.textContent = statusVal;
+                statusBadge.style.backgroundColor = sColor.bg;
+                statusBadge.style.color = sColor.text;
+                statusText.textContent = sColor.name;
+            } else {
+                statusPreviewItem.style.display = 'none';
+            }
+            
+            if (colorVal || statusVal) {
+                emptyPreview.style.display = 'none';
+            } else {
+                emptyPreview.style.display = 'flex';
+            }
+        }
+
+        document.getElementById('animalColor').addEventListener('change', updateCuriosidadesPreview);
+        document.getElementById('conservationStatus').addEventListener('change', updateCuriosidadesPreview);
 
         // --- LÓGICA DO SELETOR DE CATEGORIAS MÚLTIPLAS ---
         function getSelectedCategoriesMap() {
