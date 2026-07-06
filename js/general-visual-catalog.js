@@ -1,3 +1,6 @@
+import { ecologicalFunctionCatalog, getEcologicalFunctionMeta, getEcologicalFunctionSvg } from "./ecological-functions.js";
+import { locomotionCatalog, getLocomotionMeta, getLocomotionSvg } from "./locomotion-visuals.js";
+
 export const generalVisualOptions = [
     { tipo: 'Vida útil', unidade: 'anos' },
     { tipo: 'Velocidade máxima', unidade: 'km/h' },
@@ -7,6 +10,8 @@ export const generalVisualOptions = [
     { tipo: 'Estratégia para obter alimento', unidade: '' },
     { tipo: 'Atividade', unidade: '' },
     { tipo: 'Vida Social', unidade: '' },
+    { tipo: 'Função ecológica', unidade: '' },
+    { tipo: 'Locomoção', unidade: '' },
     { tipo: 'Zona Climática', unidade: '' },
     { tipo: 'Habitat', unidade: '' }
 ];
@@ -132,6 +137,8 @@ const selectGroups = {
     feedingStrategy: feedingStrategyOptions,
     activity: activityCatalog.map(item => item.label),
     social: socialCatalog.map(item => item.label),
+    ecologicalFunction: ecologicalFunctionCatalog.map(item => item.label),
+    locomotion: locomotionCatalog.map(item => item.label),
     climateZone: climateZoneOptions,
     habitat: habitatOptions
 };
@@ -158,6 +165,8 @@ export function getGeneralVisualSelectConfig(type = '') {
     if (normalized.includes('estrategia')) return { group: 'feedingStrategy', placeholder: 'Escolhe uma estratégia' };
     if (normalized.includes('atividade')) return { group: 'activity', placeholder: 'Escolhe um tipo de atividade' };
     if (normalized.includes('vida social')) return { group: 'social', placeholder: 'Escolhe um tipo de vida social' };
+    if (normalized.includes('funcao ecologica')) return { group: 'ecologicalFunction', placeholder: 'Escolhe uma função ecológica' };
+    if (normalized.includes('locomocao')) return { group: 'locomotion', placeholder: 'Escolhe um tipo de locomoção' };
     if (normalized.includes('zona climatica')) return { group: 'climateZone', placeholder: 'Escolhe uma zona climática' };
     if (normalized.includes('habitat')) return { group: 'habitat', placeholder: 'Escolhe um habitat' };
     return null;
@@ -183,6 +192,8 @@ export function getGeneralVisualMeta(type = '') {
     if (normalized.includes('estrategia')) return { key: 'estrategia', title: type || 'Estratégia para obter alimento', accent: 'accent-generic' };
     if (normalized.includes('atividade')) return { key: 'atividade', title: type || 'Atividade', accent: 'accent-climate' };
     if (normalized.includes('vida social')) return { key: 'vida-social', title: type || 'Vida Social', accent: 'accent-mating-polygamy' };
+    if (normalized.includes('funcao ecologica')) return { key: 'funcao-ecologica', title: type || 'Função ecológica', accent: 'accent-habitat' };
+    if (normalized.includes('locomocao')) return { key: 'locomocao', title: type || 'Locomoção', accent: 'accent-climate' };
     if (normalized.includes('zona')) return { key: 'zona-climatica', title: type || 'Zona Climática', accent: 'accent-climate' };
     if (normalized.includes('habitat')) return { key: 'habitat', title: type || 'Habitat', accent: 'accent-habitat' };
     return { key: 'geral', title: type || 'Modelo geral', accent: 'accent-generic' };
@@ -201,6 +212,8 @@ export function getGeneralModelSvg(key = 'geral') {
         populacao: makeSvg('<circle cx="24" cy="33" r="7"/><circle cx="40" cy="24" r="8"/><circle cx="56" cy="33" r="7"/><path d="M18 58c2-7 8-12 14-12s12 5 14 12"/><path d="M34 61c2-9 10-15 18-15s16 6 18 15"/><path d="M10 61c2-9 10-15 18-15"/>'),
         atividade: makeSvg('<circle cx="28" cy="29" r="9"/><path d="M52 24c8 0 14 6 14 14c0 7-5 13-12 14"/><path d="M20 57h40"/><path d="M40 14v8"/><path d="M14 29h8"/>', 'general-model-svg activity-model-svg'),
         'vida-social': makeSvg('<circle cx="24" cy="32" r="7"/><circle cx="40" cy="24" r="7"/><circle cx="56" cy="32" r="7"/><path d="M18 58c2-8 8-13 14-13s12 5 14 13"/><path d="M34 58c2-8 8-13 14-13s12 5 14 13"/><path d="M31 29l9-5l9 5"/>', 'general-model-svg social-model-svg'),
+        'funcao-ecologica': makeSvg('<circle cx="40" cy="40" r="18"/><path d="M40 22v36"/><path d="M22 40h36"/><path d="M28 28c6 8 18 8 24 0"/><path d="M28 52c6-8 18-8 24 0"/>', 'general-model-svg ecological-model-svg'),
+        locomocao: makeSvg('<path d="M16 58h48"/><path d="M22 46c8-10 18-16 30-18"/><path d="M28 58l8-12"/><path d="M46 58l8-12"/><path d="M58 30l8-6"/>', 'general-model-svg locomotion-model-svg'),
         geral: makeSvg('<circle cx="40" cy="40" r="25"/><path d="M40 25v18"/><path d="M40 53v2"/>')
     };
     return icons[key] || icons.geral;
@@ -280,3 +293,5 @@ export function getSocialSvg(key = 'social') {
     };
     return icons[key] || icons.social;
 }
+
+export { getEcologicalFunctionMeta, getEcologicalFunctionSvg, getLocomotionMeta, getLocomotionSvg };
