@@ -15,12 +15,12 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- CSS Global -->
-    <link rel="stylesheet" href="css/style.css?v=1.0.1">
+    <link rel="stylesheet" href="css/style.css?v=1.0.4">
     <script src="js/runtime-guard.js"></script>
     <script>
         // Forçar limpeza de cache e service workers se houver atualização
         (async function() {
-            const VERSION = 'v1.0.39';
+            const VERSION = 'v1.0.42';
             if (localStorage.getItem('app_cache_version') !== VERSION) {
                 try {
                     if ('serviceWorker' in navigator) {
@@ -73,19 +73,21 @@
     </svg>
 
     <main>
-        <section class="hero-section">
-            <h1>GRANDES PROJETOS</h1>
-        </section>
+        <div class="hero-wrapper-section">
+            <section class="hero-section">
+                <h1>GRANDES PROJETOS</h1>
+            </section>
+
+            <div class="search-container">
+                <input type="text" id="searchInput" placeholder="Pesquise por nome comum ou científico...">
+            </div>
+
+            <p id="loading-message">A carregar animais...</p>
+            <div class="categories-container" id="categories-list" style="display: none;"></div>
+        </div>
 
         <div class="main-layout" id="mainLayout">
             <div class="left-panel">
-                <div class="search-container">
-                    <input type="text" id="searchInput" placeholder="Pesquise por nome comum ou científico...">
-                </div>
-
-                <p id="loading-message">A carregar animais...</p>
-                <div class="categories-container" id="categories-list" style="display: none;"></div>
-                
                 <div id="dynamic-lists-wrapper"></div>
             </div>
             
