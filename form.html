@@ -2406,7 +2406,7 @@
         }
 
         function fillGeneralVisualTypeSelect(select, selectedValue = '') {
-            const options = generalVisualOptions.map(option => option.tipo);
+            const options = generalVisualOptions.map(option => option.tipo).sort((a, b) => a.localeCompare(b));
             const hasSelected = selectedValue && options.includes(selectedValue);
             select.innerHTML = `<option value="">Escolhe um modelo</option>` +
                 options.map(option => `<option value="${option}">${option}</option>`).join('') +
@@ -2510,7 +2510,7 @@
             strategySelect.style.display = 'none';
             function populateDropdownSelect(selectedType) {
                 const config = getGeneralVisualSelectConfig(selectedType);
-                const options = getGeneralVisualSelectOptions(selectedType);
+                const options = [...getGeneralVisualSelectOptions(selectedType)].sort((a, b) => a.localeCompare(b));
                 strategySelect.innerHTML = `<option value="">${config?.placeholder || 'Escolhe uma opção'}</option>` +
                     options.map(option => `<option value="${option}">${option}</option>`).join('');
             }
@@ -3018,7 +3018,7 @@
         }
 
         function fillMatingTypeSelect(select, selectedValue = '') {
-            const options = [...matingSystems];
+            const options = [...matingSystems].sort((a, b) => a.localeCompare(b));
             const hasSelected = selectedValue && options.includes(selectedValue);
             select.innerHTML = `<option value="">Escolhe um tipo de acasalamento</option>` +
                 options.map(option => `<option value="${option}">${option}</option>`).join('') +
