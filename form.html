@@ -28,7 +28,7 @@
     <script>
         // Forçar limpeza de cache e service workers se houver atualização
         (async function() {
-            const VERSION = 'v1.0.40';
+            const VERSION = 'v1.0.42';
             if (localStorage.getItem('app_cache_version') !== VERSION) {
                 try {
                     if ('serviceWorker' in navigator) {
@@ -692,11 +692,13 @@
 
         @media (max-width: 900px) {
             .form-header-fields {
+                grid-column: 1 / -1 !important;
                 grid-template-columns: 1fr !important;
                 padding: 16px !important;
                 gap: 15px !important;
             }
-            .form-header-fields .grid-span-2 {
+            .form-header-fields .grid-span-2,
+            .form-header-fields .grid-span-3 {
                 grid-column: span 1 !important;
             }
         }
@@ -738,8 +740,14 @@
         }
         @media (max-width: 900px) {
             .form-advanced-fields {
+                grid-column: 1 / -1 !important;
                 grid-template-columns: 1fr !important;
                 gap: 15px !important;
+            }
+            .form-advanced-fields .grid-span-2,
+            .form-advanced-fields .grid-span-3,
+            .advanced-section-header {
+                grid-column: 1 / -1 !important;
             }
         }
 
@@ -814,6 +822,165 @@
             .reproduction-row {
                 grid-template-columns: minmax(110px, 1.2fr) minmax(50px, 0.7fr) minmax(50px, 0.7fr) minmax(80px, 0.9fr) 42px !important;
                 gap: 6px !important;
+            }
+
+            .container {
+                width: min(100%, calc(100vw - 16px)) !important;
+                margin-top: 148px !important;
+            }
+
+            .form-tab-panel {
+                padding: 14px !important;
+            }
+
+            .sub-tabs-navigation {
+                display: grid !important;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 8px;
+            }
+
+            .form-subtab-nav-btn {
+                width: 100%;
+                min-width: 0;
+                padding: 12px 10px;
+                font-size: 0.95rem;
+                white-space: normal;
+                line-height: 1.2;
+                text-align: center;
+            }
+
+            .general-visual-layout {
+                gap: 16px !important;
+            }
+
+            .general-visual-editor,
+            .general-visual-preview {
+                min-width: 0;
+            }
+
+            .general-visual-editor {
+                overflow-x: auto;
+                overflow-y: visible;
+                padding-bottom: 4px;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .general-visual-row-header,
+            .general-visual-row {
+                min-width: 560px;
+                grid-template-columns: minmax(140px, 1.35fr) minmax(58px, 0.7fr) minmax(58px, 0.7fr) minmax(70px, 0.7fr) minmax(52px, 0.5fr) minmax(52px, 0.5fr) 40px !important;
+                gap: 8px !important;
+            }
+
+            .general-visual-row select,
+            .general-visual-row input,
+            .general-visual-row button {
+                min-width: 0;
+            }
+
+            .form-tab-panel .secondary-action-btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        /* Override absoluto para garantir botão flutuante em resoluções mobile */
+        @media (max-width: 900px) {
+            .container {
+                backdrop-filter: none !important;
+                -webkit-backdrop-filter: none !important;
+            }
+            .form-tabs-navigation {
+                gap: 4px !important;
+            }
+            .form-tab-nav-btn {
+                padding: 8px 10px !important;
+            }
+            .dimensions-editor {
+                overflow-x: auto !important;
+                overflow-y: visible !important;
+                padding-bottom: 4px !important;
+                -webkit-overflow-scrolling: touch !important;
+            }
+            .dimension-row-header,
+            .dimension-row {
+                min-width: 560px !important;
+                grid-template-columns: minmax(140px, 1.35fr) minmax(58px, 0.7fr) minmax(58px, 0.7fr) minmax(70px, 0.7fr) minmax(52px, 0.5fr) minmax(52px, 0.5fr) 40px !important;
+                gap: 8px !important;
+                display: grid !important;
+            }
+            .dimension-row .dimension-metric {
+                grid-column: auto !important;
+            }
+            .dimension-row-header {
+                display: grid !important;
+            }
+            .general-visual-rows,
+            .dimension-rows {
+                display: flex !important;
+                flex-direction: column !important;
+                gap: 6px !important;
+            }
+            .general-visual-row,
+            .dimension-row {
+                padding: 6px 8px !important;
+                border-radius: 10px !important;
+            }
+            .general-visual-row input,
+            .general-visual-row select,
+            .dimension-row input,
+            .dimension-row select {
+                font-size: 0.82rem !important;
+                padding: 8px 10px !important;
+                height: 38px !important;
+            }
+            .gender-toggle-btn,
+            .fase-toggle-btn {
+                font-size: 0.82rem !important;
+            }
+            .remove-dimension-btn {
+                height: 38px !important;
+                width: 38px !important;
+                font-size: 1.15rem !important;
+            }
+            #saveButton {
+                position: fixed !important;
+                bottom: 16px !important;
+                right: 16px !important;
+                width: 50px !important;
+                height: 50px !important;
+                border-radius: 50% !important;
+                z-index: 9999 !important;
+                font-size: 0 !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45) !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                border: none !important;
+                background: var(--accent-gradient) !important;
+                cursor: pointer !important;
+                transition: transform 0.2s ease, opacity 0.2s ease !important;
+            }
+            #saveButton:active {
+                transform: scale(0.9) !important;
+            }
+            #saveButton::before {
+                content: "\f0c7" !important;
+                font-family: "Font Awesome 6 Free" !important;
+                font-weight: 900 !important;
+                font-size: 1.35rem !important;
+                color: #fff !important;
+                display: inline-block !important;
+            }
+            #saveButton:disabled::before {
+                content: "\f1ce" !important;
+                animation: fab-spin-override 1s linear infinite !important;
+            }
+            @keyframes fab-spin-override {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
             }
         }
     </style>
@@ -1102,7 +1269,7 @@
                                             <option value="Savana"></option>
                                         </datalist>
                                         <button type="button" id="addGeneralVisualBtn" class="secondary-action-btn">+ Adicionar modelo</button>
-                                        <p class="form-hint">Usa esta área para dados gerais com modelo visual: vida útil, velocidades, força da mordida, tamanho da população, tempo de amamentação, atividade, vida social, estratégia para obter alimento, zona climática e habitat.</p>
+                                        <p class="form-hint">Usa esta área para dados gerais com modelo visual: vida útil, velocidades, força da mordida, tamanho da população, tempo de amamentação, atividade, vida social, função ecológica, locomoção, estratégia para obter alimento, zona climática e habitat.</p>
                                     </div>
 
                                     <div class="general-visual-preview" aria-live="polite">
@@ -1618,7 +1785,7 @@
         import { feedingAnimalOptions } from "./js/feeding-animal-options.js?v=2";
         import { getFeedingStrategyMeta, getFeedingStrategySvg } from "./js/feeding-strategies.js";
         import { matingSystems, getMatingMeta, getMatingSystemSvg } from "./js/mating-systems.js";
-        import { generalVisualOptions as generalVisualCatalogOptions, generalVisualUnits as generalVisualCatalogUnits, getGeneralVisualMeta as getGeneralVisualCatalogMeta, getGeneralVisualOption as getGeneralVisualCatalogOption, getGeneralVisualSelectConfig, getGeneralVisualSelectOptions, getGeneralModelSvg as getGeneralCatalogModelSvg, getActivityMeta, getActivitySvg, getSocialMeta, getSocialSvg, isDropdownOnlyGeneralModel as isGeneralVisualCatalogDropdownOnly } from "./js/general-visual-catalog.js";
+        import { generalVisualOptions as generalVisualCatalogOptions, generalVisualUnits as generalVisualCatalogUnits, getGeneralVisualMeta as getGeneralVisualCatalogMeta, getGeneralVisualOption as getGeneralVisualCatalogOption, getGeneralVisualSelectConfig, getGeneralVisualSelectOptions, getGeneralModelSvg as getGeneralCatalogModelSvg, getActivityMeta, getActivitySvg, getSocialMeta, getSocialSvg, getEcologicalFunctionMeta, getEcologicalFunctionSvg, getLocomotionMeta, getLocomotionSvg, isDropdownOnlyGeneralModel as isGeneralVisualCatalogDropdownOnly } from "./js/general-visual-catalog.js";
         import { GENDER_BOTH, collapseCombinedGenderItems, expandCombinedGenderItems, getGenderUi, getNextGenderValue, normalizeGenderValue } from "./js/gender-utils.js";
 
         let allAnimals = [];
@@ -2650,6 +2817,8 @@
             { tipo: 'Tamanho da População', unidade: 'milhares' },
             { tipo: 'Atividade', unidade: '' },
             { tipo: 'Vida Social', unidade: '' },
+            { tipo: 'Função ecológica', unidade: '' },
+            { tipo: 'Locomoção', unidade: '' },
             { tipo: 'Zona Climática', unidade: '' },
             { tipo: 'Habitat', unidade: '' }
         ];
@@ -3026,17 +3195,25 @@
             const isStrategy = normalizedType.includes('estrategia');
             const isActivity = normalizedType.includes('atividade');
             const isSocial = normalizedType.includes('vida social');
+            const isEcologicalFunction = normalizedType.includes('funcao ecologica');
+            const isLocomotion = normalizedType.includes('locomocao');
             const isClimateZone = normalizedType.includes('zona');
             const isHabitat = normalizedType.includes('habitat');
             const strategyMeta = isStrategy && !isSuggestion ? getFeedingStrategyMeta(item.valorMin || item.valor || '') : null;
             const activityMeta = isActivity && !isSuggestion ? getActivityMeta(item.valorMin || item.valor || '') : null;
             const socialMeta = isSocial && !isSuggestion ? getSocialMeta(item.valorMin || item.valor || '') : null;
+            const ecologicalMeta = isEcologicalFunction && !isSuggestion ? getEcologicalFunctionMeta(item.valorMin || item.valor || '') : null;
+            const locomotionMeta = isLocomotion && !isSuggestion ? getLocomotionMeta(item.valorMin || item.valor || '') : null;
             const climateMeta = isClimateZone && !isSuggestion ? getClimateZoneMeta(item.valorMin || item.valor || '') : null;
             const habitatMeta = isHabitat && !isSuggestion ? getHabitatMeta(item.valorMin || item.valor || '') : null;
             const icon = climateMeta
                 ? `<img class="climate-zone-model-image" src="${climateMeta.image}" alt="Zona climática ${item.valorMin || item.valor || ''}" loading="lazy">`
                 : habitatMeta
                     ? `<img class="climate-zone-model-image" src="${habitatMeta.image}" alt="Habitat ${item.valorMin || item.valor || ''}" loading="lazy">`
+                    : ecologicalMeta
+                        ? getEcologicalFunctionSvg(ecologicalMeta.key)
+                    : locomotionMeta
+                        ? getLocomotionSvg(locomotionMeta.key)
                     : strategyMeta
                         ? getFeedingStrategySvg(strategyMeta.key)
                         : activityMeta
@@ -3045,7 +3222,7 @@
                                 ? getSocialSvg(socialMeta.key)
                             : getGeneralModelSvg(meta.key);
             return `
-                <article class="dimension-model-card general-model-card ${climateMeta?.accent || habitatMeta?.accent || strategyMeta?.accent || activityMeta?.accent || socialMeta?.accent || meta.accent}${isSuggestion ? ' is-suggestion' : ''}">
+                <article class="dimension-model-card general-model-card ${climateMeta?.accent || habitatMeta?.accent || ecologicalMeta?.accent || locomotionMeta?.accent || strategyMeta?.accent || activityMeta?.accent || socialMeta?.accent || meta.accent}${isSuggestion ? ' is-suggestion' : ''}">
                     <div class="dimension-model-icon ${climateMeta || habitatMeta ? 'climate-zone-model-icon' : ''}">${icon}</div>
                     <div class="dimension-model-copy">
                         <div class="dimension-model-label">${meta.title}</div>

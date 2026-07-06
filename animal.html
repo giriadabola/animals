@@ -219,7 +219,7 @@
         import { feedingAnimalOptions } from "./js/feeding-animal-options.js?v=2";
         import { feedingStrategyDescriptions, getFeedingStrategyMeta, getFeedingStrategySvg } from "./js/feeding-strategies.js";
         import { getMatingMeta, getMatingSystemSvg } from "./js/mating-systems.js";
-        import { getGeneralVisualMeta as getGeneralVisualCatalogMeta, getGeneralModelSvg as getGeneralCatalogModelSvg, getActivityMeta, getActivitySvg, getSocialMeta, getSocialSvg } from "./js/general-visual-catalog.js";
+        import { getGeneralVisualMeta as getGeneralVisualCatalogMeta, getGeneralModelSvg as getGeneralCatalogModelSvg, getActivityMeta, getActivitySvg, getSocialMeta, getSocialSvg, getEcologicalFunctionMeta, getEcologicalFunctionSvg, getLocomotionMeta, getLocomotionSvg } from "./js/general-visual-catalog.js";
         import { collapseCombinedGenderItems, collectConcreteGenders, genderMatchesSelection } from "./js/gender-utils.js";
         
         const mainContent = document.getElementById('main-content-area');
@@ -551,18 +551,26 @@
             const isStrategy = normalizedType.includes('estrategia');
             const isActivity = normalizedType.includes('atividade');
             const isSocial = normalizedType.includes('vida social');
+            const isEcologicalFunction = normalizedType.includes('funcao ecologica');
+            const isLocomotion = normalizedType.includes('locomocao');
             const isClimateZone = normalizedType.includes('zona');
             const isHabitat = normalizedType.includes('habitat');
             const value = item.valorMin || item.valor || '';
             const strategyMeta = isStrategy ? getFeedingStrategyMeta(value) : null;
             const activityMeta = isActivity ? getActivityMeta(value) : null;
             const socialMeta = isSocial ? getSocialMeta(value) : null;
+            const ecologicalMeta = isEcologicalFunction ? getEcologicalFunctionMeta(value) : null;
+            const locomotionMeta = isLocomotion ? getLocomotionMeta(value) : null;
             const climateMeta = isClimateZone ? getClimateZoneMeta(value) : null;
             const habitatMeta = isHabitat ? getHabitatMeta(value) : null;
             const icon = climateMeta
                 ? `<img class="climate-zone-model-image" src="${climateMeta.image}" alt="Zona climática ${escapeHtml(value)}" loading="lazy">`
                 : habitatMeta
                     ? `<img class="climate-zone-model-image" src="${habitatMeta.image}" alt="Habitat ${escapeHtml(value)}" loading="lazy">`
+                    : ecologicalMeta
+                        ? getEcologicalFunctionSvg(ecologicalMeta.key)
+                    : locomotionMeta
+                        ? getLocomotionSvg(locomotionMeta.key)
                     : strategyMeta
                         ? getFeedingStrategySvg(strategyMeta.key)
                         : activityMeta
@@ -571,7 +579,7 @@
                                 ? getSocialSvg(socialMeta.key)
                             : getGeneralModelSvg(meta.key);
             return `
-                <article class="dimension-model-card general-model-card ${climateMeta?.accent || habitatMeta?.accent || strategyMeta?.accent || activityMeta?.accent || socialMeta?.accent || meta.accent}" data-gender="${item.genero || ''}" data-phase="${item.fase || 'Adulto'}">
+                <article class="dimension-model-card general-model-card ${climateMeta?.accent || habitatMeta?.accent || ecologicalMeta?.accent || locomotionMeta?.accent || strategyMeta?.accent || activityMeta?.accent || socialMeta?.accent || meta.accent}" data-gender="${item.genero || ''}" data-phase="${item.fase || 'Adulto'}">
                     <div class="dimension-model-icon ${climateMeta || habitatMeta ? 'climate-zone-model-icon' : ''}">${icon}</div>
                     <div class="dimension-model-copy">
                         <div class="dimension-model-label">${escapeHtml(meta.title)}</div>
@@ -1136,9 +1144,12 @@
         }
 
         async function fetchAndRenderRelatedAnimals(familia, currentAnimalId) {
-            if (!familia) return;
             const container = document.getElementById('related-animals-container');
             const containerMobile = document.getElementById('related-animals-container-mobile');
+            if (container) container.style.display = 'none';
+            if (containerMobile) containerMobile.style.display = 'none';
+            
+            if (!familia) return;
             if (!container && !containerMobile) return;
             
             try {
@@ -1172,13 +1183,12 @@
                     
                     if (container) {
                         container.innerHTML = `<h3>Da mesma família</h3>${listHTML}`;
+                        container.style.display = 'block';
                     }
                     if (containerMobile) {
                         containerMobile.innerHTML = `<h3>Da mesma família</h3>${listHTML}`;
+                        containerMobile.style.display = 'block';
                     }
-                } else {
-                    if (container) container.style.display = 'none';
-                    if (containerMobile) containerMobile.style.display = 'none';
                 }
             } catch (error) {
                 console.error("Erro ao buscar animais relacionados:", error);
@@ -1310,6 +1320,7 @@
                 animalData.classe ||
                 animalData.ordem ||
                 animalData.subordem ||
+                animalData.infraordem ||
                 animalData.familia ||
                 animalData.genero ||
                 animalData.especie ||
@@ -1323,6 +1334,7 @@
                 ${animalData.classe ? `<div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px;"><strong style="color: var(--text-secondary);">Classe:</strong> <span style="color: var(--text-primary); font-weight: 500;">${escapeHtml(animalData.classe)}</span></div>` : ''}
                 ${animalData.ordem ? `<div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px;"><strong style="color: var(--text-secondary);">Ordem:</strong> <span style="color: var(--text-primary); font-weight: 500;">${escapeHtml(animalData.ordem)}</span></div>` : ''}
                 ${animalData.subordem ? `<div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px;"><strong style="color: var(--text-secondary);">Subordem:</strong> <span style="color: var(--text-primary); font-weight: 500;">${escapeHtml(animalData.subordem)}</span></div>` : ''}
+                ${animalData.infraordem ? `<div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px;"><strong style="color: var(--text-secondary);">Infraordem:</strong> <span style="color: var(--text-primary); font-weight: 500;">${escapeHtml(animalData.infraordem)}</span></div>` : ''}
                 ${animalData.familia ? `<div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px;"><strong style="color: var(--text-secondary);">FamÃ­lia:</strong> <span style="color: var(--text-primary); font-weight: 500;">${escapeHtml(animalData.familia)}</span></div>` : ''}
                 ${animalData.genero ? `<div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px;"><strong style="color: var(--text-secondary);">GÃ©nero:</strong> <span style="color: var(--text-primary); font-weight: 500; font-style: italic;">${escapeHtml(animalData.genero)}</span></div>` : ''}
                 ${animalData.especie ? `<div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px;"><strong style="color: var(--text-secondary);">EspÃ©cie:</strong> <span style="color: var(--text-primary); font-weight: 500; font-style: italic;">${escapeHtml(animalData.especie)}</span></div>` : ''}
@@ -1408,6 +1420,7 @@
                                 ${animalData.classe ? `<div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px;"><strong style="color: var(--text-secondary);">Classe:</strong> <span style="color: var(--text-primary); font-weight: 500;">${escapeHtml(animalData.classe)}</span></div>` : ''}
                                 ${animalData.ordem ? `<div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px;"><strong style="color: var(--text-secondary);">Ordem:</strong> <span style="color: var(--text-primary); font-weight: 500;">${escapeHtml(animalData.ordem)}</span></div>` : ''}
                                 ${animalData.subordem ? `<div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px;"><strong style="color: var(--text-secondary);">Subordem:</strong> <span style="color: var(--text-primary); font-weight: 500;">${escapeHtml(animalData.subordem)}</span></div>` : ''}
+                                ${animalData.infraordem ? `<div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px;"><strong style="color: var(--text-secondary);">Infraordem:</strong> <span style="color: var(--text-primary); font-weight: 500;">${escapeHtml(animalData.infraordem)}</span></div>` : ''}
                                 ${animalData.familia ? `<div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px;"><strong style="color: var(--text-secondary);">Família:</strong> <span style="color: var(--text-primary); font-weight: 500;">${escapeHtml(animalData.familia)}</span></div>` : ''}
                                 ${animalData.genero ? `<div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px;"><strong style="color: var(--text-secondary);">Género:</strong> <span style="color: var(--text-primary); font-weight: 500; font-style: italic;">${escapeHtml(animalData.genero)}</span></div>` : ''}
                                 ${animalData.especie ? `<div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px;"><strong style="color: var(--text-secondary);">Espécie:</strong> <span style="color: var(--text-primary); font-weight: 500; font-style: italic;">${escapeHtml(animalData.especie)}</span></div>` : ''}
@@ -1419,7 +1432,7 @@
                             </div>
                         </div>
                         ` : ''}
-                        <div id="related-animals-container" class="desktop-only"></div>
+                        <div id="related-animals-container" class="desktop-only" style="display: none;"></div>
                     </div>
                     
                     <!-- Column 2: Sections (Geral, Dimensões, Alimentação, Reprodução, Plumagem, Distribuição) -->
@@ -1626,7 +1639,7 @@
                                 ${hasCuriosidadesText ? `<p style="margin-top: 15px; line-height: 1.6;">${animalData.informacao.curiosidades.texto}</p>` : ''}
                             </div>` : ''}
                             ${scientificClassificationSectionMobileFinalHTML}
-                            <div id="related-animals-container-mobile" class="info-section mobile-only" style="margin-top: 24px;"></div>
+                            <div id="related-animals-container-mobile" class="info-section mobile-only" style="margin-top: 24px; display: none;"></div>
                         </div>
                     </div>
                 </div>`;
