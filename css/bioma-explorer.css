@@ -1,0 +1,315 @@
+/* ==================== Bioma Explorer Card ==================== */
+.bioma-explorer-card {
+    position: relative;
+    border-radius: 28px;
+    margin: 2rem 0 3rem 0;
+    padding: 0; /* Removed padding to let sidebars touch the edges */
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    background-size: cover !important;
+    background-position: var(--bioma-bg-position, 78% center) !important;
+    background-repeat: no-repeat !important;
+    transition: background-image 0.6s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.4s ease, box-shadow 0.4s ease;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    display: grid;
+    grid-template-columns: minmax(330px, 410px) 1fr; /* Custom list width range */
+    height: 710px; /* Increased height further by 2% to ensure no scrollbar */
+    overflow: hidden;
+    align-items: stretch;
+}
+
+/* Glassy background mask covering the entire card */
+.bioma-explorer-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+        135deg,
+        rgba(10, 11, 22, 0.7) 0%,
+        rgba(15, 23, 42, 0.4) 50%,
+        rgba(10, 11, 22, 0.75) 100%
+    );
+    z-index: 1;
+    pointer-events: none;
+}
+
+.bioma-explorer-card:hover {
+    border-color: rgba(6, 182, 212, 0.35);
+    box-shadow: 0 30px 70px rgba(6, 182, 212, 0.12), 0 20px 45px rgba(0, 0, 0, 0.6);
+}
+
+/* Aligning all children on top of the mask */
+.bioma-explorer-card > * {
+    position: relative;
+    z-index: 2;
+}
+
+/* Right Pane Wrapper */
+.bioma-explorer-right {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 40px;
+    gap: 30px;
+}
+
+/* Card Header & Tabs */
+.bioma-explorer-header {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    padding-bottom: 20px;
+}
+
+.bioma-explorer-header-top {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.bioma-explorer-header-top i {
+    font-size: 1.8rem;
+    background: linear-gradient(135deg, #22d3ee 0%, #3b82f6 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.bioma-explorer-header-top h2 {
+    font-size: 1.8rem;
+    font-weight: 850;
+    margin: 0;
+    color: #ffffff;
+    letter-spacing: -0.5px;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+}
+
+.bioma-explorer-tabs {
+    display: flex;
+    gap: 10px;
+    flex-wrap: nowrap; /* Prevent wrapping of tab buttons */
+    overflow-x: auto; /* Enable horizontal scrolling */
+    scrollbar-width: none; /* Hide scrollbar for Firefox */
+    -ms-overflow-style: none; /* Hide scrollbar for IE/Edge */
+    padding-bottom: 4px;
+}
+
+.bioma-explorer-tabs::-webkit-scrollbar {
+    display: none; /* Hide scrollbar for Chrome/Safari */
+}
+
+.tab-text-mobile {
+    display: none;
+}
+.tab-text-desktop {
+    display: inline;
+}
+
+.bioma-tab-btn {
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    color: #9ca3af;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 10px 20px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    flex-shrink: 0; /* Prevent tabs from shrinking */
+}
+
+.bioma-tab-btn:hover {
+    background: rgba(15, 23, 42, 0.85);
+    color: #ffffff;
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.bioma-tab-btn.active {
+    background: linear-gradient(135deg, rgba(6, 182, 212, 0.25) 0%, rgba(59, 130, 246, 0.25) 100%);
+    color: #22d3ee;
+    border-color: rgba(6, 182, 212, 0.5);
+    box-shadow: 0 4px 15px rgba(6, 182, 212, 0.2);
+}
+
+/* Left Pane: Preview Title & Call-to-action */
+.bioma-preview-info-pane {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 20px;
+    border-radius: 16px;
+    background: rgba(15, 23, 42, 0.35);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    width: max-content;
+    max-width: 100%;
+    gap: 24px;
+}
+
+.bioma-preview-info-pane h3 {
+    font-size: 1.9rem;
+    font-weight: 850;
+    margin: 0;
+    color: #ffffff;
+    text-shadow: 0 3px 15px rgba(0, 0, 0, 0.7);
+    letter-spacing: -0.5px;
+    line-height: 1.2;
+    white-space: nowrap; /* Prevent title wrapping */
+}
+
+.bioma-explore-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+    color: #ffffff;
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    white-space: nowrap; /* Prevent button text wrapping */
+    text-decoration: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(6, 182, 212, 0.35);
+}
+
+.bioma-explore-link:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(6, 182, 212, 0.55);
+    background: linear-gradient(135deg, #0891b2 0%, #06b6d4 100%);
+}
+
+.bioma-explore-link i {
+    font-size: 0.85rem;
+    transition: transform 0.3s ease;
+}
+
+.bioma-explore-link:hover i {
+    transform: translateX(4px);
+}
+
+/* Left Pane: Full-height Scrollable List with Glassmorphism */
+.bioma-list-pane {
+    background: rgba(10, 11, 20, 0.15);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    border: none;
+    border-right: 1px solid rgba(255, 255, 255, 0.08); /* Border on the right instead of left */
+    border-radius: 28px 0 0 28px; /* Border radius on the left instead of right */
+    padding: 25px 12px;
+    overflow-y: hidden; /* Hide scrollbar completely since all elements fit */
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    height: 100%;
+    scrollbar-width: none; /* Hide scrollbar for Firefox */
+    -ms-overflow-style: none; /* Hide scrollbar for IE/Edge */
+}
+
+/* Hide Scrollbar for Biomas List */
+.bioma-list-pane::-webkit-scrollbar {
+    display: none;
+}
+
+/* List Item styling */
+.bioma-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.02);
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.bioma-item:hover, .bioma-item.active {
+    background: linear-gradient(135deg, rgba(6, 182, 212, 0.15) 0%, rgba(59, 130, 246, 0.1) 100%);
+    border-color: rgba(6, 182, 212, 0.3);
+    transform: translateX(6px);
+}
+
+.bioma-item-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.bioma-item-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.25);
+    transition: all 0.3s ease;
+}
+
+.bioma-item:hover .bioma-item-dot, .bioma-item.active .bioma-item-dot {
+    background-color: #22d3ee;
+    box-shadow: 0 0 10px #22d3ee;
+}
+
+.bioma-item-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #cbd5e1;
+    transition: color 0.3s ease;
+}
+
+.bioma-item:hover .bioma-item-title, .bioma-item.active .bioma-item-title {
+    color: #ffffff;
+}
+
+.bioma-item-arrow {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.2);
+    transform: translateX(-4px);
+    opacity: 0;
+    transition: all 0.3s ease;
+}
+
+.bioma-item:hover .bioma-item-arrow, .bioma-item.active .bioma-item-arrow {
+    opacity: 1;
+    color: #22d3ee;
+    transform: translateX(0);
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 850px) {
+    .tab-text-desktop {
+        display: none !important;
+    }
+    .tab-text-mobile {
+        display: inline !important;
+    }
+
+    .bioma-explorer-card {
+        grid-template-columns: 1fr;
+        height: auto; /* Allow auto height on mobile */
+        background-position: var(--bioma-bg-position-mobile, var(--bioma-bg-position, 72% center)) !important;
+    }
+
+    .bioma-explorer-right {
+        padding: 30px;
+        gap: 25px;
+        order: 1; /* Puts right content first on mobile */
+    }
+
+    .bioma-list-pane {
+        border-radius: 0 0 28px 28px;
+        border-right: none;
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        padding: 20px;
+        height: 350px;
+        order: 2; /* Puts list at the bottom on mobile */
+        overflow-y: auto; /* Enable scroll on mobile */
+        -webkit-overflow-scrolling: touch; /* Smooth inertial scrolling for iOS */
+    }
+}

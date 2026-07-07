@@ -1079,23 +1079,23 @@ main {
 .animal-climate-zone.accent-climate-mediterranica { --model-accent: #2dd4bf; --model-accent-soft: rgba(45, 212, 191, 0.18); --model-accent-glow: rgba(13, 148, 136, 0.28); }
 .animal-climate-zone.accent-climate-montanhosa { --model-accent: #a78bfa; --model-accent-soft: rgba(167, 139, 250, 0.18); --model-accent-glow: rgba(124, 58, 237, 0.28); }
 
-.animal-climate-zone.accent-habitat-bosque { --model-accent: #22c55e; --model-accent-soft: rgba(34, 197, 94, 0.18); --model-accent-glow: rgba(21, 128, 61, 0.28); }
-.animal-climate-zone.accent-habitat-calota-gelo { --model-accent: #cbd5e1; --model-accent-soft: rgba(203, 213, 225, 0.18); --model-accent-glow: rgba(148, 163, 184, 0.24); }
-.animal-climate-zone.accent-habitat-caverna { --model-accent: #6b7280; --model-accent-soft: rgba(107, 114, 128, 0.18); --model-accent-glow: rgba(75, 85, 99, 0.28); }
-.animal-climate-zone.accent-habitat-chaparral { --model-accent: #d97706; --model-accent-soft: rgba(217, 119, 6, 0.18); --model-accent-glow: rgba(180, 83, 9, 0.28); }
-.animal-climate-zone.accent-habitat-duna { --model-accent: #f59e0b; --model-accent-soft: rgba(245, 158, 11, 0.18); --model-accent-glow: rgba(217, 119, 6, 0.28); }
-.animal-climate-zone.accent-habitat-estepe { --model-accent: #ca8a04; --model-accent-soft: rgba(202, 138, 4, 0.18); --model-accent-glow: rgba(161, 98, 7, 0.28); }
-.animal-climate-zone.accent-habitat-fauna-urbana { --model-accent: #9ca3af; --model-accent-soft: rgba(156, 163, 175, 0.18); --model-accent-glow: rgba(107, 114, 128, 0.28); }
-.animal-climate-zone.accent-habitat-marinho { --model-accent: #06b6d4; --model-accent-soft: rgba(6, 182, 212, 0.18); --model-accent-glow: rgba(8, 145, 178, 0.28); }
-.animal-climate-zone.accent-habitat-montanha { --model-accent: #64748b; --model-accent-soft: rgba(100, 116, 139, 0.18); --model-accent-glow: rgba(71, 85, 105, 0.28); }
-.animal-climate-zone.accent-habitat-pantano { --model-accent: #0f766e; --model-accent-soft: rgba(15, 118, 110, 0.18); --model-accent-glow: rgba(17, 94, 89, 0.28); }
-.animal-climate-zone.accent-habitat-pradaria { --model-accent: #84cc16; --model-accent-soft: rgba(132, 204, 22, 0.18); --model-accent-glow: rgba(101, 163, 13, 0.28); }
-.animal-climate-zone.accent-habitat-savana { --model-accent: #eab308; --model-accent-soft: rgba(234, 179, 8, 0.18); --model-accent-glow: rgba(202, 138, 4, 0.28); }
-.animal-climate-zone.accent-habitat-areas-rochosas { --model-accent: #78716c; --model-accent-soft: rgba(120, 113, 108, 0.18); --model-accent-glow: rgba(120, 113, 108, 0.28); }
-.animal-climate-zone.accent-habitat-costa { --model-accent: #0284c7; --model-accent-soft: rgba(2, 132, 199, 0.18); --model-accent-glow: rgba(2, 132, 199, 0.28); }
-.animal-climate-zone.accent-habitat-floresta { --model-accent: #047857; --model-accent-soft: rgba(4, 120, 87, 0.18); --model-accent-glow: rgba(4, 120, 87, 0.28); }
-.animal-climate-zone.accent-habitat-marinho-corais { --model-accent: #f43f5e; --model-accent-soft: rgba(244, 63, 94, 0.18); --model-accent-glow: rgba(244, 63, 94, 0.28); }
-.animal-climate-zone.accent-habitat-matagal { --model-accent: #84cc16; --model-accent-soft: rgba(132, 204, 22, 0.18); --model-accent-glow: rgba(132, 204, 22, 0.28); }
+.animal-climate-zone.accent-bioma-bosque { --model-accent: #22c55e; --model-accent-soft: rgba(34, 197, 94, 0.18); --model-accent-glow: rgba(21, 128, 61, 0.28); }
+.animal-climate-zone.accent-bioma-calota-gelo { --model-accent: #cbd5e1; --model-accent-soft: rgba(203, 213, 225, 0.18); --model-accent-glow: rgba(148, 163, 184, 0.24); }
+.animal-climate-zone.accent-bioma-caverna { --model-accent: #6b7280; --model-accent-soft: rgba(107, 114, 128, 0.18); --model-accent-glow: rgba(75, 85, 99, 0.28); }
+.animal-climate-zone.accent-bioma-chaparral { --model-accent: #d97706; --model-accent-soft: rgba(217, 119, 6, 0.18); --model-accent-glow: rgba(180, 83, 9, 0.28); }
+.animal-climate-zone.accent-bioma-duna { --model-accent: #f59e0b; --model-accent-soft: rgba(245, 158, 11, 0.18); --model-accent-glow: rgba(217, 119, 6, 0.28); }
+.animal-climate-zone.accent-bioma-estepe { --model-accent: #ca8a04; --model-accent-soft: rgba(202, 138, 4, 0.18); --model-accent-glow: rgba(161, 98, 7, 0.28); }
+.animal-climate-zone.accent-bioma-fauna-urbana { --model-accent: #9ca3af; --model-accent-soft: rgba(156, 163, 175, 0.18); --model-accent-glow: rgba(107, 114, 128, 0.28); }
+.animal-climate-zone.accent-bioma-marinho { --model-accent: #06b6d4; --model-accent-soft: rgba(6, 182, 212, 0.18); --model-accent-glow: rgba(8, 145, 178, 0.28); }
+.animal-climate-zone.accent-bioma-montanha { --model-accent: #64748b; --model-accent-soft: rgba(100, 116, 139, 0.18); --model-accent-glow: rgba(71, 85, 105, 0.28); }
+.animal-climate-zone.accent-bioma-pantano { --model-accent: #0f766e; --model-accent-soft: rgba(15, 118, 110, 0.18); --model-accent-glow: rgba(17, 94, 89, 0.28); }
+.animal-climate-zone.accent-bioma-pradaria { --model-accent: #84cc16; --model-accent-soft: rgba(132, 204, 22, 0.18); --model-accent-glow: rgba(101, 163, 13, 0.28); }
+.animal-climate-zone.accent-bioma-savana { --model-accent: #eab308; --model-accent-soft: rgba(234, 179, 8, 0.18); --model-accent-glow: rgba(202, 138, 4, 0.28); }
+.animal-climate-zone.accent-bioma-areas-rochosas { --model-accent: #78716c; --model-accent-soft: rgba(120, 113, 108, 0.18); --model-accent-glow: rgba(120, 113, 108, 0.28); }
+.animal-climate-zone.accent-bioma-costa { --model-accent: #0284c7; --model-accent-soft: rgba(2, 132, 199, 0.18); --model-accent-glow: rgba(2, 132, 199, 0.28); }
+.animal-climate-zone.accent-bioma-floresta { --model-accent: #047857; --model-accent-soft: rgba(4, 120, 87, 0.18); --model-accent-glow: rgba(4, 120, 87, 0.28); }
+.animal-climate-zone.accent-bioma-marinho-corais { --model-accent: #f43f5e; --model-accent-soft: rgba(244, 63, 94, 0.18); --model-accent-glow: rgba(244, 63, 94, 0.28); }
+.animal-climate-zone.accent-bioma-matagal { --model-accent: #84cc16; --model-accent-soft: rgba(132, 204, 22, 0.18); --model-accent-glow: rgba(132, 204, 22, 0.28); }
 
 
 .climate-zone-badge-image {
@@ -1107,7 +1107,7 @@ main {
     border: none;
 }
 
-.animal-habitat-badge .climate-zone-badge-image {
+.animal-bioma-badge .climate-zone-badge-image {
     transform: scale(1.22);
 }
 
@@ -2332,24 +2332,24 @@ button[type="submit"]:hover {
 .dimension-model-card.accent-climate-semiarida { --model-accent: #fbbf24; --model-accent-soft: rgba(251, 191, 36, 0.18); --model-accent-glow: rgba(245, 158, 11, 0.28); }
 .dimension-model-card.accent-climate-mediterranica { --model-accent: #2dd4bf; --model-accent-soft: rgba(45, 212, 191, 0.18); --model-accent-glow: rgba(13, 148, 136, 0.28); }
 .dimension-model-card.accent-climate-montanhosa { --model-accent: #a78bfa; --model-accent-soft: rgba(167, 139, 250, 0.18); --model-accent-glow: rgba(124, 58, 237, 0.28); }
-.dimension-model-card.accent-habitat { --model-accent: #10b981; --model-accent-soft: rgba(16, 185, 129, 0.18); --model-accent-glow: rgba(5, 150, 105, 0.28); }
-.dimension-model-card.accent-habitat-bosque { --model-accent: #22c55e; --model-accent-soft: rgba(34, 197, 94, 0.18); --model-accent-glow: rgba(21, 128, 61, 0.28); }
-.dimension-model-card.accent-habitat-calota-gelo { --model-accent: #cbd5e1; --model-accent-soft: rgba(203, 213, 225, 0.18); --model-accent-glow: rgba(148, 163, 184, 0.24); }
-.dimension-model-card.accent-habitat-caverna { --model-accent: #6b7280; --model-accent-soft: rgba(107, 114, 128, 0.18); --model-accent-glow: rgba(75, 85, 99, 0.28); }
-.dimension-model-card.accent-habitat-chaparral { --model-accent: #d97706; --model-accent-soft: rgba(217, 119, 6, 0.18); --model-accent-glow: rgba(180, 83, 9, 0.28); }
-.dimension-model-card.accent-habitat-duna { --model-accent: #f59e0b; --model-accent-soft: rgba(245, 158, 11, 0.18); --model-accent-glow: rgba(217, 119, 6, 0.28); }
-.dimension-model-card.accent-habitat-estepe { --model-accent: #ca8a04; --model-accent-soft: rgba(202, 138, 4, 0.18); --model-accent-glow: rgba(161, 98, 7, 0.28); }
-.dimension-model-card.accent-habitat-fauna-urbana { --model-accent: #9ca3af; --model-accent-soft: rgba(156, 163, 175, 0.18); --model-accent-glow: rgba(107, 114, 128, 0.28); }
-.dimension-model-card.accent-habitat-marinho { --model-accent: #06b6d4; --model-accent-soft: rgba(6, 182, 212, 0.18); --model-accent-glow: rgba(8, 145, 178, 0.28); }
-.dimension-model-card.accent-habitat-montanha { --model-accent: #64748b; --model-accent-soft: rgba(100, 116, 139, 0.18); --model-accent-glow: rgba(71, 85, 105, 0.28); }
-.dimension-model-card.accent-habitat-pantano { --model-accent: #0f766e; --model-accent-soft: rgba(15, 118, 110, 0.18); --model-accent-glow: rgba(17, 94, 89, 0.28); }
-.dimension-model-card.accent-habitat-pradaria { --model-accent: #84cc16; --model-accent-soft: rgba(132, 204, 22, 0.18); --model-accent-glow: rgba(101, 163, 13, 0.28); }
-.dimension-model-card.accent-habitat-savana { --model-accent: #eab308; --model-accent-soft: rgba(234, 179, 8, 0.18); --model-accent-glow: rgba(202, 138, 4, 0.28); }
-.dimension-model-card.accent-habitat-areas-rochosas { --model-accent: #78716c; --model-accent-soft: rgba(120, 113, 108, 0.18); --model-accent-glow: rgba(120, 113, 108, 0.28); }
-.dimension-model-card.accent-habitat-costa { --model-accent: #0284c7; --model-accent-soft: rgba(2, 132, 199, 0.18); --model-accent-glow: rgba(2, 132, 199, 0.28); }
-.dimension-model-card.accent-habitat-floresta { --model-accent: #047857; --model-accent-soft: rgba(4, 120, 87, 0.18); --model-accent-glow: rgba(4, 120, 87, 0.28); }
-.dimension-model-card.accent-habitat-marinho-corais { --model-accent: #f43f5e; --model-accent-soft: rgba(244, 63, 94, 0.18); --model-accent-glow: rgba(244, 63, 94, 0.28); }
-.dimension-model-card.accent-habitat-matagal { --model-accent: #84cc16; --model-accent-soft: rgba(132, 204, 22, 0.18); --model-accent-glow: rgba(132, 204, 22, 0.28); }
+.dimension-model-card.accent-bioma { --model-accent: #10b981; --model-accent-soft: rgba(16, 185, 129, 0.18); --model-accent-glow: rgba(5, 150, 105, 0.28); }
+.dimension-model-card.accent-bioma-bosque { --model-accent: #22c55e; --model-accent-soft: rgba(34, 197, 94, 0.18); --model-accent-glow: rgba(21, 128, 61, 0.28); }
+.dimension-model-card.accent-bioma-calota-gelo { --model-accent: #cbd5e1; --model-accent-soft: rgba(203, 213, 225, 0.18); --model-accent-glow: rgba(148, 163, 184, 0.24); }
+.dimension-model-card.accent-bioma-caverna { --model-accent: #6b7280; --model-accent-soft: rgba(107, 114, 128, 0.18); --model-accent-glow: rgba(75, 85, 99, 0.28); }
+.dimension-model-card.accent-bioma-chaparral { --model-accent: #d97706; --model-accent-soft: rgba(217, 119, 6, 0.18); --model-accent-glow: rgba(180, 83, 9, 0.28); }
+.dimension-model-card.accent-bioma-duna { --model-accent: #f59e0b; --model-accent-soft: rgba(245, 158, 11, 0.18); --model-accent-glow: rgba(217, 119, 6, 0.28); }
+.dimension-model-card.accent-bioma-estepe { --model-accent: #ca8a04; --model-accent-soft: rgba(202, 138, 4, 0.18); --model-accent-glow: rgba(161, 98, 7, 0.28); }
+.dimension-model-card.accent-bioma-fauna-urbana { --model-accent: #9ca3af; --model-accent-soft: rgba(156, 163, 175, 0.18); --model-accent-glow: rgba(107, 114, 128, 0.28); }
+.dimension-model-card.accent-bioma-marinho { --model-accent: #06b6d4; --model-accent-soft: rgba(6, 182, 212, 0.18); --model-accent-glow: rgba(8, 145, 178, 0.28); }
+.dimension-model-card.accent-bioma-montanha { --model-accent: #64748b; --model-accent-soft: rgba(100, 116, 139, 0.18); --model-accent-glow: rgba(71, 85, 105, 0.28); }
+.dimension-model-card.accent-bioma-pantano { --model-accent: #0f766e; --model-accent-soft: rgba(15, 118, 110, 0.18); --model-accent-glow: rgba(17, 94, 89, 0.28); }
+.dimension-model-card.accent-bioma-pradaria { --model-accent: #84cc16; --model-accent-soft: rgba(132, 204, 22, 0.18); --model-accent-glow: rgba(101, 163, 13, 0.28); }
+.dimension-model-card.accent-bioma-savana { --model-accent: #eab308; --model-accent-soft: rgba(234, 179, 8, 0.18); --model-accent-glow: rgba(202, 138, 4, 0.28); }
+.dimension-model-card.accent-bioma-areas-rochosas { --model-accent: #78716c; --model-accent-soft: rgba(120, 113, 108, 0.18); --model-accent-glow: rgba(120, 113, 108, 0.28); }
+.dimension-model-card.accent-bioma-costa { --model-accent: #0284c7; --model-accent-soft: rgba(2, 132, 199, 0.18); --model-accent-glow: rgba(2, 132, 199, 0.28); }
+.dimension-model-card.accent-bioma-floresta { --model-accent: #047857; --model-accent-soft: rgba(4, 120, 87, 0.18); --model-accent-glow: rgba(4, 120, 87, 0.28); }
+.dimension-model-card.accent-bioma-marinho-corais { --model-accent: #f43f5e; --model-accent-soft: rgba(244, 63, 94, 0.18); --model-accent-glow: rgba(244, 63, 94, 0.28); }
+.dimension-model-card.accent-bioma-matagal { --model-accent: #84cc16; --model-accent-soft: rgba(132, 204, 22, 0.18); --model-accent-glow: rgba(132, 204, 22, 0.28); }
 
 
 .dimension-model-card .dimension-model-label,
@@ -4265,7 +4265,7 @@ button[type="submit"]:hover {
     box-shadow: 0 8px 32px rgba(16, 185, 129, 0.03), inset 0 1px 0 rgba(255, 255, 255, 0.02) !important;
 }
 
-#info-habitat {
+#info-bioma {
     border-color: rgba(6, 182, 212, 0.25) !important;
     background: linear-gradient(135deg, rgba(6, 182, 212, 0.03), rgba(9, 9, 20, 0.8)) !important;
     box-shadow: 0 8px 32px rgba(6, 182, 212, 0.03), inset 0 1px 0 rgba(255, 255, 255, 0.02) !important;
