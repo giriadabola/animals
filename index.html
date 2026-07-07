@@ -281,7 +281,7 @@
             wrapper.innerHTML = '';
 
             let order = ["pesquisa-globo", "explorar-biomas", "estrategia-alimento", "acasalamento", "zona-climatica", "categoria", "familia", "estatisticas"];
-            let subStatsOrder = ["mais-velozes", "mais-vida-util", "mais-altos", "mais-pesados", "mais-largo", "mais-espesso"];
+            let subStatsOrder = ["mais-velozes", "mais-vida-util", "mais-altos", "mais-pesados", "mais-largo", "mais-espesso", "maior-envergadura", "gestacao-longa", "mais-crias", "mais-longos", "forca-mordida", "maior-populacao"];
             let active = {
                 "pesquisa-globo": true,
                 "explorar-biomas": true,
@@ -296,7 +296,18 @@
                 "mais-altos": false,
                 "mais-pesados": false,
                 "mais-largo": false,
-                "mais-espesso": false
+                "mais-espesso": false,
+                "maior-envergadura": false,
+                "gestacao-longa": false,
+                "mais-crias": false,
+                "mais-longos": false,
+                "forca-mordida": false,
+                "maior-populacao": false
+            };
+            let cardLimits = {
+                "acasalamento": 12,
+                "categoria": 12,
+                "familia": 12
             };
 
             try {
@@ -317,6 +328,9 @@
                                 active[key] = !!data[key];
                             }
                         });
+                    }
+                    if (data.cardLimits) {
+                        cardLimits = data.cardLimits;
                     }
                 }
             } catch (err) {
@@ -342,8 +356,8 @@
                 const unit = (item.unidade || '').toLowerCase().trim();
                 let normalizedValue = num;
 
-                // Height / Length / Width / Thickness normalization (base: cm)
-                if (searchKeys.includes('altura') || searchKeys.includes('largura') || searchKeys.includes('espessura')) {
+                // Height / Length / Width / Thickness / Wingspan / Length normalization (base: cm)
+                if (searchKeys.includes('altura') || searchKeys.includes('largura') || searchKeys.includes('espessura') || searchKeys.includes('envergadura') || searchKeys.includes('comprimento')) {
                     if (unit === 'm' || unit === 'metro' || unit === 'metros') {
                         normalizedValue = num * 100;
                     } else if (unit === 'mm' || unit === 'milimetro' || unit === 'milimetros') {
@@ -477,6 +491,109 @@
                     icon: 'fa-ruler-combined',
                     isRanking: true,
                     extractRanking: (animal) => extractNumericMetric(animal.informacao?.dimensoesDetalhadas || [], ['espessura'])
+                },
+                {
+                    key: 'maior-envergadura',
+                    title: 'Maior Envergadura',
+                    tag: 'Envergadura',
+                    icon: 'fa-feather',
+                    isRanking: true,
+                    extractRanking: (animal) => extractNumericMetric(animal.informacao?.dimensoesDetalhadas || [], ['envergadura'])
+                },
+                {
+                    key: 'gestacao-longa',
+                    title: 'Gestação Mais Longa',
+                    tag: 'Gestação',
+                    icon: 'fa-baby-carriage',
+                    isRanking: true,
+                    extractRanking: (animal) => {
+                        const items = animal.informacao?.reproducaoDetalhada || [];
+                        const item = items.find(d => {
+                            if (!d.tipo) return false;
+                            const norm = d.tipo.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+                            return norm.includes('gestacao') || norm.includes('incubacao') || norm.includes('gravidez') || norm.includes('periodo de');
+                        });
+                        if (!item || !item.detalhe) return null;
+                        const detailStr = item.detalhe.toLowerCase().trim();
+                        const numbers = detailStr.match(/(\d+)/g);
+                        if (!numbers) return null;
+                        const num = parseFloat(numbers[numbers.length - 1]);
+                        let multiplier = 1;
+                        if (detailStr.includes('mes') || detailStr.includes('meses')) {
+                            multiplier = 30.5;
+                        } else if (detailStr.includes('semana') || detailStr.includes('semanas')) {
+                            multiplier = 7;
+                        } else if (detailStr.includes('ano') || detailStr.includes('anos')) {
+                            multiplier = 365;
+                        }
+                        return {
+                            numericValue: num * multiplier,
+                            displayValue: item.detalhe
+                        };
+                    }
+                },
+                {
+                    key: 'mais-crias',
+                    title: 'Mais Crias por Ninhada',
+                    tag: 'Ninhada',
+                    icon: 'fa-fish-fins',
+                    isRanking: true,
+                    extractRanking: (animal) => {
+                        const items = animal.informacao?.reproducaoDetalhada || [];
+                        const item = items.find(d => {
+                            if (!d.tipo) return false;
+                            const norm = d.tipo.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+                            return norm.includes('cria') || norm.includes('filhote');
+                        });
+                        if (!item || !item.detalhe) return null;
+                        const detailStr = item.detalhe.toLowerCase().trim();
+                        const numbers = detailStr.match(/(\d+)/g);
+                        if (!numbers) return null;
+                        const num = parseFloat(numbers[numbers.length - 1]);
+                        return {
+                            numericValue: num,
+                            displayValue: item.detalhe
+                        };
+                    }
+                },
+                {
+                    key: 'mais-longos',
+                    title: 'Os Mais Longos',
+                    tag: 'Comprimento',
+                    icon: 'fa-ruler-horizontal',
+                    isRanking: true,
+                    extractRanking: (animal) => extractNumericMetric(animal.informacao?.dimensoesDetalhadas || [], ['comprimento'])
+                },
+                {
+                    key: 'forca-mordida',
+                    title: 'Força da Mordida',
+                    tag: 'Mordida',
+                    icon: 'fa-tooth',
+                    isRanking: true,
+                    extractRanking: (animal) => extractNumericMetric(animal.informacao?.geralDetalhada || [], ['mordida'])
+                },
+                {
+                    key: 'maior-populacao',
+                    title: 'Maior População',
+                    tag: 'População',
+                    icon: 'fa-globe',
+                    isRanking: true,
+                    extractRanking: (animal) => {
+                        const metric = extractNumericMetric(animal.informacao?.geralDetalhada || [], ['populacao']);
+                        if (!metric) return null;
+                        
+                        const details = animal.informacao?.geralDetalhada || [];
+                        const item = details.find(d => d.tipo && d.tipo.toLowerCase().includes('populacao'));
+                        const unit = (item?.unidade || '').toLowerCase().trim();
+                        let factor = 1;
+                        if (unit.includes('milhar') || unit.includes('milhares')) factor = 1000;
+                        else if (unit.includes('milhao') || unit.includes('milhoes')) factor = 1000000;
+                        
+                        return {
+                            numericValue: metric.numericValue * factor,
+                            displayValue: metric.displayValue
+                        };
+                    }
                 }
             ];
 
@@ -610,6 +727,9 @@
 
                     if (strategyMap.size === 0) return;
 
+                    const maxCards = (cardLimits && cardLimits[key] !== undefined) ? parseInt(cardLimits[key]) : 999;
+                    if (maxCards === 0) return;
+
                     const section = document.createElement('div');
                     section.className = 'lists-section';
                     section.innerHTML = `
@@ -618,7 +738,10 @@
                     `;
                     const container = section.querySelector('.lists-container');
 
+                    let renderedCount = 0;
                     for (const [val, data] of strategyMap.entries()) {
+                        if (renderedCount >= maxCards) break;
+
                         const card = document.createElement('a');
                         card.className = 'list-card';
                         card.href = `filtros.html?tipo=${config.key}&valor=${encodeURIComponent(val)}`;
@@ -632,9 +755,12 @@
                             </div>
                         `;
                         container.appendChild(card);
+                        renderedCount++;
                     }
 
-                    wrapper.appendChild(section);
+                    if (renderedCount > 0) {
+                        wrapper.appendChild(section);
+                    }
                 }
             });
         }

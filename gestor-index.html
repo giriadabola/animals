@@ -249,6 +249,59 @@
             transform: translateY(-2px);
         }
 
+        .limit-selector {
+            margin-top: 15px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.015);
+            padding: 8px 12px;
+            border-radius: var(--border-radius-sm);
+            border: 1px dashed rgba(255, 255, 255, 0.08);
+            width: fit-content;
+        }
+
+        .limit-selector span {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .limit-select {
+            background: #18171f;
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            border-radius: var(--border-radius-sm);
+            padding: 6px 30px 6px 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            outline: none;
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23d39a5d' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 14px;
+            min-width: 80px;
+        }
+
+        .limit-select:hover {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(211, 154, 93, 0.15);
+        }
+
+        .limit-select:focus {
+            border-color: var(--primary-color);
+        }
+        
+        .limit-select option {
+            background: #18171f;
+            color: var(--text-primary);
+            padding: 8px;
+        }
+
         #save-status {
             text-align: center;
             margin-top: 20px;
@@ -436,7 +489,13 @@
             "mais-altos": { title: "Os Mais Altos", icon: "fa-arrows-up-down" },
             "mais-pesados": { title: "Os Mais Pesados", icon: "fa-weight-hanging" },
             "mais-largo": { title: "Mais Largo", icon: "fa-arrows-left-right" },
-            "mais-espesso": { title: "Mais Espesso", icon: "fa-ruler-combined" }
+            "mais-espesso": { title: "Mais Espesso", icon: "fa-ruler-combined" },
+            "maior-envergadura": { title: "Maior Envergadura", icon: "fa-feather" },
+            "gestacao-longa": { title: "Gestação Mais Longa", icon: "fa-baby-carriage" },
+            "mais-crias": { title: "Mais Crias por Ninhada", icon: "fa-fish-fins" },
+            "mais-longos": { title: "Os Mais Longos", icon: "fa-ruler-horizontal" },
+            "forca-mordida": { title: "Força da Mordida", icon: "fa-tooth" },
+            "maior-populacao": { title: "Maior População", icon: "fa-globe" }
         };
 
         let currentOrder = ["pesquisa-globo", "explorar-biomas", "estrategia-alimento", "acasalamento", "zona-climatica", "categoria", "familia", "estatisticas"];
@@ -455,10 +514,22 @@
             "mais-altos": false,
             "mais-pesados": false,
             "mais-largo": false,
-            "mais-espesso": false
+            "mais-espesso": false,
+            "maior-envergadura": false,
+            "gestacao-longa": false,
+            "mais-crias": false,
+            "mais-longos": false,
+            "forca-mordida": false,
+            "maior-populacao": false
         };
 
-        let subStatsOrder = ["mais-velozes", "mais-vida-util", "mais-altos", "mais-pesados", "mais-largo", "mais-espesso"];
+        let currentLimits = {
+            "acasalamento": 12,
+            "categoria": 12,
+            "familia": 12
+        };
+
+        let subStatsOrder = ["mais-velozes", "mais-vida-util", "mais-altos", "mais-pesados", "mais-largo", "mais-espesso", "maior-envergadura", "gestacao-longa", "mais-crias", "mais-longos", "forca-mordida", "maior-populacao"];
 
         // Render List
         function renderSettingsList() {
@@ -547,28 +618,55 @@
                     });
 
                 } else {
+                    const hasLimit = ['acasalamento', 'categoria', 'familia'].includes(key);
+                    const currentLimit = currentLimits[key] !== undefined ? currentLimits[key] : 12;
+                    let limitSelectorHtml = '';
+                    if (hasLimit) {
+                        limitSelectorHtml = `
+                            <div class="limit-selector">
+                                <span>Número de cards no Index:</span>
+                                <select class="limit-select" data-key="${key}">
+                                    ${Array.from({length: 31}, (_, i) => `<option value="${i}" ${currentLimit === i ? 'selected' : ''}>${i}</option>`).join('')}
+                                </select>
+                            </div>
+                        `;
+                    }
+
                     itemDiv.innerHTML = `
-                        <div class="setting-info">
-                            <h3>${info.title}</h3>
-                            <p>${info.desc}</p>
-                        </div>
-                        <div class="order-actions">
-                            <button type="button" class="arrow-btn up-btn" data-index="${index}" ${index === 0 ? 'disabled' : ''} title="Mover para cima">
-                                <i class="fa-solid fa-chevron-up"></i>
-                            </button>
-                            <button type="button" class="arrow-btn down-btn" data-index="${index}" ${index === currentOrder.length - 1 ? 'disabled' : ''} title="Mover para baixo">
-                                <i class="fa-solid fa-chevron-down"></i>
-                            </button>
-                            <label class="switch">
-                                <input type="checkbox" data-key="${key}" ${isActive ? 'checked' : ''}>
-                                    <span class="slider"></span>
-                            </label>
+                        <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                            <div class="setting-info">
+                                <h3>${info.title}</h3>
+                                <p>${info.desc}</p>
+                                ${limitSelectorHtml}
+                            </div>
+                            <div class="order-actions">
+                                <button type="button" class="arrow-btn up-btn" data-index="${index}" ${index === 0 ? 'disabled' : ''} title="Mover para cima">
+                                    <i class="fa-solid fa-chevron-up"></i>
+                                </button>
+                                <button type="button" class="arrow-btn down-btn" data-index="${index}" ${index === currentOrder.length - 1 ? 'disabled' : ''} title="Mover para baixo">
+                                    <i class="fa-solid fa-chevron-down"></i>
+                                </button>
+                                <label class="switch">
+                                    <input type="checkbox" data-key="${key}" ${isActive ? 'checked' : ''}>
+                                        <span class="slider"></span>
+                                </label>
+                            </div>
                         </div>
                     `;
                 }
 
                 // Add main Toggle listener
                 itemDiv.querySelector('input[data-key="' + key + '"]').addEventListener('change', handleToggle);
+                
+                // Add Limit selector change listener
+                const limitSelect = itemDiv.querySelector('.limit-select');
+                if (limitSelect) {
+                    limitSelect.addEventListener('change', (event) => {
+                        const k = event.target.dataset.key;
+                        currentLimits[k] = parseInt(event.target.value);
+                        saveSettingsToFirestore();
+                    });
+                }
                 
                 // Add Reorder listeners
                 itemDiv.querySelector('.up-btn').addEventListener('click', () => moveItem(index, -1));
@@ -621,18 +719,27 @@
                             }
                         });
                     }
+                    if (data.cardLimits) {
+                        Object.keys(currentLimits).forEach(key => {
+                            if (key in data.cardLimits) {
+                                currentLimits[key] = parseInt(data.cardLimits[key]);
+                            }
+                        });
+                    }
                     
                     // Save the merged data back to ensure DB is clean and updated
                     await setDoc(docRef, {
                         order: currentOrder,
                         subStatsOrder: subStatsOrder,
-                        active: currentActive
+                        active: currentActive,
+                        cardLimits: currentLimits
                     });
                 } else {
                     await setDoc(docRef, {
                         order: currentOrder,
                         subStatsOrder: subStatsOrder,
-                        active: currentActive
+                        active: currentActive,
+                        cardLimits: currentLimits
                     });
                 }
                 renderSettingsList();
@@ -648,7 +755,8 @@
                 await setDoc(docRef, {
                     order: currentOrder,
                     subStatsOrder: subStatsOrder,
-                    active: currentActive
+                    active: currentActive,
+                    cardLimits: currentLimits
                 });
                 showStatus("Definições guardadas com sucesso!", "success");
             } catch (error) {
