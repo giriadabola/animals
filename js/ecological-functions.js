@@ -1,25 +1,25 @@
 export const ecologicalFunctionCatalog = [
-    { label: 'Predador', key: 'predador', accent: 'accent-habitat' },
-    { label: 'Presa', key: 'presa', accent: 'accent-habitat' },
-    { label: 'Herbívoro controlador de vegetação', key: 'herbivoro_controlador_vegetacao', accent: 'accent-habitat' },
-    { label: 'Polinizador', key: 'polinizador', accent: 'accent-habitat' },
-    { label: 'Dispersor de sementes', key: 'dispersor_de_sementes', accent: 'accent-habitat' },
-    { label: 'Necrófago', key: 'necrofago', accent: 'accent-habitat' },
-    { label: 'Decompositor', key: 'decompositor', accent: 'accent-habitat' },
-    { label: 'Filtrador', key: 'filtrador', accent: 'accent-habitat' },
-    { label: 'Engenheiro do ecossistema', key: 'engenheiro_do_ecossistema', accent: 'accent-habitat' },
-    { label: 'Controlador de pragas', key: 'controlador_de_pragas', accent: 'accent-habitat' },
-    { label: 'Hospedeiro', key: 'hospedeiro', accent: 'accent-habitat' },
-    { label: 'Parasita', key: 'parasita', accent: 'accent-habitat' },
-    { label: 'Mutualista', key: 'mutualista', accent: 'accent-habitat' },
-    { label: 'Comensal', key: 'comensal', accent: 'accent-habitat' },
-    { label: 'Competidor', key: 'competidor', accent: 'accent-habitat' },
-    { label: 'Bioindicador', key: 'bioindicador', accent: 'accent-habitat' },
-    { label: 'Espécie-chave', key: 'especie_chave', accent: 'accent-habitat' },
-    { label: 'Espécie invasora', key: 'especie_invasora', accent: 'accent-habitat' },
-    { label: 'Migrador', key: 'migrador', accent: 'accent-habitat' },
-    { label: 'Navegador / orientador', key: 'navegador_orientador', accent: 'accent-habitat' },
-    { label: 'Construtor de habitat', key: 'construtor_de_habitat', accent: 'accent-habitat' }
+    { label: 'Predador', key: 'predador', accent: 'accent-bioma' },
+    { label: 'Presa', key: 'presa', accent: 'accent-bioma' },
+    { label: 'Herbívoro controlador de vegetação', key: 'herbivoro_controlador_vegetacao', accent: 'accent-bioma' },
+    { label: 'Polinizador', key: 'polinizador', accent: 'accent-bioma' },
+    { label: 'Dispersor de sementes', key: 'dispersor_de_sementes', accent: 'accent-bioma' },
+    { label: 'Necrófago', key: 'necrofago', accent: 'accent-bioma' },
+    { label: 'Decompositor', key: 'decompositor', accent: 'accent-bioma' },
+    { label: 'Filtrador', key: 'filtrador', accent: 'accent-bioma' },
+    { label: 'Engenheiro do ecossistema', key: 'engenheiro_do_ecossistema', accent: 'accent-bioma' },
+    { label: 'Controlador de pragas', key: 'controlador_de_pragas', accent: 'accent-bioma' },
+    { label: 'Hospedeiro', key: 'hospedeiro', accent: 'accent-bioma' },
+    { label: 'Parasita', key: 'parasita', accent: 'accent-bioma' },
+    { label: 'Mutualista', key: 'mutualista', accent: 'accent-bioma' },
+    { label: 'Comensal', key: 'comensal', accent: 'accent-bioma' },
+    { label: 'Competidor', key: 'competidor', accent: 'accent-bioma' },
+    { label: 'Bioindicador', key: 'bioindicador', accent: 'accent-bioma' },
+    { label: 'Espécie-chave', key: 'especie_chave', accent: 'accent-bioma' },
+    { label: 'Espécie invasora', key: 'especie_invasora', accent: 'accent-bioma' },
+    { label: 'Migrador', key: 'migrador', accent: 'accent-bioma' },
+    { label: 'Navegador / orientador', key: 'navegador_orientador', accent: 'accent-bioma' },
+    { label: 'Construtor de bioma', key: 'construtor_de_bioma', accent: 'accent-bioma' }
 ];
 
 function makeSvg(body, className = 'general-model-svg ecological-model-svg') {
@@ -48,7 +48,7 @@ export function getEcologicalFunctionMeta(value = '') {
     const normalized = normalizeEcologicalFunctionKey(value);
     const match = ecologicalFunctionMap.get(normalized);
     if (match) return { key: match.key, title: match.label, accent: match.accent };
-    return { key: 'funcao-ecologica', title: value || 'Função ecológica', accent: 'accent-habitat' };
+    return { key: 'funcao-ecologica', title: value || 'Função ecológica', accent: 'accent-bioma' };
 }
 
 export function getEcologicalFunctionSvg(key = 'funcao-ecologica') {
@@ -74,7 +74,7 @@ export function getEcologicalFunctionSvg(key = 'funcao-ecologica') {
         especie_invasora: makeSvg('<circle cx="40" cy="40" r="20"/><path d="M24 56l32-32"/><path d="M44 24h12v12"/><path d="M20 20l10 10"/><path d="M50 50l10 10"/>'),
         migrador: makeSvg('<path d="M14 54c12-20 30-30 52-30"/><path d="M53 16l13 8l-13 8"/><path d="M20 62h24"/><path d="M32 50l12 12l-12 12"/>'),
         navegador_orientador: makeSvg('<circle cx="40" cy="40" r="22"/><path d="M40 18v8"/><path d="M40 54v8"/><path d="M18 40h8"/><path d="M54 40h8"/><path d="M30 50l8-20l12 12l-20 8Z"/>'),
-        construtor_de_habitat: makeSvg('<path d="M18 58h44"/><path d="M24 58V36l16-12l16 12v22"/><path d="M34 58V44h12v14"/><path d="M24 36l-6-6"/><path d="M56 36l6-6"/>')
+        construtor_de_bioma: makeSvg('<path d="M18 58h44"/><path d="M24 58V36l16-12l16 12v22"/><path d="M34 58V44h12v14"/><path d="M24 36l-6-6"/><path d="M56 36l6-6"/>')
     };
 
     return icons[key] || icons['funcao-ecologica'];

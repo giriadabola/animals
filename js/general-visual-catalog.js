@@ -13,7 +13,7 @@ export const generalVisualOptions = [
     { tipo: 'Função ecológica', unidade: '' },
     { tipo: 'Locomoção', unidade: '' },
     { tipo: 'Zona Climática', unidade: '' },
-    { tipo: 'Habitat', unidade: '' }
+    { tipo: 'Bioma', unidade: '' }
 ];
 
 export const generalVisualUnits = ['', 'dias', 'meses', 'anos', 'km/h', 'm/s', 'PSI', 'indivíduos', 'dezenas', 'centenas', 'milhares', 'milhões'];
@@ -113,7 +113,7 @@ const climateZoneOptions = [
     'Montanhosa / Alpina'
 ];
 
-const habitatOptions = [
+const biomaOptions = [
     'Áreas rochosas',
     'Bosque',
     'Calota de gelo',
@@ -140,7 +140,7 @@ const selectGroups = {
     ecologicalFunction: ecologicalFunctionCatalog.map(item => item.label),
     locomotion: locomotionCatalog.map(item => item.label),
     climateZone: climateZoneOptions,
-    habitat: habitatOptions
+    bioma: biomaOptions
 };
 
 const activityMap = new Map(activityCatalog.map(item => [normalizeGeneralVisualKey(item.label), item]));
@@ -168,7 +168,7 @@ export function getGeneralVisualSelectConfig(type = '') {
     if (normalized.includes('funcao ecologica')) return { group: 'ecologicalFunction', placeholder: 'Escolhe uma função ecológica' };
     if (normalized.includes('locomocao')) return { group: 'locomotion', placeholder: 'Escolhe um tipo de locomoção' };
     if (normalized.includes('zona climatica')) return { group: 'climateZone', placeholder: 'Escolhe uma zona climática' };
-    if (normalized.includes('habitat')) return { group: 'habitat', placeholder: 'Escolhe um habitat' };
+    if (normalized.includes('bioma')) return { group: 'bioma', placeholder: 'Escolhe um bioma' };
     return null;
 }
 
@@ -192,10 +192,10 @@ export function getGeneralVisualMeta(type = '') {
     if (normalized.includes('estrategia')) return { key: 'estrategia', title: type || 'Estratégia para obter alimento', accent: 'accent-generic' };
     if (normalized.includes('atividade')) return { key: 'atividade', title: type || 'Atividade', accent: 'accent-climate' };
     if (normalized.includes('vida social')) return { key: 'vida-social', title: type || 'Vida Social', accent: 'accent-mating-polygamy' };
-    if (normalized.includes('funcao ecologica')) return { key: 'funcao-ecologica', title: type || 'Função ecológica', accent: 'accent-habitat' };
+    if (normalized.includes('funcao ecologica')) return { key: 'funcao-ecologica', title: type || 'Função ecológica', accent: 'accent-bioma' };
     if (normalized.includes('locomocao')) return { key: 'locomocao', title: type || 'Locomoção', accent: 'accent-climate' };
     if (normalized.includes('zona')) return { key: 'zona-climatica', title: type || 'Zona Climática', accent: 'accent-climate' };
-    if (normalized.includes('habitat')) return { key: 'habitat', title: type || 'Habitat', accent: 'accent-habitat' };
+    if (normalized.includes('bioma')) return { key: 'bioma', title: type || 'Bioma', accent: 'accent-bioma' };
     return { key: 'geral', title: type || 'Modelo geral', accent: 'accent-generic' };
 }
 
