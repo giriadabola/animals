@@ -52,6 +52,32 @@
         let currentPage = 1;
         let matchedAnimals = [];
         let filteredAnimals = [];
+        const taxonomyLabels = {
+            reino: 'Reino: ',
+            filo: 'Filo: ',
+            subfilo: 'Subfilo: ',
+            classe: 'Classe: ',
+            superordem: 'Superordem: ',
+            ordem: 'Ordem: ',
+            subordem: 'Subordem: ',
+            infraordem: 'Infraordem: ',
+            familia: 'Fam\u00edlia: ',
+            genero: 'G\u00e9nero: ',
+            especie: 'EspÃ©cie: '
+        };
+        const taxonomyFieldMap = {
+            reino: 'reino',
+            filo: 'filo',
+            subfilo: 'subfilo',
+            classe: 'classe',
+            superordem: 'superordem',
+            ordem: 'ordem',
+            subordem: 'subordem',
+            infraordem: 'infraordem',
+            familia: 'familia',
+            genero: 'genero',
+            especie: 'especie'
+        };
 
         function createAnimalListItem(animalData, animalId, extraText = '') {
             const card = document.createElement('a');
@@ -131,6 +157,10 @@
             currentPage = 1;
             renderPage(currentPage);
             renderPagination();
+        }
+
+        function normalizeFilterText(value = '') {
+            return String(value).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
         }
 
         searchInput.addEventListener('input', (e) => {
@@ -226,7 +256,10 @@
                 titlePrefix = 'Categoria: ';
             } else if (filterType === 'familia') {
                 iconClass = 'fa-users';
-                titlePrefix = 'Família: ';
+                titlePrefix = 'Fam\u00edlia: ';
+            } else if (taxonomyLabels[filterType]) {
+                iconClass = 'fa-dna';
+                titlePrefix = taxonomyLabels[filterType];
             } else if (filterType === 'mais-velozes') {
                 iconClass = 'fa-bolt';
                 titlePrefix = 'Ranking: ';
@@ -380,8 +413,10 @@
                             // Otherwise try using params valor
                             const codeToMatch = params.get('valor')?.trim().toUpperCase() || targetCode;
                             match = paises.some(p => p.toUpperCase() === codeToMatch);
-                        } else if (filterType === 'familia') {
-                            match = animalData.familia && animalData.familia.trim().toLowerCase() === filterValue.trim().toLowerCase();
+                        } else if (taxonomyFieldMap[filterType]) {
+                            const fieldValue = animalData[taxonomyFieldMap[filterType]];
+                            match = typeof fieldValue === 'string' &&
+                                normalizeFilterText(fieldValue) === normalizeFilterText(filterValue);
                         } else {
                             const details = animalData.informacao?.geralDetalhada || [];
                             match = details.some(item => {

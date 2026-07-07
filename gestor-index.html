@@ -476,6 +476,10 @@
                 title: "Família",
                 desc: "Agrupa animais por família (Felidae, Anatidae, Ardeidae, etc.)."
             },
+            "classificacao-cientifica-niveis": {
+                title: "Classificação Científica (Níveis)",
+                desc: "Agrupa botões na página inicial para filtrar por níveis taxonómicos (Reino, Classe, Ordem, etc.) como na Classificação Científica."
+            },
             "estatisticas": {
                 title: "Estatísticas",
                 desc: "Secção unificada contendo cards com as maiores estatísticas comparativas entre os animais."
@@ -498,7 +502,21 @@
             "maior-populacao": { title: "Maior População", icon: "fa-globe" }
         };
 
-        let currentOrder = ["pesquisa-globo", "explorar-biomas", "estrategia-alimento", "acasalamento", "zona-climatica", "categoria", "familia", "estatisticas"];
+        // Sub-classification definitions inside the Classificação Científica section
+        const subClassificationDefs = {
+            "reino": { title: "Reino", icon: "fa-dna" },
+            "filo": { title: "Filo", icon: "fa-dna" },
+            "subfilo": { title: "Subfilo", icon: "fa-dna" },
+            "classe": { title: "Classe", icon: "fa-dna" },
+            "superordem": { title: "Superordem", icon: "fa-dna" },
+            "subordem": { title: "Subordem", icon: "fa-dna" },
+            "ordem": { title: "Ordem", icon: "fa-dna" },
+            "familia-sub": { title: "Família", icon: "fa-dna", dbKey: "familia" },
+            "genero": { title: "Género", icon: "fa-dna" },
+            "especie": { title: "Espécie", icon: "fa-dna" }
+        };
+
+        let currentOrder = ["pesquisa-globo", "explorar-biomas", "estrategia-alimento", "acasalamento", "zona-climatica", "categoria", "familia", "classificacao-cientifica-niveis", "estatisticas"];
         let currentActive = {
             "pesquisa-globo": true,
             "explorar-biomas": true,
@@ -507,7 +525,19 @@
             "zona-climatica": false,
             "categoria": false,
             "familia": false,
+            "classificacao-cientifica-niveis": false,
             "estatisticas": true,
+            // Sub-classification active states
+            "reino": false,
+            "filo": false,
+            "subfilo": false,
+            "classe": false,
+            "superordem": false,
+            "subordem": false,
+            "ordem": false,
+            "familia-sub": false,
+            "genero": false,
+            "especie": false,
             // Sub-stats active states
             "mais-velozes": false,
             "mais-vida-util": false,
@@ -526,9 +556,20 @@
         let currentLimits = {
             "acasalamento": 12,
             "categoria": 12,
-            "familia": 12
+            "familia": 12,
+            "reino": 12,
+            "filo": 12,
+            "subfilo": 12,
+            "classe": 12,
+            "superordem": 12,
+            "subordem": 12,
+            "ordem": 12,
+            "familia-sub": 12,
+            "genero": 12,
+            "especie": 12
         };
 
+        let subClassificationOrder = ["reino", "filo", "subfilo", "classe", "superordem", "subordem", "ordem", "familia-sub", "genero", "especie"];
         let subStatsOrder = ["mais-velozes", "mais-vida-util", "mais-altos", "mais-pesados", "mais-largo", "mais-espesso", "maior-envergadura", "gestacao-longa", "mais-crias", "mais-longos", "forca-mordida", "maior-populacao"];
 
         // Render List
@@ -543,8 +584,113 @@
                 const itemDiv = document.createElement('div');
                 itemDiv.className = 'setting-item';
                 
-                // If it is the "estatisticas" key, it renders as a expandable grouped box
-                if (key === 'estatisticas') {
+                // If it is the "classificacao-cientifica-niveis" key, it renders as a expandable grouped box
+                if (key === 'classificacao-cientifica-niveis') {
+                    itemDiv.style.flexDirection = 'column';
+                    itemDiv.style.alignItems = 'stretch';
+                    itemDiv.style.gap = '15px';
+                    
+                    itemDiv.innerHTML = `
+                        <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                            <div class="setting-info">
+                                <h3>${info.title}</h3>
+                                <p>${info.desc}</p>
+                            </div>
+                            <div class="order-actions">
+                                <button type="button" class="arrow-btn up-btn" data-index="${index}" ${index === 0 ? 'disabled' : ''} title="Mover para cima">
+                                    <i class="fa-solid fa-chevron-up"></i>
+                                </button>
+                                <button type="button" class="arrow-btn down-btn" data-index="${index}" ${index === currentOrder.length - 1 ? 'disabled' : ''} title="Mover para baixo">
+                                    <i class="fa-solid fa-chevron-down"></i>
+                                </button>
+                                <label class="switch">
+                                    <input type="checkbox" data-key="${key}" ${isActive ? 'checked' : ''}>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="stats-subcontainer class-subcontainer" style="display: ${isActive ? 'block' : 'none'};">
+                            <h4>Ordenação dos Níveis Taxonómicos Individuais</h4>
+                            <div class="stats-sublist">
+                                <!-- Rendered below dynamically -->
+                            </div>
+                        </div>
+                    `;
+
+                    // Render Sub classification list
+                    const classSublist = itemDiv.querySelector('.stats-sublist');
+                    subClassificationOrder.forEach((subKey, subIndex) => {
+                        const subInfo = subClassificationDefs[subKey];
+                        if (!subInfo) return;
+
+                        const isSubActive = !!currentActive[subKey];
+                        const currentLimit = currentLimits[subKey] !== undefined ? currentLimits[subKey] : 12;
+                        const subCard = document.createElement('div');
+                        subCard.className = 'sub-stat-card';
+                        subCard.innerHTML = `
+                            <div class="sub-stat-header">
+                                <span class="sub-stat-title"><i class="fa-solid ${subInfo.icon}" style="margin-right: 6px;"></i> ${subInfo.title}</span>
+                                <label class="switch" style="transform: scale(0.8);">
+                                    <input type="checkbox" data-key="${subKey}" ${isSubActive ? 'checked' : ''}>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="limit-selector" style="margin-top: 5px; margin-bottom: 5px;">
+                                <span style="font-size: 0.75rem;">Número de cards:</span>
+                                <select class="limit-select" data-key="${subKey}" style="padding: 4px 22px 4px 8px; font-size: 0.75rem;">
+                                    ${Array.from({length: 31}, (_, i) => `<option value="${i}" ${currentLimit === i ? 'selected' : ''}>${i}</option>`).join('')}
+                                </select>
+                            </div>
+                            <div class="sub-stat-footer">
+                                <span style="font-size: 0.75rem; color: var(--text-muted);">Mover Horizontal</span>
+                                <div style="display: flex; gap: 4px;">
+                                    <button type="button" class="arrow-btn sub-left" ${subIndex === 0 ? 'disabled' : ''} title="Mover para Esquerda">
+                                        <i class="fa-solid fa-chevron-left"></i>
+                                    </button>
+                                    <button type="button" class="arrow-btn sub-right" ${subIndex === subClassificationOrder.length - 1 ? 'disabled' : ''} title="Mover para Direita">
+                                        <i class="fa-solid fa-chevron-right"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+
+                        // Sub toggle listener
+                        subCard.querySelector('input[type="checkbox"]').addEventListener('change', handleToggle);
+                        
+                        // Limit selector change listener
+                        subCard.querySelector('.limit-select').addEventListener('change', (event) => {
+                            const k = event.target.dataset.key;
+                            currentLimits[k] = parseInt(event.target.value);
+                            saveSettingsToFirestore();
+                        });
+
+                        // Sub shift order listeners
+                        subCard.querySelector('.sub-left').addEventListener('click', () => {
+                            const newIndex = subIndex - 1;
+                            if (newIndex >= 0) {
+                                const temp = subClassificationOrder[subIndex];
+                                subClassificationOrder[subIndex] = subClassificationOrder[newIndex];
+                                subClassificationOrder[newIndex] = temp;
+                                renderSettingsList();
+                                saveSettingsToFirestore();
+                            }
+                        });
+                        subCard.querySelector('.sub-right').addEventListener('click', () => {
+                            const newIndex = subIndex + 1;
+                            if (newIndex < subClassificationOrder.length) {
+                                const temp = subClassificationOrder[subIndex];
+                                subClassificationOrder[subIndex] = subClassificationOrder[newIndex];
+                                subClassificationOrder[newIndex] = temp;
+                                renderSettingsList();
+                                saveSettingsToFirestore();
+                            }
+                        });
+
+                        classSublist.appendChild(subCard);
+                    });
+
+                } else if (key === 'estatisticas') {
                     itemDiv.style.flexDirection = 'column';
                     itemDiv.style.alignItems = 'stretch';
                     itemDiv.style.gap = '15px';
@@ -618,7 +764,7 @@
                     });
 
                 } else {
-                    const hasLimit = ['acasalamento', 'categoria', 'familia'].includes(key);
+                    const hasLimit = ['acasalamento', 'categoria', 'familia', 'reino', 'filo', 'subfilo', 'classe', 'superordem', 'subordem', 'ordem', 'genero', 'especie'].includes(key);
                     const currentLimit = currentLimits[key] !== undefined ? currentLimits[key] : 12;
                     let limitSelectorHtml = '';
                     if (hasLimit) {
@@ -694,6 +840,17 @@
                         });
                         currentOrder = loadedOrder;
                     }
+                    if (data.subClassificationOrder && Array.isArray(data.subClassificationOrder)) {
+                        const validSubKeys = Object.keys(subClassificationDefs);
+                        let loadedSubOrder = data.subClassificationOrder.filter(k => validSubKeys.includes(k));
+                        
+                        validSubKeys.forEach(k => {
+                            if (!loadedSubOrder.includes(k)) {
+                                loadedSubOrder.push(k);
+                            }
+                        });
+                        subClassificationOrder = loadedSubOrder;
+                    }
                     if (data.subStatsOrder && Array.isArray(data.subStatsOrder)) {
                         const validSubKeys = Object.keys(subStatsDefs);
                         let loadedSubOrder = data.subStatsOrder.filter(k => validSubKeys.includes(k));
@@ -730,6 +887,7 @@
                     // Save the merged data back to ensure DB is clean and updated
                     await setDoc(docRef, {
                         order: currentOrder,
+                        subClassificationOrder: subClassificationOrder,
                         subStatsOrder: subStatsOrder,
                         active: currentActive,
                         cardLimits: currentLimits
@@ -737,6 +895,7 @@
                 } else {
                     await setDoc(docRef, {
                         order: currentOrder,
+                        subClassificationOrder: subClassificationOrder,
                         subStatsOrder: subStatsOrder,
                         active: currentActive,
                         cardLimits: currentLimits
@@ -754,6 +913,7 @@
             try {
                 await setDoc(docRef, {
                     order: currentOrder,
+                    subClassificationOrder: subClassificationOrder,
                     subStatsOrder: subStatsOrder,
                     active: currentActive,
                     cardLimits: currentLimits
@@ -797,8 +957,8 @@
             const key = cb.dataset.key;
             currentActive[key] = cb.checked;
             
-            // If main "estatisticas" is toggled, hide/show the sublist
-            if (key === 'estatisticas') {
+            // If main "estatisticas" or "classificacao-cientifica-niveis" is toggled, hide/show the subcontainer
+            if (key === 'estatisticas' || key === 'classificacao-cientifica-niveis') {
                 const subContainer = cb.closest('.setting-item').querySelector('.stats-subcontainer');
                 if (subContainer) {
                     subContainer.style.display = cb.checked ? 'block' : 'none';

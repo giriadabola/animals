@@ -28,7 +28,7 @@
     <script>
         // Forçar limpeza de cache e service workers se houver atualização
         (async function() {
-            const VERSION = 'v1.0.50';
+            const VERSION = 'v1.0.51';
             if (localStorage.getItem('app_cache_version') !== VERSION) {
                 try {
                     if ('serviceWorker' in navigator) {
@@ -1883,7 +1883,7 @@
         import { getFeedingStrategyMeta, getFeedingStrategySvg } from "./js/feeding-strategies.js";
         import { matingSystems, getMatingMeta, getMatingSystemSvg } from "./js/mating-systems.js";
         import { generalVisualOptions as generalVisualCatalogOptions, generalVisualUnits as generalVisualCatalogUnits, getGeneralVisualMeta as getGeneralVisualCatalogMeta, getGeneralVisualOption as getGeneralVisualCatalogOption, getGeneralVisualSelectConfig, getGeneralVisualSelectOptions, getGeneralModelSvg as getGeneralCatalogModelSvg, getActivityMeta, getActivitySvg, getSocialMeta, getSocialSvg, getEcologicalFunctionMeta, getEcologicalFunctionSvg, getLocomotionMeta, getLocomotionSvg, isDropdownOnlyGeneralModel as isGeneralVisualCatalogDropdownOnly } from "./js/general-visual-catalog.js";
-        import { GENDER_BOTH, collapseCombinedGenderItems, expandCombinedGenderItems, getGenderUi, getNextGenderValue, normalizeGenderValue } from "./js/gender-utils.js";
+        import { GENDER_BOTH, collapseCombinedGenderItems, expandCombinedGenderItems, getGenderUi, getNextGenderValue, normalizeGenderValue } from "./js/gender-utils.js?v=2";
 
         let allAnimals = [];
         let existingFamilies = new Set();

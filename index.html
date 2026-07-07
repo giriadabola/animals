@@ -139,14 +139,8 @@
             </div>
         </div>
 
-        <div class="main-layout" id="mainLayout">
-            <div class="left-panel">
-                <div id="dynamic-lists-wrapper"></div>
-            </div>
-            
-            <div class="right-panel">
-                <div id="searchResults"></div>
-            </div>
+        <div id="dynamic-sections-container">
+            <!-- All sections (full-width or internal list panels) will be rendered dynamically here in exact order -->
         </div>
     </main>
 
@@ -163,7 +157,7 @@
         });
 
         let allAnimals = [];
-        const mainLayout = document.getElementById('mainLayout');
+        let mainLayout = null;
         const searchInput = document.getElementById('searchInput');
         const searchResultsContainer = document.getElementById('searchResults');
         const loadingMessage = document.getElementById('loading-message');
@@ -274,11 +268,12 @@
         }
 
         async function populateSurvivalLists() {
-            const wrapper = document.getElementById('dynamic-lists-wrapper');
-            if (!wrapper) return;
-            wrapper.innerHTML = '';
+            const container = document.getElementById('dynamic-sections-container');
+            if (!container) return;
+            container.innerHTML = '';
 
-            let order = ["pesquisa-globo", "explorar-biomas", "estrategia-alimento", "acasalamento", "zona-climatica", "categoria", "familia", "estatisticas"];
+            let order = ["pesquisa-globo", "explorar-biomas", "estrategia-alimento", "acasalamento", "zona-climatica", "categoria", "familia", "classificacao-cientifica-niveis", "estatisticas"];
+            let subClassificationOrder = ["reino", "filo", "subfilo", "classe", "superordem", "subordem", "ordem", "familia-sub", "genero", "especie"];
             let subStatsOrder = ["mais-velozes", "mais-vida-util", "mais-altos", "mais-pesados", "mais-largo", "mais-espesso", "maior-envergadura", "gestacao-longa", "mais-crias", "mais-longos", "forca-mordida", "maior-populacao"];
             let active = {
                 "pesquisa-globo": true,
@@ -288,7 +283,18 @@
                 "zona-climatica": false,
                 "categoria": false,
                 "familia": false,
+                "classificacao-cientifica-niveis": false,
                 "estatisticas": true,
+                "reino": false,
+                "filo": false,
+                "subfilo": false,
+                "classe": false,
+                "superordem": false,
+                "subordem": false,
+                "ordem": false,
+                "familia-sub": false,
+                "genero": false,
+                "especie": false,
                 "mais-velozes": false,
                 "mais-vida-util": false,
                 "mais-altos": false,
@@ -305,31 +311,28 @@
             let cardLimits = {
                 "acasalamento": 12,
                 "categoria": 12,
-                "familia": 12
+                "familia": 12,
+                "reino": 12,
+                "filo": 12,
+                "subfilo": 12,
+                "classe": 12,
+                "superordem": 12,
+                "subordem": 12,
+                "ordem": 12,
+                "familia-sub": 12,
+                "genero": 12,
+                "especie": 12
             };
 
             try {
                 const settingsSnap = await getDoc(doc(db, "settings", "index-lists"));
                 if (settingsSnap.exists()) {
                     const data = settingsSnap.data();
-                    if (data.order && Array.isArray(data.order)) {
-                        order = data.order;
-                    }
-                    if (data.subStatsOrder && Array.isArray(data.subStatsOrder)) {
-                        subStatsOrder = data.subStatsOrder;
-                    }
-                    if (data.active) {
-                        active = data.active;
-                    } else {
-                        Object.keys(active).forEach(key => {
-                            if (key in data) {
-                                active[key] = !!data[key];
-                            }
-                        });
-                    }
-                    if (data.cardLimits) {
-                        cardLimits = data.cardLimits;
-                    }
+                    if (data.order) order = data.order;
+                    if (data.subClassificationOrder) subClassificationOrder = data.subClassificationOrder;
+                    if (data.subStatsOrder) subStatsOrder = data.subStatsOrder;
+                    if (data.active) active = data.active;
+                    if (data.cardLimits) cardLimits = data.cardLimits;
                 }
             } catch (err) {
                 console.error("Erro ao carregar settings do index:", err);
@@ -339,14 +342,11 @@
                 const item = details.find(d => {
                     if (!d.tipo) return false;
                     const normalized = d.tipo.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
-                    if (exactMatch) {
-                        return searchKeys.some(key => normalized === key);
-                    }
+                    if (exactMatch) return normalized === searchKeys[0];
                     return searchKeys.every(key => normalized.includes(key));
                 });
                 if (!item) return null;
                 const valStr = item.valor || item.valorMin || '';
-                if (!valStr) return null;
                 const cleanVal = valStr.replace(',', '.');
                 const num = parseFloat(cleanVal.replace(/[^0-9.]/g, ''));
                 if (isNaN(num)) return null;
@@ -354,255 +354,63 @@
                 const unit = (item.unidade || '').toLowerCase().trim();
                 let normalizedValue = num;
 
-                // Height / Length / Width / Thickness / Wingspan / Length normalization (base: cm)
                 if (searchKeys.includes('altura') || searchKeys.includes('largura') || searchKeys.includes('espessura') || searchKeys.includes('envergadura') || searchKeys.includes('comprimento')) {
-                    if (unit === 'm' || unit === 'metro' || unit === 'metros') {
-                        normalizedValue = num * 100;
-                    } else if (unit === 'mm' || unit === 'milimetro' || unit === 'milimetros') {
-                        normalizedValue = num / 10;
-                    }
+                    if (unit === 'm' || unit === 'metro' || unit === 'metros') normalizedValue = num * 100;
+                    else if (unit === 'mm' || unit === 'milimetro' || unit === 'milimetros') normalizedValue = num / 10;
                 }
-                // Weight normalization (base: g)
                 else if (searchKeys.includes('peso')) {
-                    if (unit === 'kg' || unit === 'quilo' || unit === 'quilos' || unit === 'quilograma' || unit === 'quilogramas') {
-                        normalizedValue = num * 1000;
-                    } else if (unit === 't' || unit === 'tonelada' || unit === 'toneladas') {
-                        normalizedValue = num * 1000000;
-                    }
+                    if (unit === 'kg' || unit === 'quilo' || unit === 'quilos') normalizedValue = num * 1000;
+                    else if (unit === 't' || unit === 'tonelada') normalizedValue = num * 1000000;
                 }
 
-                return {
-                    numericValue: normalizedValue,
-                    displayValue: `${valStr} ${item.unidade || ''}`.trim()
-                };
+                return { numericValue: normalizedValue, displayValue: `${valStr} ${item.unidade || ''}`.trim() };
             }
 
             const listsConfig = [
-                {
-                    key: 'estrategia-alimento',
-                    title: 'Estratégias Alimentares',
-                    tag: 'Estratégia',
-                    icon: 'fa-utensils',
-                    gradientClass: 'gradient-purple',
-                    extract: (animal) => {
-                        const details = animal.informacao?.geralDetalhada || [];
-                        const item = details.find(d => {
-                            if (!d.tipo) return false;
-                            const normalized = d.tipo.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
-                            return normalized.includes('estrategia') && normalized.includes('alimento');
-                        });
-                        return item?.valor || null;
-                    }
-                },
-                {
-                    key: 'acasalamento',
-                    title: 'Sistemas de Acasalamento',
-                    tag: 'Acasalamento',
-                    icon: 'fa-heart',
-                    gradientClass: 'gradient-teal',
-                    extract: (animal) => {
-                        const details = animal.informacao?.geralDetalhada || [];
-                        const item = details.find(d => {
-                            if (!d.tipo) return false;
-                            const normalized = d.tipo.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
-                            return normalized.includes('acasalamento');
-                        });
-                        return item?.valor || null;
-                    }
-                },
-                {
-                    key: 'zona-climatica',
-                    title: 'Zonas Climáticas',
-                    tag: 'Clima',
-                    icon: 'fa-cloud-sun',
-                    gradientClass: 'gradient-cyan',
-                    extract: (animal) => {
-                        const details = animal.informacao?.geralDetalhada || [];
-                        const item = details.find(d => {
-                            if (!d.tipo) return false;
-                            const normalized = d.tipo.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
-                            return normalized.includes('climatica') || normalized.includes('clima') || normalized.includes('zona');
-                        });
-                        return item?.valor || null;
-                    }
-                },
-                {
-                    key: 'categoria',
-                    title: 'Categorias de Animais',
-                    tag: 'Categoria',
-                    icon: 'fa-paw',
-                    gradientClass: 'gradient-rose',
-                    extract: (animal) => getFirstActiveCategory(animal.categoria) || null
-                },
-                {
-                    key: 'familia',
-                    title: 'Famílias de Animais',
-                    tag: 'Família',
-                    icon: 'fa-users',
-                    gradientClass: 'gradient-orange',
-                    extract: (animal) => animal.familia || null
-                },
-                {
-                    key: 'mais-velozes',
-                    title: 'Os Mais Velozes',
-                    tag: 'Velocidade',
-                    icon: 'fa-bolt',
-                    isRanking: true,
-                    extractRanking: (animal) => extractNumericMetric(animal.informacao?.geralDetalhada || [], ['velocidade'])
-                },
-                {
-                    key: 'mais-vida-util',
-                    title: 'Com mais Vida Útil',
-                    tag: 'Longevidade',
-                    icon: 'fa-hourglass-half',
-                    isRanking: true,
-                    extractRanking: (animal) => extractNumericMetric(animal.informacao?.geralDetalhada || [], ['vida', 'util'])
-                },
-                {
-                    key: 'mais-altos',
-                    title: 'Os Mais Altos',
-                    tag: 'Altura',
-                    icon: 'fa-arrows-up-down',
-                    isRanking: true,
-                    extractRanking: (animal) => extractNumericMetric(animal.informacao?.dimensoesDetalhadas || [], ['altura'])
-                },
-                {
-                    key: 'mais-pesados',
-                    title: 'Os Mais Pesados',
-                    tag: 'Peso',
-                    icon: 'fa-weight-hanging',
-                    isRanking: true,
-                    extractRanking: (animal) => extractNumericMetric(animal.informacao?.dimensoesDetalhadas || [], ['peso'], true)
-                },
-                {
-                    key: 'mais-largo',
-                    title: 'Mais Largo',
-                    tag: 'Largura',
-                    icon: 'fa-arrows-left-right',
-                    isRanking: true,
-                    extractRanking: (animal) => extractNumericMetric(animal.informacao?.dimensoesDetalhadas || [], ['largura'])
-                },
-                {
-                    key: 'mais-espesso',
-                    title: 'Mais Espesso',
-                    tag: 'Espessura',
-                    icon: 'fa-ruler-combined',
-                    isRanking: true,
-                    extractRanking: (animal) => extractNumericMetric(animal.informacao?.dimensoesDetalhadas || [], ['espessura'])
-                },
-                {
-                    key: 'maior-envergadura',
-                    title: 'Maior Envergadura',
-                    tag: 'Envergadura',
-                    icon: 'fa-feather',
-                    isRanking: true,
-                    extractRanking: (animal) => extractNumericMetric(animal.informacao?.dimensoesDetalhadas || [], ['envergadura'])
-                },
-                {
-                    key: 'gestacao-longa',
-                    title: 'Gestação Mais Longa',
-                    tag: 'Gestação',
-                    icon: 'fa-baby-carriage',
-                    isRanking: true,
-                    extractRanking: (animal) => {
-                        const items = animal.informacao?.reproducaoDetalhada || [];
-                        const item = items.find(d => {
-                            if (!d.tipo) return false;
-                            const norm = d.tipo.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
-                            return norm.includes('gestacao') || norm.includes('incubacao') || norm.includes('gravidez') || norm.includes('periodo de');
-                        });
-                        if (!item || !item.detalhe) return null;
-                        const detailStr = item.detalhe.toLowerCase().trim();
-                        const numbers = detailStr.match(/(\d+)/g);
-                        if (!numbers) return null;
-                        const num = parseFloat(numbers[numbers.length - 1]);
-                        let multiplier = 1;
-                        if (detailStr.includes('mes') || detailStr.includes('meses')) {
-                            multiplier = 30.5;
-                        } else if (detailStr.includes('semana') || detailStr.includes('semanas')) {
-                            multiplier = 7;
-                        } else if (detailStr.includes('ano') || detailStr.includes('anos')) {
-                            multiplier = 365;
-                        }
-                        return {
-                            numericValue: num * multiplier,
-                            displayValue: item.detalhe
-                        };
-                    }
-                },
-                {
-                    key: 'mais-crias',
-                    title: 'Mais Crias por Ninhada',
-                    tag: 'Ninhada',
-                    icon: 'fa-fish-fins',
-                    isRanking: true,
-                    extractRanking: (animal) => {
-                        const items = animal.informacao?.reproducaoDetalhada || [];
-                        const item = items.find(d => {
-                            if (!d.tipo) return false;
-                            const norm = d.tipo.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
-                            return norm.includes('cria') || norm.includes('filhote');
-                        });
-                        if (!item || !item.detalhe) return null;
-                        const detailStr = item.detalhe.toLowerCase().trim();
-                        const numbers = detailStr.match(/(\d+)/g);
-                        if (!numbers) return null;
-                        const num = parseFloat(numbers[numbers.length - 1]);
-                        return {
-                            numericValue: num,
-                            displayValue: item.detalhe
-                        };
-                    }
-                },
-                {
-                    key: 'mais-longos',
-                    title: 'Os Mais Longos',
-                    tag: 'Comprimento',
-                    icon: 'fa-ruler-horizontal',
-                    isRanking: true,
-                    extractRanking: (animal) => extractNumericMetric(animal.informacao?.dimensoesDetalhadas || [], ['comprimento'])
-                },
-                {
-                    key: 'forca-mordida',
-                    title: 'Força da Mordida',
-                    tag: 'Mordida',
-                    icon: 'fa-tooth',
-                    isRanking: true,
-                    extractRanking: (animal) => extractNumericMetric(animal.informacao?.geralDetalhada || [], ['mordida'])
-                },
-                {
-                    key: 'maior-populacao',
-                    title: 'Maior População',
-                    tag: 'População',
-                    icon: 'fa-globe',
-                    isRanking: true,
-                    extractRanking: (animal) => {
-                        const metric = extractNumericMetric(animal.informacao?.geralDetalhada || [], ['populacao']);
-                        if (!metric) return null;
-                        
-                        const details = animal.informacao?.geralDetalhada || [];
-                        const item = details.find(d => d.tipo && d.tipo.toLowerCase().includes('populacao'));
-                        const unit = (item?.unidade || '').toLowerCase().trim();
-                        let factor = 1;
-                        if (unit.includes('milhar') || unit.includes('milhares')) factor = 1000;
-                        else if (unit.includes('milhao') || unit.includes('milhoes')) factor = 1000000;
-                        
-                        return {
-                            numericValue: metric.numericValue * factor,
-                            displayValue: metric.displayValue
-                        };
-                    }
-                }
+                { key: 'estrategia-alimento', title: 'Estratégias Alimentares', tag: 'Estratégia', icon: 'fa-utensils', gradientClass: 'gradient-purple', extract: (animal) => (animal.informacao?.geralDetalhada || []).find(d => d.tipo?.toLowerCase().includes('estrategia') && d.tipo?.toLowerCase().includes('alimento'))?.valor },
+                { key: 'acasalamento', title: 'Sistemas de Acasalamento', tag: 'Acasalamento', icon: 'fa-heart', gradientClass: 'gradient-teal', extract: (animal) => (animal.informacao?.geralDetalhada || []).find(d => d.tipo?.toLowerCase().includes('acasalamento'))?.valor },
+                { key: 'zona-climatica', title: 'Zonas Climáticas', tag: 'Clima', icon: 'fa-cloud-sun', gradientClass: 'gradient-cyan', extract: (animal) => (animal.informacao?.geralDetalhada || []).find(d => d.tipo?.toLowerCase().includes('clima'))?.valor },
+                { key: 'categoria', title: 'Categorias de Animais', tag: 'Categoria', icon: 'fa-paw', gradientClass: 'gradient-rose', extract: (animal) => getFirstActiveCategory(animal.categoria) },
+                { key: 'familia', title: 'Famílias de Animais', tag: 'Família', icon: 'fa-users', gradientClass: 'gradient-orange', extract: (animal) => animal.familia },
+                { key: 'familia-sub', title: 'Famílias de Animais', tag: 'Família', icon: 'fa-dna', gradientClass: 'gradient-purple', extract: (animal) => animal.familia },
+                { key: 'reino', title: 'Reino de Animais', tag: 'Reino', icon: 'fa-dna', gradientClass: 'gradient-purple', extract: (animal) => animal.reino },
+                { key: 'filo', title: 'Filo de Animais', tag: 'Filo', icon: 'fa-dna', gradientClass: 'gradient-purple', extract: (animal) => animal.filo },
+                { key: 'subfilo', title: 'Subfilo de Animais', tag: 'Subfilo', icon: 'fa-dna', gradientClass: 'gradient-purple', extract: (animal) => animal.subfilo },
+                { key: 'classe', title: 'Classe de Animais', tag: 'Classe', icon: 'fa-dna', gradientClass: 'gradient-purple', extract: (animal) => animal.classe },
+                { key: 'superordem', title: 'Superordem de Animais', tag: 'Superordem', icon: 'fa-dna', gradientClass: 'gradient-purple', extract: (animal) => animal.superordem },
+                { key: 'subordem', title: 'Subordem de Animais', tag: 'Subordem', icon: 'fa-dna', gradientClass: 'gradient-purple', extract: (animal) => animal.subordem },
+                { key: 'ordem', title: 'Ordem de Animais', tag: 'Ordem', icon: 'fa-dna', gradientClass: 'gradient-purple', extract: (animal) => animal.ordem },
+                { key: 'genero', title: 'Género de Animais', tag: 'Género', icon: 'fa-dna', gradientClass: 'gradient-purple', extract: (animal) => animal.genero },
+                { key: 'especie', title: 'Espécie de Animais', tag: 'Espécie', icon: 'fa-dna', gradientClass: 'gradient-purple', extract: (animal) => animal.especie },
+                { key: 'mais-velozes', title: 'Os Mais Velozes', tag: 'Velocidade', icon: 'fa-bolt', isRanking: true, extractRanking: (animal) => extractNumericMetric(animal.informacao?.geralDetalhada || [], ['velocidade']) },
+                { key: 'mais-vida-util', title: 'Com mais Vida Útil', tag: 'Longevidade', icon: 'fa-hourglass-half', isRanking: true, extractRanking: (animal) => extractNumericMetric(animal.informacao?.geralDetalhada || [], ['vida', 'util']) },
+                { key: 'mais-altos', title: 'Os Mais Altos', tag: 'Altura', icon: 'fa-arrows-up-down', isRanking: true, extractRanking: (animal) => extractNumericMetric(animal.informacao?.dimensoesDetalhadas || [], ['altura']) },
+                { key: 'mais-pesados', title: 'Os Mais Pesados', tag: 'Peso', icon: 'fa-weight-hanging', isRanking: true, extractRanking: (animal) => extractNumericMetric(animal.informacao?.dimensoesDetalhadas || [], ['peso'], true) },
+                { key: 'mais-largo', title: 'Mais Largo', tag: 'Largura', icon: 'fa-arrows-left-right', isRanking: true, extractRanking: (animal) => extractNumericMetric(animal.informacao?.dimensoesDetalhadas || [], ['largura']) },
+                { key: 'mais-espesso', title: 'Mais Espesso', tag: 'Espessura', icon: 'fa-ruler-combined', isRanking: true, extractRanking: (animal) => extractNumericMetric(animal.informacao?.dimensoesDetalhadas || [], ['espessura']) },
+                { key: 'maior-envergadura', title: 'Maior Envergadura', tag: 'Envergadura', icon: 'fa-feather', isRanking: true, extractRanking: (animal) => extractNumericMetric(animal.informacao?.dimensoesDetalhadas || [], ['envergadura']) },
+                { key: 'mais-longos', title: 'Os Mais Longos', tag: 'Comprimento', icon: 'fa-ruler-horizontal', isRanking: true, extractRanking: (animal) => extractNumericMetric(animal.informacao?.dimensoesDetalhadas || [], ['comprimento']) },
+                { key: 'forca-mordida', title: 'Força da Mordida', tag: 'Mordida', icon: 'fa-tooth', isRanking: true, extractRanking: (animal) => extractNumericMetric(animal.informacao?.geralDetalhada || [], ['mordida']) }
             ];
 
-            let estatisticasSectionCreated = false;
-            let estatisticasContainer = null;
-            let encounteredInternal = false;
-            const mainElement = document.querySelector('main');
+            function createSectionGridWrapper(innerSectionEl) {
+                const mainLayoutDiv = document.createElement('div');
+                mainLayoutDiv.className = 'main-layout';
+                const leftPanelDiv = document.createElement('div');
+                leftPanelDiv.className = 'left-panel';
+                leftPanelDiv.appendChild(innerSectionEl);
+                const rightPanelDiv = document.createElement('div');
+                rightPanelDiv.className = 'right-panel';
+                rightPanelDiv.innerHTML = `<div class="searchResultsClone" style="display: none;"></div>`;
+                mainLayoutDiv.appendChild(leftPanelDiv);
+                mainLayoutDiv.appendChild(rightPanelDiv);
+                return mainLayoutDiv;
+            }
 
+            const mainLayout = document.querySelector('.main-layout');
+            
             order.forEach(key => {
                 if (!active[key]) {
-                    // If sections are inactive, ensure cards are hidden
                     if (key === 'pesquisa-globo' && globeCard) {
                         globeCard.style.display = 'none';
                     }
@@ -612,30 +420,24 @@
                     return;
                 }
 
-                // Handle the globe search card separately (inside the wrapper)
                 if (key === 'pesquisa-globo') {
                     if (globeCard) {
                         globeCard.style.display = 'flex';
-                        wrapper.appendChild(globeCard);
+                        globeCard.style.maxWidth = '960px';
+                        globeCard.style.marginLeft = 'auto';
+                        globeCard.style.marginRight = 'auto';
+                        container.appendChild(globeCard);
                     }
                     return;
                 }
 
-                // Handle the biomas explorer card separately (full-width sibling)
                 if (key === 'explorar-biomas') {
                     if (biomaExplorerCard) {
                         biomaExplorerCard.style.display = 'flex';
-                        if (!encounteredInternal) {
-                            mainElement.insertBefore(biomaExplorerCard, mainLayout);
-                        } else {
-                            mainElement.appendChild(biomaExplorerCard);
-                        }
+                        container.appendChild(biomaExplorerCard);
                     }
                     return;
                 }
-
-                // Any other key triggers internal layouts inside the 960px container
-                encounteredInternal = true;
 
                 if (key === 'estatisticas') {
                     const activeRankings = [];
@@ -685,7 +487,7 @@
                         <h2 class="section-title">Estatísticas</h2>
                         <div class="lists-container" id="estatisticas-container"></div>
                     `;
-                    const container = section.querySelector('.lists-container');
+                    const listContainer = section.querySelector('.lists-container');
 
                     activeRankings.forEach(item => {
                         const card = document.createElement('a');
@@ -701,11 +503,67 @@
                                 <span style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">${item.topAnimal.nome}</span>
                             </div>
                         `;
-                        container.appendChild(card);
+                        listContainer.appendChild(card);
                     });
 
-                    wrapper.appendChild(section);
-                } else {
+                    container.appendChild(createSectionGridWrapper(section));
+                } 
+                else if (key === 'classificacao-cientifica-niveis') {
+                    const activeClassificationCards = [];
+                    
+                    subClassificationOrder.forEach(subKey => {
+                        if (!active[subKey]) return;
+                        
+                        const config = listsConfig.find(c => c.key === subKey);
+                        if (!config) return;
+
+                        const valuesForThisLevel = new Set();
+                        allAnimals.forEach(animal => {
+                            const val = config.extract(animal);
+                            if (val && val.trim()) {
+                                valuesForThisLevel.add(val.trim());
+                            }
+                        });
+
+                        const maxCards = (cardLimits && cardLimits[subKey] !== undefined) ? parseInt(cardLimits[subKey]) : 12;
+                        let renderedCount = 0;
+                        
+                        for (const val of valuesForThisLevel) {
+                            if (renderedCount >= maxCards) break;
+                            
+                            activeClassificationCards.push({
+                                config,
+                                value: val,
+                                dbType: subKey === 'familia-sub' ? 'familia' : subKey
+                            });
+                            renderedCount++;
+                        }
+                    });
+
+                    if (activeClassificationCards.length === 0) return;
+
+                    const section = document.createElement('div');
+                    section.className = 'lists-section';
+                    section.innerHTML = `
+                        <div class="categories-container" id="classificacao-cientifica-container" style="display: grid; margin-top: 20px; max-width: 100%;"></div>
+                    `;
+                    const listContainer = section.querySelector('#classificacao-cientifica-container');
+
+                    activeClassificationCards.forEach(item => {
+                        const card = document.createElement('a');
+                        card.className = 'category-link';
+                        card.href = `filtros.html?tipo=${item.dbType}&valor=${encodeURIComponent(item.value)}`;
+                        
+                        card.innerHTML = `
+                            <span class="category-emoji"><i class="fa-solid ${item.config.icon}"></i></span>
+                            <span>${item.value}</span>
+                        `;
+                        listContainer.appendChild(card);
+                    });
+
+                    container.appendChild(createSectionGridWrapper(section));
+                } 
+                else {
                     const config = listsConfig.find(c => c.key === key);
                     if (!config) return;
 
@@ -734,7 +592,7 @@
                         <h2 class="section-title ${config.gradientClass || 'gradient-purple'}">${config.title}</h2>
                         <div class="lists-container"></div>
                     `;
-                    const container = section.querySelector('.lists-container');
+                    const listContainer = section.querySelector('.lists-container');
 
                     let renderedCount = 0;
                     for (const [val, data] of strategyMap.entries()) {
@@ -752,15 +610,25 @@
                                 <h3 class="list-card-title">${val}</h3>
                             </div>
                         `;
-                        container.appendChild(card);
+                        listContainer.appendChild(card);
                         renderedCount++;
                     }
 
                     if (renderedCount > 0) {
-                        wrapper.appendChild(section);
+                        container.appendChild(createSectionGridWrapper(section));
                     }
                 }
             });
+
+            // Sincronizar o layout principal e a caixa de resultados de pesquisa com o primeiro container de grelha gerado
+            mainLayout = document.querySelector('.main-layout');
+            if (mainLayout && searchResultsContainer) {
+                const rightPanel = mainLayout.querySelector('.right-panel');
+                if (rightPanel) {
+                    rightPanel.innerHTML = '';
+                    rightPanel.appendChild(searchResultsContainer);
+                }
+            }
         }
         
         function displayResults(results) {

@@ -151,6 +151,56 @@
         }
 
         /* Estilo temático de cor da secção de Curiosidades (Cinzento / Slate Grey) */
+        .curiosidades-model-card .dimension-model-copy {
+            flex: 1 1 auto;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch !important;
+            text-align: left;
+        }
+        .curiosidades-card-head {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+            width: 100%;
+        }
+        .curiosidades-card-meta {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            flex-shrink: 0;
+            margin-left: auto;
+        }
+        .curiosidades-card-symbol {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 28px;
+            height: 28px;
+            padding: 0 8px;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.08);
+            color: rgba(255,255,255,0.8);
+            line-height: 1;
+        }
+        .curiosidades-card-symbol.gender-symbol {
+            gap: 2px;
+        }
+        .curiosidades-card-symbol .male-symbol {
+            color: #60a5fa;
+            font-weight: 700;
+        }
+        .curiosidades-card-symbol .female-symbol {
+            color: #f472b6;
+            font-weight: 700;
+        }
+        .curiosidades-card-symbol .phase-icon {
+            color: #a78bfa;
+            font-size: 0.78rem;
+        }
         #info-curiosidades,
         #info-curiosidades-mobile {
             border-color: rgba(148, 163, 184, 0.25) !important;
@@ -220,7 +270,7 @@
         import { feedingStrategyDescriptions, getFeedingStrategyMeta, getFeedingStrategySvg } from "./js/feeding-strategies.js";
         import { getMatingMeta, getMatingSystemSvg } from "./js/mating-systems.js";
         import { getGeneralVisualMeta as getGeneralVisualCatalogMeta, getGeneralModelSvg as getGeneralCatalogModelSvg, getActivityMeta, getActivitySvg, getSocialMeta, getSocialSvg, getEcologicalFunctionMeta, getEcologicalFunctionSvg, getLocomotionMeta, getLocomotionSvg } from "./js/general-visual-catalog.js";
-        import { collapseCombinedGenderItems, collectConcreteGenders, genderMatchesSelection, normalizeGenderValue } from "./js/gender-utils.js";
+        import { collapseCombinedGenderItems, collectConcreteGenders, genderMatchesSelection, normalizeGenderValue } from "./js/gender-utils.js?v=2";
         
         const mainContent = document.getElementById('main-content-area');
 
@@ -277,6 +327,26 @@
 
         function normalizeDimensionKey(label = '') {
             return String(label).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        }
+
+        function buildFilterPageLink(filterType, filterValue) {
+            const params = new URLSearchParams({
+                tipo: filterType,
+                valor: filterValue
+            });
+            return `filtros.html?${params.toString()}`;
+        }
+
+        function renderClassificationFilterValue(filterType, value, { italic = false } = {}) {
+            const linkStyle = [
+                'color: var(--text-primary)',
+                'font-weight: 500',
+                italic ? 'font-style: italic' : '',
+                'text-decoration: none',
+                'border-bottom: none',
+                'display: inline-block'
+            ].filter(Boolean).join('; ');
+            return `<a href="${buildFilterPageLink(filterType, value)}" style="${linkStyle}">${escapeHtml(value)}</a>`;
         }
 
         function hasGenderData(items = []) {
@@ -604,7 +674,9 @@
         function renderGeneralVisual(animalData) {
             const models = animalData.informacao?.geralDetalhada || [];
             const isEnv = item => normalizeDimensionKey(item.tipo).includes('zona') || normalizeDimensionKey(item.tipo).includes('bioma');
-            const valid = Array.isArray(models) ? models.filter(item => item.tipo && (item.valor || item.valorMin || item.valorMax) && !isEnv(item)) : [];
+            const valid = collapseCombinedGenderItems(
+                Array.isArray(models) ? models.filter(item => item.tipo && (item.valor || item.valorMin || item.valorMax) && !isEnv(item)) : []
+            );
             const envItems = collapseCombinedGenderItems(
                 Array.isArray(models) ? models.filter(item => item.tipo && (item.valor || item.valorMin || item.valorMax) && isEnv(item)) : []
             );
@@ -717,7 +789,7 @@
         }
 
         function renderDimensionsVisual(animalData) {
-            const dimensions = animalData.informacao?.dimensoesDetalhadas || [];
+            const dimensions = collapseCombinedGenderItems(animalData.informacao?.dimensoesDetalhadas || []);
             if (!Array.isArray(dimensions) || dimensions.length === 0) return '';
 
             const height = getDimensionByLabel(dimensions, ['Altura', 'Altura ao ombro']);
@@ -1105,6 +1177,19 @@
 
             if (!detailItems.length) return '';
 
+            const renderMetaSymbols = (item) => {
+                const normalizedGender = normalizeGenderValue(item.genero || 'MF', 'MF');
+                const genderSymbolHtml = normalizedGender === 'M'
+                    ? '<span class="curiosidades-card-symbol gender-symbol"><span class="male-symbol">&#9794;</span></span>'
+                    : normalizedGender === 'F'
+                        ? '<span class="curiosidades-card-symbol gender-symbol"><span class="female-symbol">&#9792;</span></span>'
+                        : '<span class="curiosidades-card-symbol gender-symbol"><span class="male-symbol">&#9794;</span><span class="female-symbol">&#9792;</span></span>';
+                const phaseSymbolHtml = item.fase === 'Cria'
+                    ? '<span class="curiosidades-card-symbol"><i class="fa-solid fa-baby phase-icon"></i></span>'
+                    : '<span class="curiosidades-card-symbol"><i class="fa-solid fa-paw phase-icon"></i></span>';
+                return `<div class="curiosidades-card-meta">${genderSymbolHtml}${phaseSymbolHtml}</div>`;
+            };
+
             const getGenderLabel = (gender) => {
                 if (gender === 'M') return '♂ Macho';
                 if (gender === 'F') return '♀ Fêmea';
@@ -1128,9 +1213,11 @@
                                 <div style="width: 22px; height: 22px; border-radius: 50%; border: ${circleBorder}; background-color: ${hexColor};"></div>
                             </div>
                             <div class="dimension-model-copy" style="display: flex; flex-direction: column; align-items: flex-start; text-align: left;">
-                                <span class="dimension-model-label">${escapeHtml(item.valor)}</span>
+                                <div class="curiosidades-card-head">
+                                    <span class="dimension-model-label">${escapeHtml(item.valor)}</span>
+                                    ${renderMetaSymbols(item)}
+                                </div>
                                 <strong class="dimension-model-value">Cor do Animal</strong>
-                                ${renderMeta(item)}
                             </div>
                         </article>
                     `;
@@ -1143,9 +1230,11 @@
                             ${escapeHtml(item.valor)}
                         </div>
                         <div class="dimension-model-copy" style="display: flex; flex-direction: column; align-items: flex-start; text-align: left;">
-                            <span class="dimension-model-label">${escapeHtml(sColor.name)}</span>
+                            <div class="curiosidades-card-head">
+                                <span class="dimension-model-label">${escapeHtml(sColor.name)}</span>
+                                ${renderMetaSymbols(item)}
+                            </div>
                             <strong class="dimension-model-value">Estado de Conservação</strong>
-                            ${renderMeta(item)}
                         </div>
                     </article>
                 `;
@@ -1321,11 +1410,15 @@
 
             // Build horizontal metrics bar for desktop
             const dimensoes = animalData.informacao?.dimensoesDetalhadas || [];
-            const validDimensoes = Array.isArray(dimensoes) ? dimensoes.filter(item => item.tipo && (item.valor || item.valorMin || item.valorMax)) : [];
+            const validDimensoes = collapseCombinedGenderItems(
+                Array.isArray(dimensoes) ? dimensoes.filter(item => item.tipo && (item.valor || item.valorMin || item.valorMax)) : []
+            );
 
             const models = animalData.informacao?.geralDetalhada || [];
             const isEnv = item => normalizeDimensionKey(item.tipo).includes('zona') || normalizeDimensionKey(item.tipo).includes('bioma');
-            const validQuickData = Array.isArray(models) ? models.filter(item => item.tipo && (item.valor || item.valorMin || item.valorMax) && !isEnv(item) && !isLegacyGeneralMatingItem(item)) : [];
+            const validQuickData = collapseCombinedGenderItems(
+                Array.isArray(models) ? models.filter(item => item.tipo && (item.valor || item.valorMin || item.valorMax) && !isEnv(item) && !isLegacyGeneralMatingItem(item)) : []
+            );
             const envQuickData = collapseCombinedGenderItems(
                 Array.isArray(models) ? models.filter(item => item.tipo && (item.valor || item.valorMin || item.valorMax) && isEnv(item)) : []
             );
@@ -1361,24 +1454,30 @@
                 (Array.isArray(animalData.subespeciesDe) && animalData.subespeciesDe.length > 0)
             );
 
-            const scientificClassificationRowsHTML = hasScientificClassification ? `
-                ${animalData.reino ? `<div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px;"><strong style="color: var(--text-secondary);">Reino:</strong> <span style="color: var(--text-primary); font-weight: 500;">${escapeHtml(animalData.reino)}</span></div>` : ''}
-                ${animalData.filo ? `<div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px;"><strong style="color: var(--text-secondary);">Filo:</strong> <span style="color: var(--text-primary); font-weight: 500;">${escapeHtml(animalData.filo)}</span></div>` : ''}
-                ${animalData.subfilo ? `<div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px;"><strong style="color: var(--text-secondary);">Subfilo:</strong> <span style="color: var(--text-primary); font-weight: 500;">${escapeHtml(animalData.subfilo)}</span></div>` : ''}
-                ${animalData.classe ? `<div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px;"><strong style="color: var(--text-secondary);">Classe:</strong> <span style="color: var(--text-primary); font-weight: 500;">${escapeHtml(animalData.classe)}</span></div>` : ''}
-                ${animalData.superordem ? `<div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px;"><strong style="color: var(--text-secondary);">Superordem:</strong> <span style="color: var(--text-primary); font-weight: 500;">${escapeHtml(animalData.superordem)}</span></div>` : ''}
-                ${animalData.ordem ? `<div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px;"><strong style="color: var(--text-secondary);">Ordem:</strong> <span style="color: var(--text-primary); font-weight: 500;">${escapeHtml(animalData.ordem)}</span></div>` : ''}
-                ${animalData.subordem ? `<div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px;"><strong style="color: var(--text-secondary);">Subordem:</strong> <span style="color: var(--text-primary); font-weight: 500;">${escapeHtml(animalData.subordem)}</span></div>` : ''}
-                ${animalData.infraordem ? `<div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px;"><strong style="color: var(--text-secondary);">Infraordem:</strong> <span style="color: var(--text-primary); font-weight: 500;">${escapeHtml(animalData.infraordem)}</span></div>` : ''}
-                ${animalData.familia ? `<div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px;"><strong style="color: var(--text-secondary);">Família:</strong> <span style="color: var(--text-primary); font-weight: 500;">${escapeHtml(animalData.familia)}</span></div>` : ''}
-                ${animalData.genero ? `<div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px;"><strong style="color: var(--text-secondary);">Género:</strong> <span style="color: var(--text-primary); font-weight: 500; font-style: italic;">${escapeHtml(animalData.genero)}</span></div>` : ''}
-                ${animalData.especie ? `<div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px;"><strong style="color: var(--text-secondary);">Espécie:</strong> <span style="color: var(--text-primary); font-weight: 500; font-style: italic;">${escapeHtml(animalData.especie)}</span></div>` : ''}
-                ${(Array.isArray(animalData.subespeciesDe) && animalData.subespeciesDe.length > 0) ? `
+            const classificationRow = (filterType, label, value, options = {}) =>
+                value
+                    ? `<div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px;"><strong style="color: var(--text-secondary);">${label}</strong> <span>${renderClassificationFilterValue(filterType, value, options)}</span></div>`
+                    : '';
+
+            const scientificClassificationRowsLinkedHTML = hasScientificClassification ? [
+                ['reino', 'Reino:', animalData.reino],
+                ['filo', 'Filo:', animalData.filo],
+                ['subfilo', 'Subfilo:', animalData.subfilo],
+                ['classe', 'Classe:', animalData.classe],
+                ['superordem', 'Superordem:', animalData.superordem],
+                ['ordem', 'Ordem:', animalData.ordem],
+                ['subordem', 'Subordem:', animalData.subordem],
+                ['infraordem', 'Infraordem:', animalData.infraordem],
+                ['familia', 'Família:', animalData.familia],
+                ['genero', 'Género:', animalData.genero, { italic: true }],
+                ['especie', 'Espécie:', animalData.especie, { italic: true }]
+            ].map(([filterType, label, value, options]) => {
+                return classificationRow(filterType, label, value, options);
+            }).join('') + ((Array.isArray(animalData.subespeciesDe) && animalData.subespeciesDe.length > 0) ? `
                 <div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px;">
                     <strong style="color: var(--text-secondary);">Subespécie de:</strong>
                     <span class="subespecies-names" style="color: var(--text-primary); font-weight: 500;">Carregando...</span>
-                </div>` : ''}
-            ` : '';
+                </div>` : '') : '';
 
             const scientificClassificationSectionDesktopHTML = hasScientificClassification ? `
                 <div class="info-section-card desktop-only" id="info-classificacao" style="margin-top: 24px; border-color: rgba(139, 92, 246, 0.3); background: linear-gradient(135deg, rgba(6, 182, 212, 0.04), rgba(236, 72, 153, 0.04), rgba(9, 9, 20, 0.85)); padding: 24px; box-shadow: 0 8px 32px rgba(139, 92, 246, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.02);">
@@ -1386,7 +1485,7 @@
                         <span class="icon" style="margin-right: 10px; display: inline-flex;"><i class="fa-solid fa-dna" style="font-size: 1.1rem; background: linear-gradient(135deg, #06b6d4, #ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"></i></span>Classificação científica
                     </h3>
                     <div class="classification-grid" style="display: flex; flex-direction: column; gap: 8px; font-size: 0.95rem;">
-                        ${scientificClassificationRowsHTML}
+                        ${scientificClassificationRowsLinkedHTML}
                     </div>
                 </div>
             ` : '';
@@ -1395,7 +1494,7 @@
                 <div class="info-section" id="info-classificacao-mobile">
                     <h3><span class="icon" style="margin-right: 10px; display: inline-flex;"><i class="fa-solid fa-dna" style="font-size: 1.1rem; background: linear-gradient(135deg, #06b6d4, #ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"></i></span>Classificação científica</h3>
                     <div class="classification-grid" style="display: flex; flex-direction: column; gap: 8px; font-size: 0.95rem; margin-top: 15px;">
-                        ${scientificClassificationRowsHTML}
+                        ${scientificClassificationRowsLinkedHTML}
                     </div>
                 </div>
             ` : '';
@@ -1443,30 +1542,7 @@
                         <div class="animal-image">
                             <img src="${animalData.imagemUrl}" alt="Imagem de ${animalData.nome}" style="object-position: ${animalData.imagemObjectPosition || 'center center'};">
                         </div>
-                        ${scientificClassificationSectionDesktopFinalHTML}${false ? `
-                        <div class="info-section-card" id="info-classificacao" style="border-color: rgba(139, 92, 246, 0.3); background: linear-gradient(135deg, rgba(6, 182, 212, 0.04), rgba(236, 72, 153, 0.04), rgba(9, 9, 20, 0.85)); padding: 24px; box-shadow: 0 8px 32px rgba(139, 92, 246, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.02);">
-                            <h3 style="font-size: 1.25rem; margin-bottom: 14px; padding-bottom: 8px; display: flex; align-items: center; border-bottom: 1px solid var(--border-color); color: var(--text-primary);">
-                                <span class="icon" style="margin-right: 10px; display: inline-flex;"><i class="fa-solid fa-dna" style="font-size: 1.1rem; background: linear-gradient(135deg, #06b6d4, #ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"></i></span>Classificação científica
-                            </h3>
-                            <div class="classification-grid" style="display: flex; flex-direction: column; gap: 8px; font-size: 0.95rem;">
-                                ${animalData.reino ? `<div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px;"><strong style="color: var(--text-secondary);">Reino:</strong> <span style="color: var(--text-primary); font-weight: 500;">${escapeHtml(animalData.reino)}</span></div>` : ''}
-                                ${animalData.filo ? `<div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px;"><strong style="color: var(--text-secondary);">Filo:</strong> <span style="color: var(--text-primary); font-weight: 500;">${escapeHtml(animalData.filo)}</span></div>` : ''}
-                                ${animalData.subfilo ? `<div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px;"><strong style="color: var(--text-secondary);">Subfilo:</strong> <span style="color: var(--text-primary); font-weight: 500;">${escapeHtml(animalData.subfilo)}</span></div>` : ''}
-                                ${animalData.classe ? `<div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px;"><strong style="color: var(--text-secondary);">Classe:</strong> <span style="color: var(--text-primary); font-weight: 500;">${escapeHtml(animalData.classe)}</span></div>` : ''}
-                                ${animalData.ordem ? `<div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px;"><strong style="color: var(--text-secondary);">Ordem:</strong> <span style="color: var(--text-primary); font-weight: 500;">${escapeHtml(animalData.ordem)}</span></div>` : ''}
-                                ${animalData.subordem ? `<div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px;"><strong style="color: var(--text-secondary);">Subordem:</strong> <span style="color: var(--text-primary); font-weight: 500;">${escapeHtml(animalData.subordem)}</span></div>` : ''}
-                                ${animalData.infraordem ? `<div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px;"><strong style="color: var(--text-secondary);">Infraordem:</strong> <span style="color: var(--text-primary); font-weight: 500;">${escapeHtml(animalData.infraordem)}</span></div>` : ''}
-                                ${animalData.familia ? `<div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px;"><strong style="color: var(--text-secondary);">Família:</strong> <span style="color: var(--text-primary); font-weight: 500;">${escapeHtml(animalData.familia)}</span></div>` : ''}
-                                ${animalData.genero ? `<div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px;"><strong style="color: var(--text-secondary);">Género:</strong> <span style="color: var(--text-primary); font-weight: 500; font-style: italic;">${escapeHtml(animalData.genero)}</span></div>` : ''}
-                                ${animalData.especie ? `<div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px;"><strong style="color: var(--text-secondary);">Espécie:</strong> <span style="color: var(--text-primary); font-weight: 500; font-style: italic;">${escapeHtml(animalData.especie)}</span></div>` : ''}
-                                ${(Array.isArray(animalData.subespeciesDe) && animalData.subespeciesDe.length > 0) ? `
-                                <div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px;">
-                                    <strong style="color: var(--text-secondary);">Subespécie de:</strong>
-                                    <span class="subespecies-names" style="color: var(--text-primary); font-weight: 500;">Carregando...</span>
-                                </div>` : ''}
-                            </div>
-                        </div>
-                        ` : ''}
+                        ${scientificClassificationSectionDesktopFinalHTML}
                         <div id="related-animals-container" class="desktop-only" style="display: none;"></div>
                     </div>
                     
