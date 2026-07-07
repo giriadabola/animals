@@ -28,7 +28,7 @@
     <script>
         // Forçar limpeza de cache e service workers se houver atualização
         (async function() {
-            const VERSION = 'v1.0.42';
+            const VERSION = 'v1.0.50';
             if (localStorage.getItem('app_cache_version') !== VERSION) {
                 try {
                     if ('serviceWorker' in navigator) {
@@ -340,12 +340,47 @@
                 grid-template-columns: 1fr !important;
                 gap: 20px !important;
             }
+            .curiosidades-editor {
+                overflow-x: auto;
+                overflow-y: visible;
+                padding-bottom: 4px;
+                -webkit-overflow-scrolling: touch;
+            }
+            .curiosidades-row-header,
+            .curiosidades-row {
+                min-width: 500px;
+            }
         }
         .curiosidades-editor {
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 12px;
             justify-content: center;
+        }
+        .curiosidades-preview-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            width: 100%;
+        }
+        .curiosidades-preview-meta {
+            display: inline-flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 6px;
+        }
+        .curiosidades-preview-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 8px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: var(--text-secondary);
+            font-size: 0.72rem;
+            font-weight: 600;
+            line-height: 1;
         }
         .curiosidades-visual-preview {
             border: 1px solid var(--border-color);
@@ -439,6 +474,51 @@
             text-align: center;
             display: flex;
             flex-direction: column;
+            align-items: center;
+        }
+        .curiosidades-row-header,
+        .curiosidades-row {
+            display: grid;
+            min-width: 500px;
+            grid-template-columns: minmax(104px, 1.2fr) minmax(104px, 1.2fr) 48px 48px 36px;
+            gap: 8px;
+            align-items: center;
+        }
+        .curiosidades-row-header {
+            color: var(--text-secondary);
+            font-size: 0.76rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            padding: 0 2px 2px 2px;
+        }
+        .curiosidades-row-header span:nth-child(3),
+        .curiosidades-row-header span:nth-child(4),
+        .curiosidades-row-header span:nth-child(5) {
+            text-align: center;
+        }
+        .curiosidades-rows {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .curiosidades-row {
+            padding: 0;
+            border-radius: 0;
+            background: transparent;
+            border: none;
+            box-shadow: none;
+        }
+        .curiosidades-row select,
+        .curiosidades-row button {
+            min-width: 0;
+            height: 42px;
+        }
+        .curiosidades-row select {
+            padding: 10px 36px 10px 14px;
+            font-size: 0.92rem;
+            line-height: 1.2;
+            display: flex;
             align-items: center;
         }
 
@@ -689,6 +769,47 @@
             background: rgba(255, 255, 255, 0.015);
             margin-bottom: 25px;
         }
+        .scientific-name-priority {
+            position: relative;
+            transition: opacity 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
+        }
+        .scientific-name-gate-hint {
+            display: none;
+            margin-top: 8px;
+            color: var(--primary-color);
+            font-size: 0.82rem;
+            font-weight: 600;
+        }
+        #animalForm.scientific-gate-active .scientific-name-priority {
+            padding: 16px;
+            border-radius: 18px;
+            background: linear-gradient(135deg, rgba(213, 160, 90, 0.14), rgba(217, 122, 104, 0.08));
+            border: 1px solid rgba(213, 160, 90, 0.26);
+            box-shadow: 0 0 0 1px rgba(213, 160, 90, 0.12), 0 18px 36px rgba(0, 0, 0, 0.18);
+            transform: translateY(-1px);
+        }
+        #animalForm.scientific-gate-active .scientific-name-priority label {
+            color: var(--text-primary);
+        }
+        #animalForm.scientific-gate-active .scientific-name-priority input {
+            border-color: rgba(213, 160, 90, 0.35);
+            box-shadow: 0 0 0 4px rgba(213, 160, 90, 0.12);
+        }
+        #animalForm.scientific-gate-active .scientific-name-gate-hint {
+            display: block;
+        }
+        #animalForm.scientific-gate-active .form-header-fields > .form-group:not(.scientific-name-priority) {
+            opacity: 0.36;
+            filter: grayscale(0.15);
+            pointer-events: none;
+            user-select: none;
+        }
+        #animalForm.scientific-gate-active > *:not(.form-header-fields) {
+            opacity: 0.34;
+            filter: grayscale(0.18);
+            pointer-events: none;
+            user-select: none;
+        }
 
         @media (max-width: 900px) {
             .form-header-fields {
@@ -871,10 +992,18 @@
                 grid-template-columns: minmax(140px, 1.35fr) minmax(58px, 0.7fr) minmax(58px, 0.7fr) minmax(70px, 0.7fr) minmax(52px, 0.5fr) minmax(52px, 0.5fr) 40px !important;
                 gap: 8px !important;
             }
+            .curiosidades-row-header,
+            .curiosidades-row {
+                min-width: 500px;
+                grid-template-columns: minmax(104px, 1.2fr) minmax(104px, 1.2fr) 48px 48px 36px !important;
+                gap: 8px !important;
+            }
 
             .general-visual-row select,
             .general-visual-row input,
-            .general-visual-row button {
+            .general-visual-row button,
+            .curiosidades-row select,
+            .curiosidades-row button {
                 min-width: 0;
             }
 
@@ -916,23 +1045,27 @@
                 display: grid !important;
             }
             .general-visual-rows,
-            .dimension-rows {
+            .dimension-rows,
+            .curiosidades-rows {
                 display: flex !important;
                 flex-direction: column !important;
                 gap: 6px !important;
             }
             .general-visual-row,
-            .dimension-row {
+            .dimension-row,
+            .curiosidades-row {
                 padding: 6px 8px !important;
                 border-radius: 10px !important;
             }
             .general-visual-row input,
             .general-visual-row select,
             .dimension-row input,
-            .dimension-row select {
+            .dimension-row select,
+            .curiosidades-row select {
                 font-size: 0.82rem !important;
-                padding: 8px 10px !important;
+                padding: 8px 30px 8px 10px !important;
                 height: 38px !important;
+                line-height: 1.2 !important;
             }
             .gender-toggle-btn,
             .fase-toggle-btn {
@@ -1056,9 +1189,10 @@
                     <input type="text" id="nomeAnimal" required placeholder="Ex: Leão">
                 </div>
                 
-                <div class="form-group">
+                <div class="form-group scientific-name-priority">
                     <label for="nomeCientifico">Nome Científico</label>
                     <input type="text" id="nomeCientifico" required placeholder="Ex: Panthera leo">
+                    <span class="scientific-name-gate-hint">Preenche primeiro este campo para desbloquear o resto do formulário.</span>
                     <span id="nomeCientificoWarning" style="color: #f87171; font-size: 0.85rem; display: none; margin-top: 5px; font-weight: 500;">
                         <i class="fa-solid fa-triangle-exclamation"></i> Este animal já se encontra registado.
                     </span>
@@ -1332,7 +1466,7 @@
                                         </div>
                                         <div id="dimensionRows" class="dimension-rows"></div>
                                         <button type="button" id="addDimensionBtn" class="secondary-action-btn">+ Adicionar medida</button>
-                                        <p class="form-hint">Para intervalos, preenche mínimo e máximo. Ex.: Comprimento total, mín. 66, máx. 76, unidade cm → “66–76 cm”. Para valores exatos, preenche só o mínimo.</p>
+                                        <p class="form-hint">Para intervalos, preenche mínimo e máximo. Ex.: Comprimento total, mín. 66, máx. 76, unidade cm â†’ â€œ66–76 cm”. Para valores exatos, preenche só o mínimo.</p>
                                     </div>
 
                                     <div class="animal-measure-preview" aria-live="polite">
@@ -1546,62 +1680,20 @@
                             <div class="form-subtab-panel active" id="subtabpanel-curiosidades-modelo-visual" role="tabpanel">
                                 <div class="curiosidades-layout">
                                     <div class="curiosidades-editor">
-                                        <div class="form-group">
-                                            <label for="animalColor">Cor do animal</label>
-                                            <select id="animalColor">
-                                                <option value="">Selecione uma cor...</option>
-                                                <option value="Preto">Preto</option>
-                                                <option value="Branco">Branco</option>
-                                                <option value="Cinzento">Cinzento</option>
-                                                <option value="Castanho">Castanho</option>
-                                                <option value="Bege">Bege</option>
-                                                <option value="Creme">Creme</option>
-                                                <option value="Amarelo">Amarelo</option>
-                                                <option value="Dourado">Dourado</option>
-                                                <option value="Laranja">Laranja</option>
-                                                <option value="Vermelho">Vermelho</option>
-                                                <option value="Rosa">Rosa</option>
-                                                <option value="Azul">Azul</option>
-                                                <option value="Verde">Verde</option>
-                                                <option value="Roxo">Roxo</option>
-                                                <option value="Prateado">Prateado</option>
-                                            </select>
+                                        <div class="curiosidades-row-header">
+                                            <span>Propriedade</span>
+                                            <span>Valor</span>
+                                            <span>Género</span>
+                                            <span>Fase</span>
                                         </div>
-                                        <div class="form-group" style="margin-top: 20px;">
-                                            <label for="conservationStatus">Estado de Conservação</label>
-                                            <select id="conservationStatus">
-                                                <option value="">Selecione o estado...</option>
-                                                <option value="NE">Não Avaliado (NE)</option>
-                                                <option value="DD">Dados Insuficientes (DD)</option>
-                                                <option value="LC">Pouco Preocupante (LC)</option>
-                                                <option value="NT">Quase Ameaçado (NT)</option>
-                                                <option value="VU">Vulnerável (VU)</option>
-                                                <option value="EN">Em Perigo (EN)</option>
-                                                <option value="CR">Criticamente em Perigo (CR)</option>
-                                                <option value="EW">Extinto na Natureza (EW)</option>
-                                                <option value="EX">Extinto (EX)</option>
-                                            </select>
-                                        </div>
+                                        <div id="curiosidadesRows" class="curiosidades-rows"></div>
+                                        <button type="button" id="addCuriosidadesBtn" class="secondary-action-btn">+ Adicionar campo</button>
+                                        <p class="form-hint">Podes registar variantes por sexo e por fase, por exemplo cores diferentes entre macho/fêmea ou diferenças entre adulto e cria.</p>
                                     </div>
                                     <div class="curiosidades-visual-preview" aria-live="polite">
                                         <div class="preview-card-title">Modelo visual de curiosidades</div>
                                         <div class="curiosidades-preview-stage">
-                                            <div class="curiosidades-preview-item" id="colorPreviewItem" style="display: none;">
-                                                <div class="color-preview-circle-wrapper">
-                                                    <div class="color-preview-circle" id="colorPreviewCircle"></div>
-                                                </div>
-                                                <div class="curiosidades-preview-info">
-                                                    <span class="preview-label">Cor do Animal</span>
-                                                    <strong id="colorPreviewText" style="font-size: 1.05rem; font-weight: 700; color: var(--text-primary);"></strong>
-                                                </div>
-                                            </div>
-                                            <div class="curiosidades-preview-item" id="statusPreviewItem" style="display: none;">
-                                                <div class="status-preview-badge" id="statusPreviewBadge"></div>
-                                                <div class="curiosidades-preview-info">
-                                                    <span class="preview-label">Estado de Conservação</span>
-                                                    <strong id="statusPreviewText" style="font-size: 1.05rem; font-weight: 700; color: var(--text-primary);"></strong>
-                                                </div>
-                                            </div>
+                                            <div id="curiosidadesPreviewList" class="curiosidades-preview-list"></div>
                                             <div class="curiosidades-preview-empty" id="curiosidadesEmptyPreview">
                                                 <i class="fa-solid fa-eye-slash" style="font-size: 2rem; opacity: 0.3; margin-bottom: 10px;"></i>
                                                 <p>Preencha as opções para ver a pré-visualização.</p>
@@ -1817,6 +1909,7 @@
         const formSubtitle = document.getElementById('formSubtitle');
         const statusMessage = document.getElementById('statusMessage');
         const nomeCientificoInput = document.getElementById('nomeCientifico');
+        const scientificPriorityGroup = nomeCientificoInput.closest('.scientific-name-priority');
         const nomeCientificoWarning = document.getElementById('nomeCientificoWarning');
         const familiaInput = document.getElementById('familia');
         const familiaResultsContainer = document.getElementById('familiaResults');
@@ -1880,6 +1973,9 @@
         const reproductionCategoryIcon = document.getElementById('reproductionCategoryIcon');
         const reproductionCategoryName = document.getElementById('reproductionCategoryName');
         const previewReproductionModels = document.getElementById('previewReproductionModels');
+        const curiosidadesRowsContainer = document.getElementById('curiosidadesRows');
+        const addCuriosidadesBtn = document.getElementById('addCuriosidadesBtn');
+        const curiosidadesPreviewList = document.getElementById('curiosidadesPreviewList');
         const baseDimensionOptions = [
             { label: 'Altura', unit: 'cm' },
             { label: 'Altura ao ombro', unit: 'm' },
@@ -2222,7 +2318,7 @@
             'Desova externa': 'Ovos libertados no ambiente',
             'Fertilização interna': 'Fecundação dentro do corpo',
             'Fertilização externa': 'Fecundação no ambiente',
-            'Hermafrodita': 'Pode ter órgãos dos dois sexos',
+            'Hermafrodita': 'Pode ter Ã³rgãos dos dois sexos',
             'Sexos separados': 'Macho e fêmea separados',
             'Desenvolvimento larvar': 'Passa por fase de larva',
             'Ovos transportados pela fêmea': 'Ovos presos ao corpo da fêmea',
@@ -2322,7 +2418,7 @@
             'Plumagem de verão': 'Mais leve, definida e sazonal',
             'Plumagem de camuflagem': 'Mistura-se com o bioma',
             'Plumagem ornamental': 'Usada em exibição e atração',
-            'Plumagem impermeável': 'Adaptada à repelência da água',
+            'Plumagem impermeável': 'Adaptada Ã  repelência da água',
             'Plumagem sexualmente dimórfica': 'Macho e fêmea com visuais distintos',
             'Rémiges': 'Penas de voo das asas',
             'Retrizes': 'Penas da cauda, direção e travagem',
@@ -2387,6 +2483,8 @@
                     });
                 }
 
+                const curiosidadesDetalhadas = getCuriosidadesData();
+
                 const animalData = {
                     nome: document.getElementById('nomeAnimal').value,
                     nomeCientifico: document.getElementById('nomeCientifico').value,
@@ -2425,8 +2523,9 @@
                             descricao: document.getElementById('infoDistribuicao').value || ''
                         },
                         curiosidades: {
-                            cor: document.getElementById('animalColor').value,
-                            estadoConservacao: document.getElementById('conservationStatus').value,
+                            cor: getPreferredCuriosidadeValue(curiosidadesDetalhadas, 'Cor do animal'),
+                            estadoConservacao: getPreferredCuriosidadeValue(curiosidadesDetalhadas, 'Estado de Conservação'),
+                            detalhes: curiosidadesDetalhadas,
                             texto: document.getElementById('infoCuriosidades').value
                         }
                     },
@@ -4039,6 +4138,7 @@
             } else {
                 nomeCientificoWarning.style.display = 'none';
             }
+            updateScientificNameGate();
             debounce(searchAndFillVideos, 800);
         });
 
@@ -4294,8 +4394,7 @@
             }
 
             const curiData = animal.informacao.curiosidades || { cor: '', estadoConservacao: '', texto: '' };
-            document.getElementById('animalColor').value = curiData.cor || '';
-            document.getElementById('conservationStatus').value = curiData.estadoConservacao || '';
+            setCuriosidadesData(normalizeCuriosidadesData(curiData));
             document.getElementById('infoCuriosidades').value = curiData.texto || '';
             updateCuriosidadesPreview();
 
@@ -4321,6 +4420,7 @@
             saveButton.textContent = "Atualizar Dados";
             document.getElementById('nomeCientifico').disabled = true;
             document.body.classList.add('edit-theme');
+            updateScientificNameGate();
         }
 
         function switchToCreateMode() {
@@ -4342,8 +4442,7 @@
             setPlumageData();
             updatePlumagemTabVisibility();
             
-            document.getElementById('animalColor').value = '';
-            document.getElementById('conservationStatus').value = '';
+            setCuriosidadesData();
             document.getElementById('infoCuriosidades').value = '';
             updateCuriosidadesPreview();
             
@@ -4377,6 +4476,7 @@
             statusMessage.style.display = 'none';
             document.body.classList.remove('edit-theme');
             toggleVideosFieldset(false);
+            updateScientificNameGate({ focusScientificField: true });
         }
 
         function openModal() {
@@ -4468,13 +4568,18 @@
         function parseClassificationText(text) {
             const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
             const result = {};
-            const knownKeys = ['reino', 'filo', 'subfilo', 'classe', 'superordem', 'ordem', 'subordem', 'infraordem', 'família', 'familia', 'género', 'genero', 'espécie', 'espécies', 'especie', 'especies'];
+            const normalizeClassificationKey = (value = '') => String(value)
+                .toLowerCase()
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .trim();
+            const knownKeys = ['reino', 'filo', 'subfilo', 'classe', 'superordem', 'ordem', 'subordem', 'infraordem', 'familia', 'genero', 'especie', 'especies'];
             
             let parsedAnySeparator = false;
             for (let line of lines) {
-                const match = line.match(/^([A-Za-zÀ-ÖØ-öø-ÿ\s]+)[:\-]\s*(.+)$/i);
+                const match = line.match(/^([^:-]+)\s*[:-]\s*(.+)$/);
                 if (match) {
-                    const rawKey = match[1].trim().toLowerCase();
+                    const rawKey = normalizeClassificationKey(match[1]);
                     if (knownKeys.includes(rawKey)) {
                         result[rawKey] = match[2].trim();
                         parsedAnySeparator = true;
@@ -4484,7 +4589,7 @@
             
             if (!parsedAnySeparator) {
                 for (let i = 0; i < lines.length - 1; i++) {
-                    const potentialKey = lines[i].toLowerCase();
+                    const potentialKey = normalizeClassificationKey(lines[i]);
                     if (knownKeys.includes(potentialKey)) {
                         result[potentialKey] = lines[i+1];
                         i++;
@@ -4594,87 +4699,263 @@
             updatePlumagePreview();
         });
 
-        // --- PRE-VISUALIZAÇÃO DE CURIOSIDADES ---
-        function updateCuriosidadesPreview() {
-            const colorSelect = document.getElementById('animalColor');
-            const statusSelect = document.getElementById('conservationStatus');
-            
-            const colorVal = colorSelect.value;
-            const statusVal = statusSelect.value;
-            
-            const colorPreviewItem = document.getElementById('colorPreviewItem');
-            const statusPreviewItem = document.getElementById('statusPreviewItem');
-            const emptyPreview = document.getElementById('curiosidadesEmptyPreview');
-            
-            const colorCircle = document.getElementById('colorPreviewCircle');
-            const colorText = document.getElementById('colorPreviewText');
-            
-            const statusBadge = document.getElementById('statusPreviewBadge');
-            const statusText = document.getElementById('statusPreviewText');
-            
-            const colorMap = {
-                'Preto': '#111111',
-                'Branco': '#fcfcfc',
-                'Cinzento': '#8c8c8c',
-                'Castanho': '#6b4423',
-                'Bege': '#e8d8c8',
-                'Creme': '#fffbcf',
-                'Amarelo': '#ffd000',
-                'Dourado': '#d4af37',
-                'Laranja': '#ff7700',
-                'Vermelho': '#e01b1b',
-                'Rosa': '#ff94b8',
-                'Azul': '#1a5fb4',
-                'Verde': '#2ec27e',
-                'Roxo': '#9141ac',
-                'Prateado': '#c0c0c0'
-            };
-            
-            const statusColors = {
-                'NE': { bg: '#5c6773', text: '#ffffff', name: 'Não Avaliado' },
-                'DD': { bg: '#835d90', text: '#ffffff', name: 'Dados Insuficientes' },
-                'LC': { bg: '#007a5e', text: '#ffffff', name: 'Pouco Preocupante' },
-                'NT': { bg: '#85bb65', text: '#000000', name: 'Quase Ameaçado' },
-                'VU': { bg: '#e69f00', text: '#000000', name: 'Vulnerável' },
-                'EN': { bg: '#d55e00', text: '#ffffff', name: 'Em Perigo' },
-                'CR': { bg: '#c00000', text: '#ffffff', name: 'Criticamente em Perigo' },
-                'EW': { bg: '#542788', text: '#ffffff', name: 'Extinto na Natureza' },
-                'EX': { bg: '#000000', text: '#ffffff', name: 'Extinto' }
-            };
-            
-            if (colorVal) {
-                colorPreviewItem.style.display = 'flex';
-                colorCircle.style.backgroundColor = colorMap[colorVal] || '#cccccc';
-                if (colorVal === 'Branco' || colorVal === 'Creme') {
-                    colorCircle.style.border = '1px solid rgba(0,0,0,0.2)';
-                } else {
-                    colorCircle.style.border = '1px solid rgba(255,255,255,0.1)';
+        // --- CURIOSIDADES E MODELO VISUAL ---
+        const curiosidadesTypeOptions = ['Cor do animal', 'Estado de Conservação'];
+        const curiosidadesColorMap = {
+            'Preto': '#111111',
+            'Branco': '#fcfcfc',
+            'Cinzento': '#8c8c8c',
+            'Castanho': '#6b4423',
+            'Bege': '#e8d8c8',
+            'Creme': '#fffbcf',
+            'Amarelo': '#ffd000',
+            'Dourado': '#d4af37',
+            'Laranja': '#ff7700',
+            'Vermelho': '#e01b1b',
+            'Rosa': '#ff94b8',
+            'Azul': '#1a5fb4',
+            'Verde': '#2ec27e',
+            'Roxo': '#9141ac',
+            'Prateado': '#c0c0c0'
+        };
+        const curiosidadesStatusMeta = {
+            'NE': { bg: '#5c6773', text: '#ffffff', name: 'Não Avaliado' },
+            'DD': { bg: '#835d90', text: '#ffffff', name: 'Dados Insuficientes' },
+            'LC': { bg: '#007a5e', text: '#ffffff', name: 'Pouco Preocupante' },
+            'NT': { bg: '#85bb65', text: '#000000', name: 'Quase Ameaçado' },
+            'VU': { bg: '#e69f00', text: '#000000', name: 'Vulnerável' },
+            'EN': { bg: '#d55e00', text: '#ffffff', name: 'Em Perigo' },
+            'CR': { bg: '#c00000', text: '#ffffff', name: 'Criticamente em Perigo' },
+            'EW': { bg: '#542788', text: '#ffffff', name: 'Extinto na Natureza' },
+            'EX': { bg: '#000000', text: '#ffffff', name: 'Extinto' }
+        };
+
+        function getCuriosidadeValueOptions(type = '') {
+            if (type === 'Cor do animal') {
+                return Object.keys(curiosidadesColorMap);
+            }
+            if (type === 'Estado de Conservação') {
+                return Object.entries(curiosidadesStatusMeta).map(([code, meta]) => ({
+                    value: code,
+                    label: `${meta.name} (${code})`
+                }));
+            }
+            return [];
+        }
+
+        function fillCuriosidadeTypeSelect(select, selectedValue = '') {
+            const hasSelected = selectedValue && curiosidadesTypeOptions.includes(selectedValue);
+            select.innerHTML = '<option value="">Escolhe uma propriedade</option>' +
+                curiosidadesTypeOptions.map(option => `<option value="${option}">${option}</option>`).join('') +
+                (selectedValue && !hasSelected ? `<option value="${selectedValue}">${selectedValue}</option>` : '');
+            select.value = selectedValue;
+        }
+
+        function fillCuriosidadeValueSelect(select, type = '', selectedValue = '') {
+            const options = getCuriosidadeValueOptions(type);
+            const hasSelected = selectedValue && options.some(option => (option.value || option) === selectedValue);
+            const placeholder = type ? 'Escolhe um valor' : 'Seleciona primeiro a propriedade';
+            select.innerHTML = `<option value="">${placeholder}</option>` + options.map(option => {
+                if (typeof option === 'string') {
+                    return `<option value="${option}">${option}</option>`;
                 }
-                colorText.textContent = colorVal;
+                return `<option value="${option.value}">${option.label}</option>`;
+            }).join('') + (selectedValue && !hasSelected ? `<option value="${selectedValue}">${selectedValue}</option>` : '');
+            select.value = selectedValue;
+            select.disabled = !type;
+        }
+
+        function updateCuriosidadeFaseBtnUI(button) {
+            if (!button) return;
+            if (button.dataset.value === 'Adulto') {
+                button.innerHTML = '<i class="fa-solid fa-paw" style="color: #10b981; font-size: 0.9rem;"></i>';
+                button.title = 'Adulto';
             } else {
-                colorPreviewItem.style.display = 'none';
-            }
-            
-            if (statusVal) {
-                statusPreviewItem.style.display = 'flex';
-                const sColor = statusColors[statusVal] || { bg: '#666', text: '#fff', name: '' };
-                statusBadge.textContent = statusVal;
-                statusBadge.style.backgroundColor = sColor.bg;
-                statusBadge.style.color = sColor.text;
-                statusText.textContent = sColor.name;
-            } else {
-                statusPreviewItem.style.display = 'none';
-            }
-            
-            if (colorVal || statusVal) {
-                emptyPreview.style.display = 'none';
-            } else {
-                emptyPreview.style.display = 'flex';
+                button.innerHTML = '<i class="fa-solid fa-baby" style="color: #f59e0b; font-size: 0.9rem;"></i>';
+                button.title = 'Cria';
             }
         }
 
-        document.getElementById('animalColor').addEventListener('change', updateCuriosidadesPreview);
-        document.getElementById('conservationStatus').addEventListener('change', updateCuriosidadesPreview);
+        function createCuriosidadeRow(type = '', value = '', gender = GENDER_BOTH, fase = 'Adulto') {
+            const row = document.createElement('div');
+            row.className = 'curiosidades-row';
+
+            const typeSelect = document.createElement('select');
+            typeSelect.className = 'curiosidade-type';
+            fillCuriosidadeTypeSelect(typeSelect, type);
+
+            const valueSelect = document.createElement('select');
+            valueSelect.className = 'curiosidade-value';
+            fillCuriosidadeValueSelect(valueSelect, type, value);
+
+            const genderBtn = document.createElement('button');
+            genderBtn.type = 'button';
+            genderBtn.className = 'gender-toggle-btn curiosidade-gender-toggle';
+            genderBtn.dataset.value = normalizeGenderValue(gender, GENDER_BOTH);
+            const syncGenderBtn = () => {
+                const ui = getGenderUi(genderBtn.dataset.value);
+                genderBtn.dataset.value = ui.value;
+                genderBtn.innerHTML = ui.html;
+                genderBtn.title = ui.title;
+            };
+            syncGenderBtn();
+
+            const faseBtn = document.createElement('button');
+            faseBtn.type = 'button';
+            faseBtn.className = 'fase-toggle-btn curiosidade-fase-toggle';
+            faseBtn.dataset.value = fase || 'Adulto';
+            updateCuriosidadeFaseBtnUI(faseBtn);
+
+            const removeBtn = document.createElement('button');
+            removeBtn.type = 'button';
+            removeBtn.className = 'remove-dimension-btn';
+            removeBtn.innerHTML = '&times;';
+            removeBtn.title = 'Remover campo';
+
+            typeSelect.addEventListener('change', () => {
+                fillCuriosidadeValueSelect(valueSelect, typeSelect.value, '');
+                updateCuriosidadesPreview();
+            });
+            valueSelect.addEventListener('change', updateCuriosidadesPreview);
+            genderBtn.addEventListener('click', () => {
+                genderBtn.dataset.value = getNextGenderValue(genderBtn.dataset.value);
+                syncGenderBtn();
+                updateCuriosidadesPreview();
+            });
+            faseBtn.addEventListener('click', () => {
+                faseBtn.dataset.value = faseBtn.dataset.value === 'Adulto' ? 'Cria' : 'Adulto';
+                updateCuriosidadeFaseBtnUI(faseBtn);
+                updateCuriosidadesPreview();
+            });
+            removeBtn.addEventListener('click', () => {
+                row.remove();
+                if (curiosidadesRowsContainer.children.length === 0) {
+                    setCuriosidadesData();
+                } else {
+                    updateCuriosidadesPreview();
+                }
+            });
+
+            row.append(typeSelect, valueSelect, genderBtn, faseBtn, removeBtn);
+            curiosidadesRowsContainer.appendChild(row);
+            updateCuriosidadesPreview();
+        }
+
+        function getCuriosidadesData() {
+            return [...curiosidadesRowsContainer.querySelectorAll('.curiosidades-row')]
+                .map(row => ({
+                    tipo: row.querySelector('.curiosidade-type')?.value || '',
+                    valor: row.querySelector('.curiosidade-value')?.value || '',
+                    genero: normalizeGenderValue(row.querySelector('.curiosidade-gender-toggle')?.dataset.value, GENDER_BOTH),
+                    fase: row.querySelector('.curiosidade-fase-toggle')?.dataset.value || 'Adulto'
+                }))
+                .filter(item => item.tipo && item.valor);
+        }
+
+        function getDefaultCuriosidadesRows() {
+            return [
+                { tipo: 'Cor do animal', valor: '', genero: GENDER_BOTH, fase: 'Adulto' },
+                { tipo: 'Estado de Conservação', valor: '', genero: GENDER_BOTH, fase: 'Adulto' }
+            ];
+        }
+
+        function normalizeCuriosidadesData(curiosidades = {}) {
+            if (Array.isArray(curiosidades?.detalhes) && curiosidades.detalhes.length) {
+                return collapseCombinedGenderItems(curiosidades.detalhes).map(item => ({
+                    tipo: item.tipo || '',
+                    valor: item.valor || '',
+                    genero: item.genero || GENDER_BOTH,
+                    fase: item.fase || 'Adulto'
+                }));
+            }
+            const legacyItems = [];
+            if (curiosidades?.cor) {
+                legacyItems.push({ tipo: 'Cor do animal', valor: curiosidades.cor, genero: GENDER_BOTH, fase: 'Adulto' });
+            }
+            if (curiosidades?.estadoConservacao) {
+                legacyItems.push({ tipo: 'Estado de Conservação', valor: curiosidades.estadoConservacao, genero: GENDER_BOTH, fase: 'Adulto' });
+            }
+            return legacyItems;
+        }
+
+        function setCuriosidadesData(items = []) {
+            curiosidadesRowsContainer.innerHTML = '';
+            const normalizedItems = Array.isArray(items) && items.length ? items : getDefaultCuriosidadesRows();
+            normalizedItems.forEach(item => createCuriosidadeRow(
+                item.tipo || '',
+                item.valor || '',
+                item.genero || GENDER_BOTH,
+                item.fase || 'Adulto'
+            ));
+            updateCuriosidadesPreview();
+        }
+
+        function getPreferredCuriosidadeValue(items, type) {
+            const preferred = items.find(item => item.tipo === type && item.genero === GENDER_BOTH && item.fase === 'Adulto');
+            if (preferred) return preferred.valor || '';
+            return items.find(item => item.tipo === type)?.valor || '';
+        }
+
+        function renderCuriosidadeMeta(item) {
+            const genderUi = getGenderUi(item.genero || GENDER_BOTH);
+            const faseHtml = item.fase === 'Cria'
+                ? '<i class="fa-solid fa-baby" style="color: #f59e0b;"></i><span>Cria</span>'
+                : '<i class="fa-solid fa-paw" style="color: #10b981;"></i><span>Adulto</span>';
+            return `
+                <div class="curiosidades-preview-meta">
+                    <span class="curiosidades-preview-badge">${genderUi.html}<span>${genderUi.title}</span></span>
+                    <span class="curiosidades-preview-badge">${faseHtml}</span>
+                </div>
+            `;
+        }
+
+        function renderCuriosidadePreviewCard(item) {
+            if (item.tipo === 'Cor do animal') {
+                const hexColor = curiosidadesColorMap[item.valor] || '#cccccc';
+                const circleBorder = (item.valor === 'Branco' || item.valor === 'Creme')
+                    ? '1px solid rgba(0,0,0,0.2)'
+                    : '1px solid rgba(255,255,255,0.1)';
+                return `
+                    <div class="curiosidades-preview-item">
+                        <div class="color-preview-circle-wrapper">
+                            <div class="color-preview-circle" style="background-color: ${hexColor}; border: ${circleBorder};"></div>
+                        </div>
+                        <div class="curiosidades-preview-info">
+                            <span class="preview-label">Cor do Animal</span>
+                            <strong style="font-size: 1.05rem; font-weight: 700; color: var(--text-primary);">${item.valor}</strong>
+                            ${renderCuriosidadeMeta(item)}
+                        </div>
+                    </div>
+                `;
+            }
+
+            const statusMeta = curiosidadesStatusMeta[item.valor] || { bg: '#666', text: '#fff', name: item.valor };
+            return `
+                <div class="curiosidades-preview-item">
+                    <div class="status-preview-badge" style="background-color: ${statusMeta.bg}; color: ${statusMeta.text};">${item.valor}</div>
+                    <div class="curiosidades-preview-info">
+                        <span class="preview-label">Estado de Conservação</span>
+                        <strong style="font-size: 1.05rem; font-weight: 700; color: var(--text-primary);">${statusMeta.name}</strong>
+                        ${renderCuriosidadeMeta(item)}
+                    </div>
+                </div>
+            `;
+        }
+
+        function updateCuriosidadesPreview() {
+            const selected = getCuriosidadesData();
+            const emptyPreview = document.getElementById('curiosidadesEmptyPreview');
+            if (!selected.length) {
+                curiosidadesPreviewList.innerHTML = '';
+                emptyPreview.style.display = 'flex';
+                return;
+            }
+            curiosidadesPreviewList.innerHTML = selected.map(renderCuriosidadePreviewCard).join('');
+            emptyPreview.style.display = 'none';
+        }
+
+        addCuriosidadesBtn.addEventListener('click', () => createCuriosidadeRow());
+        setCuriosidadesData();
 
         // --- LÓGICA DO SELETOR DE CATEGORIAS MÚLTIPLAS ---
         function getSelectedCategoriesMap() {
@@ -4784,6 +5065,29 @@
         const previewCardSubtitleMobile = document.getElementById('previewCardSubtitleMobile');
         const cardPreviewContainer = document.querySelector('.animal-list-item-preview-card');
         const cardPreviewContainerMobile = document.querySelector('.animal-list-item-preview-card-mobile');
+
+        function getScientificNameGateControls() {
+            return [...animalForm.querySelectorAll('input, textarea, select, button')]
+                .filter(element => {
+                    if (element === nomeCientificoInput) return false;
+                    if (element.type === 'hidden') return false;
+                    return true;
+                });
+        }
+
+        function updateScientificNameGate({ focusScientificField = false } = {}) {
+            const shouldLock = !isEditMode && !nomeCientificoInput.value.trim();
+            animalForm.classList.toggle('scientific-gate-active', shouldLock);
+            scientificPriorityGroup?.classList.toggle('is-active', shouldLock);
+
+            getScientificNameGateControls().forEach(control => {
+                control.disabled = shouldLock;
+            });
+
+            if (shouldLock && focusScientificField) {
+                nomeCientificoInput.focus();
+            }
+        }
 
         btnPreviewImage.addEventListener('click', () => {
             const imgUrl = document.getElementById('imagemUrl').value.trim();
@@ -5345,6 +5649,7 @@
         }
 
         initializePage();
+        updateScientificNameGate({ focusScientificField: true });
     </script>
     <!-- Service Worker PWA -->
     <script>

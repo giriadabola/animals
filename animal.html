@@ -220,7 +220,7 @@
         import { feedingStrategyDescriptions, getFeedingStrategyMeta, getFeedingStrategySvg } from "./js/feeding-strategies.js";
         import { getMatingMeta, getMatingSystemSvg } from "./js/mating-systems.js";
         import { getGeneralVisualMeta as getGeneralVisualCatalogMeta, getGeneralModelSvg as getGeneralCatalogModelSvg, getActivityMeta, getActivitySvg, getSocialMeta, getSocialSvg, getEcologicalFunctionMeta, getEcologicalFunctionSvg, getLocomotionMeta, getLocomotionSvg } from "./js/general-visual-catalog.js";
-        import { collapseCombinedGenderItems, collectConcreteGenders, genderMatchesSelection } from "./js/gender-utils.js";
+        import { collapseCombinedGenderItems, collectConcreteGenders, genderMatchesSelection, normalizeGenderValue } from "./js/gender-utils.js";
         
         const mainContent = document.getElementById('main-content-area');
 
@@ -279,10 +279,22 @@
             return String(label).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
         }
 
+        function hasGenderData(items = []) {
+            return items.some(item => !!normalizeGenderValue(item?.genero, ''));
+        }
+
+        function hasSpecificGenderItems(items = []) {
+            return items.some(item => {
+                const normalizedGender = normalizeGenderValue(item?.genero, '');
+                return normalizedGender === 'M' || normalizedGender === 'F';
+            });
+        }
+
         function getGenderTabsHTML(allItems) {
             const genders = collectConcreteGenders(allItems);
             const phases = new Set(allItems.map(item => item.fase).filter(Boolean));
-            const hasGenders = genders.has('M') || genders.has('F');
+            const hasGenders = hasGenderData(allItems);
+            const showSplitGenderToggle = hasSpecificGenderItems(allItems);
             const hasPhases = phases.has('Cria');
             
             if (!hasGenders && !hasPhases) return '';
@@ -290,7 +302,7 @@
             const defaultGender = genders.has('M') ? 'M' : 'F';
             let html = `<span class="info-gender-tabs" style="display: inline-flex; gap: 10px; align-items: center; vertical-align: middle;">`;
             
-            // Abas de Fase (à esquerda)
+            // Abas de Fase (Ã  esquerda)
             if (hasPhases) {
                 html += `
                     <span class="glass-pill-toggle phase-toggle-container" style="display: inline-flex; background: rgba(255, 255, 255, 0.04); backdrop-filter: blur(8px); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 30px; padding: 3px; gap: 2px; align-items: center; box-shadow: inset 0 1px 1px rgba(255,255,255,0.05);">
@@ -303,12 +315,13 @@
                 }
             }
             
-            // Abas de Género (à direita)
+            // Abas de Género (Ã  direita)
             if (hasGenders) {
                 html += `
                     <span class="glass-pill-toggle gender-toggle-container" style="display: inline-flex; background: rgba(255, 255, 255, 0.04); backdrop-filter: blur(8px); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 30px; padding: 3px; gap: 2px; align-items: center; box-shadow: inset 0 1px 1px rgba(255,255,255,0.05);">
-                        ${genders.has('M') ? `<button class="gender-tab-btn ${defaultGender === 'M' ? 'active' : ''}" data-gender="M" style="color: ${defaultGender === 'M' ? '#3b82f6' : 'rgba(255,255,255,0.4)'}; background: ${defaultGender === 'M' ? 'rgba(59, 130, 246, 0.12)' : 'transparent'}; border: 1px solid ${defaultGender === 'M' ? 'rgba(59, 130, 246, 0.15)' : 'transparent'}; border-radius: 20px; width: 36px; height: 36px; font-weight: bold; font-size: 1.05rem; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; outline: none; padding: 0; line-height: 1;">♂</button>` : ''}
-                        ${genders.has('F') ? `<button class="gender-tab-btn ${defaultGender === 'F' ? 'active' : ''}" data-gender="F" style="color: ${defaultGender === 'F' ? '#ec4899' : 'rgba(255,255,255,0.4)'}; background: ${defaultGender === 'F' ? 'rgba(236, 72, 153, 0.12)' : 'transparent'}; border: 1px solid ${defaultGender === 'F' ? 'rgba(236, 72, 153, 0.15)' : 'transparent'}; border-radius: 20px; width: 36px; height: 36px; font-weight: bold; font-size: 1.05rem; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; outline: none; padding: 0; line-height: 1;">♀</button>` : ''}
+                        ${showSplitGenderToggle
+                            ? `${genders.has('M') ? `<button class="gender-tab-btn ${defaultGender === 'M' ? 'active' : ''}" data-gender="M" style="color: ${defaultGender === 'M' ? '#3b82f6' : 'rgba(255,255,255,0.4)'}; background: ${defaultGender === 'M' ? 'rgba(59, 130, 246, 0.12)' : 'transparent'}; border: 1px solid ${defaultGender === 'M' ? 'rgba(59, 130, 246, 0.15)' : 'transparent'}; border-radius: 20px; width: 36px; height: 36px; font-weight: bold; font-size: 1.05rem; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; outline: none; padding: 0; line-height: 1;">♂</button>` : ''}${genders.has('F') ? `<button class="gender-tab-btn ${defaultGender === 'F' ? 'active' : ''}" data-gender="F" style="color: ${defaultGender === 'F' ? '#ec4899' : 'rgba(255,255,255,0.4)'}; background: ${defaultGender === 'F' ? 'rgba(236, 72, 153, 0.12)' : 'transparent'}; border: 1px solid ${defaultGender === 'F' ? 'rgba(236, 72, 153, 0.15)' : 'transparent'}; border-radius: 20px; width: 36px; height: 36px; font-weight: bold; font-size: 1.05rem; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; outline: none; padding: 0; line-height: 1;">♀</button>` : ''}`
+                            : `<span style="display: inline-flex; align-items: center; justify-content: center; gap: 2px; border-radius: 20px; width: 36px; height: 36px; background: linear-gradient(135deg, rgba(59, 130, 246, 0.14), rgba(236, 72, 153, 0.14)); border: 1px solid rgba(255,255,255,0.1);"><span style="color: #3b82f6; font-weight: 700; font-size: 0.95rem; line-height: 1;">&#9794;</span><span style="color: #ec4899; font-weight: 700; font-size: 0.95rem; line-height: 1;">&#9792;</span></span>`}
                     </span>
                 `;
             }
@@ -826,7 +839,7 @@
         function renderFeedingStrategyCard(item) {
             const strategy = item.estrategia || item.tipo || '';
             const meta = getFeedingStrategyMeta(strategy);
-            const detail = item.detalhe || feedingStrategyDescriptions[strategy] || 'Estrat�gia alimentar';
+            const detail = item.detalhe || feedingStrategyDescriptions[strategy] || 'Estratï¿½gia alimentar';
             return `
                 <article class="dimension-model-card feeding-strategy-card ${meta.accent}">
                     <div class="dimension-model-icon">${getFeedingStrategySvg(meta.key)}</div>
@@ -969,7 +982,7 @@
             'Plumagem de verão': 'Mais leve, definida e sazonal',
             'Plumagem de camuflagem': 'Mistura-se com o bioma',
             'Plumagem ornamental': 'Usada em exibição e atração',
-            'Plumagem impermeável': 'Adaptada à repelência da água',
+            'Plumagem impermeável': 'Adaptada Ã  repelência da água',
             'Plumagem sexualmente dimórfica': 'Macho e fêmea com visuais distintos',
             'Rémiges': 'Penas de voo das asas',
             'Retrizes': 'Penas da cauda, direção e travagem',
@@ -1052,12 +1065,7 @@
         function renderCuriosidadesVisual(animalData) {
             const curiosidades = animalData.informacao?.curiosidades;
             if (!curiosidades) return '';
-            
-            const colorVal = curiosidades.cor;
-            const statusVal = curiosidades.estadoConservacao;
-            
-            if (!colorVal && !statusVal) return '';
-            
+
             const colorMap = {
                 'Preto': '#111111',
                 'Branco': '#fcfcfc',
@@ -1075,7 +1083,7 @@
                 'Roxo': '#9141ac',
                 'Prateado': '#c0c0c0'
             };
-            
+
             const statusColors = {
                 'NE': { bg: '#5c6773', text: '#ffffff', name: 'Não Avaliado' },
                 'DD': { bg: '#835d90', text: '#ffffff', name: 'Dados Insuficientes' },
@@ -1087,44 +1095,65 @@
                 'EW': { bg: '#542788', text: '#ffffff', name: 'Extinto na Natureza' },
                 'EX': { bg: '#000000', text: '#ffffff', name: 'Extinto' }
             };
-            
-            let colorHTML = '';
-            if (colorVal) {
-                const hexColor = colorMap[colorVal] || '#cccccc';
-                const circleBorder = (colorVal === 'Branco' || colorVal === 'Creme') ? '1px solid rgba(0,0,0,0.2)' : '1px solid rgba(255,255,255,0.1)';
-                colorHTML = `
-                    <article class="dimension-model-card curiosidades-model-card" style="width: 100%; box-sizing: border-box; display: flex; align-items: center;">
-                        <div class="dimension-model-icon" style="flex-shrink: 0; background: rgba(0,0,0,0.3); border: 2px solid rgba(255, 255, 255, 0.2); display: flex; align-items: center; justify-content: center;">
-                            <div style="width: 22px; height: 22px; border-radius: 50%; border: ${circleBorder}; background-color: ${hexColor};"></div>
-                        </div>
-                        <div class="dimension-model-copy" style="display: flex; flex-direction: column; align-items: flex-start; text-align: left;">
-                            <span class="dimension-model-label">${escapeHtml(colorVal)}</span>
-                            <strong class="dimension-model-value">Cor do Animal</strong>
-                        </div>
-                    </article>
-                `;
-            }
-            
-            let statusHTML = '';
-            if (statusVal) {
-                const sColor = statusColors[statusVal] || { bg: '#666', text: '#fff', name: '' };
-                statusHTML = `
+
+            const detailItems = Array.isArray(curiosidades.detalhes) && curiosidades.detalhes.length
+                ? curiosidades.detalhes.filter(item => item?.tipo && item?.valor)
+                : [
+                    curiosidades.cor ? { tipo: 'Cor do animal', valor: curiosidades.cor, genero: 'MF', fase: 'Adulto' } : null,
+                    curiosidades.estadoConservacao ? { tipo: 'Estado de Conservação', valor: curiosidades.estadoConservacao, genero: 'MF', fase: 'Adulto' } : null
+                ].filter(Boolean);
+
+            if (!detailItems.length) return '';
+
+            const getGenderLabel = (gender) => {
+                if (gender === 'M') return '♂ Macho';
+                if (gender === 'F') return '♀ Fêmea';
+                return '♂♀ Macho e fêmea';
+            };
+
+            const renderMeta = (item) => `
+                <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px;">
+                    <span style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 8px; border-radius: 999px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08); color: rgba(255,255,255,0.72); font-size: 0.72rem; font-weight: 600;">${escapeHtml(getGenderLabel(item.genero || 'MF'))}</span>
+                    <span style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 8px; border-radius: 999px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08); color: rgba(255,255,255,0.72); font-size: 0.72rem; font-weight: 600;">${item.fase === 'Cria' ? '👶 Cria' : '🐾 Adulto'}</span>
+                </div>
+            `;
+
+            const cardsHtml = detailItems.map(item => {
+                if (item.tipo === 'Cor do animal') {
+                    const hexColor = colorMap[item.valor] || '#cccccc';
+                    const circleBorder = (item.valor === 'Branco' || item.valor === 'Creme') ? '1px solid rgba(0,0,0,0.2)' : '1px solid rgba(255,255,255,0.1)';
+                    return `
+                        <article class="dimension-model-card curiosidades-model-card" style="width: 100%; box-sizing: border-box; display: flex; align-items: center;">
+                            <div class="dimension-model-icon" style="flex-shrink: 0; background: rgba(0,0,0,0.3); border: 2px solid rgba(255, 255, 255, 0.2); display: flex; align-items: center; justify-content: center;">
+                                <div style="width: 22px; height: 22px; border-radius: 50%; border: ${circleBorder}; background-color: ${hexColor};"></div>
+                            </div>
+                            <div class="dimension-model-copy" style="display: flex; flex-direction: column; align-items: flex-start; text-align: left;">
+                                <span class="dimension-model-label">${escapeHtml(item.valor)}</span>
+                                <strong class="dimension-model-value">Cor do Animal</strong>
+                                ${renderMeta(item)}
+                            </div>
+                        </article>
+                    `;
+                }
+
+                const sColor = statusColors[item.valor] || { bg: '#666', text: '#fff', name: item.valor };
+                return `
                     <article class="dimension-model-card curiosidades-model-card" style="width: 100%; box-sizing: border-box; display: flex; align-items: center;">
                         <div class="dimension-model-icon" style="flex-shrink: 0; background: ${sColor.bg}; color: ${sColor.text}; font-weight: 800; font-size: 1.05rem; text-transform: uppercase; display: flex; align-items: center; justify-content: center;">
-                            ${escapeHtml(statusVal)}
+                            ${escapeHtml(item.valor)}
                         </div>
                         <div class="dimension-model-copy" style="display: flex; flex-direction: column; align-items: flex-start; text-align: left;">
                             <span class="dimension-model-label">${escapeHtml(sColor.name)}</span>
                             <strong class="dimension-model-value">Estado de Conservação</strong>
+                            ${renderMeta(item)}
                         </div>
                     </article>
                 `;
-            }
-            
+            }).join('' );
+
             return `
                 <div class="curiosidades-model-grid" style="display: flex; flex-direction: column; gap: 12px; margin-top: 16px; width: 100%; box-sizing: border-box;">
-                    ${colorHTML}
-                    ${statusHTML}
+                    ${cardsHtml}
                 </div>
             `;
         }
@@ -1244,7 +1273,11 @@
                                     hasDistribicaoText);
 
             const hasCuriosidadesText = animalData.informacao?.curiosidades?.texto && animalData.informacao.curiosidades.texto.trim() !== "";
-            const hasCuriosidadesVisual = animalData.informacao?.curiosidades && (animalData.informacao.curiosidades.cor || animalData.informacao.curiosidades.estadoConservacao);
+            const hasCuriosidadesVisual = animalData.informacao?.curiosidades && (
+                animalData.informacao.curiosidades.cor ||
+                animalData.informacao.curiosidades.estadoConservacao ||
+                (Array.isArray(animalData.informacao.curiosidades.detalhes) && animalData.informacao.curiosidades.detalhes.some(item => item?.tipo && item?.valor))
+            );
             const hasCuriosidades = hasCuriosidadesText || hasCuriosidadesVisual;
 
             console.log("Section flags:", {
@@ -1337,12 +1370,12 @@
                 ${animalData.ordem ? `<div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px;"><strong style="color: var(--text-secondary);">Ordem:</strong> <span style="color: var(--text-primary); font-weight: 500;">${escapeHtml(animalData.ordem)}</span></div>` : ''}
                 ${animalData.subordem ? `<div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px;"><strong style="color: var(--text-secondary);">Subordem:</strong> <span style="color: var(--text-primary); font-weight: 500;">${escapeHtml(animalData.subordem)}</span></div>` : ''}
                 ${animalData.infraordem ? `<div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px;"><strong style="color: var(--text-secondary);">Infraordem:</strong> <span style="color: var(--text-primary); font-weight: 500;">${escapeHtml(animalData.infraordem)}</span></div>` : ''}
-                ${animalData.familia ? `<div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px;"><strong style="color: var(--text-secondary);">FamÃ­lia:</strong> <span style="color: var(--text-primary); font-weight: 500;">${escapeHtml(animalData.familia)}</span></div>` : ''}
-                ${animalData.genero ? `<div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px;"><strong style="color: var(--text-secondary);">GÃ©nero:</strong> <span style="color: var(--text-primary); font-weight: 500; font-style: italic;">${escapeHtml(animalData.genero)}</span></div>` : ''}
-                ${animalData.especie ? `<div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px;"><strong style="color: var(--text-secondary);">EspÃ©cie:</strong> <span style="color: var(--text-primary); font-weight: 500; font-style: italic;">${escapeHtml(animalData.especie)}</span></div>` : ''}
+                ${animalData.familia ? `<div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px;"><strong style="color: var(--text-secondary);">Família:</strong> <span style="color: var(--text-primary); font-weight: 500;">${escapeHtml(animalData.familia)}</span></div>` : ''}
+                ${animalData.genero ? `<div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px;"><strong style="color: var(--text-secondary);">Género:</strong> <span style="color: var(--text-primary); font-weight: 500; font-style: italic;">${escapeHtml(animalData.genero)}</span></div>` : ''}
+                ${animalData.especie ? `<div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px;"><strong style="color: var(--text-secondary);">Espécie:</strong> <span style="color: var(--text-primary); font-weight: 500; font-style: italic;">${escapeHtml(animalData.especie)}</span></div>` : ''}
                 ${(Array.isArray(animalData.subespeciesDe) && animalData.subespeciesDe.length > 0) ? `
                 <div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px;">
-                    <strong style="color: var(--text-secondary);">SubespÃ©cie de:</strong>
+                    <strong style="color: var(--text-secondary);">Subespécie de:</strong>
                     <span class="subespecies-names" style="color: var(--text-primary); font-weight: 500;">Carregando...</span>
                 </div>` : ''}
             ` : '';
@@ -1350,7 +1383,7 @@
             const scientificClassificationSectionDesktopHTML = hasScientificClassification ? `
                 <div class="info-section-card desktop-only" id="info-classificacao" style="margin-top: 24px; border-color: rgba(139, 92, 246, 0.3); background: linear-gradient(135deg, rgba(6, 182, 212, 0.04), rgba(236, 72, 153, 0.04), rgba(9, 9, 20, 0.85)); padding: 24px; box-shadow: 0 8px 32px rgba(139, 92, 246, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.02);">
                     <h3 style="font-size: 1.25rem; margin-bottom: 14px; padding-bottom: 8px; display: flex; align-items: center; border-bottom: 1px solid var(--border-color); color: var(--text-primary);">
-                        <span class="icon" style="margin-right: 10px; display: inline-flex;"><i class="fa-solid fa-dna" style="font-size: 1.1rem; background: linear-gradient(135deg, #06b6d4, #ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"></i></span>ClassificaÃ§Ã£o cientÃ­fica
+                        <span class="icon" style="margin-right: 10px; display: inline-flex;"><i class="fa-solid fa-dna" style="font-size: 1.1rem; background: linear-gradient(135deg, #06b6d4, #ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"></i></span>Classificação científica
                     </h3>
                     <div class="classification-grid" style="display: flex; flex-direction: column; gap: 8px; font-size: 0.95rem;">
                         ${scientificClassificationRowsHTML}
@@ -1360,7 +1393,7 @@
 
             const scientificClassificationSectionMobileHTML = hasScientificClassification ? `
                 <div class="info-section" id="info-classificacao-mobile">
-                    <h3><span class="icon" style="margin-right: 10px; display: inline-flex;"><i class="fa-solid fa-dna" style="font-size: 1.1rem; background: linear-gradient(135deg, #06b6d4, #ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"></i></span>ClassificaÃ§Ã£o cientÃ­fica</h3>
+                    <h3><span class="icon" style="margin-right: 10px; display: inline-flex;"><i class="fa-solid fa-dna" style="font-size: 1.1rem; background: linear-gradient(135deg, #06b6d4, #ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"></i></span>Classificação científica</h3>
                     <div class="classification-grid" style="display: flex; flex-direction: column; gap: 8px; font-size: 0.95rem; margin-top: 15px;">
                         ${scientificClassificationRowsHTML}
                     </div>
@@ -1368,15 +1401,15 @@
             ` : '';
 
             const sanitizeScientificClassificationHtml = (html = '') => html
-                .replaceAll('ClassificaÃƒÂ§ÃƒÂ£o cientÃƒÂ­fica', 'Classificação científica')
-                .replaceAll('FamÃƒÂ­lia:', 'Família:')
-                .replaceAll('GÃƒÂ©nero:', 'Género:')
-                .replaceAll('EspÃƒÂ©cie:', 'Espécie:')
-                .replaceAll('SubespÃƒÂ©cie de:', 'Subespécie de:')
-                .replaceAll('FamÃ­lia:', 'Família:')
-                .replaceAll('GÃ©nero:', 'Género:')
-                .replaceAll('EspÃ©cie:', 'Espécie:')
-                .replaceAll('SubespÃ©cie de:', 'Subespécie de:');
+                .replaceAll('Classificação científica', 'Classificação científica')
+                .replaceAll('Família:', 'Família:')
+                .replaceAll('Género:', 'Género:')
+                .replaceAll('Espécie:', 'Espécie:')
+                .replaceAll('Subespécie de:', 'Subespécie de:')
+                .replaceAll('Família:', 'Família:')
+                .replaceAll('Género:', 'Género:')
+                .replaceAll('Espécie:', 'Espécie:')
+                .replaceAll('Subespécie de:', 'Subespécie de:');
             const scientificClassificationSectionDesktopCleanHTML = sanitizeScientificClassificationHtml(scientificClassificationSectionDesktopHTML);
             const scientificClassificationSectionMobileCleanHTML = sanitizeScientificClassificationHtml(scientificClassificationSectionMobileHTML);
             const forceScientificClassificationHtml = (html = '') => html
