@@ -1139,6 +1139,13 @@
             }
         }
 
+
+        .dimension-model-card.accent-tongue {
+            --model-accent: #fb7185;
+            --model-accent-soft: rgba(251, 113, 133, 0.18);
+            --model-accent-glow: rgba(244, 63, 94, 0.30);
+        }
+
         .reproduction-model-card.accent-food {
             border-color: rgba(16, 185, 129, 0.26);
             background: linear-gradient(135deg, rgba(16, 185, 129, 0.10), rgba(255, 255, 255, 0.025));
@@ -2272,6 +2279,7 @@
             { label: 'Altura ao ombro', unit: 'm' },
             { label: 'Comprimento total', unit: 'm' },
             { label: 'Comprimento do corpo', unit: 'cm' },
+            { label: 'Comprimento da língua', unit: 'cm' },
             { label: 'Peso', unit: 'kg' },
             { label: 'Largura do corpo', unit: 'cm' },
             { label: 'Altura do corpo', unit: 'cm' },
@@ -3056,6 +3064,7 @@
             if (normalized.includes('envergadura')) return { key: 'envergadura', title: metric || 'Envergadura', accent: 'accent-wing' };
             if (normalized.includes('asa')) return { key: 'asa', title: metric || 'Comprimento da asa', accent: 'accent-wing' };
             if (normalized.includes('bico')) return { key: 'bico', title: metric || 'Comprimento do bico', accent: 'accent-beak' };
+            if (normalized.includes('lingua')) return { key: 'lingua', title: metric || 'Comprimento da língua', accent: 'accent-tongue' };
             if (normalized.includes('cauda')) return { key: 'cauda', title: metric || 'Comprimento da cauda', accent: 'accent-tail' };
             if (normalized.includes('molares') || normalized.includes('molar')) return { key: 'molares', title: metric || 'Comprimento de grandes molares', accent: 'accent-beak' };
             if (normalized.includes('pata')) return { key: 'patas', title: metric || 'Comprimento das patas', accent: 'accent-leg' };
@@ -3136,6 +3145,7 @@
                 largura: `<svg class="metric-model-svg metric-width" viewBox="0 0 80 80" fill="none" aria-hidden="true"><ellipse cx="40" cy="41" rx="21" ry="27"/><path d="M18 41h44"/><path d="M18 41l7-7"/><path d="M18 41l7 7"/><path d="M62 41l-7-7"/><path d="M62 41l-7 7"/></svg>`,
                 diametro: `<svg class="metric-model-svg metric-diameter" viewBox="0 0 80 80" fill="none" aria-hidden="true"><circle cx="40" cy="40" r="25"/><path d="M15 40h50"/><path d="M15 40l7-7"/><path d="M15 40l7 7"/><path d="M65 40l-7-7"/><path d="M65 40l-7 7"/></svg>`,
                 bico: `<svg class="metric-model-svg metric-beak" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M13 44c8-15 22-24 37-22c8 1 13 5 16 11h8L61 44H42l-9 9H18l5-9H13Z"/><path d="M57 33h17"/><path d="M57 44h17"/><circle cx="35" cy="31" r="3"/></svg>`,
+                lingua: `<svg class="metric-model-svg metric-tongue" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M15 39c8-13 22-20 37-18c8 1 14 5 17 11"/><path d="M18 49c10 8 25 10 39 3c8-4 13-10 13-18"/><path d="M35 48c7 11 21 16 31 8c6-5 6-14-1-18c-9-5-19 4-24 11"/><path d="M38 52c7 4 15 4 22-1"/><circle cx="35" cy="31" r="3"/></svg>`,
                 cauda: `<svg class="metric-model-svg metric-tail" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M16 44h19"/><path d="M35 44L66 22"/><path d="M35 44L70 44"/><path d="M35 44L66 66"/><path d="M15 33v22"/><path d="M54 22v44"/></svg>`,
                 'peso-cauda': `<svg class="metric-model-svg metric-tail-weight" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M12 44h17"/><path d="M29 44L58 23"/><path d="M29 44L62 44"/><path d="M29 44L58 65"/><path d="M56 13v12"/><path d="M48 19h16"/><path d="M51 26h10"/></svg>`,
                 asa: `<svg class="metric-model-svg metric-wing" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M14 55C27 30 44 16 67 13C63 34 51 52 30 66H14V55Z"/><path d="M31 28C38 36 42 46 43 59"/><path d="M45 21C51 30 53 40 53 50"/></svg>`,
@@ -3159,11 +3169,12 @@
                 envergadura: 5,
                 asa: 6,
                 bico: 7,
-                'peso-bico': 8,
-                cauda: 9,
-                'peso-cauda': 10,
-                patas: 11,
-                ovo: 12,
+                lingua: 8,
+                'peso-bico': 9,
+                cauda: 10,
+                'peso-cauda': 11,
+                patas: 12,
+                ovo: 13,
                 medida: 99
             };
             return order[key] ?? 50;
