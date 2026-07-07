@@ -254,6 +254,14 @@
                 titlePrefix = 'Ranking: ';
                 filterValue = 'Mais Espesso';
                 isRanking = true;
+            } else if (filterType === 'pais') {
+                iconClass = 'fa-earth-americas';
+                titlePrefix = 'País: ';
+                // Use the country name from URL if available
+                const countryName = params.get('nome');
+                if (countryName) {
+                    filterValue = countryName;
+                }
             }
 
             document.title = `${filterValue} - Grandes Projetos`;
@@ -362,6 +370,13 @@
                                     return cat[k] === true && keyClean === targetClean;
                                 });
                             }
+                        } else if (filterType === 'pais') {
+                            const paises = animalData.informacao?.distribuicao?.paises || [];
+                            const targetCode = filterValue.trim().toUpperCase();
+                            // If filterValue is a country code (2 letters), match directly
+                            // Otherwise try using params valor
+                            const codeToMatch = params.get('valor')?.trim().toUpperCase() || targetCode;
+                            match = paises.some(p => p.toUpperCase() === codeToMatch);
                         } else if (filterType === 'familia') {
                             match = animalData.familia && animalData.familia.trim().toLowerCase() === filterValue.trim().toLowerCase();
                         } else {

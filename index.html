@@ -15,12 +15,13 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- CSS Global -->
-    <link rel="stylesheet" href="css/style.css?v=1.0.4">
+    <link rel="stylesheet" href="css/style.css?v=1.0.6">
+    <link rel="stylesheet" href="css/globe-search.css?v=1.0.7">
     <script src="js/runtime-guard.js"></script>
     <script>
         // Forçar limpeza de cache e service workers se houver atualização
         (async function() {
-            const VERSION = 'v1.0.42';
+            const VERSION = 'v1.0.50';
             if (localStorage.getItem('app_cache_version') !== VERSION) {
                 try {
                     if ('serviceWorker' in navigator) {
@@ -84,6 +85,23 @@
 
             <p id="loading-message">A carregar animais...</p>
             <div class="categories-container" id="categories-list" style="display: none;"></div>
+        </div>
+
+        <!-- Globe Country Search Card -->
+        <div class="globe-search-card" id="globeSearchCard" style="display: none; background-image: url('assets/capas/paradisaea_raggiana_original.png');">
+            <div class="globe-search-card-inner">
+                <div class="globe-search-header">
+                    <i class="fa-solid fa-magnifying-glass globe-icon"></i>
+                    <h2>Pesquise pelo Globo!</h2>
+                </div>
+                <div class="globe-search-wrapper">
+                    <div class="globe-search-input-wrap">
+                        <input type="text" id="globeCountryInput" placeholder="Pesquise por um país..." autocomplete="off">
+                        <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                    </div>
+                    <div class="globe-search-results" id="globeSearchResults"></div>
+                </div>
+            </div>
         </div>
 
         <div class="main-layout" id="mainLayout">
@@ -225,9 +243,10 @@
             if (!wrapper) return;
             wrapper.innerHTML = '';
 
-            let order = ["estrategia-alimento", "acasalamento", "zona-climatica", "categoria", "familia", "estatisticas"];
+            let order = ["pesquisa-globo", "estrategia-alimento", "acasalamento", "zona-climatica", "categoria", "familia", "estatisticas"];
             let subStatsOrder = ["mais-velozes", "mais-vida-util", "mais-altos", "mais-pesados", "mais-largo", "mais-espesso"];
             let active = {
+                "pesquisa-globo": true,
                 "estrategia-alimento": true,
                 "acasalamento": false,
                 "zona-climatica": false,
@@ -427,7 +446,22 @@
             let estatisticasContainer = null;
 
             order.forEach(key => {
-                if (!active[key]) return;
+                if (!active[key]) {
+                    // If pesquisa-globo is inactive, ensure the card is hidden
+                    if (key === 'pesquisa-globo' && globeCard) {
+                        globeCard.style.display = 'none';
+                    }
+                    return;
+                }
+
+                // Handle the globe search card separately
+                if (key === 'pesquisa-globo') {
+                    if (globeCard) {
+                        globeCard.style.display = 'flex';
+                        wrapper.appendChild(globeCard);
+                    }
+                    return;
+                }
 
                 if (key === 'estatisticas') {
                     const activeRankings = [];
@@ -598,6 +632,84 @@
             }
         });
         
+        // ===== Globe Country Search Logic =====
+        let countriesMap = {};
+        const globeCard = document.getElementById('globeSearchCard');
+        const globeInput = document.getElementById('globeCountryInput');
+        const globeResults = document.getElementById('globeSearchResults');
+
+        async function loadCountriesForGlobe() {
+            try {
+                const res = await fetch('js/countries.json');
+                countriesMap = await res.json();
+            } catch (err) {
+                console.error("Erro ao carregar countries.json:", err);
+            }
+        }
+
+        function codeToFlag(code) {
+            return code.toUpperCase().replace(/./g, char =>
+                String.fromCodePoint(127397 + char.charCodeAt(0))
+            );
+        }
+
+        function removeAccents(str) {
+            return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        }
+
+        function handleGlobeSearch() {
+            const query = removeAccents(globeInput.value.toLowerCase().trim());
+            globeResults.innerHTML = '';
+
+            if (!query) {
+                globeResults.classList.remove('active');
+                return;
+            }
+
+            const matches = [];
+            for (const [code, name] of Object.entries(countriesMap)) {
+                const normalizedName = removeAccents(name.toLowerCase());
+                if (normalizedName.includes(query)) {
+                    matches.push({ code, name });
+                }
+            }
+
+            if (matches.length === 0) {
+                globeResults.innerHTML = '<div class="globe-search-no-results">Nenhum país encontrado</div>';
+                globeResults.classList.add('active');
+                return;
+            }
+
+            // Limit to 20 results for performance
+            matches.slice(0, 20).forEach(({ code, name }) => {
+                const item = document.createElement('a');
+                item.className = 'globe-search-result-item';
+                item.href = `filtros.html?tipo=pais&valor=${encodeURIComponent(code)}&nome=${encodeURIComponent(name)}`;
+                item.innerHTML = `
+                    <span class="flag-emoji">${codeToFlag(code)}</span>
+                    <span class="country-name">${name}</span>
+                    <span class="country-code">${code}</span>
+                `;
+                globeResults.appendChild(item);
+            });
+
+            globeResults.classList.add('active');
+        }
+
+        if (globeInput) {
+            globeInput.addEventListener('input', handleGlobeSearch);
+        }
+
+        // Close globe results on click outside
+        document.addEventListener('click', (event) => {
+            if (!event.target.closest('.globe-search-wrapper')) {
+                globeResults.classList.remove('active');
+            }
+        });
+
+        // Initialize globe search
+        loadCountriesForGlobe();
+
         fetchAllAnimals();
     </script>
     <!-- Service Worker PWA -->

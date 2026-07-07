@@ -1,4 +1,4 @@
-const CACHE_NAME = 'animals-app-v1.0.36';
+const CACHE_NAME = 'animals-app-v1.0.37';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -6,6 +6,7 @@ const ASSETS_TO_CACHE = [
   './categories.html',
   './filtros.html',
   './css/style.css',
+  './css/globe-search.css',
   './js/components.js',
   './js/countries.json',
   './js/feeding-animal-options.js',

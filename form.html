@@ -1140,6 +1140,11 @@
                         <div class="autocomplete-results" id="classeResults"></div>
                     </div>
                     <div class="form-group autocomplete-container">
+                        <label for="superordem">Superordem</label>
+                        <input type="text" id="superordem" autocomplete="off" placeholder="Ex: Euarchontoglires">
+                        <div class="autocomplete-results" id="superordemResults"></div>
+                    </div>
+                    <div class="form-group autocomplete-container">
                         <label for="ordem">Ordem</label>
                         <input type="text" id="ordem" autocomplete="off" placeholder="Ex: Primates">
                         <div class="autocomplete-results" id="ordemResults"></div>
@@ -1794,6 +1799,7 @@
         let existingFilos = new Set();
         let existingSubfilos = new Set();
         let existingClasses = new Set();
+        let existingSuperordens = new Set();
         let existingOrdens = new Set();
         let existingSubordens = new Set();
         let existingInfraordens = new Set();
@@ -1824,6 +1830,8 @@
         const subfiloResultsContainer = document.getElementById('subfiloResults');
         const classeInput = document.getElementById('classe');
         const classeResultsContainer = document.getElementById('classeResults');
+        const superordemInput = document.getElementById('superordem');
+        const superordemResultsContainer = document.getElementById('superordemResults');
         const ordemInput = document.getElementById('ordem');
         const ordemResultsContainer = document.getElementById('ordemResults');
         const subordemInput = document.getElementById('subordem');
@@ -2387,6 +2395,7 @@
                     filo: document.getElementById('filo').value.trim(),
                     subfilo: document.getElementById('subfilo').value.trim(),
                     classe: document.getElementById('classe').value.trim(),
+                    superordem: document.getElementById('superordem').value.trim(),
                     ordem: document.getElementById('ordem').value.trim(),
                     subordem: document.getElementById('subordem').value.trim(),
                     infraordem: document.getElementById('infraordem').value.trim(),
@@ -4040,6 +4049,7 @@
             existingFilos.clear();
             existingSubfilos.clear();
             existingClasses.clear();
+            existingSuperordens.clear();
             existingOrdens.clear();
             existingSubordens.clear();
             existingInfraordens.clear();
@@ -4051,6 +4061,7 @@
                 if (animal.filo) existingFilos.add(animal.filo);
                 if (animal.subfilo) existingSubfilos.add(animal.subfilo);
                 if (animal.classe) existingClasses.add(animal.classe);
+                if (animal.superordem) existingSuperordens.add(animal.superordem);
                 if (animal.ordem) existingOrdens.add(animal.ordem);
                 if (animal.subordem) existingSubordens.add(animal.subordem);
                 if (animal.infraordem) existingInfraordens.add(animal.infraordem);
@@ -4099,6 +4110,7 @@
         setupAutocomplete(filoInput, filoResultsContainer, existingFilos);
         setupAutocomplete(subfiloInput, subfiloResultsContainer, existingSubfilos);
         setupAutocomplete(classeInput, classeResultsContainer, existingClasses);
+        setupAutocomplete(superordemInput, superordemResultsContainer, existingSuperordens);
         setupAutocomplete(ordemInput, ordemResultsContainer, existingOrdens);
         setupAutocomplete(subordemInput, subordemResultsContainer, existingSubordens);
         setupAutocomplete(infraordemInput, infraordemResultsContainer, existingInfraordens);
@@ -4244,6 +4256,7 @@
             document.getElementById('filo').value = animal.filo || '';
             document.getElementById('subfilo').value = animal.subfilo || '';
             document.getElementById('classe').value = animal.classe || '';
+            document.getElementById('superordem').value = animal.superordem || '';
             document.getElementById('ordem').value = animal.ordem || '';
             document.getElementById('subordem').value = animal.subordem || '';
             document.getElementById('infraordem').value = animal.infraordem || '';
@@ -4423,6 +4436,7 @@
                     'filo': 'filo',
                     'subfilo': 'subfilo',
                     'classe': 'classe',
+                    'superordem': 'superordem',
                     'ordem': 'ordem',
                     'subordem': 'subordem',
                     'infraordem': 'infraordem',
@@ -4454,7 +4468,7 @@
         function parseClassificationText(text) {
             const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
             const result = {};
-            const knownKeys = ['reino', 'filo', 'subfilo', 'classe', 'ordem', 'subordem', 'infraordem', 'família', 'familia', 'género', 'genero', 'espécie', 'espécies', 'especie', 'especies'];
+            const knownKeys = ['reino', 'filo', 'subfilo', 'classe', 'superordem', 'ordem', 'subordem', 'infraordem', 'família', 'familia', 'género', 'genero', 'espécie', 'espécies', 'especie', 'especies'];
             
             let parsedAnySeparator = false;
             for (let line of lines) {

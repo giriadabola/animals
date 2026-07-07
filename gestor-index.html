@@ -395,6 +395,10 @@
 
         // High level sections definitions
         const sectionDefs = {
+            "pesquisa-globo": {
+                title: "Pesquisa pelo Globo",
+                desc: "Card grande com pesquisa por países. Permite pesquisar animais pela sua distribuição geográfica."
+            },
             "estrategia-alimento": {
                 title: "Estratégia para obter alimento",
                 desc: "Agrupa animais pelas suas estratégias alimentares (Mergulho, Emboscada, Caça, etc.)."
@@ -405,7 +409,7 @@
             },
             "zona-climatica": {
                 title: "Zona climática",
-                desc: "Agrupa animais pelas suas preferÃªncias climÃ¡ticas (Tropical, Polar, DesÃ©rtica, etc.)."
+                desc: "Agrupa animais pelas suas preferências climáticas (Tropical, Polar, Desértica, etc.)."
             },
             "categoria": {
                 title: "Categoria",
@@ -431,8 +435,9 @@
             "mais-espesso": { title: "Mais Espesso", icon: "fa-ruler-combined" }
         };
 
-        let currentOrder = ["estrategia-alimento", "acasalamento", "zona-climatica", "categoria", "familia", "estatisticas"];
+        let currentOrder = ["pesquisa-globo", "estrategia-alimento", "acasalamento", "zona-climatica", "categoria", "familia", "estatisticas"];
         let currentActive = {
+            "pesquisa-globo": true,
             "estrategia-alimento": true,
             "acasalamento": false,
             "zona-climatica": false,
