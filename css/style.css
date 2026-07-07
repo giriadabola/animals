@@ -1869,7 +1869,7 @@ button[type="submit"]:hover {
     }
 }
 
-/* DimensÃµes estruturadas + modelo visual */
+/* Dimensões estruturadas + modelo visual */
 .dimensions-fieldset {
     background: rgba(255, 255, 255, 0.025);
 }
@@ -2203,7 +2203,7 @@ button[type="submit"]:hover {
 }
 
 
-/* Modelos visuais de dimensÃµes com Ã­cones prÃ³prios */
+/* Modelos visuais de dimensões com ícones próprios */
 .animal-silhouette,
 .dimensions-visual-card .visual-icon {
     color: rgba(248, 250, 252, 0.92);
@@ -2378,7 +2378,7 @@ button[type="submit"]:hover {
 }
 
 
-/* CorreÃ§Ã£o perita: silhuetas anatÃ³micas em SVG, nÃ£o emojis/rabiscos */
+/* Correção perita: silhuetas anatómicas em SVG, não emojis/rabiscos */
 .animal-model-svg .animal-line,
 .metric-model-svg path,
 .metric-model-svg circle,
@@ -2429,7 +2429,7 @@ button[type="submit"]:hover {
 }
 
 
-/* Ave redesenhada: silhueta reconhecÃ­vel, com cabeÃ§a, bico, asa, cauda e patas */
+/* Ave redesenhada: silhueta reconhecível, com cabeça, bico, asa, cauda e patas */
 .real-bird-model {
     width: clamp(220px, 42vw, 330px);
     color: rgba(248, 250, 252, 0.94);
@@ -2488,7 +2488,7 @@ button[type="submit"]:hover {
 }
 
 
-/* NÃ£o mostrar placeholders de dimensÃµes nÃ£o preenchidas */
+/* Não mostrar placeholders de dimensões não preenchidas */
 .weight-badge.is-empty,
 .length-ruler.is-empty,
 .height-ruler.is-empty {
@@ -2608,7 +2608,7 @@ button[type="submit"]:hover {
     animation: fadeIn 0.3s ease-in-out;
 }
 
-/* Sub-tabs Navigation inside DimensÃµes */
+/* Sub-tabs Navigation inside Dimensões */
 .sub-tabs-navigation {
     display: flex;
     gap: 8px;
@@ -2656,7 +2656,7 @@ button[type="submit"]:hover {
     to { opacity: 1; transform: translateY(0); }
 }
 
-/* ReproduÃ§Ã£o estruturada + modelo visual */
+/* Reprodução estruturada + modelo visual */
 .reproduction-layout {
     display: grid;
     grid-template-columns: minmax(0, 1.15fr) minmax(280px, 0.85fr);
@@ -2837,7 +2837,7 @@ button[type="submit"]:hover {
     fill: none;
 }
 
-/* AlimentaÃ§Ã£o usa o mesmo padrÃ£o visual da reproduÃ§Ã£o, mas com medidas mais compactas. */
+/* Alimentação usa o mesmo padrão visual da reprodução, mas com medidas mais compactas. */
 .feeding-layout {
     grid-template-columns: minmax(0, 1fr) minmax(260px, 0.9fr);
     gap: 22px;
@@ -3427,7 +3427,7 @@ button[type="submit"]:hover {
     }
 }
 
-/* DistribuiÃ§Ã£o tab & maps */
+/* Distribuição tab & maps */
 .distribution-layout {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(320px, 1.2fr);
@@ -3559,7 +3559,7 @@ button[type="submit"]:hover {
 }
 
 
-/* Ovos de aves Ã¢â‚¬â€ ReproduÃ§Ã£o > Modelo Visual */
+/* Ovos de aves — Reprodução > Modelo Visual */
 .bird-eggs-visual-panel {
     grid-column: 1 / -1;
     margin-top: 16px;
@@ -3687,7 +3687,7 @@ button[type="submit"]:hover {
 }
 
 
-/* Ovos escolhidos Ã¢â‚¬â€ cartÃµes individuais em ReproduÃ§Ã£o > Modelo Visual */
+/* Ovos escolhidos — cartões individuais em Reprodução > Modelo Visual */
 .bird-egg-selected-card {
     align-items: center;
     min-height: 118px;
@@ -3728,7 +3728,7 @@ button[type="submit"]:hover {
 }
 
 
-/* InformaÃ§Ã£o Geral Ã¢â‚¬â€ Modelo Visual */
+/* Informação Geral — Modelo Visual */
 .general-info-section {
     display: block;
     padding: 24px;
@@ -4474,7 +4474,7 @@ button[type="submit"]:hover {
     --local-gradient: linear-gradient(135deg, #fdbb2d, #f43f5e) !important;
 }
 
-/* UtilitÃ¡rio para ocultar elementos em ecrÃ£s mÃ³veis (PWA / Mobile) */
+/* Utilitário para ocultar elementos em ecrãs móveis (PWA / Mobile) */
 @media (max-width: 768px) {
     .hide-on-mobile {
         display: none !important;
@@ -4561,7 +4561,7 @@ button[type="submit"]:hover {
     }
 }
 
-/* ForÃ§ar o mesmo tamanho para a segunda linha de todos os cards de modelos visuais */
+/* Forçar o mesmo tamanho para a segunda linha de todos os cards de modelos visuais */
 .dimension-model-card .dimension-model-value,
 .reproduction-model-card .dimension-model-value,
 .feeding-model-card .dimension-model-value,
