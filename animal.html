@@ -499,28 +499,28 @@
             return zones[normalized] || null;
         }
 
-        function getHabitatMeta(value = '') {
+        function getBiomaMeta(value = '') {
             const normalized = normalizeDimensionKey(value).replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
-            const habitats = {
-                bosque: { image: 'assets/habitats/03_Bosque.png', accent: 'accent-habitat-bosque' },
-                calota_de_gelo: { image: 'assets/habitats/07_Calota_de_Gelo.png', accent: 'accent-habitat-calota-gelo' },
-                caverna: { image: 'assets/habitats/05_Caverna.png', accent: 'accent-habitat-caverna' },
-                chaparral: { image: 'assets/habitats/10_Chaparral.png', accent: 'accent-habitat-chaparral' },
-                duna: { image: 'assets/habitats/06_Duna.png', accent: 'accent-habitat-duna' },
-                estepe: { image: 'assets/habitats/09_Estepe.png', accent: 'accent-habitat-estepe' },
-                fauna_urbana: { image: 'assets/habitats/12_Fauna_Urbana.png', accent: 'accent-habitat-fauna-urbana' },
-                marinho: { image: 'assets/habitats/01_Marinho.png', accent: 'accent-habitat-marinho' },
-                montanha: { image: 'assets/habitats/11_Montanha.png', accent: 'accent-habitat-montanha' },
-                pantano: { image: 'assets/habitats/04_Pantano.png', accent: 'accent-habitat-pantano' },
-                pradaria: { image: 'assets/habitats/08_Pradaria.png', accent: 'accent-habitat-pradaria' },
-                savana: { image: 'assets/habitats/02_Savana.png', accent: 'accent-habitat-savana' },
-                floresta: { image: 'assets/habitats/16_Floresta.png', accent: 'accent-habitat-floresta' },
-                matagal: { image: 'assets/habitats/17_Matagal.png', accent: 'accent-habitat-matagal' },
-                costa: { image: 'assets/habitats/14_Costa.png', accent: 'accent-habitat-costa' },
-                areas_rochosas: { image: 'assets/habitats/15_Areas_Rochosas.png', accent: 'accent-habitat-areas-rochosas' },
-                marinho_corais: { image: 'assets/habitats/13_Marinho_corais.png', accent: 'accent-habitat-marinho-corais' }
+            const biomas = {
+                bosque: { image: 'assets/bioma/03_Bosque.png', accent: 'accent-bioma-bosque' },
+                calota_de_gelo: { image: 'assets/bioma/07_Calota_de_Gelo.png', accent: 'accent-bioma-calota-gelo' },
+                caverna: { image: 'assets/bioma/05_Caverna.png', accent: 'accent-bioma-caverna' },
+                chaparral: { image: 'assets/bioma/10_Chaparral.png', accent: 'accent-bioma-chaparral' },
+                duna: { image: 'assets/bioma/06_Duna.png', accent: 'accent-bioma-duna' },
+                estepe: { image: 'assets/bioma/09_Estepe.png', accent: 'accent-bioma-estepe' },
+                fauna_urbana: { image: 'assets/bioma/12_Fauna_Urbana.png', accent: 'accent-bioma-fauna-urbana' },
+                marinho: { image: 'assets/bioma/01_Marinho.png', accent: 'accent-bioma-marinho' },
+                montanha: { image: 'assets/bioma/11_Montanha.png', accent: 'accent-bioma-montanha' },
+                pantano: { image: 'assets/bioma/04_Pantano.png', accent: 'accent-bioma-pantano' },
+                pradaria: { image: 'assets/bioma/08_Pradaria.png', accent: 'accent-bioma-pradaria' },
+                savana: { image: 'assets/bioma/02_Savana.png', accent: 'accent-bioma-savana' },
+                floresta: { image: 'assets/bioma/16_Floresta.png', accent: 'accent-bioma-floresta' },
+                matagal: { image: 'assets/bioma/17_Matagal.png', accent: 'accent-bioma-matagal' },
+                costa: { image: 'assets/bioma/14_Costa.png', accent: 'accent-bioma-costa' },
+                areas_rochosas: { image: 'assets/bioma/15_Areas_Rochosas.png', accent: 'accent-bioma-areas-rochosas' },
+                marinho_corais: { image: 'assets/bioma/13_Marinho_corais.png', accent: 'accent-bioma-marinho-corais' }
             };
-            return habitats[normalized] || null;
+            return biomas[normalized] || null;
         }
 
         function getGeneralModelSvg(key = 'geral') {
@@ -554,7 +554,7 @@
             const isEcologicalFunction = normalizedType.includes('funcao ecologica');
             const isLocomotion = normalizedType.includes('locomocao');
             const isClimateZone = normalizedType.includes('zona');
-            const isHabitat = normalizedType.includes('habitat');
+            const isBioma = normalizedType.includes('bioma');
             const value = item.valorMin || item.valor || '';
             const strategyMeta = isStrategy ? getFeedingStrategyMeta(value) : null;
             const activityMeta = isActivity ? getActivityMeta(value) : null;
@@ -562,11 +562,11 @@
             const ecologicalMeta = isEcologicalFunction ? getEcologicalFunctionMeta(value) : null;
             const locomotionMeta = isLocomotion ? getLocomotionMeta(value) : null;
             const climateMeta = isClimateZone ? getClimateZoneMeta(value) : null;
-            const habitatMeta = isHabitat ? getHabitatMeta(value) : null;
+            const biomaMeta = isBioma ? getBiomaMeta(value) : null;
             const icon = climateMeta
                 ? `<img class="climate-zone-model-image" src="${climateMeta.image}" alt="Zona climática ${escapeHtml(value)}" loading="lazy">`
-                : habitatMeta
-                    ? `<img class="climate-zone-model-image" src="${habitatMeta.image}" alt="Habitat ${escapeHtml(value)}" loading="lazy">`
+                : biomaMeta
+                    ? `<img class="climate-zone-model-image" src="${biomaMeta.image}" alt="Bioma ${escapeHtml(value)}" loading="lazy">`
                     : ecologicalMeta
                         ? getEcologicalFunctionSvg(ecologicalMeta.key)
                     : locomotionMeta
@@ -579,8 +579,8 @@
                                 ? getSocialSvg(socialMeta.key)
                             : getGeneralModelSvg(meta.key);
             return `
-                <article class="dimension-model-card general-model-card ${climateMeta?.accent || habitatMeta?.accent || ecologicalMeta?.accent || locomotionMeta?.accent || strategyMeta?.accent || activityMeta?.accent || socialMeta?.accent || meta.accent}" data-gender="${item.genero || ''}" data-phase="${item.fase || 'Adulto'}">
-                    <div class="dimension-model-icon ${climateMeta || habitatMeta ? 'climate-zone-model-icon' : ''}">${icon}</div>
+                <article class="dimension-model-card general-model-card ${climateMeta?.accent || biomaMeta?.accent || ecologicalMeta?.accent || locomotionMeta?.accent || strategyMeta?.accent || activityMeta?.accent || socialMeta?.accent || meta.accent}" data-gender="${item.genero || ''}" data-phase="${item.fase || 'Adulto'}">
+                    <div class="dimension-model-icon ${climateMeta || biomaMeta ? 'climate-zone-model-icon' : ''}">${icon}</div>
                     <div class="dimension-model-copy">
                         <div class="dimension-model-label">${escapeHtml(meta.title)}</div>
                         <div class="dimension-model-value">${formatGeneralVisualValue(item)}</div>
@@ -590,7 +590,7 @@
 
         function renderGeneralVisual(animalData) {
             const models = animalData.informacao?.geralDetalhada || [];
-            const isEnv = item => normalizeDimensionKey(item.tipo).includes('zona') || normalizeDimensionKey(item.tipo).includes('habitat');
+            const isEnv = item => normalizeDimensionKey(item.tipo).includes('zona') || normalizeDimensionKey(item.tipo).includes('bioma');
             const valid = Array.isArray(models) ? models.filter(item => item.tipo && (item.valor || item.valorMin || item.valorMax) && !isEnv(item)) : [];
             const envItems = collapseCombinedGenderItems(
                 Array.isArray(models) ? models.filter(item => item.tipo && (item.valor || item.valorMin || item.valorMax) && isEnv(item)) : []
@@ -636,7 +636,7 @@
                 html += `
                 <div class="general-visual-card" style="margin-top: 15px;">
                     <div class="general-visual-title">
-                        <strong>Zona Climática & Habitat</strong>
+                        <strong>Zona Climática & Bioma</strong>
                     </div>
                     <div class="general-visual-models">
                         ${envItems.map(renderGeneralVisualCard).join('')}
@@ -667,15 +667,15 @@
             `;
         }
 
-        function renderHabitatBadge(animalData) {
+        function renderBiomaBadge(animalData) {
             const models = animalData.informacao?.geralDetalhada || [];
-            const habitatItems = Array.isArray(models) ? models.filter(item => item.tipo && normalizeDimensionKey(item.tipo).includes('habitat')) : [];
-            if (habitatItems.length === 0) return '';
+            const biomaItems = Array.isArray(models) ? models.filter(item => item.tipo && normalizeDimensionKey(item.tipo).includes('bioma')) : [];
+            if (biomaItems.length === 0) return '';
 
-            const contentHTML = habitatItems.map((item, idx) => {
+            const contentHTML = biomaItems.map((item, idx) => {
                 const value = item.valor || item.valorMin || '';
-                const habitatMeta = getHabitatMeta(value);
-                if (!habitatMeta) return '';
+                const biomaMeta = getBiomaMeta(value);
+                if (!biomaMeta) return '';
 
                 return `
                     ${idx > 0 ? '<div class="climate-zone-divider" style="margin: 20px 0;"></div>' : '<div class="climate-zone-divider"></div>'}
@@ -683,20 +683,20 @@
                         <span class="climate-zone-name">${escapeHtml(value)}</span>
                     </div>
                     <div class="climate-zone-divider"></div>
-                    <img src="${habitatMeta.image}" alt="Habitat: ${escapeHtml(value)}" class="climate-zone-badge-image">
+                    <img src="${biomaMeta.image}" alt="Bioma: ${escapeHtml(value)}" class="climate-zone-badge-image">
                 `;
             }).filter(html => html !== '').join('');
 
             if (!contentHTML) return '';
 
-            const firstValue = habitatItems[0].valor || habitatItems[0].valorMin || '';
-            const firstMeta = getHabitatMeta(firstValue);
+            const firstValue = biomaItems[0].valor || biomaItems[0].valorMin || '';
+            const firstMeta = getBiomaMeta(firstValue);
             const accentClass = firstMeta ? firstMeta.accent : '';
 
             return `
-                <div class="animal-climate-zone animal-habitat-badge ${accentClass}">
+                <div class="animal-climate-zone animal-bioma-badge ${accentClass}">
                     <div class="climate-zone-info">
-                        <span class="climate-zone-label">Habitat</span>
+                        <span class="climate-zone-label">Bioma</span>
                     </div>
                     ${contentHTML}
                 </div>
@@ -967,7 +967,7 @@
             'Plumagem de eclipse': 'Fase mais discreta após reprodução',
             'Plumagem de inverno': 'Mais isolante e discreta',
             'Plumagem de verão': 'Mais leve, definida e sazonal',
-            'Plumagem de camuflagem': 'Mistura-se com o habitat',
+            'Plumagem de camuflagem': 'Mistura-se com o bioma',
             'Plumagem ornamental': 'Usada em exibição e atração',
             'Plumagem impermeável': 'Adaptada à repelência da água',
             'Plumagem sexualmente dimórfica': 'Macho e fêmea com visuais distintos',
@@ -1291,7 +1291,7 @@
             const validDimensoes = Array.isArray(dimensoes) ? dimensoes.filter(item => item.tipo && (item.valor || item.valorMin || item.valorMax)) : [];
 
             const models = animalData.informacao?.geralDetalhada || [];
-            const isEnv = item => normalizeDimensionKey(item.tipo).includes('zona') || normalizeDimensionKey(item.tipo).includes('habitat');
+            const isEnv = item => normalizeDimensionKey(item.tipo).includes('zona') || normalizeDimensionKey(item.tipo).includes('bioma');
             const validQuickData = Array.isArray(models) ? models.filter(item => item.tipo && (item.valor || item.valorMin || item.valorMax) && !isEnv(item) && !isLegacyGeneralMatingItem(item)) : [];
             const envQuickData = collapseCombinedGenderItems(
                 Array.isArray(models) ? models.filter(item => item.tipo && (item.valor || item.valorMin || item.valorMax) && isEnv(item)) : []
@@ -1318,6 +1318,7 @@
                 animalData.filo ||
                 animalData.subfilo ||
                 animalData.classe ||
+                animalData.superordem ||
                 animalData.ordem ||
                 animalData.subordem ||
                 animalData.infraordem ||
@@ -1332,6 +1333,7 @@
                 ${animalData.filo ? `<div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px;"><strong style="color: var(--text-secondary);">Filo:</strong> <span style="color: var(--text-primary); font-weight: 500;">${escapeHtml(animalData.filo)}</span></div>` : ''}
                 ${animalData.subfilo ? `<div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px;"><strong style="color: var(--text-secondary);">Subfilo:</strong> <span style="color: var(--text-primary); font-weight: 500;">${escapeHtml(animalData.subfilo)}</span></div>` : ''}
                 ${animalData.classe ? `<div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px;"><strong style="color: var(--text-secondary);">Classe:</strong> <span style="color: var(--text-primary); font-weight: 500;">${escapeHtml(animalData.classe)}</span></div>` : ''}
+                ${animalData.superordem ? `<div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px;"><strong style="color: var(--text-secondary);">Superordem:</strong> <span style="color: var(--text-primary); font-weight: 500;">${escapeHtml(animalData.superordem)}</span></div>` : ''}
                 ${animalData.ordem ? `<div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px;"><strong style="color: var(--text-secondary);">Ordem:</strong> <span style="color: var(--text-primary); font-weight: 500;">${escapeHtml(animalData.ordem)}</span></div>` : ''}
                 ${animalData.subordem ? `<div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px;"><strong style="color: var(--text-secondary);">Subordem:</strong> <span style="color: var(--text-primary); font-weight: 500;">${escapeHtml(animalData.subordem)}</span></div>` : ''}
                 ${animalData.infraordem ? `<div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px;"><strong style="color: var(--text-secondary);">Infraordem:</strong> <span style="color: var(--text-primary); font-weight: 500;">${escapeHtml(animalData.infraordem)}</span></div>` : ''}
@@ -1534,7 +1536,7 @@
 
                         ${envQuickData.length > 0 ? `
                         <div class="info-section-card" id="info-ambiente" style="margin-top: 20px;">
-                            <h3><span class="icon svg-icon">${getInfoSectionIconSvg('distribuicao')}</span>Zona Climática & Habitat</h3>
+                            <h3><span class="icon svg-icon">${getInfoSectionIconSvg('distribuicao')}</span>Zona Climática & Bioma</h3>
                             <div class="visual-models-grid" style="display: flex; flex-direction: column; gap: 14px;">
                                 ${envQuickData.map(renderGeneralVisualCard).join('')}
                             </div>
@@ -1582,7 +1584,7 @@
                             })() : ''}
                             ${envQuickData.length > 0 ? `
                             <div class="info-section mobile-only" id="info-ambiente-mobile" style="margin-bottom: 20px;">
-                                <h3><span class="icon svg-icon">${getInfoSectionIconSvg('distribuicao')}</span>Zona Climática & Habitat</h3>
+                                <h3><span class="icon svg-icon">${getInfoSectionIconSvg('distribuicao')}</span>Zona Climática & Bioma</h3>
                                 <div class="visual-models-grid" style="display: flex; flex-direction: column; gap: 14px; margin-top: 15px;">
                                     ${envQuickData.map(renderGeneralVisualCard).join('')}
                                 </div>

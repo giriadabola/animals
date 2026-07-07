@@ -1254,7 +1254,7 @@
                                             <option value="Mediterrânica"></option>
                                             <option value="Montanhosa / Alpina"></option>
                                         </datalist>
-                                        <datalist id="habitatOptions">
+                                        <datalist id="biomaOptions">
                                             <option value="Áreas rochosas"></option>
                                             <option value="Bosque"></option>
                                             <option value="Calota de gelo"></option>
@@ -1274,7 +1274,7 @@
                                             <option value="Savana"></option>
                                         </datalist>
                                         <button type="button" id="addGeneralVisualBtn" class="secondary-action-btn">+ Adicionar modelo</button>
-                                        <p class="form-hint">Usa esta área para dados gerais com modelo visual: vida útil, velocidades, força da mordida, tamanho da população, tempo de amamentação, atividade, vida social, função ecológica, locomoção, estratégia para obter alimento, zona climática e habitat.</p>
+                                        <p class="form-hint">Usa esta área para dados gerais com modelo visual: vida útil, velocidades, força da mordida, tamanho da população, tempo de amamentação, atividade, vida social, função ecológica, locomoção, estratégia para obter alimento, zona climática e bioma.</p>
                                     </div>
 
                                     <div class="general-visual-preview" aria-live="polite">
@@ -1524,7 +1524,7 @@
                                 </div>
                                 <div class="form-group">
                                     <label for="infoDistribuicao">Descrição da Distribuição</label>
-                                    <textarea id="infoDistribuicao" rows="6" placeholder="Descreva a distribuição geográfica do animal, habitats comuns, migração..."></textarea>
+                                    <textarea id="infoDistribuicao" rows="6" placeholder="Descreva a distribuição geográfica do animal, biomas comuns, migração..."></textarea>
                                 </div>
                             </div>
                             <div class="map-container-wrapper">
@@ -2320,7 +2320,7 @@
             'Plumagem de eclipse': 'Fase mais discreta após reprodução',
             'Plumagem de inverno': 'Mais isolante e discreta',
             'Plumagem de verão': 'Mais leve, definida e sazonal',
-            'Plumagem de camuflagem': 'Mistura-se com o habitat',
+            'Plumagem de camuflagem': 'Mistura-se com o bioma',
             'Plumagem ornamental': 'Usada em exibição e atração',
             'Plumagem impermeável': 'Adaptada à repelência da água',
             'Plumagem sexualmente dimórfica': 'Macho e fêmea com visuais distintos',
@@ -2829,7 +2829,7 @@
             { tipo: 'Função ecológica', unidade: '' },
             { tipo: 'Locomoção', unidade: '' },
             { tipo: 'Zona Climática', unidade: '' },
-            { tipo: 'Habitat', unidade: '' }
+            { tipo: 'Bioma', unidade: '' }
         ];
 
         const generalVisualUnits = ['', 'dias', 'meses', 'anos', 'km/h', 'm/s', 'PSI', 'indivíduos', 'dezenas', 'centenas', 'milhares', 'milhões'];
@@ -3155,29 +3155,29 @@
             return zones[normalized.replace(/\s+/g, '_')] || zones[normalized] || null;
         }
 
-        function getHabitatMeta(value = '') {
+        function getBiomaMeta(value = '') {
             const normalized = normalizeSearchText(value);
-            const habitats = {
-                areas_rochosas: { image: 'assets/habitats/15_Areas_Rochosas.png', accent: 'accent-habitat-areas-rochosas' },
-                bosque: { image: 'assets/habitats/03_Bosque.png', accent: 'accent-habitat-bosque' },
-                calota_de_gelo: { image: 'assets/habitats/07_Calota_de_Gelo.png', accent: 'accent-habitat-calota-gelo' },
-                caverna: { image: 'assets/habitats/05_Caverna.png', accent: 'accent-habitat-caverna' },
-                chaparral: { image: 'assets/habitats/10_Chaparral.png', accent: 'accent-habitat-chaparral' },
-                costa: { image: 'assets/habitats/14_Costa.png', accent: 'accent-habitat-costa' },
-                duna: { image: 'assets/habitats/06_Duna.png', accent: 'accent-habitat-duna' },
-                estepe: { image: 'assets/habitats/09_Estepe.png', accent: 'accent-habitat-estepe' },
-                fauna_urbana: { image: 'assets/habitats/12_Fauna_Urbana.png', accent: 'accent-habitat-fauna-urbana' },
-                floresta: { image: 'assets/habitats/16_floresta.png', accent: 'accent-habitat-floresta' },
-                marinho: { image: 'assets/habitats/01_Marinho.png', accent: 'accent-habitat-marinho' },
-                marinho_corais: { image: 'assets/habitats/13_Marinho_corais.png', accent: 'accent-habitat-marinho-corais' },
-                matagal: { image: 'assets/habitats/17_Matagal.png', accent: 'accent-habitat-matagal' },
-                montanha: { image: 'assets/habitats/11_Montanha.png', accent: 'accent-habitat-montanha' },
-                pantano: { image: 'assets/habitats/04_Pantano.png', accent: 'accent-habitat-pantano' },
-                pradaria: { image: 'assets/habitats/08_Pradaria.png', accent: 'accent-habitat-pradaria' },
-                savana: { image: 'assets/habitats/02_Savana.png', accent: 'accent-habitat-savana' }
+            const biomas = {
+                areas_rochosas: { image: 'assets/bioma/15_Areas_Rochosas.png', accent: 'accent-bioma-areas-rochosas' },
+                bosque: { image: 'assets/bioma/03_Bosque.png', accent: 'accent-bioma-bosque' },
+                calota_de_gelo: { image: 'assets/bioma/07_Calota_de_Gelo.png', accent: 'accent-bioma-calota-gelo' },
+                caverna: { image: 'assets/bioma/05_Caverna.png', accent: 'accent-bioma-caverna' },
+                chaparral: { image: 'assets/bioma/10_Chaparral.png', accent: 'accent-bioma-chaparral' },
+                costa: { image: 'assets/bioma/14_Costa.png', accent: 'accent-bioma-costa' },
+                duna: { image: 'assets/bioma/06_Duna.png', accent: 'accent-bioma-duna' },
+                estepe: { image: 'assets/bioma/09_Estepe.png', accent: 'accent-bioma-estepe' },
+                fauna_urbana: { image: 'assets/bioma/12_Fauna_Urbana.png', accent: 'accent-bioma-fauna-urbana' },
+                floresta: { image: 'assets/bioma/16_floresta.png', accent: 'accent-bioma-floresta' },
+                marinho: { image: 'assets/bioma/01_Marinho.png', accent: 'accent-bioma-marinho' },
+                marinho_corais: { image: 'assets/bioma/13_Marinho_corais.png', accent: 'accent-bioma-marinho-corais' },
+                matagal: { image: 'assets/bioma/17_Matagal.png', accent: 'accent-bioma-matagal' },
+                montanha: { image: 'assets/bioma/11_Montanha.png', accent: 'accent-bioma-montanha' },
+                pantano: { image: 'assets/bioma/04_Pantano.png', accent: 'accent-bioma-pantano' },
+                pradaria: { image: 'assets/bioma/08_Pradaria.png', accent: 'accent-bioma-pradaria' },
+                savana: { image: 'assets/bioma/02_Savana.png', accent: 'accent-bioma-savana' }
             };
             const key = normalized.replace(/[^a-z0-9_]+/g, '_').replace(/\s+/g, '_').replace(/__+/g, '_').replace(/^_|_$/g, '');
-            return habitats[key] || null;
+            return biomas[key] || null;
         }
 
         function getGeneralModelSvg(key = 'geral') {
@@ -3207,18 +3207,18 @@
             const isEcologicalFunction = normalizedType.includes('funcao ecologica');
             const isLocomotion = normalizedType.includes('locomocao');
             const isClimateZone = normalizedType.includes('zona');
-            const isHabitat = normalizedType.includes('habitat');
+            const isBioma = normalizedType.includes('bioma');
             const strategyMeta = isStrategy && !isSuggestion ? getFeedingStrategyMeta(item.valorMin || item.valor || '') : null;
             const activityMeta = isActivity && !isSuggestion ? getActivityMeta(item.valorMin || item.valor || '') : null;
             const socialMeta = isSocial && !isSuggestion ? getSocialMeta(item.valorMin || item.valor || '') : null;
             const ecologicalMeta = isEcologicalFunction && !isSuggestion ? getEcologicalFunctionMeta(item.valorMin || item.valor || '') : null;
             const locomotionMeta = isLocomotion && !isSuggestion ? getLocomotionMeta(item.valorMin || item.valor || '') : null;
             const climateMeta = isClimateZone && !isSuggestion ? getClimateZoneMeta(item.valorMin || item.valor || '') : null;
-            const habitatMeta = isHabitat && !isSuggestion ? getHabitatMeta(item.valorMin || item.valor || '') : null;
+            const biomaMeta = isBioma && !isSuggestion ? getBiomaMeta(item.valorMin || item.valor || '') : null;
             const icon = climateMeta
                 ? `<img class="climate-zone-model-image" src="${climateMeta.image}" alt="Zona climática ${item.valorMin || item.valor || ''}" loading="lazy">`
-                : habitatMeta
-                    ? `<img class="climate-zone-model-image" src="${habitatMeta.image}" alt="Habitat ${item.valorMin || item.valor || ''}" loading="lazy">`
+                : biomaMeta
+                    ? `<img class="climate-zone-model-image" src="${biomaMeta.image}" alt="Bioma ${item.valorMin || item.valor || ''}" loading="lazy">`
                     : ecologicalMeta
                         ? getEcologicalFunctionSvg(ecologicalMeta.key)
                     : locomotionMeta
@@ -3231,8 +3231,8 @@
                                 ? getSocialSvg(socialMeta.key)
                             : getGeneralModelSvg(meta.key);
             return `
-                <article class="dimension-model-card general-model-card ${climateMeta?.accent || habitatMeta?.accent || ecologicalMeta?.accent || locomotionMeta?.accent || strategyMeta?.accent || activityMeta?.accent || socialMeta?.accent || meta.accent}${isSuggestion ? ' is-suggestion' : ''}">
-                    <div class="dimension-model-icon ${climateMeta || habitatMeta ? 'climate-zone-model-icon' : ''}">${icon}</div>
+                <article class="dimension-model-card general-model-card ${climateMeta?.accent || biomaMeta?.accent || ecologicalMeta?.accent || locomotionMeta?.accent || strategyMeta?.accent || activityMeta?.accent || socialMeta?.accent || meta.accent}${isSuggestion ? ' is-suggestion' : ''}">
+                    <div class="dimension-model-icon ${climateMeta || biomaMeta ? 'climate-zone-model-icon' : ''}">${icon}</div>
                     <div class="dimension-model-copy">
                         <div class="dimension-model-label">${meta.title}</div>
                         <div class="dimension-model-value">${value}</div>

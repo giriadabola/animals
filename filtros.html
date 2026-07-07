@@ -218,6 +218,9 @@
             } else if (filterType === 'zona-climatica') {
                 iconClass = 'fa-cloud-sun';
                 titlePrefix = 'Clima: ';
+            } else if (filterType === 'bioma') {
+                iconClass = 'fa-tree';
+                titlePrefix = 'Bioma: ';
             } else if (filterType === 'categoria') {
                 iconClass = 'fa-paw';
                 titlePrefix = 'Categoria: ';
@@ -388,11 +391,23 @@
                                 const isTypeMatch = 
                                     (filterType === 'estrategia-alimento' && normalizedType.includes('estrategia') && normalizedType.includes('alimento')) ||
                                     (filterType === 'acasalamento' && normalizedType.includes('acasalamento')) ||
-                                    (filterType === 'zona-climatica' && (normalizedType.includes('climatica') || normalizedType.includes('clima') || normalizedType.includes('zona')));
+                                    (filterType === 'zona-climatica' && (normalizedType.includes('climatica') || normalizedType.includes('clima') || normalizedType.includes('zona'))) ||
+                                    (filterType === 'bioma' && normalizedType.includes('bioma'));
 
-                                return isTypeMatch && 
-                                       item.valor && 
-                                       item.valor.trim().toLowerCase() === filterValue.trim().toLowerCase();
+                                 if (filterType === 'bioma') {
+                                     const valLower = item.valor ? item.valor.trim().toLowerCase() : '';
+                                     const filterLower = filterValue ? filterValue.trim().toLowerCase() : '';
+                                     return isTypeMatch && valLower && (
+                                         valLower.includes(filterLower) || 
+                                         filterLower.includes(valLower) ||
+                                         (valLower === 'marinho' && filterLower.includes('ocean')) ||
+                                         (valLower === 'marinho (corais)' && filterLower.includes('coral'))
+                                     );
+                                 }
+
+                                 return isTypeMatch && 
+                                        item.valor && 
+                                        item.valor.trim().toLowerCase() === filterValue.trim().toLowerCase();
                             });
                         }
 
