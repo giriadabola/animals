@@ -17,12 +17,12 @@
     <!-- CSS Global -->
     <link rel="stylesheet" href="css/style.css?v=1.0.7">
     <link rel="stylesheet" href="css/globe-search.css?v=1.0.7">
-    <link rel="stylesheet" href="css/bioma-explorer.css?v=1.0.25">
+    <link rel="stylesheet" href="css/bioma-explorer.css?v=1.0.28">
     <script src="js/runtime-guard.js"></script>
     <script>
         // Forçar limpeza de cache e service workers se houver atualização
         (async function() {
-            const VERSION = 'v1.0.69';
+            const VERSION = 'v1.0.72';
             if (localStorage.getItem('app_cache_version') !== VERSION) {
                 try {
                     if ('serviceWorker' in navigator) {
@@ -948,6 +948,7 @@
             const items = biomaData[tabKey] || [];
             
             items.forEach((item, index) => {
+                const queryValue = item.query || item.title;
                 const itemEl = document.createElement('div');
                 itemEl.className = `bioma-item ${index === 0 ? 'active' : ''}`;
                 itemEl.innerHTML = `
@@ -955,7 +956,23 @@
                         <span class="bioma-item-dot"></span>
                         <span class="bioma-item-title">${item.title}</span>
                     </div>
+                    <button type="button" class="bioma-item-mobile-link" data-href="filtros.html?tipo=bioma&valor=${encodeURIComponent(queryValue)}">
+                        <span>Ver animais deste bioma</span>
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </button>
                 `;
+
+                const mobileLinkEl = itemEl.querySelector('.bioma-item-mobile-link');
+                if (mobileLinkEl) {
+                    mobileLinkEl.addEventListener('click', (event) => {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        const href = mobileLinkEl.dataset.href;
+                        if (href) {
+                            window.location.href = href;
+                        }
+                    });
+                }
                 
                 itemEl.addEventListener('mouseenter', () => {
                     document.querySelectorAll('.bioma-item').forEach(el => el.classList.remove('active'));
@@ -963,7 +980,8 @@
                     selectBioma(item);
                 });
 
-                itemEl.addEventListener('click', () => {
+                itemEl.addEventListener('click', (event) => {
+                    if (event.target.closest('.bioma-item-mobile-link')) return;
                     document.querySelectorAll('.bioma-item').forEach(el => el.classList.remove('active'));
                     itemEl.classList.add('active');
                     selectBioma(item);
