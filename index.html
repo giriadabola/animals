@@ -15,14 +15,14 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- CSS Global -->
-    <link rel="stylesheet" href="css/style.css?v=1.0.6">
+    <link rel="stylesheet" href="css/style.css?v=1.0.7">
     <link rel="stylesheet" href="css/globe-search.css?v=1.0.7">
-    <link rel="stylesheet" href="css/bioma-explorer.css?v=1.0.0">
+    <link rel="stylesheet" href="css/bioma-explorer.css?v=1.0.24">
     <script src="js/runtime-guard.js"></script>
     <script>
         // Forçar limpeza de cache e service workers se houver atualização
         (async function() {
-            const VERSION = 'v1.0.50';
+            const VERSION = 'v1.0.68';
             if (localStorage.getItem('app_cache_version') !== VERSION) {
                 try {
                     if ('serviceWorker' in navigator) {
@@ -107,37 +107,35 @@
 
         <!-- Biomas Explorer Card -->
         <div class="bioma-explorer-card" id="biomaExplorerCard" style="display: none; background-image: url('assets/capas/biomas_capas/01_floresta_tropical.png');">
+            <div class="bioma-explorer-header">
+                <div class="bioma-explorer-header-top">
+                    <i class="fa-solid fa-tree"></i>
+                    <h2>Explorar por Biomas</h2>
+                </div>
+                <div class="bioma-explorer-tabs">
+                    <button class="bioma-tab-btn active" data-tab="terrestres">
+                        <span class="tab-text-desktop">Biomas terrestres</span>
+                        <span class="tab-text-mobile">Terrestres</span>
+                    </button>
+                    <button class="bioma-tab-btn" data-tab="aquaticos">
+                        <span class="tab-text-desktop">Biomas aquáticos</span>
+                        <span class="tab-text-mobile">Aquáticos</span>
+                    </button>
+                    <button class="bioma-tab-btn" data-tab="transicao">
+                        <span class="tab-text-desktop">Biomas de transição</span>
+                        <span class="tab-text-mobile">Transição</span>
+                    </button>
+                </div>
+            </div>
             <div class="bioma-list-pane" id="biomaListPane">
                 <!-- Dynamic List Items -->
             </div>
-            <div class="bioma-explorer-right">
-                <div class="bioma-explorer-header">
-                    <div class="bioma-explorer-header-top">
-                        <i class="fa-solid fa-tree"></i>
-                        <h2>Explorar por Biomas</h2>
-                    </div>
-                    <div class="bioma-explorer-tabs">
-                        <button class="bioma-tab-btn active" data-tab="terrestres">
-                            <span class="tab-text-desktop">Biomas terrestres</span>
-                            <span class="tab-text-mobile">Terrestres</span>
-                        </button>
-                        <button class="bioma-tab-btn" data-tab="aquaticos">
-                            <span class="tab-text-desktop">Biomas aquáticos</span>
-                            <span class="tab-text-mobile">Aquáticos</span>
-                        </button>
-                        <button class="bioma-tab-btn" data-tab="transicao">
-                            <span class="tab-text-desktop">Biomas de transição</span>
-                            <span class="tab-text-mobile">Transição</span>
-                        </button>
-                    </div>
-                </div>
-                <div class="bioma-preview-info-pane">
-                    <h3 id="biomaPreviewTitle">Floresta tropical</h3>
-                    <a href="filtros.html?tipo=bioma&valor=Floresta%20tropical" class="bioma-explore-link" id="biomaExploreLink">
-                        <span>Ver Animais</span>
-                        <i class="fa-solid fa-arrow-right"></i>
-                    </a>
-                </div>
+            <div class="bioma-preview-info-pane">
+                <h3 id="biomaPreviewTitle">Floresta tropical</h3>
+                <a href="filtros.html?tipo=bioma&valor=Floresta%20tropical" class="bioma-explore-link" id="biomaExploreLink">
+                    <span>Ver Animais</span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                </a>
             </div>
         </div>
 
@@ -626,7 +624,7 @@
                 // Handle the biomas explorer card separately (full-width sibling)
                 if (key === 'explorar-biomas') {
                     if (biomaExplorerCard) {
-                        biomaExplorerCard.style.display = 'grid';
+                        biomaExplorerCard.style.display = 'flex';
                         if (!encounteredInternal) {
                             mainElement.insertBefore(biomaExplorerCard, mainLayout);
                         } else {
@@ -957,7 +955,6 @@
                         <span class="bioma-item-dot"></span>
                         <span class="bioma-item-title">${item.title}</span>
                     </div>
-                    <i class="fa-solid fa-arrow-right bioma-item-arrow"></i>
                 `;
                 
                 itemEl.addEventListener('mouseenter', () => {
