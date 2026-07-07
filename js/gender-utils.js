@@ -8,10 +8,48 @@ const COMBINED_GENDER_ALIASES = new Set([
     'FM',
     'M/F',
     'F/M',
+    'M-F',
+    'F-M',
+    'M F',
+    'F M',
     'B',
     'BOTH',
-    'AMBOS'
+    'AMBOS',
+    'AMBOS OS SEXOS',
+    'MACHO E FEMEA',
+    'FEMEA E MACHO',
+    'MACHO/FEMEA',
+    'FEMEA/MACHO',
+    'MACHO-FEMEA',
+    'FEMEA-MACHO',
+    'MACHO FEMEA',
+    'FEMEA MACHO',
+    '♂♀',
+    '♀♂'
 ]);
+
+const MALE_GENDER_ALIASES = new Set([
+    GENDER_MALE,
+    'MACHO',
+    'MASCULINO',
+    '♂'
+]);
+
+const FEMALE_GENDER_ALIASES = new Set([
+    GENDER_FEMALE,
+    'FEMEA',
+    'FEMININO',
+    '♀'
+]);
+
+function normalizeGenderAlias(value) {
+    return String(value ?? '')
+        .trim()
+        .toUpperCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/\s+/g, ' ');
+}
 
 function getComparableSignature(item = {}, genderKey = 'genero') {
     return JSON.stringify(
@@ -23,9 +61,10 @@ function getComparableSignature(item = {}, genderKey = 'genero') {
 }
 
 export function normalizeGenderValue(value, fallback = GENDER_BOTH) {
-    const normalized = String(value ?? '').trim().toUpperCase();
+    const normalized = normalizeGenderAlias(value);
     if (!normalized) return fallback;
-    if (normalized === GENDER_MALE || normalized === GENDER_FEMALE) return normalized;
+    if (MALE_GENDER_ALIASES.has(normalized)) return GENDER_MALE;
+    if (FEMALE_GENDER_ALIASES.has(normalized)) return GENDER_FEMALE;
     if (COMBINED_GENDER_ALIASES.has(normalized)) return GENDER_BOTH;
     return fallback;
 }
