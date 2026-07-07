@@ -538,6 +538,125 @@
             transition: border-color 0.3s ease;
         }
 
+
+        /* Ajuste visual da Alimentação: linhas mais largas, limpas e responsivas */
+        #subtabpanel-alimentacao-modelo-visual .feeding-layout {
+            grid-template-columns: minmax(520px, 1.45fr) minmax(300px, 0.75fr) !important;
+            gap: 24px !important;
+            align-items: start !important;
+        }
+
+        #subtabpanel-alimentacao-modelo-visual .feeding-editor {
+            min-width: 0 !important;
+            overflow: visible !important;
+        }
+
+        #subtabpanel-alimentacao-modelo-visual .feeding-row-header,
+        #subtabpanel-alimentacao-modelo-visual .feeding-row {
+            grid-template-columns: minmax(180px, 0.95fr) minmax(0, 1.7fr) 46px !important;
+            gap: 12px !important;
+            align-items: center !important;
+        }
+
+        #subtabpanel-alimentacao-modelo-visual .feeding-row-header {
+            padding: 0 12px 2px !important;
+        }
+
+        #subtabpanel-alimentacao-modelo-visual .feeding-row-header span:last-child {
+            grid-column: auto !important;
+        }
+
+        #subtabpanel-alimentacao-modelo-visual .feeding-row {
+            padding: 10px !important;
+            border: 1px solid rgba(255, 255, 255, 0.06) !important;
+            border-radius: var(--border-radius-sm) !important;
+            background: rgba(255, 255, 255, 0.025) !important;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.025) !important;
+        }
+
+        #subtabpanel-alimentacao-modelo-visual .feeding-row select,
+        #subtabpanel-alimentacao-modelo-visual .feeding-row input,
+        #subtabpanel-alimentacao-modelo-visual .feeding-row button {
+            height: 52px !important;
+        }
+
+        #subtabpanel-alimentacao-modelo-visual .feeding-row select,
+        #subtabpanel-alimentacao-modelo-visual .feeding-row input {
+            width: 100% !important;
+            min-width: 0 !important;
+            padding-left: 14px !important;
+            padding-right: 34px !important;
+            text-overflow: ellipsis !important;
+        }
+
+        #subtabpanel-alimentacao-modelo-visual .feeding-detail-controls {
+            display: grid !important;
+            grid-template-columns: minmax(150px, 0.85fr) minmax(180px, 1.15fr) !important;
+            gap: 10px !important;
+            min-width: 0 !important;
+        }
+
+        #subtabpanel-alimentacao-modelo-visual .feeding-detail-controls.measure-controls {
+            grid-template-columns: minmax(82px, 0.7fr) minmax(82px, 0.7fr) minmax(120px, 0.9fr) !important;
+        }
+
+        #subtabpanel-alimentacao-modelo-visual .remove-dimension-btn {
+            width: 46px !important;
+            min-width: 46px !important;
+            border-radius: 12px !important;
+            font-size: 1.35rem !important;
+        }
+
+        #subtabpanel-alimentacao-modelo-visual #addFeedingBtn {
+            align-self: flex-start !important;
+            min-height: 50px !important;
+            padding: 13px 22px !important;
+            border-radius: 12px !important;
+        }
+
+        #subtabpanel-alimentacao-modelo-visual .feeding-animal-dropdown {
+            width: min(100%, 520px) !important;
+        }
+
+        #subtabpanel-alimentacao-modelo-visual .feeding-animal-trigger {
+            min-height: 52px !important;
+            padding: 13px 16px !important;
+        }
+
+        @media (max-width: 1180px) {
+            #subtabpanel-alimentacao-modelo-visual .feeding-layout {
+                grid-template-columns: 1fr !important;
+            }
+            #subtabpanel-alimentacao-modelo-visual .feeding-visual-preview {
+                max-width: 100% !important;
+            }
+        }
+
+        @media (max-width: 720px) {
+            #subtabpanel-alimentacao-modelo-visual .feeding-row-header {
+                display: none !important;
+            }
+            #subtabpanel-alimentacao-modelo-visual .feeding-row {
+                position: relative !important;
+                grid-template-columns: 1fr 46px !important;
+                gap: 10px !important;
+                padding: 12px !important;
+            }
+            #subtabpanel-alimentacao-modelo-visual .feeding-model-kind,
+            #subtabpanel-alimentacao-modelo-visual .feeding-detail-controls {
+                grid-column: 1 / -1 !important;
+            }
+            #subtabpanel-alimentacao-modelo-visual .feeding-detail-controls,
+            #subtabpanel-alimentacao-modelo-visual .feeding-detail-controls.measure-controls {
+                grid-template-columns: 1fr !important;
+            }
+            #subtabpanel-alimentacao-modelo-visual .feeding-row .remove-dimension-btn {
+                grid-column: 2 !important;
+                grid-row: 1 !important;
+                justify-self: end !important;
+            }
+        }
+
         /* Loading Overlay for Authentication Check */
         #loading-overlay {
             position: fixed;
@@ -934,6 +1053,166 @@
 
         .reproduction-row .reproduction-mating-type {
             grid-column: span 3 !important;
+        }
+
+        .reproduction-row .reproduction-feeding-detail {
+            grid-column: span 2 !important;
+        }
+
+        .reproduction-row .nutrition-amount-min,
+        .reproduction-row .nutrition-amount-max,
+        .reproduction-row .nutrition-water-min,
+        .reproduction-row .nutrition-water-max {
+            text-align: center;
+        }
+
+        .feeding-row-header,
+        .feeding-row {
+            display: grid !important;
+            grid-template-columns: minmax(160px, 0.9fr) minmax(0, 1.7fr) 42px !important;
+            gap: 10px !important;
+            align-items: center !important;
+        }
+
+        .feeding-row-header {
+            color: var(--text-secondary);
+            font-size: 0.76rem;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            padding: 0 2px 2px;
+        }
+
+        .feeding-row-header span:last-child {
+            grid-column: span 2;
+        }
+
+        .feeding-rows {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 14px;
+        }
+
+        .feeding-row {
+            padding: 0;
+            border: none;
+            background: transparent;
+            box-shadow: none;
+        }
+
+        .feeding-row select,
+        .feeding-row input,
+        .feeding-row button {
+            min-width: 0;
+            height: 48px;
+        }
+
+        .feeding-detail-controls {
+            display: grid;
+            grid-template-columns: minmax(120px, 0.8fr) minmax(150px, 1.2fr);
+            gap: 8px;
+            min-width: 0;
+        }
+
+        .feeding-detail-controls.measure-controls {
+            grid-template-columns: minmax(70px, 0.55fr) minmax(70px, 0.55fr) minmax(110px, 0.8fr);
+        }
+
+        @media (max-width: 700px) {
+            .feeding-row-header {
+                display: none !important;
+            }
+            .feeding-row {
+                grid-template-columns: 1fr 42px !important;
+            }
+            .feeding-model-kind,
+            .feeding-detail-controls {
+                grid-column: 1 / -1;
+            }
+            .feeding-detail-controls,
+            .feeding-detail-controls.measure-controls {
+                grid-template-columns: 1fr;
+            }
+            .feeding-row .remove-dimension-btn {
+                grid-column: 2;
+            }
+        }
+
+        .reproduction-model-card.accent-food {
+            border-color: rgba(16, 185, 129, 0.26);
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.10), rgba(255, 255, 255, 0.025));
+        }
+
+        .reproduction-model-card.accent-meal {
+            border-color: rgba(245, 158, 11, 0.30);
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.12), rgba(255, 255, 255, 0.025));
+        }
+
+        .reproduction-model-card.accent-water {
+            border-color: rgba(14, 165, 233, 0.30);
+            background: linear-gradient(135deg, rgba(14, 165, 233, 0.12), rgba(255, 255, 255, 0.025));
+        }
+
+        .reproduction-nutrition-fields,
+        .feeding-nutrition-fields {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin: 14px 0 12px;
+            padding: 14px;
+            border: 1px solid rgba(16, 185, 129, 0.18);
+            border-radius: var(--border-radius-sm);
+            background: rgba(16, 185, 129, 0.035);
+        }
+
+        .reproduction-nutrition-row,
+        .feeding-nutrition-row {
+            display: grid;
+            grid-template-columns: minmax(180px, 0.85fr) minmax(0, 1.7fr);
+            gap: 12px;
+            align-items: center;
+        }
+
+        .reproduction-nutrition-label,
+        .feeding-nutrition-label {
+            color: var(--text-primary);
+            font-weight: 800;
+            font-size: 0.92rem;
+            line-height: 1.2;
+        }
+
+        .reproduction-nutrition-controls,
+        .feeding-nutrition-controls {
+            display: grid;
+            grid-template-columns: minmax(120px, 1fr) minmax(120px, 1fr);
+            gap: 8px;
+            align-items: center;
+        }
+
+        .reproduction-nutrition-controls.measure-controls,
+        .feeding-nutrition-controls.measure-controls {
+            grid-template-columns: minmax(70px, 0.7fr) minmax(70px, 0.7fr) minmax(110px, 0.9fr);
+        }
+
+        .reproduction-nutrition-row input,
+        .reproduction-nutrition-row select,
+        .feeding-nutrition-row input,
+        .feeding-nutrition-row select {
+            min-width: 0;
+        }
+
+        @media (max-width: 700px) {
+            .reproduction-nutrition-row,
+        .feeding-nutrition-row {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+            .reproduction-nutrition-controls,
+            .reproduction-nutrition-controls.measure-controls,
+        .feeding-nutrition-controls.measure-controls {
+                grid-template-columns: 1fr;
+            }
         }
 
         @media (max-width: 600px) {
@@ -1505,12 +1784,13 @@
                             <div class="form-subtab-panel active" id="subtabpanel-alimentacao-modelo-visual" role="tabpanel">
                                 <div class="reproduction-layout feeding-layout">
                                     <div class="reproduction-editor feeding-editor">
-                                        <div class="reproduction-row-header">
-                                            <span>Tipo de alimentação</span>
+                                        <div class="feeding-row-header">
+                                            <span>Modelo</span>
                                             <span>Detalhe curto</span>
                                         </div>
-                                        <div id="feedingRows" class="reproduction-rows"></div>
-                                        <button type="button" id="addFeedingBtn" class="secondary-action-btn">+ Adicionar tipo</button>
+                                        <div id="feedingRows" class="feeding-rows"></div>
+
+                                        <button type="button" id="addFeedingBtn" class="secondary-action-btn">+ Adicionar modelo</button>
                                         <div class="feeding-animal-dropdown" id="feedingAnimalDropdown">
                                             <button type="button" class="feeding-animal-trigger" id="feedingAnimalTrigger" aria-expanded="false" aria-controls="feedingAnimalMenu">
                                                 <span>Escolher animal da dieta</span>
@@ -1565,6 +1845,7 @@
                                             <span>Unidade</span>
                                         </div>
                                         <div id="reproductionRows" class="reproduction-rows"></div>
+
                                         <button type="button" id="addReproductionBtn" class="secondary-action-btn">+ Adicionar tipo</button>
                                         <p class="form-hint" id="reproductionHint">As opções mudam conforme a categoria escolhida. Ex: aves mostram ovíparo/incubação; mamíferos mostram vivíparo/placental/marsupial.</p>
                                     </div>
@@ -1958,6 +2239,8 @@
         const previewDimensionModels = document.getElementById('previewDimensionModels');
         const generalVisualRowsContainer = document.getElementById('generalVisualRows');
         const addGeneralVisualBtn = document.getElementById('addGeneralVisualBtn');
+
+
         const previewGeneralVisualModels = document.getElementById('previewGeneralVisualModels');
         const feedingRowsContainer = document.getElementById('feedingRows');
         const addFeedingBtn = document.getElementById('addFeedingBtn');
@@ -1973,6 +2256,14 @@
         const reproductionCategoryIcon = document.getElementById('reproductionCategoryIcon');
         const reproductionCategoryName = document.getElementById('reproductionCategoryName');
         const previewReproductionModels = document.getElementById('previewReproductionModels');
+        const feedingNutritionType = document.getElementById('feedingNutritionType');
+        const feedingNutritionDetail = document.getElementById('feedingNutritionDetail');
+        const feedingFoodMin = document.getElementById('feedingFoodMin');
+        const feedingFoodMax = document.getElementById('feedingFoodMax');
+        const feedingFoodUnit = document.getElementById('feedingFoodUnit');
+        const feedingWaterMin = document.getElementById('feedingWaterMin');
+        const feedingWaterMax = document.getElementById('feedingWaterMax');
+        const feedingWaterUnit = document.getElementById('feedingWaterUnit');
         const curiosidadesRowsContainer = document.getElementById('curiosidadesRows');
         const addCuriosidadesBtn = document.getElementById('addCuriosidadesBtn');
         const curiosidadesPreviewList = document.getElementById('curiosidadesPreviewList');
@@ -1985,7 +2276,8 @@
             { label: 'Largura do corpo', unit: 'cm' },
             { label: 'Altura do corpo', unit: 'cm' },
             { label: 'Diâmetro do corpo', unit: 'cm' },
-            { label: 'Espessura do corpo', unit: 'cm' }
+            { label: 'Espessura do corpo', unit: 'cm' },
+            { label: 'Comprimento de grandes molares', unit: 'mm' }
         ];
 
         const dimensionOptionsByCategory = {
@@ -2014,7 +2306,8 @@
                 { label: 'Comprimento da nadadeira', unit: 'cm' },
                 { label: 'Comprimento da barbatana dorsal', unit: 'cm' },
                 { label: 'Comprimento dos bigodes', unit: 'cm' },
-                { label: 'Envergadura', unit: 'm' }
+                { label: 'Envergadura', unit: 'm' },
+                { label: 'Comprimento de grandes molares', unit: 'mm' }
             ],
             Aves: [
                 { label: 'Comprimento total', unit: 'cm' },
@@ -2764,6 +3057,7 @@
             if (normalized.includes('asa')) return { key: 'asa', title: metric || 'Comprimento da asa', accent: 'accent-wing' };
             if (normalized.includes('bico')) return { key: 'bico', title: metric || 'Comprimento do bico', accent: 'accent-beak' };
             if (normalized.includes('cauda')) return { key: 'cauda', title: metric || 'Comprimento da cauda', accent: 'accent-tail' };
+            if (normalized.includes('molares') || normalized.includes('molar')) return { key: 'molares', title: metric || 'Comprimento de grandes molares', accent: 'accent-beak' };
             if (normalized.includes('pata')) return { key: 'patas', title: metric || 'Comprimento das patas', accent: 'accent-leg' };
             if (normalized.includes('ovo')) return { key: 'ovo', title: metric || 'Tamanho do ovo', accent: 'accent-egg' };
             if (normalized.includes('largura')) return { key: 'largura', title: metric || 'Largura', accent: 'accent-width' };
@@ -2848,6 +3142,7 @@
                 envergadura: `<svg class="metric-model-svg metric-wingspan" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M7 42h66"/><path d="M7 42l8-8"/><path d="M7 42l8 8"/><path d="M73 42l-8-8"/><path d="M73 42l-8 8"/><path d="M17 55c8-13 15-20 23-23"/><path d="M63 55c-8-13-15-20-23-23"/></svg>`,
                 patas: `<svg class="metric-model-svg metric-legs" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M28 13v39"/><path d="M52 13v39"/><path d="M24 52l-10 12"/><path d="M28 52l4 13"/><path d="M32 52l12 10"/><path d="M48 52l-10 12"/><path d="M52 52l4 13"/><path d="M56 52l12 10"/></svg>`,
                 ovo: `<svg class="metric-model-svg metric-egg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M40 10c13 0 23 17 23 33c0 15-9 27-23 27S17 58 17 43C17 27 27 10 40 10Z"/><path d="M20 70h40"/></svg>`,
+                molares: `<svg class="metric-model-svg metric-molar" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M20 20c0-5 10-10 20-10s20 5 20 10c0 10-5 22-5 35c0 5-5 5-5 5c-5 0-5-10-10-10s-5 10-10 10c0 0-5 0-5-5c0-13-5-25-5-35Z"/><path d="M40 12v18"/></svg>`,
                 medida: `<svg class="metric-model-svg metric-generic" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M16 59L58 17l6 6l-42 42l-8-6Z"/><path d="M26 49l6 6"/><path d="M36 39l6 6"/><path d="M46 29l6 6"/></svg>`
             };
             return icons[key] || icons.medida;
@@ -3404,18 +3699,15 @@
             const option = feedingAnimalOptions.find(item => item.label === label);
             if (!option) return;
 
-            const emptyRow = [...feedingRowsContainer.querySelectorAll('.feeding-row')].find(row => {
-                const typeValue = row.querySelector('.feeding-type')?.value || '';
-                const detailValue = row.querySelector('.feeding-detail')?.value.trim() || '';
-                return !typeValue && !detailValue;
-            });
+            const emptyRow = [...feedingRowsContainer.querySelectorAll('.feeding-row')].find(row => !getFeedingRowData(row));
 
             if (emptyRow) {
-                emptyRow.querySelector('.feeding-type').value = option.feedingType;
-                emptyRow.querySelector('.feeding-detail').value = option.label;
+                const modelSelect = emptyRow.querySelector('.feeding-model-kind');
+                modelSelect.value = 'Tipo de Alimentação';
+                renderFeedingDetailControls(emptyRow, 'Tipo de Alimentação', `${option.feedingType} | ${option.label}`);
                 updateFeedingPreview();
             } else {
-                createFeedingRow(option.feedingType, option.label);
+                createFeedingRow('Tipo de Alimentação', `${option.feedingType} | ${option.label}`);
             }
 
             feedingAnimalSearch.value = '';
@@ -3447,6 +3739,15 @@
             });
         }
 
+        const feedingModelOptions = [
+            'Tipo de Alimentação',
+            'Alimento Ingerido em Média',
+            'Água bebida em Média'
+        ];
+
+        const feedingFoodUnits = ['g/dia', 'g/semana', 'g/mes', 'g/ano', 'kg/dia', 'kg/semana', 'kg/mes', 'kg/ano'];
+        const feedingWaterUnits = ['l/dia', 'l/semana', 'l/mes', 'l/ano'];
+
         function fillFeedingTypeSelect(select, selectedValue = '') {
             const sortedTypes = [...feedingTypes].sort((a, b) => a.localeCompare(b));
             const hasSelected = selectedValue && sortedTypes.includes(selectedValue);
@@ -3456,62 +3757,180 @@
             select.value = selectedValue;
         }
 
-        function createFeedingRow(type = '', detail = '') {
+        function fillFeedingModelSelect(select, selectedValue = '') {
+            const value = feedingModelOptions.includes(selectedValue) ? selectedValue : 'Tipo de Alimentação';
+            select.innerHTML = feedingModelOptions.map(option => `<option value="${option}">${option}</option>`).join('');
+            select.value = value;
+        }
+
+        function createUnitSelect(className, units, selectedValue) {
+            const select = document.createElement('select');
+            select.className = className;
+            select.innerHTML = units.map(unit => `<option value="${unit}">${unit}</option>`).join('');
+            select.value = units.includes(selectedValue) ? selectedValue : units[0];
+            select.addEventListener('change', updateFeedingPreview);
+            return select;
+        }
+
+        function parseFeedingTypeDetail(detail = '') {
+            const clean = String(detail || '').trim();
+            if (clean.includes(' | ')) {
+                const parts = clean.split(' | ');
+                return { type: parts[0] || '', detail: parts.slice(1).join(' | ') || '' };
+            }
+            if (feedingTypes.includes(clean)) return { type: clean, detail: '' };
+            return { type: '', detail: clean };
+        }
+
+        function renderFeedingDetailControls(row, tipo = 'Tipo de Alimentação', detail = '') {
+            const oldControls = row.querySelector('.feeding-detail-controls');
+            if (oldControls) oldControls.remove();
+
+            const controls = document.createElement('div');
+            controls.className = 'feeding-detail-controls';
+
+            if (tipo === 'Alimento Ingerido em Média' || tipo === 'Água bebida em Média') {
+                controls.classList.add('measure-controls');
+                const fallbackUnit = tipo === 'Água bebida em Média' ? 'l/dia' : 'kg/dia';
+                const units = tipo === 'Água bebida em Média' ? feedingWaterUnits : feedingFoodUnits;
+                const parsed = parseNutritionRange(detail, fallbackUnit);
+
+                const minInput = document.createElement('input');
+                minInput.type = 'text';
+                minInput.className = 'feeding-measure-min';
+                minInput.placeholder = 'Mín.';
+                minInput.inputMode = 'decimal';
+                minInput.value = parsed.min;
+
+                const maxInput = document.createElement('input');
+                maxInput.type = 'text';
+                maxInput.className = 'feeding-measure-max';
+                maxInput.placeholder = 'Máx.';
+                maxInput.inputMode = 'decimal';
+                maxInput.value = parsed.max;
+
+                const unitSelect = createUnitSelect('feeding-measure-unit', units, parsed.unit || fallbackUnit);
+
+                [minInput, maxInput].forEach(input => input.addEventListener('input', updateFeedingPreview));
+                controls.append(minInput, maxInput, unitSelect);
+            } else {
+                const parsed = parseFeedingTypeDetail(detail);
+
+                const typeSelect = document.createElement('select');
+                typeSelect.className = 'feeding-type-value';
+                fillFeedingTypeSelect(typeSelect, parsed.type);
+
+                const detailInput = document.createElement('input');
+                detailInput.className = 'feeding-detail-value';
+                detailInput.type = 'text';
+                detailInput.placeholder = 'Ex: folhas jovens';
+                detailInput.value = parsed.detail;
+
+                typeSelect.addEventListener('change', updateFeedingPreview);
+                detailInput.addEventListener('input', updateFeedingPreview);
+                controls.append(typeSelect, detailInput);
+            }
+
+            const removeBtn = row.querySelector('.remove-dimension-btn');
+            row.insertBefore(controls, removeBtn);
+        }
+
+        function createFeedingRow(type = 'Tipo de Alimentação', detail = '') {
             const row = document.createElement('div');
-            row.className = 'reproduction-row feeding-row';
+            row.className = 'feeding-row';
 
-            const typeSelect = document.createElement('select');
-            typeSelect.className = 'feeding-type';
-            fillFeedingTypeSelect(typeSelect, type);
-
-            const detailInput = document.createElement('input');
-            detailInput.className = 'feeding-detail';
-            detailInput.type = 'text';
-            detailInput.placeholder = 'Ex: folhas jovens, pequenos peixes, néctar...';
-            detailInput.value = detail;
+            const modelSelect = document.createElement('select');
+            modelSelect.className = 'feeding-model-kind';
+            fillFeedingModelSelect(modelSelect, type);
 
             const removeBtn = document.createElement('button');
             removeBtn.type = 'button';
             removeBtn.className = 'remove-dimension-btn';
             removeBtn.innerHTML = '&times;';
-            removeBtn.title = 'Remover tipo de alimentação';
+            removeBtn.title = 'Remover modelo de alimentação';
 
-            typeSelect.addEventListener('change', updateFeedingPreview);
-            detailInput.addEventListener('input', updateFeedingPreview);
+            modelSelect.addEventListener('change', () => {
+                renderFeedingDetailControls(row, modelSelect.value, '');
+                updateFeedingPreview();
+            });
             removeBtn.addEventListener('click', () => {
                 row.remove();
                 if (feedingRowsContainer.children.length === 0) createFeedingRow();
                 updateFeedingPreview();
             });
 
-            row.append(typeSelect, detailInput, removeBtn);
+            row.append(modelSelect, removeBtn);
             feedingRowsContainer.appendChild(row);
+            renderFeedingDetailControls(row, modelSelect.value, detail);
             updateFeedingPreview();
+        }
+
+        function getFeedingRowData(row) {
+            const tipo = row.querySelector('.feeding-model-kind')?.value || 'Tipo de Alimentação';
+            if (tipo === 'Alimento Ingerido em Média' || tipo === 'Água bebida em Média') {
+                const detail = buildRangeDetail(
+                    row.querySelector('.feeding-measure-min')?.value,
+                    row.querySelector('.feeding-measure-max')?.value,
+                    row.querySelector('.feeding-measure-unit')?.value || (tipo === 'Água bebida em Média' ? 'l/dia' : 'kg/dia')
+                );
+                return detail ? { tipo, detalhe: detail } : null;
+            }
+
+            const feedingTypeVal = row.querySelector('.feeding-type-value')?.value || '';
+            const detailVal = row.querySelector('.feeding-detail-value')?.value.trim() || '';
+            if (!feedingTypeVal && !detailVal) return null;
+            return {
+                tipo: 'Tipo de Alimentação',
+                detalhe: feedingTypeVal && detailVal ? `${feedingTypeVal} | ${detailVal}` : (feedingTypeVal || detailVal)
+            };
         }
 
         function getFeedingData() {
             return [...feedingRowsContainer.querySelectorAll('.feeding-row')]
-                .map(row => ({
-                    tipo: row.querySelector('.feeding-type')?.value || '',
-                    detalhe: row.querySelector('.feeding-detail')?.value.trim() || ''
-                }))
-                .filter(item => item.tipo || item.detalhe);
+                .map(getFeedingRowData)
+                .filter(Boolean);
         }
 
         function setFeedingData(items = []) {
             feedingRowsContainer.innerHTML = '';
             if (!Array.isArray(items) || items.length === 0) {
                 createFeedingRow();
+                updateFeedingPreview();
                 return;
             }
-            items.forEach(item => createFeedingRow(item.tipo || '', item.detalhe || item.descricao || ''));
+            items.forEach(item => createFeedingRow(item.tipo || 'Tipo de Alimentação', item.detalhe || item.descricao || ''));
+            if (feedingRowsContainer.children.length === 0) createFeedingRow();
             updateFeedingPreview();
         }
         function renderFeedingModelCard(item, isSuggestion = false) {
             const type = item.tipo || item;
+            const rawDetail = item.detalhe || '';
+            const nutritionMetaByType = {
+                'Tipo de Alimentação': { key: 'alimentacaoTipo', title: 'Tipo de Alimentação', accent: 'accent-food', fallback: 'Seleciona o tipo e escreve o detalhe livre' },
+                'Alimento Ingerido em Média': { key: 'alimentoMedio', title: 'Alimento Ingerido em Média', accent: 'accent-meal', fallback: 'Indica mínimo, máximo e unidade' },
+                'Água bebida em Média': { key: 'aguaMedia', title: 'Água bebida em Média', accent: 'accent-water', fallback: 'Indica mínimo, máximo e unidade' }
+            };
+            if (nutritionMetaByType[type]) {
+                const meta = nutritionMetaByType[type];
+                let detail = rawDetail || meta.fallback;
+                if (type === 'Tipo de Alimentação' && detail.includes(' | ')) {
+                    const [feedingType, freeText] = detail.split(' | ');
+                    detail = freeText ? `${feedingType} — ${freeText}` : feedingType;
+                }
+                return `
+                    <article class="dimension-model-card feeding-model-card reproduction-model-card ${meta.accent}${isSuggestion ? ' is-suggestion' : ''}">
+                        <div class="dimension-model-icon">${getReproductionModelSvg(meta.key)}</div>
+                        <div class="dimension-model-copy">
+                            <div class="dimension-model-label">${meta.title}</div>
+                            <div class="dimension-model-value">${detail}</div>
+                            <div class="dimension-model-meta">${isSuggestion ? 'Disponível' : 'Modelo visual próprio'}</div>
+                        </div>
+                    </article>`;
+            }
+
             const meta = getFeedingVisualMeta(type);
-            const detail = item.detalhe || feedingTypeDescriptions[type] || 'Tipo de dieta';
-            const animalOption = getFeedingAnimalOption(item.detalhe || '');
+            const detail = rawDetail || feedingTypeDescriptions[type] || 'Tipo de dieta';
+            const animalOption = getFeedingAnimalOption(rawDetail || '');
             const visual = animalOption?.src
                 ? `<img class="feeding-model-animal-image" src="${animalOption.src}" alt="${animalOption.label}">`
                 : getFeedingModelSvg(meta.key);
@@ -3582,10 +4001,10 @@
         function applyReproductionEditorLabels() {
             addReproductionBtn.textContent = '+ Adicionar campo';
             if (isBirdCategory()) {
-                reproductionHint.textContent = 'Seleciona "Tipo de reprodução" para escolher a cor do ovo, "Acasalamento" para o sistema reprodutivo ou "Tempo de Gestação" para a incubação.';
+                reproductionHint.textContent = 'Seleciona "Tipo de reprodução" para escolher a cor do ovo, ou adiciona também acasalamento, incubação, tipo de alimentação, alimento ingerido e água bebida em média.';
                 return;
             }
-            reproductionHint.textContent = 'Escolhe as opções de reprodução, o tipo de acasalamento ou o tempo de gestação para esta espécie.';
+            reproductionHint.textContent = 'Escolhe as opções de reprodução, acasalamento, gestação, crias, tipo de alimentação, alimento ingerido ou água bebida em média.';
         }
 
         function updateReproductionEditorLabels() {
@@ -3630,6 +4049,18 @@
             const optCrias = document.createElement('option');
             optCrias.value = 'crias';
             optCrias.textContent = 'Número de Crias';
+
+            const optAlimentacaoTipo = document.createElement('option');
+            optAlimentacaoTipo.value = 'alimentacao_tipo';
+            optAlimentacaoTipo.textContent = 'Tipo de Alimentação';
+
+            const optAlimentoMedio = document.createElement('option');
+            optAlimentoMedio.value = 'alimento_medio';
+            optAlimentoMedio.textContent = 'Alimento Ingerido em Média';
+
+            const optAguaMedia = document.createElement('option');
+            optAguaMedia.value = 'agua_media';
+            optAguaMedia.textContent = 'Água bebida em Média';
             
             rowModeSelect.append(optTipo, optAcasalamento, optGestacao, optCrias);
 
@@ -3638,6 +4069,15 @@
 
             const matingSelect = document.createElement('select');
             matingSelect.className = 'reproduction-mating-type';
+
+            const feedingTypeSelect = document.createElement('select');
+            feedingTypeSelect.className = 'reproduction-feeding-type';
+            fillFeedingTypeSelect(feedingTypeSelect, '');
+
+            const feedingDetailInput = document.createElement('input');
+            feedingDetailInput.className = 'reproduction-feeding-detail';
+            feedingDetailInput.type = 'text';
+            feedingDetailInput.placeholder = 'Ex: folhas jovens, pequenos insetos...';
 
             const minInput = document.createElement('input');
             minInput.className = 'reproduction-gestation-min';
@@ -3677,13 +4117,17 @@
 
             const isGestation = typeStr === 'Tempo de Gestação' || typeStr.toLowerCase().includes('gestação') || typeStr.toLowerCase().includes('gestacao');
             const isCrias = typeStr === 'Número de Crias' || typeStr.toLowerCase().includes('cria');
+            const isAlimentacaoTipo = typeStr === 'Tipo de Alimentação';
+            const isAlimentoMedio = typeStr === 'Alimento Ingerido em Média';
+            const isAguaMedia = typeStr === 'Água bebida em Média';
+
             if (isGestation) {
                 rowModeSelect.value = 'gestacao';
                 if (detailStr) {
                     let minVal = '';
                     let maxVal = '';
                     let unitVal = 'meses';
-                    const match = detailStr.match(/(\d+)(?:\s*-\s*(\d+))?\s*(dias|dia|meses|mês|mes|semanas|semana)/i);
+                    const match = detailStr.match(/(\d+(?:\.\d+)?)(?:\s*-\s*(\d+(?:\.\d+)?))?\s*(dias|dia|meses|mês|mes|semanas|semana)/i);
                     if (match) {
                         minVal = match[1] || '';
                         maxVal = match[2] || '';
@@ -3696,7 +4140,7 @@
                             unitVal = 'dias';
                         }
                     } else {
-                        const numbers = detailStr.match(/\d+/g);
+                        const numbers = detailStr.match(/\d+(?:\.\d+)?/g);
                         if (numbers) {
                             minVal = numbers[0] || '';
                             maxVal = numbers[1] || '';
@@ -3730,6 +4174,65 @@
             } else if (isMating) {
                 rowModeSelect.value = 'acasalamento';
                 fillMatingTypeSelect(matingSelect, initialMatingValue);
+            } else if (isAlimentacaoTipo) {
+                rowModeSelect.value = 'alimentacao_tipo';
+                let feedingTypeVal = '';
+                let feedingDetailVal = '';
+                if (detailStr.includes(' | ')) {
+                    const parts = detailStr.split(' | ');
+                    feedingTypeVal = parts[0] || '';
+                    feedingDetailVal = parts[1] || '';
+                } else {
+                    feedingTypeVal = detailStr;
+                }
+                fillFeedingTypeSelect(feedingTypeSelect, feedingTypeVal);
+                feedingDetailInput.value = feedingDetailVal;
+            } else if (isAlimentoMedio) {
+                rowModeSelect.value = 'alimento_medio';
+                if (detailStr) {
+                    let minVal = '';
+                    let maxVal = '';
+                    let unitVal = 'kg/dia';
+                    const match = detailStr.match(/(\d+(?:\.\d+)?)(?:\s*-\s*(\d+(?:\.\d+)?))?\s*([gkm]+\/[a-zçíõâêôáéíóú]+)/i);
+                    if (match) {
+                        minVal = match[1] || '';
+                        maxVal = match[2] || '';
+                        unitVal = match[3] || 'kg/dia';
+                    }
+                    minInput.value = minVal;
+                    maxInput.value = maxVal;
+                    unitSelect.innerHTML = '';
+                    ['g/dia', 'g/semana', 'g/mes', 'g/ano', 'kg/dia', 'kg/semana', 'kg/mes', 'kg/ano'].forEach(u => {
+                        const opt = document.createElement('option');
+                        opt.value = u;
+                        opt.textContent = u;
+                        unitSelect.append(opt);
+                    });
+                    unitSelect.value = unitVal;
+                }
+            } else if (isAguaMedia) {
+                rowModeSelect.value = 'agua_media';
+                if (detailStr) {
+                    let minVal = '';
+                    let maxVal = '';
+                    let unitVal = 'l/dia';
+                    const match = detailStr.match(/(\d+(?:\.\d+)?)(?:\s*-\s*(\d+(?:\.\d+)?))?\s*(l\/[a-zçíõâêôáéíóú]+)/i);
+                    if (match) {
+                        minVal = match[1] || '';
+                        maxVal = match[2] || '';
+                        unitVal = match[3] || 'l/dia';
+                    }
+                    minInput.value = minVal;
+                    maxInput.value = maxVal;
+                    unitSelect.innerHTML = '';
+                    ['l/dia', 'l/semana', 'l/mes', 'l/ano'].forEach(u => {
+                        const opt = document.createElement('option');
+                        opt.value = u;
+                        opt.textContent = u;
+                        unitSelect.append(opt);
+                    });
+                    unitSelect.value = unitVal;
+                }
             } else {
                 rowModeSelect.value = 'tipo';
                 fillReproductionTypeSelect(typeSelect, typeStr);
@@ -3739,17 +4242,53 @@
                 row.innerHTML = '';
                 row.append(rowModeSelect);
                 if (rowModeSelect.value === 'tipo') {
-                    fillReproductionTypeSelect(typeSelect, typeSelect.value || (!isGestation && !isCrias && !isMating ? typeStr : ''));
+                    fillReproductionTypeSelect(typeSelect, typeSelect.value || (!isGestation && !isCrias && !isMating && !isAlimentacaoTipo && !isAlimentoMedio && !isAguaMedia ? typeStr : ''));
                     row.append(typeSelect, removeBtn);
                 } else if (rowModeSelect.value === 'acasalamento') {
                     fillMatingTypeSelect(matingSelect, matingSelect.value || initialMatingValue);
                     row.append(matingSelect, removeBtn);
+                } else if (rowModeSelect.value === 'alimentacao_tipo') {
+                    row.append(feedingTypeSelect, feedingDetailInput, removeBtn);
                 } else if (rowModeSelect.value === 'crias') {
                     minInput.placeholder = 'Mín: 1';
                     maxInput.placeholder = 'Máx: 5';
                     const spacer = document.createElement('div');
                     row.append(minInput, maxInput, spacer, removeBtn);
+                } else if (rowModeSelect.value === 'alimento_medio') {
+                    minInput.className = 'reproduction-gestation-min nutrition-amount-min';
+                    maxInput.className = 'reproduction-gestation-max nutrition-amount-max';
+                    minInput.placeholder = 'Mín: 0.1';
+                    maxInput.placeholder = 'Máx: 5';
+                    const previousUnit = unitSelect.value;
+                    const foodUnits = ['g/dia', 'g/semana', 'g/mes', 'g/ano', 'kg/dia', 'kg/semana', 'kg/mes', 'kg/ano'];
+                    unitSelect.innerHTML = '';
+                    foodUnits.forEach(u => {
+                        const opt = document.createElement('option');
+                        opt.value = u;
+                        opt.textContent = u;
+                        unitSelect.append(opt);
+                    });
+                    unitSelect.value = foodUnits.includes(previousUnit) ? previousUnit : 'kg/dia';
+                    row.append(minInput, maxInput, unitSelect, removeBtn);
+                } else if (rowModeSelect.value === 'agua_media') {
+                    minInput.className = 'reproduction-gestation-min nutrition-water-min';
+                    maxInput.className = 'reproduction-gestation-max nutrition-water-max';
+                    minInput.placeholder = 'Mín: 0.5';
+                    maxInput.placeholder = 'Máx: 2';
+                    const previousUnit = unitSelect.value;
+                    const waterUnits = ['l/dia', 'l/semana', 'l/mes', 'l/ano'];
+                    unitSelect.innerHTML = '';
+                    waterUnits.forEach(u => {
+                        const opt = document.createElement('option');
+                        opt.value = u;
+                        opt.textContent = u;
+                        unitSelect.append(opt);
+                    });
+                    unitSelect.value = waterUnits.includes(previousUnit) ? previousUnit : 'l/dia';
+                    row.append(minInput, maxInput, unitSelect, removeBtn);
                 } else {
+                    minInput.className = 'reproduction-gestation-min';
+                    maxInput.className = 'reproduction-gestation-max';
                     minInput.placeholder = 'Ex: 10';
                     maxInput.placeholder = 'Ex: 15';
                     row.append(minInput, maxInput, unitSelect, removeBtn);
@@ -3760,8 +4299,12 @@
                 updateRowVisibility();
                 updateReproductionPreview();
             });
+
+
             typeSelect.addEventListener('change', updateReproductionPreview);
             matingSelect.addEventListener('change', updateReproductionPreview);
+            feedingTypeSelect.addEventListener('change', updateReproductionPreview);
+            feedingDetailInput.addEventListener('input', updateReproductionPreview);
             minInput.addEventListener('input', updateReproductionPreview);
             maxInput.addEventListener('input', updateReproductionPreview);
             unitSelect.addEventListener('change', updateReproductionPreview);
@@ -3777,8 +4320,100 @@
             updateReproductionPreview();
         }
 
+        function buildRangeDetail(min = '', max = '', unit = '') {
+            const minVal = String(min || '').trim();
+            const maxVal = String(max || '').trim();
+            const unitVal = String(unit || '').trim();
+            if (minVal && maxVal) return `${minVal}-${maxVal} ${unitVal}`.trim();
+            if (minVal) return `${minVal} ${unitVal}`.trim();
+            if (maxVal) return `${maxVal} ${unitVal}`.trim();
+            return '';
+        }
+
+        function parseNutritionRange(detail = '', fallbackUnit = '') {
+            const clean = String(detail || '').trim();
+            const result = { min: '', max: '', unit: fallbackUnit };
+            const match = clean.match(/(\d+(?:[.,]\d+)?)(?:\s*[-–]\s*(\d+(?:[.,]\d+)?))?\s*([a-zA-Záéíóúãõâêôç]+\/[a-zA-Záéíóúãõâêôç]+)/i);
+            if (match) {
+                result.min = match[1] || '';
+                result.max = match[2] || '';
+                result.unit = match[3] || fallbackUnit;
+            }
+            return result;
+        }
+
+        function getFeedingNutritionData() {
+            const items = [];
+            const feedingTypeVal = feedingNutritionType?.value || '';
+            const feedingDetailVal = feedingNutritionDetail?.value.trim() || '';
+            if (feedingTypeVal || feedingDetailVal) {
+                items.push({
+                    tipo: 'Tipo de Alimentação',
+                    detalhe: feedingTypeVal && feedingDetailVal ? `${feedingTypeVal} | ${feedingDetailVal}` : (feedingTypeVal || feedingDetailVal)
+                });
+            }
+
+            const foodDetail = buildRangeDetail(feedingFoodMin?.value, feedingFoodMax?.value, feedingFoodUnit?.value || 'kg/dia');
+            if (foodDetail) {
+                items.push({ tipo: 'Alimento Ingerido em Média', detalhe: foodDetail });
+            }
+
+            const waterDetail = buildRangeDetail(feedingWaterMin?.value, feedingWaterMax?.value, feedingWaterUnit?.value || 'l/dia');
+            if (waterDetail) {
+                items.push({ tipo: 'Água bebida em Média', detalhe: waterDetail });
+            }
+            return items;
+        }
+
+        function resetFeedingNutritionFields() {
+            if (feedingNutritionType) fillFeedingTypeSelect(feedingNutritionType, '');
+            if (feedingNutritionDetail) feedingNutritionDetail.value = '';
+            if (feedingFoodMin) feedingFoodMin.value = '';
+            if (feedingFoodMax) feedingFoodMax.value = '';
+            if (feedingFoodUnit) feedingFoodUnit.value = 'kg/dia';
+            if (feedingWaterMin) feedingWaterMin.value = '';
+            if (feedingWaterMax) feedingWaterMax.value = '';
+            if (feedingWaterUnit) feedingWaterUnit.value = 'l/dia';
+        }
+
+        function setFeedingNutritionItem(item = {}) {
+            const tipo = item.tipo || '';
+            const detalhe = item.detalhe || item.descricao || '';
+            if (tipo === 'Tipo de Alimentação') {
+                let feedingTypeVal = '';
+                let feedingDetailVal = '';
+                if (String(detalhe).includes(' | ')) {
+                    const parts = String(detalhe).split(' | ');
+                    feedingTypeVal = parts[0] || '';
+                    feedingDetailVal = parts.slice(1).join(' | ') || '';
+                } else if (feedingTypes.includes(detalhe)) {
+                    feedingTypeVal = detalhe;
+                } else {
+                    feedingDetailVal = detalhe;
+                }
+                fillFeedingTypeSelect(feedingNutritionType, feedingTypeVal);
+                feedingNutritionDetail.value = feedingDetailVal;
+                return true;
+            }
+            if (tipo === 'Alimento Ingerido em Média') {
+                const parsed = parseNutritionRange(detalhe, 'kg/dia');
+                feedingFoodMin.value = parsed.min;
+                feedingFoodMax.value = parsed.max;
+                feedingFoodUnit.value = [...feedingFoodUnit.options].some(opt => opt.value === parsed.unit) ? parsed.unit : 'kg/dia';
+                return true;
+            }
+            if (tipo === 'Água bebida em Média') {
+                const parsed = parseNutritionRange(detalhe, 'l/dia');
+                feedingWaterMin.value = parsed.min;
+                feedingWaterMax.value = parsed.max;
+                feedingWaterUnit.value = [...feedingWaterUnit.options].some(opt => opt.value === parsed.unit) ? parsed.unit : 'l/dia';
+                return true;
+            }
+            return false;
+        }
+
         function getReproductionData() {
-            return [...reproductionRowsContainer.querySelectorAll('.reproduction-row')]
+            const dynamicItems = [...reproductionRowsContainer.querySelectorAll('.reproduction-row')]
                 .map(row => {
                     const rowModeSelect = row.querySelector('.reproduction-row-mode');
                     if (!rowModeSelect) return null;
@@ -3793,6 +4428,45 @@
                         return {
                             tipo: 'Acasalamento',
                             detalhe: matingVal
+                        };
+                    } else if (rowModeSelect.value === 'alimentacao_tipo') {
+                        const feedingTypeVal = row.querySelector('.reproduction-feeding-type')?.value || '';
+                        const feedingDetailVal = row.querySelector('.reproduction-feeding-detail')?.value.trim() || '';
+                        return {
+                            tipo: 'Tipo de Alimentação',
+                            detalhe: `${feedingTypeVal} | ${feedingDetailVal}`
+                        };
+                    } else if (rowModeSelect.value === 'alimento_medio') {
+                        const min = row.querySelector('.reproduction-gestation-min')?.value || '';
+                        const max = row.querySelector('.reproduction-gestation-max')?.value || '';
+                        const unit = row.querySelector('.reproduction-gestation-unit')?.value || 'kg/dia';
+                        let detail = '';
+                        if (min && max) {
+                            detail = `${min}-${max} ${unit}`;
+                        } else if (min) {
+                            detail = `${min} ${unit}`;
+                        } else if (max) {
+                            detail = `${max} ${unit}`;
+                        }
+                        return {
+                            tipo: 'Alimento Ingerido em Média',
+                            detalhe: detail
+                        };
+                    } else if (rowModeSelect.value === 'agua_media') {
+                        const min = row.querySelector('.reproduction-gestation-min')?.value || '';
+                        const max = row.querySelector('.reproduction-gestation-max')?.value || '';
+                        const unit = row.querySelector('.reproduction-gestation-unit')?.value || 'l/dia';
+                        let detail = '';
+                        if (min && max) {
+                            detail = `${min}-${max} ${unit}`;
+                        } else if (min) {
+                            detail = `${min} ${unit}`;
+                        } else if (max) {
+                            detail = `${max} ${unit}`;
+                        }
+                        return {
+                            tipo: 'Água bebida em Média',
+                            detalhe: detail
                         };
                     } else if (rowModeSelect.value === 'crias') {
                         const min = row.querySelector('.reproduction-gestation-min')?.value || '';
@@ -3828,15 +4502,27 @@
                     }
                 })
                 .filter(item => item && (item.tipo || item.detalhe));
+            return dynamicItems;
         }
 
         function setReproductionData(reproduction = []) {
             reproductionRowsContainer.innerHTML = '';
             if (!Array.isArray(reproduction) || reproduction.length === 0) {
                 createReproductionRow();
+                updateReproductionPreview();
                 return;
             }
-            reproduction.forEach(item => createReproductionRow(item.tipo || '', item.detalhe || item.descricao || ''));
+            const normalRows = [];
+            reproduction.forEach(item => {
+                if (!['Tipo de Alimentação', 'Alimento Ingerido em Média', 'Água bebida em Média'].includes(item?.tipo || '')) {
+                    normalRows.push(item);
+                }
+            });
+            if (normalRows.length === 0) {
+                createReproductionRow();
+            } else {
+                normalRows.forEach(item => createReproductionRow(item.tipo || '', item.detalhe || item.descricao || ''));
+            }
             updateReproductionPreview();
         }
 
@@ -3848,6 +4534,15 @@
             }
             if (normalized.includes('cria') || normalized.includes('filhote')) {
                 return { key: 'cuidado', title: type || 'Número de Crias', accent: 'accent-tail' };
+            }
+            if (normalized.includes('tipo de alimentacao') || normalized.includes('tipo de alimentação')) {
+                return { key: 'alimentacaoTipo', title: type || 'Tipo de Alimentação', accent: 'accent-food' };
+            }
+            if (normalized.includes('alimento ingerido') || normalized.includes('alimento medio') || normalized.includes('alimento médio')) {
+                return { key: 'alimentoMedio', title: type || 'Alimento Ingerido em Média', accent: 'accent-meal' };
+            }
+            if (normalized.includes('agua bebida') || normalized.includes('água bebida') || normalized.includes('agua media') || normalized.includes('água média')) {
+                return { key: 'aguaMedia', title: type || 'Água bebida em Média', accent: 'accent-water' };
             }
             if (normalized.includes('oviparo') || normalized.includes('ovo')) return { key: 'ovo', title: type || 'Ovíparo', accent: 'accent-egg' };
             if (normalized.includes('viviparo') || normalized.includes('placental')) return { key: 'viviparo', title: type || 'Vivíparo', accent: 'accent-weight' };
@@ -3873,6 +4568,9 @@
                 celular: `<svg class="metric-model-svg reproduction-icon-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><circle cx="30" cy="40" r="18"/><circle cx="50" cy="40" r="18"/><path d="M40 23v34"/><circle cx="30" cy="40" r="4"/><circle cx="50" cy="40" r="4"/></svg>`,
                 fossil: `<svg class="metric-model-svg reproduction-icon-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M19 59c12-25 31-39 52-42c-3 22-17 39-42 52L19 59Z"/><path d="M31 56L58 29"/><path d="M23 67h35"/></svg>`,
                 cuidado: `<svg class="metric-model-svg reproduction-icon-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M14 43c6-16 18-25 36-24c11 1 20 7 25 17"/><path d="M21 47c8 13 20 20 36 20"/><circle cx="39" cy="47" r="8"/><path d="M55 35l12-4"/></svg>`,
+                alimentacaoTipo: `<svg class="metric-model-svg reproduction-icon-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M22 20c13 0 23 8 23 21c0 12-9 20-23 20V20Z"/><path d="M48 23c8 3 13 10 13 19s-5 16-13 19"/><path d="M18 38h44"/><path d="M29 31c3 5 3 13 0 18"/></svg>`,
+                alimentoMedio: `<svg class="metric-model-svg reproduction-icon-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M24 28h32l-4 35H28L24 28Z"/><path d="M20 28h40"/><path d="M31 28c0-8 18-8 18 0"/><path d="M33 43h14"/><path d="M33 53h10"/></svg>`,
+                aguaMedia: `<svg class="metric-model-svg reproduction-icon-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M40 10c12 16 22 29 22 42c0 12-9 20-22 20S18 64 18 52c0-13 10-26 22-42Z"/><path d="M30 55c4 6 11 8 18 4"/><path d="M50 27c7 9 10 16 9 24"/></svg>`,
                 reproducao: `<svg class="metric-model-svg reproduction-icon-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M40 13c15 0 27 12 27 27S55 67 40 67S13 55 13 40S25 13 40 13Z"/><path d="M40 25v30"/><path d="M25 40h30"/></svg>`
             };
             return icons[key] || icons.reproducao;
@@ -3910,7 +4608,11 @@
             }
 
             const meta = getReproductionVisualMeta(item.tipo || item);
-            const detail = item.detalhe || reproductionTypeDescriptions[item.tipo || item] || 'Opção desta categoria';
+            let detail = item.detalhe || reproductionTypeDescriptions[item.tipo || item] || 'Opção desta categoria';
+            if ((item.tipo || '') === 'Tipo de Alimentação' && detail.includes(' | ')) {
+                const [feedingType, freeText] = detail.split(' | ');
+                detail = freeText ? `${feedingType} — ${freeText}` : feedingType;
+            }
             return `
                 <article class="dimension-model-card reproduction-model-card ${meta.accent}${isSuggestion ? ' is-suggestion' : ''}">
                     <div class="dimension-model-icon">${getReproductionModelSvg(meta.key)}</div>
@@ -3946,6 +4648,14 @@
                 : '<div class="dimension-model-empty">Seleciona uma categoria para ver os modelos de reprodução próprios desse grupo.</div>';
         }
 
+        [feedingNutritionType, feedingNutritionDetail, feedingFoodMin, feedingFoodMax, feedingFoodUnit, feedingWaterMin, feedingWaterMax, feedingWaterUnit]
+            .filter(Boolean)
+            .forEach(el => {
+                const eventName = el.tagName === 'SELECT' ? 'change' : 'input';
+                el.addEventListener(eventName, updateFeedingPreview);
+            });
+
+        if (feedingNutritionType) fillFeedingTypeSelect(feedingNutritionType, '');
         addReproductionBtn.addEventListener('click', () => createReproductionRow());
         setReproductionData();
 
@@ -4373,10 +5083,14 @@
             document.getElementById('infoDimensoes').value = animal.informacao.dimensoes || '';
             setDimensionData(animal.informacao.dimensoesDetalhadas || []);
             document.getElementById('infoAlimentacao').value = animal.informacao.alimentacao || '';
-            setFeedingData(animal.informacao.alimentacaoDetalhada || []);
+            const rawAlimentacaoDetalhada = animal.informacao.alimentacaoDetalhada || [];
+            const rawReproducaoDetalhada = animal.informacao.reproducaoDetalhada || [];
+            const legacyNutritionItems = rawReproducaoDetalhada.filter(item => ['Tipo de Alimentação', 'Alimento Ingerido em Média', 'Água bebida em Média'].includes(item.tipo || ''));
+            const cleanedReproducaoDetalhada = rawReproducaoDetalhada.filter(item => !['Tipo de Alimentação', 'Alimento Ingerido em Média', 'Água bebida em Média'].includes(item.tipo || ''));
+            setFeedingData([...rawAlimentacaoDetalhada, ...legacyNutritionItems]);
             document.getElementById('infoReproducao').value = animal.informacao.reproducao || '';
             document.getElementById('infoPlumagem').value = animal.informacao.plumagem || '';
-            setReproductionData(mergeUniqueReproductionItems([...(animal.informacao.reproducaoDetalhada || []), ...legacyMatingItems]));
+            setReproductionData(mergeUniqueReproductionItems([...cleanedReproducaoDetalhada, ...legacyMatingItems]));
             setPlumageData(animal.informacao.plumagemDetalhada || []);
             
             const distData = animal.informacao.distribuicao || { paises: [], paisesDetalhes: {}, descricao: '' };
