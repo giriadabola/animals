@@ -1,0 +1,637 @@
+/* ==================== Bioma Explorer Card ==================== */
+.bioma-explorer-card {
+    position: relative;
+    border-radius: 28px;
+    margin: 2rem 0 3rem 0;
+    padding: 45px 40px 65px 40px;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    background-size: cover !important;
+    background-position: var(--bioma-bg-position, 78% center) !important;
+    background-repeat: no-repeat !important;
+    transition: background-image 0.6s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.4s ease, box-shadow 0.4s ease;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex;
+    flex-direction: column;
+    height: auto;
+    min-height: 670px;
+    justify-content: flex-start;
+    overflow: hidden;
+    align-items: stretch;
+    gap: 15px;
+}
+
+/* Glassy background mask covering the entire card */
+.bioma-explorer-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+        135deg,
+        rgba(10, 11, 22, 0.7) 0%,
+        rgba(15, 23, 42, 0.4) 50%,
+        rgba(10, 11, 22, 0.75) 100%
+    );
+    z-index: 1;
+    pointer-events: none;
+}
+
+.bioma-explorer-card:hover {
+    border-color: rgba(6, 182, 212, 0.35);
+    box-shadow: 0 30px 70px rgba(6, 182, 212, 0.12), 0 20px 45px rgba(0, 0, 0, 0.6);
+}
+
+/* Aligning all children on top of the mask */
+.bioma-explorer-card > * {
+    position: relative;
+    z-index: 2;
+}
+
+/* Card Header & Tabs */
+.bioma-explorer-header {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.bioma-explorer-header-top {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.bioma-explorer-header-top i {
+    font-size: 1.8rem;
+    background: linear-gradient(135deg, #22d3ee 0%, #3b82f6 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.bioma-explorer-header-top h2 {
+    font-size: 1.8rem;
+    font-weight: 850;
+    margin: 0;
+    color: #ffffff;
+    letter-spacing: -0.5px;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+}
+
+.bioma-explorer-tabs {
+    display: flex;
+    gap: 10px;
+    flex-wrap: nowrap; /* Prevent wrapping of tab buttons */
+    overflow-x: auto; /* Enable horizontal scrolling */
+    scrollbar-width: none; /* Hide scrollbar for Firefox */
+    -ms-overflow-style: none; /* Hide scrollbar for IE/Edge */
+    padding-bottom: 4px;
+}
+
+.bioma-explorer-tabs::-webkit-scrollbar {
+    display: none; /* Hide scrollbar for Chrome/Safari */
+}
+
+.tab-text-mobile {
+    display: none;
+}
+.tab-text-desktop {
+    display: inline;
+}
+
+.bioma-tab-btn {
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    color: #9ca3af;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 10px 20px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    flex-shrink: 0; /* Prevent tabs from shrinking */
+}
+
+.bioma-tab-btn:hover {
+    background: rgba(15, 23, 42, 0.85);
+    color: #ffffff;
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.bioma-tab-btn.active {
+    background: linear-gradient(135deg, rgba(6, 182, 212, 0.25) 0%, rgba(59, 130, 246, 0.25) 100%);
+    color: #22d3ee;
+    border-color: rgba(6, 182, 212, 0.5);
+    box-shadow: 0 4px 15px rgba(6, 182, 212, 0.2);
+}
+
+/* Left Pane: Preview Title & Call-to-action */
+.bioma-preview-info-pane {
+    position: absolute;
+    bottom: 40px;
+    left: 40px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 20px;
+    border-radius: 16px;
+    background: rgba(15, 23, 42, 0.35);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    width: max-content;
+    max-width: calc(100% - 80px);
+    box-sizing: border-box;
+    gap: 24px;
+}
+
+.bioma-preview-info-pane h3 {
+    font-size: 1.9rem;
+    font-weight: 850;
+    margin: 0;
+    color: #ffffff;
+    text-shadow: 0 3px 15px rgba(0, 0, 0, 0.7);
+    letter-spacing: -0.5px;
+    line-height: 1.2;
+    white-space: nowrap; /* Prevent title wrapping */
+}
+
+.bioma-explore-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+    color: #ffffff;
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    white-space: nowrap; /* Prevent button text wrapping */
+    text-decoration: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(6, 182, 212, 0.35);
+}
+
+.bioma-explore-link:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(6, 182, 212, 0.55);
+    background: linear-gradient(135deg, #0891b2 0%, #06b6d4 100%);
+}
+
+.bioma-explore-link i {
+    font-size: 0.85rem;
+    transition: transform 0.3s ease;
+}
+
+.bioma-explore-link:hover i {
+    transform: translateX(4px);
+}
+
+/* Left Pane: Full-height Scrollable List with Glassmorphism */
+.bioma-list-pane {
+    background: transparent;
+    border: none;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    column-gap: 12px;
+    row-gap: 6px;
+    height: auto;
+    align-items: center;
+    margin-bottom: auto;
+}
+
+/* List Item styling */
+.bioma-item {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 20px;
+    border-radius: 12px;
+    background: rgba(8, 12, 24, 0.75);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.bioma-item:hover {
+    background: rgba(15, 23, 42, 0.85);
+    border-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-4px);
+}
+
+.bioma-item.active {
+    background: linear-gradient(135deg, rgba(6, 182, 212, 0.25) 0%, rgba(59, 130, 246, 0.25) 100%);
+    border-color: rgba(6, 182, 212, 0.5);
+    box-shadow: 0 4px 15px rgba(6, 182, 212, 0.2);
+    transform: translateY(-4px);
+}
+
+.bioma-item-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.bioma-item-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.25);
+    transition: all 0.3s ease;
+}
+
+.bioma-item:hover .bioma-item-dot, .bioma-item.active .bioma-item-dot {
+    background-color: #22d3ee;
+    box-shadow: 0 0 10px #22d3ee;
+}
+
+.bioma-item-title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #cbd5e1;
+    transition: color 0.3s ease;
+}
+
+.bioma-item:hover .bioma-item-title, .bioma-item.active .bioma-item-title {
+    color: #ffffff;
+}
+
+.bioma-item-mobile-link {
+    display: none;
+}
+
+.bioma-item-arrow {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.2);
+    transform: translateX(-4px);
+    opacity: 0;
+    transition: all 0.3s ease;
+}
+
+.bioma-item:hover .bioma-item-arrow, .bioma-item.active .bioma-item-arrow {
+    opacity: 1;
+    color: #22d3ee;
+    transform: translateX(0);
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 850px) {
+    .tab-text-desktop {
+        display: none !important;
+    }
+    .tab-text-mobile {
+        display: inline !important;
+    }
+
+    .bioma-explorer-card {
+        display: flex !important;
+        flex-direction: column !important;
+        height: auto !important; /* Allow auto height on mobile */
+        background-position: var(--bioma-bg-position-mobile, var(--bioma-bg-position, 72% center)) !important;
+        border-radius: 20px !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+        overflow: hidden !important;
+        padding: 20px !important;
+        gap: 20px !important;
+    }
+
+    .bioma-explorer-header {
+        gap: 15px !important;
+        padding-bottom: 0 !important;
+    }
+
+    .bioma-explorer-header-top h2 {
+        font-size: 1.4rem !important;
+    }
+
+    .bioma-explorer-header-top i {
+        font-size: 1.4rem !important;
+    }
+
+    .bioma-explorer-tabs {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        gap: 8px !important;
+        width: 100% !important;
+    }
+
+    .bioma-tab-btn {
+        padding: 8px 10px !important;
+        font-size: 0.8rem !important;
+        flex: 1 1 auto !important;
+        min-width: 80px !important;
+        text-align: center !important;
+    }
+
+    .bioma-preview-info-pane {
+        position: absolute !important;
+        bottom: 20px !important;
+        left: 20px !important;
+        width: auto !important;
+        max-width: calc(100% - 40px) !important;
+        min-width: 0 !important;
+        box-sizing: border-box !important;
+        display: flex !important;
+        flex-direction: row !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        gap: 8px !important;
+        padding: 8px 12px !important;
+        border-radius: 12px !important;
+        background: rgba(15, 23, 42, 0.65) !important;
+    }
+
+    .bioma-preview-info-pane h3 {
+        font-size: 1.1rem !important;
+        text-align: left !important;
+        white-space: normal !important;
+        word-break: break-word !important;
+        flex: 1 !important;
+        margin: 0 !important;
+    }
+
+    .bioma-explore-link {
+        padding: 6px 10px !important;
+        font-size: 0.75rem !important;
+        width: auto !important;
+        box-sizing: border-box !important;
+        justify-content: center !important;
+        flex-shrink: 0 !important;
+    }
+
+    .bioma-list-pane {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        padding: 0 !important;
+        height: auto !important;
+        overflow-y: visible !important;
+        box-sizing: border-box !important;
+    }
+}
+
+
+/* =========================================================
+   FIX MOBILE - EXPLORAR POR BIOMAS
+   Corrige largura, título, tabs, botão "Ver Animais" e lista
+   ========================================================= */
+
+@media (max-width: 850px) {
+    html,
+    body {
+        overflow-x: hidden !important;
+    }
+
+    main {
+        width: 100% !important;
+        max-width: 100% !important;
+        overflow-x: hidden !important;
+        box-sizing: border-box !important;
+    }
+
+    .bioma-explorer-card {
+        width: calc(100% - 20px) !important;
+        max-width: calc(100% - 20px) !important;
+        min-width: 0 !important;
+        margin: 1.5rem auto 2rem auto !important;
+        display: flex !important;
+        flex-direction: column !important;
+        height: auto !important;
+        border-radius: 20px !important;
+        overflow: hidden !important;
+        box-sizing: border-box !important;
+        padding: 20px !important;
+        gap: 20px !important;
+    }
+
+    .bioma-explorer-header {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        gap: 14px !important;
+        padding-bottom: 0 !important;
+        box-sizing: border-box !important;
+    }
+
+    .bioma-explorer-header-top {
+        width: 100% !important;
+        min-width: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 10px !important;
+        box-sizing: border-box !important;
+    }
+
+    .bioma-explorer-header-top h2 {
+        min-width: 0 !important;
+        max-width: 100% !important;
+        font-size: clamp(1.05rem, 5.8vw, 1.45rem) !important;
+        line-height: 1.1 !important;
+        white-space: normal !important;
+        overflow-wrap: anywhere !important;
+        word-break: normal !important;
+        margin: 0 !important;
+    }
+
+    .bioma-explorer-header-top i {
+        font-size: 1.3rem !important;
+        flex-shrink: 0 !important;
+    }
+
+    .bioma-explorer-tabs {
+        display: grid !important;
+        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+        gap: 8px !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        overflow: visible !important;
+        box-sizing: border-box !important;
+        padding-bottom: 0 !important;
+    }
+
+    .bioma-tab-btn {
+        min-width: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 9px 5px !important;
+        font-size: clamp(0.68rem, 3.2vw, 0.82rem) !important;
+        line-height: 1 !important;
+        border-radius: 11px !important;
+        text-align: center !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        box-sizing: border-box !important;
+    }
+
+    .bioma-preview-info-pane {
+        position: absolute !important;
+        bottom: 20px !important;
+        left: 20px !important;
+        width: auto !important;
+        max-width: calc(100% - 40px) !important;
+        min-width: 0 !important;
+        box-sizing: border-box !important;
+        display: grid !important;
+        grid-template-columns: minmax(0, 1fr) auto !important;
+        align-items: center !important;
+        justify-content: initial !important;
+        gap: 8px !important;
+        padding: 10px 12px !important;
+        border-radius: 14px !important;
+        background: rgba(15, 23, 42, 0.68) !important;
+    }
+
+    .bioma-preview-info-pane h3 {
+        min-width: 0 !important;
+        max-width: 100% !important;
+        font-size: clamp(1rem, 5.2vw, 1.35rem) !important;
+        line-height: 1.15 !important;
+        margin: 0 !important;
+        text-align: left !important;
+        white-space: normal !important;
+        overflow-wrap: anywhere !important;
+        word-break: normal !important;
+    }
+
+    .bioma-explore-link {
+        width: auto !important;
+        max-width: 105px !important;
+        min-width: 0 !important;
+        padding: 7px 9px !important;
+        font-size: 0.72rem !important;
+        line-height: 1 !important;
+        border-radius: 9px !important;
+        white-space: nowrap !important;
+        flex-shrink: 1 !important;
+        justify-content: center !important;
+        box-sizing: border-box !important;
+    }
+
+    .bioma-explore-link span {
+        min-width: 0 !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        white-space: nowrap !important;
+    }
+
+    .bioma-explore-link i {
+        font-size: 0.7rem !important;
+        flex-shrink: 0 !important;
+    }
+
+    .bioma-list-pane {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        height: auto !important;
+        padding: 0 !important;
+        overflow-y: visible !important;
+        overflow-x: hidden !important;
+        border-radius: 0 !important;
+        border-right: none !important;
+        border-top: none !important;
+        box-sizing: border-box !important;
+    }
+
+    .bioma-item {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
+        justify-content: flex-start !important;
+        gap: 10px !important;
+        min-width: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 10px 12px !important;
+        border-radius: 12px !important;
+        box-sizing: border-box !important;
+    }
+
+    .bioma-item-left {
+        display: flex !important;
+        align-items: center !important;
+        min-width: 0 !important;
+    }
+
+    .bioma-item-title {
+        min-width: 0 !important;
+        font-size: clamp(0.78rem, 3.5vw, 0.9rem) !important;
+        line-height: 1.2 !important;
+        white-space: normal !important;
+        overflow-wrap: anywhere !important;
+        word-break: normal !important;
+    }
+
+    .bioma-preview-info-pane {
+        display: none !important;
+    }
+
+    .bioma-item-mobile-link {
+        display: none !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 8px !important;
+        border: none !important;
+        cursor: pointer !important;
+        appearance: none !important;
+        -webkit-appearance: none !important;
+        width: 100% !important;
+        padding: 9px 12px !important;
+        border-radius: 10px !important;
+        background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%) !important;
+        color: #ffffff !important;
+        font-size: 0.76rem !important;
+        font-weight: 700 !important;
+        line-height: 1.1 !important;
+        text-decoration: none !important;
+        box-sizing: border-box !important;
+        box-shadow: 0 6px 18px rgba(6, 182, 212, 0.28) !important;
+    }
+
+    .bioma-item.active .bioma-item-mobile-link {
+        display: inline-flex !important;
+    }
+
+    .bioma-item-mobile-link i {
+        font-size: 0.72rem !important;
+        flex-shrink: 0 !important;
+    }
+}
+
+@media (max-width: 390px) {
+    .bioma-explorer-card {
+        width: calc(100% - 14px) !important;
+        max-width: calc(100% - 14px) !important;
+        padding: 16px 10px !important;
+        gap: 16px !important;
+    }
+
+    .bioma-explorer-tabs {
+        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+        gap: 6px !important;
+    }
+
+    .bioma-tab-btn {
+        padding: 8px 4px !important;
+        font-size: 0.68rem !important;
+    }
+
+    .bioma-item-mobile-link {
+        width: 100% !important;
+        max-width: none !important;
+        justify-content: center !important;
+        padding: 8px 10px !important;
+    }
+}
