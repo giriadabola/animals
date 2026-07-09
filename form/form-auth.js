@@ -4,15 +4,31 @@ import { doc, getDoc } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-
 
 const overlay = document.getElementById('loading-overlay');
 const status = document.getElementById('loading-status');
+let authReady = false;
+let scientificGateReady = document.documentElement.dataset.formScientificReady === 'true';
+let overlayRemoved = false;
 
 function setStatus(message) {
     if (status) status.textContent = message;
 }
 
 function goToLogin() {
-    const redirectTarget = 'form/form.html';
+    const redirectTarget = 'form.html';
     window.location.href = `../login.html?redirect=${encodeURIComponent(redirectTarget)}`;
 }
+
+function hideOverlayWhenReady() {
+    if (!overlay || overlayRemoved || !authReady || !scientificGateReady) return;
+    overlayRemoved = true;
+    overlay.style.opacity = '0';
+    overlay.style.visibility = 'hidden';
+    setTimeout(() => overlay.remove(), 350);
+}
+
+window.addEventListener('form:scientificGateReady', () => {
+    scientificGateReady = true;
+    hideOverlayWhenReady();
+});
 
 onAuthStateChanged(auth, async (user) => {
     try {
@@ -32,7 +48,9 @@ onAuthStateChanged(auth, async (user) => {
             return;
         }
 
-        overlay?.remove();
+        authReady = true;
+        setStatus('A preparar a secção Nome Científico...');
+        hideOverlayWhenReady();
     } catch (error) {
         console.error('Erro na autorização do formulário:', error);
         setStatus('Erro ao verificar autorização.');
