@@ -3,7 +3,7 @@
   "short_name": "Admin",
   "description": "Ícone administrativo da app de animais.",
   "start_url": "./form.html",
-  "scope": "./form.html",
+  "scope": "./",
   "display": "standalone",
   "background_color": "#0b2f22",
   "theme_color": "#0b2f22",
