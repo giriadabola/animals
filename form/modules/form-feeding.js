@@ -79,11 +79,21 @@
         const feedingModelOptions = [
             'Tipo de Alimentação',
             'Alimento Ingerido em Média',
-            'Água bebida em Média'
+            'Água bebida em Média',
+            'Estratégia para obter alimentos'
         ];
 
         const feedingFoodUnits = ['g/dia', 'g/semana', 'g/mes', 'g/ano', 'kg/dia', 'kg/semana', 'kg/mes', 'kg/ano'];
         const feedingWaterUnits = ['l/dia', 'l/semana', 'l/mes', 'l/ano'];
+
+        function isFeedingStrategyModel(tipo = '') {
+            const normalized = normalizeSearchText(tipo);
+            return normalized.includes('estrategia') && normalized.includes('alimento');
+        }
+
+        function getFeedingStrategyOptions() {
+            return [...getGeneralVisualSelectOptions('Estratégia para obter alimento')].sort((a, b) => a.localeCompare(b));
+        }
 
         function fillFeedingTypeSelect(select, selectedValue = '') {
             const sortedTypes = [...feedingTypes].sort((a, b) => a.localeCompare(b));
@@ -150,6 +160,15 @@
 
                 [minInput, maxInput].forEach(input => input.addEventListener('input', updateFeedingPreview));
                 controls.append(minInput, maxInput, unitSelect);
+            } else if (isFeedingStrategyModel(tipo)) {
+                const strategySelect = document.createElement('select');
+                strategySelect.className = 'feeding-strategy-value';
+                const options = getFeedingStrategyOptions();
+                strategySelect.innerHTML = '<option value="">Escolhe uma estratégia</option>' +
+                    options.map(option => `<option value="${option}">${option}</option>`).join('');
+                strategySelect.value = options.includes(detail) ? detail : '';
+                strategySelect.addEventListener('change', updateFeedingPreview);
+                controls.append(strategySelect);
             } else {
                 const parsed = parseFeedingTypeDetail(detail);
 
@@ -220,6 +239,11 @@
                 return detail ? { tipo, detalhe: detail, ...meta } : null;
             }
 
+            if (isFeedingStrategyModel(tipo)) {
+                const detail = row.querySelector('.feeding-strategy-value')?.value || '';
+                return detail ? { tipo: 'Estratégia para obter alimentos', detalhe: detail, ...meta } : null;
+            }
+
             const feedingTypeVal = row.querySelector('.feeding-type-value')?.value || '';
             const detailVal = row.querySelector('.feeding-detail-value')?.value.trim() || '';
             if (!feedingTypeVal && !detailVal) return null;
@@ -258,7 +282,8 @@
             const nutritionMetaByType = {
                 'Tipo de Alimentação': { key: 'alimentacaoTipo', title: 'Tipo de Alimentação', accent: 'accent-food', fallback: 'Seleciona o tipo e escreve o detalhe livre' },
                 'Alimento Ingerido em Média': { key: 'alimentoMedio', title: 'Alimento Ingerido em Média', accent: 'accent-meal', fallback: 'Indica mínimo, máximo e unidade' },
-                'Água bebida em Média': { key: 'aguaMedia', title: 'Água bebida em Média', accent: 'accent-water', fallback: 'Indica mínimo, máximo e unidade' }
+                'Água bebida em Média': { key: 'aguaMedia', title: 'Água bebida em Média', accent: 'accent-water', fallback: 'Indica mínimo, máximo e unidade' },
+                'Estratégia para obter alimentos': { key: 'estrategiaAlimentar', title: 'Estratégia para obter alimentos', accent: 'accent-feeding-strategy', fallback: 'Escolhe a estratégia alimentar' }
             };
             if (nutritionMetaByType[type]) {
                 const meta = nutritionMetaByType[type];
@@ -267,9 +292,12 @@
                     const [feedingType, freeText] = detail.split(' | ');
                     detail = freeText ? `${feedingType} — ${freeText}` : feedingType;
                 }
+                const icon = type === 'Estratégia para obter alimentos'
+                    ? getFeedingStrategySvg(getFeedingStrategyMeta(rawDetail || '').key)
+                    : getReproductionModelSvg(meta.key);
                 return `
                     <article class="dimension-model-card feeding-model-card reproduction-model-card ${meta.accent}${isSuggestion ? ' is-suggestion' : ''}">
-                        <div class="dimension-model-icon">${getReproductionModelSvg(meta.key)}</div>
+                        <div class="dimension-model-icon">${icon}</div>
                         <div class="dimension-model-copy">
                             <div class="dimension-model-label">${meta.title}</div>
                             <div class="dimension-model-value">${detail}</div>

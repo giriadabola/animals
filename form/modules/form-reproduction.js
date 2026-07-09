@@ -100,8 +100,20 @@
             const optAguaMedia = document.createElement('option');
             optAguaMedia.value = 'agua_media';
             optAguaMedia.textContent = 'Água bebida em Média';
+
+            const optEpocaReproducao = document.createElement('option');
+            optEpocaReproducao.value = 'epoca_reproducao';
+            optEpocaReproducao.textContent = 'Época de reprodução';
+
+            const optNumeroOvos = document.createElement('option');
+            optNumeroOvos.value = 'numero_ovos';
+            optNumeroOvos.textContent = 'Número de ovos';
+
+            const optTempoEclosao = document.createElement('option');
+            optTempoEclosao.value = 'tempo_eclosao';
+            optTempoEclosao.textContent = 'Tempo até à eclosão';
             
-            rowModeSelect.append(optTipo, optAcasalamento, optGestacao, optMaturidade, optCrias);
+            rowModeSelect.append(optTipo, optAcasalamento, optGestacao, optMaturidade, optCrias, optEpocaReproducao, optNumeroOvos, optTempoEclosao);
 
             const typeSelect = document.createElement('select');
             typeSelect.className = 'reproduction-type';
@@ -146,6 +158,21 @@
             unitSelect.append(optDias, optSemanas, optMeses);
             unitSelect.value = 'meses';
 
+            const seasonStartSelect = document.createElement('select');
+            seasonStartSelect.className = 'reproduction-season-start';
+            const seasonEndSelect = document.createElement('select');
+            seasonEndSelect.className = 'reproduction-season-end';
+            const reproductionSeasonOptions = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro', 'Primavera', 'Verão', 'Outono', 'Inverno'];
+            function fillReproductionSeasonSelect(select, selectedValue = '', placeholder = 'Escolhe') {
+                const hasSelected = selectedValue && reproductionSeasonOptions.includes(selectedValue);
+                select.innerHTML = `<option value="">${placeholder}</option>` +
+                    reproductionSeasonOptions.map(option => `<option value="${option}">${option}</option>`).join('') +
+                    (selectedValue && !hasSelected ? `<option value="${selectedValue}">${selectedValue}</option>` : '');
+                select.value = selectedValue || '';
+            }
+            fillReproductionSeasonSelect(seasonStartSelect, '', 'Início');
+            fillReproductionSeasonSelect(seasonEndSelect, '', 'Fim');
+
             const removeBtn = document.createElement('button');
             removeBtn.type = 'button';
             removeBtn.className = 'remove-dimension-btn';
@@ -164,6 +191,10 @@
             const isAlimentacaoTipo = typeStr === 'Tipo de Alimentação';
             const isAlimentoMedio = typeStr === 'Alimento Ingerido em Média';
             const isAguaMedia = typeStr === 'Água bebida em Média';
+            const normalizedReproductionType = normalizeSearchText(typeStr);
+            const isEpocaReproducao = normalizedReproductionType.includes('epoca de reproducao') || normalizedReproductionType.includes('época de reprodução');
+            const isNumeroOvos = normalizedReproductionType.includes('numero de ovos') || normalizedReproductionType.includes('número de ovos');
+            const isTempoEclosao = normalizedReproductionType.includes('tempo ate a eclosao') || normalizedReproductionType.includes('tempo até à eclosão') || normalizedReproductionType.includes('eclosao');
 
             if (isGestation) {
                 rowModeSelect.value = 'gestacao';
@@ -308,6 +339,42 @@
                     });
                     unitSelect.value = unitVal;
                 }
+            } else if (isEpocaReproducao) {
+                rowModeSelect.value = 'epoca_reproducao';
+                if (detailStr) {
+                    const parts = detailStr.split(/\s*(?:[-–—]|\ba\b)\s*/i).map(part => part.trim()).filter(Boolean);
+                    fillReproductionSeasonSelect(seasonStartSelect, parts[0] || '', 'Início');
+                    fillReproductionSeasonSelect(seasonEndSelect, parts[1] || parts[0] || '', 'Fim');
+                }
+            } else if (isNumeroOvos) {
+                rowModeSelect.value = 'numero_ovos';
+                if (detailStr) {
+                    const numbers = detailStr.match(/\d+(?:[.,]\d+)?/g);
+                    if (numbers) {
+                        minInput.value = numbers[0] || '';
+                        maxInput.value = numbers[1] || '';
+                    }
+                }
+            } else if (isTempoEclosao) {
+                rowModeSelect.value = 'tempo_eclosao';
+                let unitVal = 'dias';
+                if (detailStr) {
+                    const match = detailStr.match(/(\d+(?:[.,]\d+)?)(?:\s*[-–]\s*(\d+(?:[.,]\d+)?))?\s*(segundos|segundo|minutos|minuto|horas|hora|dias|dia|semanas|semana|meses|mês|mes|anos|ano)/i);
+                    if (match) {
+                        minInput.value = match[1] || '';
+                        maxInput.value = match[2] || '';
+                        const matchedUnit = match[3].toLowerCase();
+                        if (matchedUnit.includes('segundo')) unitVal = 'segundos';
+                        else if (matchedUnit.includes('minuto')) unitVal = 'minutos';
+                        else if (matchedUnit.includes('hora')) unitVal = 'horas';
+                        else if (matchedUnit.includes('semana')) unitVal = 'semanas';
+                        else if (matchedUnit.includes('mes') || matchedUnit.includes('mês')) unitVal = 'meses';
+                        else if (matchedUnit.includes('ano')) unitVal = 'anos';
+                        else unitVal = 'dias';
+                    }
+                }
+                unitSelect.dataset.eclosaoUnit = unitVal;
+                unitSelect.value = unitVal;
             } else {
                 rowModeSelect.value = 'tipo';
                 fillReproductionTypeSelect(typeSelect, typeStr);
@@ -317,7 +384,7 @@
                 row.innerHTML = '';
                 row.append(rowModeSelect);
                 if (rowModeSelect.value === 'tipo') {
-                    fillReproductionTypeSelect(typeSelect, typeSelect.value || (!isGestation && !isCrias && !isMaturidade && !isMating && !isAlimentacaoTipo && !isAlimentoMedio && !isAguaMedia ? typeStr : ''));
+                    fillReproductionTypeSelect(typeSelect, typeSelect.value || (!isGestation && !isCrias && !isMaturidade && !isMating && !isAlimentacaoTipo && !isAlimentoMedio && !isAguaMedia && !isEpocaReproducao && !isNumeroOvos && !isTempoEclosao ? typeStr : ''));
                     row.append(typeSelect, genderBtn, faseBtn, removeBtn);
                 } else if (rowModeSelect.value === 'acasalamento') {
                     fillMatingTypeSelect(matingSelect, matingSelect.value || initialMatingValue);
@@ -347,6 +414,33 @@
                     maxInput.placeholder = 'Máx: 5';
                     const spacer = document.createElement('div');
                     row.append(minInput, maxInput, spacer, genderBtn, faseBtn, removeBtn);
+                } else if (rowModeSelect.value === 'epoca_reproducao') {
+                    fillReproductionSeasonSelect(seasonStartSelect, seasonStartSelect.value, 'Início');
+                    fillReproductionSeasonSelect(seasonEndSelect, seasonEndSelect.value, 'Fim');
+                    row.append(seasonStartSelect, seasonEndSelect, genderBtn, faseBtn, removeBtn);
+                } else if (rowModeSelect.value === 'numero_ovos') {
+                    minInput.className = 'reproduction-gestation-min';
+                    maxInput.className = 'reproduction-gestation-max';
+                    minInput.placeholder = 'Mín: 1';
+                    maxInput.placeholder = 'Máx: 5';
+                    const spacer = document.createElement('div');
+                    row.append(minInput, maxInput, spacer, genderBtn, faseBtn, removeBtn);
+                } else if (rowModeSelect.value === 'tempo_eclosao') {
+                    minInput.className = 'reproduction-gestation-min';
+                    maxInput.className = 'reproduction-gestation-max';
+                    minInput.placeholder = 'Mín: 10';
+                    maxInput.placeholder = 'Máx: 15';
+                    const previousUnit = unitSelect.dataset.eclosaoUnit || unitSelect.value;
+                    const hatchUnits = ['segundos', 'minutos', 'horas', 'dias', 'semanas', 'meses', 'anos'];
+                    unitSelect.innerHTML = '';
+                    hatchUnits.forEach(u => {
+                        const opt = document.createElement('option');
+                        opt.value = u;
+                        opt.textContent = u;
+                        unitSelect.append(opt);
+                    });
+                    unitSelect.value = hatchUnits.includes(previousUnit) ? previousUnit : 'dias';
+                    row.append(minInput, maxInput, unitSelect, genderBtn, faseBtn, removeBtn);
                 } else if (rowModeSelect.value === 'alimento_medio') {
                     minInput.className = 'reproduction-gestation-min nutrition-amount-min';
                     maxInput.className = 'reproduction-gestation-max nutrition-amount-max';
@@ -400,9 +494,14 @@
             feedingDetailInput.addEventListener('input', updateReproductionPreview);
             minInput.addEventListener('input', updateReproductionPreview);
             maxInput.addEventListener('input', updateReproductionPreview);
+            seasonStartSelect.addEventListener('change', updateReproductionPreview);
+            seasonEndSelect.addEventListener('change', updateReproductionPreview);
             unitSelect.addEventListener('change', () => {
                 if (rowModeSelect.value === 'maturidade_sexual') {
                     unitSelect.dataset.maturidadeUnit = unitSelect.value;
+                }
+                if (rowModeSelect.value === 'tempo_eclosao') {
+                    unitSelect.dataset.eclosaoUnit = unitSelect.value;
                 }
                 updateReproductionPreview();
             });
@@ -602,6 +701,42 @@
                             tipo: 'Número de Crias',
                             detalhe: detail
                         };
+                    } else if (rowModeSelect.value === 'epoca_reproducao') {
+                        const inicio = row.querySelector('.reproduction-season-start')?.value || '';
+                        const fim = row.querySelector('.reproduction-season-end')?.value || '';
+                        const detail = inicio && fim ? `${inicio}-${fim}` : (inicio || fim);
+                        return {
+                            ...rowMeta,
+                            tipo: 'Época de reprodução',
+                            detalhe: detail
+                        };
+                    } else if (rowModeSelect.value === 'numero_ovos') {
+                        const min = row.querySelector('.reproduction-gestation-min')?.value || '';
+                        const max = row.querySelector('.reproduction-gestation-max')?.value || '';
+                        let detail = '';
+                        if (min && max) {
+                            detail = `${min}-${max} ovos`;
+                        } else if (min) {
+                            detail = `${min} ovos`;
+                        } else if (max) {
+                            detail = `${max} ovos`;
+                        }
+                        return {
+                            ...rowMeta,
+                            tipo: 'Número de ovos',
+                            detalhe: detail
+                        };
+                    } else if (rowModeSelect.value === 'tempo_eclosao') {
+                        const detail = buildRangeDetail(
+                            row.querySelector('.reproduction-gestation-min')?.value || '',
+                            row.querySelector('.reproduction-gestation-max')?.value || '',
+                            row.querySelector('.reproduction-gestation-unit')?.value || 'dias'
+                        );
+                        return {
+                            ...rowMeta,
+                            tipo: 'Tempo até à eclosão',
+                            detalhe: detail
+                        };
                     } else {
                         const min = row.querySelector('.reproduction-gestation-min')?.value || '';
                         const max = row.querySelector('.reproduction-gestation-max')?.value || '';
@@ -654,6 +789,9 @@
         function getReproductionVisualMeta(type = '') {
             const normalized = normalizeDimensionKey(type);
             if (normalized.includes('acasalamento')) return { key: 'acasalamento', title: type || 'Acasalamento', accent: 'accent-generic' };
+            if (normalized.includes('epoca de reproducao') || normalized.includes('época de reprodução')) return { key: 'epocaReproducao', title: type || 'Época de reprodução', accent: 'accent-season' };
+            if (normalized.includes('numero de ovos') || normalized.includes('número de ovos')) return { key: 'numeroOvos', title: type || 'Número de ovos', accent: 'accent-egg' };
+            if (normalized.includes('tempo ate a eclosao') || normalized.includes('tempo até à eclosão') || normalized.includes('eclosao')) return { key: 'tempoEclosao', title: type || 'Tempo até à eclosão', accent: 'accent-hatching' };
             if (normalized.includes('maturidade sexual') || normalized.includes('maturidade')) return { key: 'maturidade', title: type || 'Maturidade Sexual', accent: 'accent-maturity' };
             if (normalized.includes('gestacao') || normalized.includes('gestação') || normalized.includes('gravidez') || normalized.includes('tempo')) {
                 return { key: 'gestacao', title: type || 'Gestação', accent: 'accent-weight' };
@@ -698,6 +836,9 @@
                 alimentoMedio: `<svg class="metric-model-svg reproduction-icon-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M24 28h32l-4 35H28L24 28Z"/><path d="M20 28h40"/><path d="M31 28c0-8 18-8 18 0"/><path d="M33 43h14"/><path d="M33 53h10"/></svg>`,
                 aguaMedia: `<svg class="metric-model-svg reproduction-icon-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M40 10c12 16 22 29 22 42c0 12-9 20-22 20S18 64 18 52c0-13 10-26 22-42Z"/><path d="M30 55c4 6 11 8 18 4"/><path d="M50 27c7 9 10 16 9 24"/></svg>`,
                 maturidade: `<svg class="metric-model-svg reproduction-icon-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><circle cx="40" cy="40" r="24"/><path d="M40 18v14"/><path d="M40 48v14"/><path d="M28 40h24"/><path d="M52 28l10-10"/><path d="M54 18h8v8"/><path d="M28 59c4-7 8-10 12-10s8 3 12 10"/></svg>`,
+                epocaReproducao: `<svg class="metric-model-svg reproduction-icon-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><rect x="18" y="18" width="44" height="44" rx="6"/><path d="M18 30h44"/><path d="M30 12v12"/><path d="M50 12v12"/><path d="M28 42h8"/><path d="M44 42h8"/><path d="M28 52h8"/><path d="M44 52h8"/></svg>`,
+                numeroOvos: `<svg class="metric-model-svg reproduction-icon-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M30 17c8 0 14 11 14 22c0 10-5 18-14 18S16 49 16 39c0-11 6-22 14-22Z"/><path d="M50 24c8 0 14 10 14 20c0 9-5 16-14 16s-14-7-14-16c0-10 6-20 14-20Z"/><path d="M26 63h30"/></svg>`,
+                tempoEclosao: `<svg class="metric-model-svg reproduction-icon-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M40 10c13 0 23 17 23 33c0 15-9 27-23 27S17 58 17 43C17 27 27 10 40 10Z"/><path d="M33 30l8 10l-7 4l10 9"/><path d="M50 30l-8 10l7 4l-10 9"/><path d="M28 62c7 5 17 6 25 0"/></svg>`,
                 reproducao: `<svg class="metric-model-svg reproduction-icon-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M40 13c15 0 27 12 27 27S55 67 40 67S13 55 13 40S25 13 40 13Z"/><path d="M40 25v30"/><path d="M25 40h30"/></svg>`
             };
             return icons[key] || icons.reproducao;

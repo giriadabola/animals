@@ -7,6 +7,7 @@
             if (normalized.includes('competidor')) return 'Competidores';
             if (normalized.includes('ameaca') || normalized.includes('ameaça')) return 'Ameaças naturais';
             if (normalized.includes('simbiot')) return 'Relações Simbióticas';
+            if (normalized.includes('importancia economica') || normalized.includes('importância económica')) return 'Importância económica para os humanos';
             return type || '';
         }
 
@@ -238,6 +239,22 @@
             return controls;
         }
 
+        function createEcologyEconomicImportanceSelector(value = '') {
+            const controls = document.createElement('div');
+            controls.className = 'ecology-detail-controls';
+            const select = document.createElement('select');
+            select.className = 'ecology-economic-importance-value';
+            const options = ['Negativa', 'Positiva', 'Neutra'];
+            const hasSelected = value && options.includes(value);
+            select.innerHTML = '<option value="">Escolhe a importância económica</option>' +
+                options.map(option => `<option value="${option}">${option}</option>`).join('') +
+                (value && !hasSelected ? `<option value="${value}">${value}</option>` : '');
+            select.value = value || '';
+            select.addEventListener('change', updateEcologyPreview);
+            controls.append(select);
+            return controls;
+        }
+
         function createEcologyRow(type = '', data = {}) {
             const row = document.createElement('div');
             row.className = 'ecology-row';
@@ -245,6 +262,9 @@
             const typeSelect = document.createElement('select');
             typeSelect.className = 'ecology-type';
             fillEcologyTypeSelect(typeSelect, type || data.tipo || '');
+
+            const genderBtn = createModelGenderButton(data.genero || data.gender || GENDER_BOTH, updateEcologyPreview, 'ecology-gender-toggle');
+            const faseBtn = createModelFaseButton(data.fase || 'Adulto', updateEcologyPreview, 'ecology-fase-toggle');
 
             const removeBtn = document.createElement('button');
             removeBtn.type = 'button';
@@ -256,10 +276,15 @@
                 const oldControls = row.querySelector('.ecology-detail-controls');
                 if (oldControls) oldControls.remove();
                 const currentType = normalizeEcologyType(typeSelect.value);
-                const controls = currentType === 'Função Ecológica'
-                    ? createEcologyFunctionSelector(data.valor || data.detalhe || '')
-                    : createEcologyAnimalSelector(data.animais || data.animalIds || [], currentType === 'Ameaças naturais' ? (data.texto || data.detalhe || '') : null);
-                row.insertBefore(controls, removeBtn);
+                let controls;
+                if (currentType === 'Função Ecológica') {
+                    controls = createEcologyFunctionSelector(data.valor || data.detalhe || '');
+                } else if (currentType === 'Importância económica para os humanos') {
+                    controls = createEcologyEconomicImportanceSelector(data.valor || data.detalhe || '');
+                } else {
+                    controls = createEcologyAnimalSelector(data.animais || data.animalIds || [], currentType === 'Ameaças naturais' ? (data.texto || data.detalhe || '') : null);
+                }
+                row.insertBefore(controls, genderBtn);
             }
 
             typeSelect.addEventListener('change', () => {
@@ -273,7 +298,7 @@
                 updateEcologyPreview();
             });
 
-            row.append(typeSelect, removeBtn);
+            row.append(typeSelect, genderBtn, faseBtn, removeBtn);
             ecologyRowsContainer.appendChild(row);
             renderControls();
             updateEcologyPreview();
@@ -284,15 +309,23 @@
                 .map(row => {
                     const tipo = normalizeEcologyType(row.querySelector('.ecology-type')?.value || '');
                     if (!tipo) return null;
+                    const rowMeta = {
+                        genero: normalizeGenderValue(row.querySelector('.ecology-gender-toggle')?.dataset.value, GENDER_BOTH),
+                        fase: row.querySelector('.ecology-fase-toggle')?.dataset.value || 'Adulto'
+                    };
                     if (tipo === 'Função Ecológica') {
                         const valor = row.querySelector('.ecology-function-value')?.value || '';
-                        return valor ? { tipo, valor } : null;
+                        return valor ? { ...rowMeta, tipo, valor } : null;
+                    }
+                    if (tipo === 'Importância económica para os humanos') {
+                        const valor = row.querySelector('.ecology-economic-importance-value')?.value || '';
+                        return valor ? { ...rowMeta, tipo, valor } : null;
                     }
                     const hidden = row.querySelector('.ecology-selected-animals');
                     const animais = hidden ? getEcologySelectedRefs(hidden) : [];
                     const texto = row.querySelector('.ecology-free-text')?.value.trim() || '';
                     if (!animais.length && !texto) return null;
-                    return { tipo, animais, animalIds: animais.map(animal => animal.id).filter(Boolean), texto };
+                    return { ...rowMeta, tipo, animais, animalIds: animais.map(animal => animal.id).filter(Boolean), texto };
                 })
                 .filter(Boolean);
         }
@@ -320,10 +353,13 @@
                     valor: item.valor || item.detalhe || '',
                     animais: normalizeEcologyRefs(item.animais || item.animalIds || []),
                     animalIds: item.animalIds || [],
-                    texto: item.texto || ''
+                    texto: item.texto || '',
+                    genero: item.genero || item.gender || GENDER_BOTH,
+                    fase: item.fase || 'Adulto'
                 }));
             } else {
                 if (ecologia?.funcaoEcologica) items.push({ tipo: 'Função Ecológica', valor: ecologia.funcaoEcologica });
+                if (ecologia?.importanciaEconomicaHumanos) items.push({ tipo: 'Importância económica para os humanos', valor: ecologia.importanciaEconomicaHumanos });
                 Object.entries(ecologyRelationKeys).forEach(([tipo, key]) => {
                     if (Array.isArray(ecologia?.[key]) && ecologia[key].length) {
                         items.push({ tipo, animais: normalizeEcologyRefs(ecologia[key]), texto: tipo === 'Ameaças naturais' ? (ecologia.ameacasNaturaisTexto || '') : '' });
@@ -435,16 +471,24 @@
                 competidores: getEcologyRelation(items, 'Competidores'),
                 ameacasNaturais: getEcologyRelation(items, 'Ameaças naturais'),
                 ameacasNaturaisTexto: items.find(item => item.tipo === 'Ameaças naturais')?.texto || '',
-                relacoesSimbioticas: getEcologyRelation(items, 'Relações Simbióticas')
+                relacoesSimbioticas: getEcologyRelation(items, 'Relações Simbióticas'),
+                importanciaEconomicaHumanos: getPreferredEcologyValue(items, 'Importância económica para os humanos')
             };
             return result;
         }
 
         function getEcologyVisualMeta(type = '') {
+            const normalized = normalizeSearchText(type);
+            if (normalized.includes('importancia economica') || normalized.includes('importância económica')) {
+                return { key: 'importancia-economica-humanos', title: type || 'Importância económica para os humanos', accent: 'accent-economic-importance' };
+            }
             return getSharedEcologyVisualMeta(type);
         }
 
         function getEcologyModelSvg(key = 'ecologia') {
+            if (key === 'importancia-economica-humanos') {
+                return `<svg class="metric-model-svg ecology-icon-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M18 58h44"/><path d="M24 58V34h12v24"/><path d="M44 58V22h12v36"/><path d="M18 34l22-16l22 16"/><path d="M34 44h12"/><path d="M40 38v12"/></svg>`;
+            }
             return getSharedEcologyModelSvg(key);
         }
 
@@ -459,6 +503,19 @@
 
         function renderEcologyModelCard(item, isSuggestion = false) {
             const type = item.tipo || item;
+            if (type === 'Importância económica para os humanos') {
+                const meta = getEcologyVisualMeta(type);
+                const value = item.valor || 'Escolhe Negativa, Positiva ou Neutra';
+                return `
+                    <article class="dimension-model-card ecology-model-card ${meta.accent}${isSuggestion ? ' is-suggestion' : ''}">
+                        <div class="dimension-model-icon">${getEcologyModelSvg(meta.key)}</div>
+                        <div class="dimension-model-copy">
+                            <div class="dimension-model-label">${meta.title}</div>
+                            <div class="dimension-model-value">${value}</div>
+                            <div class="dimension-model-meta">Modelo ecológico</div>
+                        </div>
+                    </article>`;
+            }
             if (type === 'Função Ecológica') {
                 const value = item.valor || 'Escolhe uma função ecológica';
                 const ecologicalMeta = item.valor && !isSuggestion ? getEcologicalFunctionMeta(item.valor) : null;

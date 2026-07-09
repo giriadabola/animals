@@ -663,6 +663,7 @@
                             tipoComunicacaoDescricao: getPreferredCuriosidadeDescription(curiosidadesDetalhadas, 'Tipo de Comunicação'),
                             temperaturaAmbiente: getPreferredCuriosidadeValue(curiosidadesDetalhadas, 'Temperatura do Ambiente'),
                             relacaoHumanos: getPreferredCuriosidadeValue(curiosidadesDetalhadas, 'Relação com Humanos'),
+                            importanciaEconomicaHumanos: getPreferredCuriosidadeValue(curiosidadesDetalhadas, 'Importância económica para os humanos'),
                             horasSono: getPreferredCuriosidadeValue(curiosidadesDetalhadas, 'Horas de Sono'),
                             distanciaPercorrida: getPreferredCuriosidadeValue(curiosidadesDetalhadas, 'Distância Percorrida'),
                             detalhes: curiosidadesDetalhadas,

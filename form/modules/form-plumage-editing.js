@@ -444,7 +444,12 @@
             }
 
             const curiData = animal.informacao.curiosidades || { cor: '', estadoConservacao: '', texto: '' };
-            setCuriosidadesData(normalizeCuriosidadesData(curiData));
+            const ecologyLegacyImportance = animal.informacao.ecologia?.importanciaEconomicaHumanos || '';
+            const normalizedCuriData = {
+                ...curiData,
+                importanciaEconomicaHumanos: curiData.importanciaEconomicaHumanos || ecologyLegacyImportance
+            };
+            setCuriosidadesData(normalizeCuriosidadesData(normalizedCuriData));
             document.getElementById('infoCuriosidades').value = curiData.texto || '';
             updateCuriosidadesPreview();
 
@@ -758,6 +763,7 @@
             'Tipo de Comunicação',
             'Temperatura do Ambiente',
             'Relação com Humanos',
+            'Importância económica para os humanos',
             'Horas de Sono',
             'Distância Percorrida'
         ];

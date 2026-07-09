@@ -10,13 +10,19 @@
         }
 
         generalVisualOptions.length = 0;
-        generalVisualOptions.push(...generalVisualCatalogOptions.filter(option => !isEcologyFunctionType(option.tipo)));
-        if (!generalVisualOptions.some(option => option.tipo === 'Expetativa média de vida')) {
-            generalVisualOptions.unshift({ tipo: 'Expetativa média de vida', unidade: 'anos' });
-        }
+        generalVisualOptions.push(...generalVisualCatalogOptions
+            .filter(option => !isEcologyFunctionType(option.tipo))
+            .filter(option => !isBaseLifeExpectancyGeneralModel(option.tipo))
+            .filter(option => !isFeedingStrategyGeneralModel(option.tipo))
+        );
+        generalVisualOptions.unshift({ tipo: 'Expetativa média de vida', unidade: 'anos' });
         [
             { tipo: 'Vida útil (cativeiro)', unidade: 'km/dia' },
-            { tipo: 'Expetativa média de vida (cativeiro)', unidade: 'km/dia' }
+            { tipo: 'Expetativa média de vida (cativeiro)', unidade: 'km/dia' },
+            { tipo: 'Taxa Metabólica Basal média', unidade: 'W' },
+            { tipo: 'Profundidade máxima', unidade: 'm' },
+            { tipo: 'Profundidade média', unidade: 'm' },
+            { tipo: 'Comportamento sazonal', unidade: '' }
         ].forEach(option => {
             if (!generalVisualOptions.some(existing => normalizeSearchText(existing.tipo) === normalizeSearchText(option.tipo))) {
                 generalVisualOptions.push(option);
@@ -24,7 +30,7 @@
         });
         generalVisualUnits.length = 0;
         generalVisualUnits.push(...generalVisualCatalogUnits);
-        ['segundos', 'minutos', 'horas', 'dias', 'semanas', 'meses', 'anos', 'milénios'].forEach(unit => {
+        ['segundos', 'minutos', 'horas', 'dias', 'semanas', 'meses', 'anos', 'milénios', 'm', 'cm', 'mm', 'km', 'kcal/dia', 'kJ/dia', 'W', 'J/s', 'ml O₂/h', 'L O₂/dia', 'kcal/kg/dia', 'W/kg', 'ml O₂/g/h'].forEach(unit => {
             if (!generalVisualUnits.includes(unit)) generalVisualUnits.push(unit);
         });
         if (!generalVisualOptions.some(option => option.tipo === 'Tempo de Amamentação')) {
@@ -41,7 +47,7 @@
         }
 
         function isDropdownOnlyGeneralModel(type = '') {
-            return isGeneralVisualCatalogDropdownOnly(type);
+            return isSeasonalBehaviorGeneralModel(type) || isGeneralVisualCatalogDropdownOnly(type);
         }
 
         function isPopulationGeneralModel(type = '') {
@@ -54,9 +60,55 @@
             return normalized.includes('amament');
         }
 
+        function isFeedingStrategyGeneralModel(type = '') {
+            const normalized = normalizeSearchText(type);
+            return normalized.includes('estrategia') && normalized.includes('alimento');
+        }
+
+        function isSeasonalBehaviorGeneralModel(type = '') {
+            const normalized = normalizeSearchText(type);
+            return normalized.includes('comportamento sazonal');
+        }
+
+        function getSeasonalBehaviorOptions() {
+            return [
+                'Migratório',
+                'Não-migratório',
+                'Parcialmente migratório',
+                'Nómada',
+                'Dispersivo',
+                'Hibernação',
+                'Estivação',
+                'Torpor',
+                'Reprodução sazonal',
+                'Alimentação sazonal',
+                'Mudança sazonal de habitat',
+                'Mudança sazonal de pelagem',
+                'Mudança sazonal de plumagem',
+                'Acumulação de gordura',
+                'Armazenamento de alimento',
+                'Redução de atividade na estação seca',
+                'Aumento de atividade na estação húmida'
+            ];
+        }
+
+        function isBaseLifeExpectancyGeneralModel(type = '') {
+            const normalized = normalizeSearchText(type);
+            return normalized.includes('espetativa media de vida') || normalized.includes('expectativa media de vida');
+        }
+
+        function isBasalMetabolicRateGeneralModel(type = '') {
+            return normalizeSearchText(type).includes('taxa metabolica basal');
+        }
+
+        function isDepthGeneralModel(type = '') {
+            const normalized = normalizeSearchText(type);
+            return normalized.includes('profundidade maxima') || normalized.includes('profundidade media');
+        }
+
         function isLifeExpectancyGeneralModel(type = '') {
             const normalized = normalizeSearchText(type);
-            return normalized.includes('espetativa media de vida') || normalized.includes('expectativa media de vida') || (normalized.includes('vida') && normalized.includes('media'));
+            return isBaseLifeExpectancyGeneralModel(type) || (normalized.includes('vida') && normalized.includes('media'));
         }
 
         function getLifeExpectancyUnits() {
@@ -72,7 +124,17 @@
             return ['m/dia', 'm/semana', 'm/mes', 'm/ano', 'km/dia', 'km/semana', 'km/mes', 'km/ano'];
         }
 
+        function getBasalMetabolicRateUnits() {
+            return ['kcal/dia', 'kJ/dia', 'W', 'J/s', 'ml O₂/h', 'L O₂/dia', 'kcal/kg/dia', 'W/kg', 'ml O₂/g/h'];
+        }
+
+        function getDepthUnits() {
+            return ['m', 'cm', 'mm', 'km'];
+        }
+
         function getGeneralUnitOptions(type = '') {
+            if (isBasalMetabolicRateGeneralModel(type)) return getBasalMetabolicRateUnits();
+            if (isDepthGeneralModel(type)) return getDepthUnits();
             if (isCaptivityMovementGeneralModel(type)) return getCaptivityMovementUnits();
             if (isLifeExpectancyGeneralModel(type)) return getLifeExpectancyUnits();
             if (isNursingGeneralModel(type)) return ['dias', 'meses', 'anos'];
@@ -81,6 +143,8 @@
         }
 
         function getGeneralDefaultUnit(type = '') {
+            if (isBasalMetabolicRateGeneralModel(type)) return 'W';
+            if (isDepthGeneralModel(type)) return 'm';
             if (isCaptivityMovementGeneralModel(type)) return 'km/dia';
             if (isLifeExpectancyGeneralModel(type)) return 'anos';
             if (isNursingGeneralModel(type)) return 'meses';
@@ -98,6 +162,8 @@
         }
 
         function getGeneralMinPlaceholder(type = '') {
+            if (isBasalMetabolicRateGeneralModel(type)) return 'Mín.';
+            if (isDepthGeneralModel(type)) return 'Mín.';
             if (isCaptivityMovementGeneralModel(type)) return 'Mín.';
             if (isPopulationGeneralModel(type)) return 'Ex: 1200';
             if (isNursingGeneralModel(type)) return 'Ex: 2';
@@ -106,6 +172,8 @@
         }
 
         function getGeneralMaxPlaceholder(type = '') {
+            if (isBasalMetabolicRateGeneralModel(type)) return 'Máx.';
+            if (isDepthGeneralModel(type)) return 'Máx.';
             if (isCaptivityMovementGeneralModel(type)) return 'Máx.';
             if (isPopulationGeneralModel(type)) return 'Ex: 3500';
             if (isNursingGeneralModel(type)) return 'Ex: 8';
@@ -161,8 +229,11 @@
             strategySelect.className = 'general-visual-strategy';
             strategySelect.style.display = 'none';
             function populateDropdownSelect(selectedType) {
-                const config = getGeneralVisualSelectConfig(selectedType);
-                const options = [...getGeneralVisualSelectOptions(selectedType)].sort((a, b) => a.localeCompare(b));
+                const isSeasonal = isSeasonalBehaviorGeneralModel(selectedType);
+                const config = isSeasonal ? { placeholder: 'Escolhe o comportamento sazonal' } : getGeneralVisualSelectConfig(selectedType);
+                const options = isSeasonal
+                    ? getSeasonalBehaviorOptions()
+                    : [...getGeneralVisualSelectOptions(selectedType)].sort((a, b) => a.localeCompare(b));
                 strategySelect.innerHTML = `<option value="">${config?.placeholder || 'Escolhe uma opção'}</option>` +
                     options.map(option => `<option value="${option}">${option}</option>`).join('');
             }
@@ -276,8 +347,22 @@
         }
 
         function getDefaultGeneralVisualOptions() {
-            const hiddenByDefault = new Set(['Velocidade média', 'Força da mordida', 'Estratégia para obter alimento', 'Tempo de Amamentação', 'Vida útil (cativeiro)', 'Expetativa média de vida (cativeiro)']);
-            return generalVisualOptions.filter(option => !hiddenByDefault.has(option.tipo));
+            const hiddenByDefault = new Set([
+                'Velocidade média',
+                'Força da mordida',
+                'Estratégia para obter alimento',
+                'Estratégia para obter alimentos',
+                'Tempo de Amamentação',
+                'Vida útil (cativeiro)',
+                'Expetativa média de vida (cativeiro)',
+                'Taxa Metabólica Basal média',
+                'Profundidade máxima',
+                'Profundidade média',
+                'Número de dentes',
+                'Comportamento sazonal'
+            ]);
+            const normalizedHidden = new Set([...hiddenByDefault].map(item => normalizeSearchText(item)));
+            return generalVisualOptions.filter(option => !normalizedHidden.has(normalizeSearchText(option.tipo)));
         }
 
         function isLegacyGeneralMatingItem(item = {}) {
@@ -342,6 +427,16 @@
         }
 
         function getGeneralVisualMeta(type = '') {
+            if (isSeasonalBehaviorGeneralModel(type)) {
+                return { key: 'comportamento-sazonal', title: type || 'Comportamento sazonal', accent: 'accent-seasonal-behavior' };
+            }
+            if (isBasalMetabolicRateGeneralModel(type)) {
+                return { key: 'taxa-metabolica-basal', title: type || 'Taxa Metabólica Basal média', accent: 'accent-metabolic-rate' };
+            }
+            if (isDepthGeneralModel(type)) {
+                const normalized = normalizeSearchText(type);
+                return { key: normalized.includes('maxima') ? 'profundidade-maxima' : 'profundidade-media', title: type || (normalized.includes('maxima') ? 'Profundidade máxima' : 'Profundidade média'), accent: normalized.includes('maxima') ? 'accent-depth-max' : 'accent-depth-average' };
+            }
             if (isCaptivityMovementGeneralModel(type)) {
                 const normalized = normalizeSearchText(type);
                 return {
@@ -403,6 +498,18 @@
         }
 
         function getGeneralModelSvg(key = 'geral') {
+            if (key === 'comportamento-sazonal') {
+                return `<svg class="metric-model-svg general-model-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M40 12v10"/><path d="M40 58v10"/><path d="M12 40h10"/><path d="M58 40h10"/><path d="M20 20l7 7"/><path d="M53 53l7 7"/><path d="M60 20l-7 7"/><path d="M27 53l-7 7"/><path d="M40 28c8 0 12 6 12 12s-4 12-12 12s-12-6-12-12s4-12 12-12Z"/><path d="M34 40h12"/></svg>`;
+            }
+            if (key === 'taxa-metabolica-basal') {
+                return `<svg class="metric-model-svg general-model-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M40 10c10 9 18 20 18 34c0 15-8 26-18 26S22 59 22 44c0-14 8-25 18-34Z"/><path d="M40 24v19"/><path d="M31 43h18"/><path d="M34 56c4 3 8 3 12 0"/><path d="M58 32h8M14 32h8"/></svg>`;
+            }
+            if (key === 'profundidade-maxima') {
+                return `<svg class="metric-model-svg general-model-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M18 18h44"/><path d="M18 62h44"/><path d="M40 20v40"/><path d="M32 52l8 8l8-8"/><path d="M32 28l8-8l8 8"/><path d="M24 46c8-6 14-6 22 0s14 6 22 0"/></svg>`;
+            }
+            if (key === 'profundidade-media') {
+                return `<svg class="metric-model-svg general-model-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M16 30c8-6 16-6 24 0s16 6 24 0"/><path d="M16 50c8-6 16-6 24 0s16 6 24 0"/><path d="M40 32v18"/><path d="M34 44l6 6l6-6"/><path d="M28 62h24"/></svg>`;
+            }
             if (key === 'vida-util-cativeiro') {
                 return `<svg class="metric-model-svg general-model-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M18 58c8-16 20-24 36-24"/><path d="M24 62h36"/><path d="M50 21c8 4 12 12 10 21"/><path d="M20 38c8-10 18-14 30-12"/><path d="M30 22c-4 7-4 13 0 20"/><path d="M38 18c-1 9 1 16 7 22"/><path d="M22 50c6 0 10 4 10 10"/><path d="M47 50c8 0 14 4 17 12"/></svg>`;
             }

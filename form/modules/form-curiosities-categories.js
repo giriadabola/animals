@@ -6,6 +6,7 @@
             }
             if (type === 'Tipo de Comunicação') return Object.keys(curiosidadesCommunicationDescriptions).sort((a, b) => a.localeCompare(b));
             if (type === 'Relação com Humanos') return curiosidadesHumanRelationOptions;
+            if (type === 'Importância económica para os humanos') return ['Negativo', 'Positivo', 'Negativo/Positivo', 'Neutro'];
             return [];
         }
 
@@ -305,6 +306,7 @@
                 legacyItems.push({ tipo: 'Temperatura do Ambiente', valor: curiosidades.temperaturaAmbiente, valorMin: parsed.min, valorMax: parsed.max, unidade: '°C', genero: GENDER_BOTH, fase: 'Adulto' });
             }
             if (curiosidades?.relacaoHumanos) legacyItems.push({ tipo: 'Relação com Humanos', valor: curiosidades.relacaoHumanos, genero: GENDER_BOTH, fase: 'Adulto' });
+            if (curiosidades?.importanciaEconomicaHumanos) legacyItems.push({ tipo: 'Importância económica para os humanos', valor: curiosidades.importanciaEconomicaHumanos, genero: GENDER_BOTH, fase: 'Adulto' });
             if (curiosidades?.horasSono) {
                 const parsed = parseCuriosidadeMetric({ valor: curiosidades.horasSono }, 'Horas de Sono');
                 legacyItems.push({ tipo: 'Horas de Sono', valor: curiosidades.horasSono, valorMin: parsed.min, valorMax: parsed.max, unidade: parsed.unit, genero: GENDER_BOTH, fase: 'Adulto' });
@@ -403,6 +405,19 @@
                             <span class="preview-label">Relação com Humanos</span>
                             <strong style="font-size: 1.05rem; font-weight: 700; color: var(--text-primary);">${item.valor}</strong>
                             <div class="communication-preview-desc">Modelo visual próprio desta relação.</div>
+                            ${renderCuriosidadeMeta(item)}
+                        </div>
+                    </div>`;
+            }
+
+            if (item.tipo === 'Importância económica para os humanos') {
+                return `
+                    <div class="curiosidades-preview-item economic-importance-preview-item">
+                        <div class="communication-preview-icon"><i class="fa-solid fa-scale-balanced"></i></div>
+                        <div class="curiosidades-preview-info">
+                            <span class="preview-label">Importância económica para os humanos</span>
+                            <strong style="font-size: 1.05rem; font-weight: 700; color: var(--text-primary);">${item.valor}</strong>
+                            <div class="communication-preview-desc">Modelo visual próprio da relação económica com humanos.</div>
                             ${renderCuriosidadeMeta(item)}
                         </div>
                     </div>`;
