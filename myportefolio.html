@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meu Portefólio - Animais</title>
+    <link rel="icon" href="assets/logos/admin/favicon.ico">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg: #10111f;
+            --panel: #171829;
+            --panel-2: #1f2031;
+            --text: #f5f7ff;
+            --muted: #aab3c8;
+            --border: rgba(255,255,255,.1);
+            --accent: #d39a5d;
+            --green: #22c55e;
+            --yellow: #facc15;
+            --red: #ef4444;
+            --radius: 20px;
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background:
+                radial-gradient(circle at top left, rgba(211,154,93,.16), transparent 34%),
+                radial-gradient(circle at bottom right, rgba(99,102,241,.15), transparent 40%),
+                var(--bg);
+            color: var(--text);
+            padding: 32px 18px;
+        }
+        .page {
+            max-width: 1180px;
+            margin: 0 auto;
+        }
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .back-link, .logout-btn {
+            border: 1px solid var(--border);
+            background: rgba(255,255,255,.05);
+            color: var(--text);
+            border-radius: 999px;
+            padding: 11px 16px;
+            text-decoration: none;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .back-link:hover, .logout-btn:hover { border-color: rgba(211,154,93,.55); }
+        .hero {
+            border: 1px solid var(--border);
+            background: rgba(23,24,41,.86);
+            border-radius: 28px;
+            padding: 28px;
+            box-shadow: 0 24px 70px rgba(0,0,0,.25);
+            margin-bottom: 18px;
+        }
+        h1 { margin: 0 0 8px; font-size: clamp(2rem, 4vw, 3.4rem); }
+        .subtitle { margin: 0; color: var(--muted); font-weight: 600; }
+        .panel {
+            border: 1px solid var(--border);
+            background: rgba(23,24,41,.92);
+            border-radius: 28px;
+            overflow: hidden;
+        }
+        .filters {
+            display: flex;
+            justify-content: space-between;
+            gap: 14px;
+            align-items: center;
+            padding: 18px;
+            border-bottom: 1px solid var(--border);
+            flex-wrap: wrap;
+        }
+        .quality-filters { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+        .filter-btn {
+            min-width: 44px;
+            height: 42px;
+            border-radius: 14px;
+            border: 1px solid var(--border);
+            background: rgba(255,255,255,.05);
+            color: var(--text);
+            font-weight: 800;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 0 12px;
+        }
+        .filter-btn.active { outline: 2px solid rgba(211,154,93,.75); background: rgba(211,154,93,.12); }
+        .filter-btn[data-quality="forte"] i, .quality-icon.quality-forte { color: var(--green); }
+        .filter-btn[data-quality="melhorar"] i, .quality-icon.quality-melhorar { color: var(--yellow); }
+        .filter-btn[data-quality="basico"] i, .quality-icon.quality-basico { color: var(--red); }
+        .count { color: var(--muted); font-weight: 700; }
+        .table-wrap { width: 100%; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; min-width: 820px; }
+        th, td { padding: 14px 16px; text-align: left; border-bottom: 1px solid var(--border); vertical-align: middle; }
+        th { color: var(--muted); text-transform: uppercase; letter-spacing: .08em; font-size: .78rem; }
+        tr:hover td { background: rgba(255,255,255,.035); }
+        .thumb {
+            width: 58px;
+            height: 58px;
+            border-radius: 16px;
+            object-fit: cover;
+            background: var(--panel-2);
+            border: 1px solid var(--border);
+        }
+        .name { font-weight: 900; }
+        .scientific { color: var(--muted); font-style: italic; }
+        .quality-pill { display: inline-flex; align-items: center; gap: 8px; font-weight: 900; }
+        .quality-icon { font-size: 1.05rem; }
+        .edit-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            border: 0;
+            border-radius: 999px;
+            padding: 10px 15px;
+            background: linear-gradient(135deg, #d39a5d, #e77b67);
+            color: white;
+            font-weight: 900;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+        .empty, .status { padding: 32px; text-align: center; color: var(--muted); font-weight: 700; }
+        @media (max-width: 720px) {
+            body { padding: 18px 10px; }
+            .hero, .panel { border-radius: 22px; }
+            .topbar { align-items: stretch; flex-direction: column; }
+            .filters { align-items: stretch; }
+            .quality-filters { width: 100%; justify-content: space-between; }
+            .filter-btn { flex: 1; }
+        }
+    </style>
+</head>
+<body>
+    <main class="page">
+        <div class="topbar">
+            <a class="back-link" href="form/form.html"><i class="fa-solid fa-arrow-left"></i> Voltar ao Formulário</a>
+            <button class="logout-btn" id="logoutBtn" type="button"><i class="fa-solid fa-right-from-bracket"></i> Sair</button>
+        </div>
+
+        <section class="hero">
+            <h1>Meu Portefólio</h1>
+            <p class="subtitle" id="portfolioSubtitle">Animais criados por mim.</p>
+        </section>
+
+        <section class="panel">
+            <div class="filters">
+                <div class="quality-filters" aria-label="Filtrar por qualidade">
+                    <button class="filter-btn active" data-quality="" type="button">Todos</button>
+                    <button class="filter-btn" data-quality="forte" type="button" title="Forte"><i class="fa-solid fa-shield-halved"></i> Forte</button>
+                    <button class="filter-btn" data-quality="melhorar" type="button" title="Melhorar"><i class="fa-solid fa-wand-magic-sparkles"></i> Melhorar</button>
+                    <button class="filter-btn" data-quality="basico" type="button" title="Básico"><i class="fa-solid fa-circle-exclamation"></i> Básico</button>
+                </div>
+                <div class="count" id="animalCount">A carregar...</div>
+            </div>
+            <div class="table-wrap" id="tableWrap">
+                <div class="status">A carregar os teus animais...</div>
+            </div>
+        </section>
+    </main>
+
+    <script type="module">
+        import { auth, db } from './js/firebase-config.js?v=5';
+        import { onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js';
+        import { collection, getDocs, query, where } from 'https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js';
+
+        const QUALITY_LEVELS = {
+            forte: { id: 'forte', label: 'Forte', icon: 'fa-solid fa-shield-halved', className: 'quality-forte' },
+            melhorar: { id: 'melhorar', label: 'Melhorar', icon: 'fa-solid fa-wand-magic-sparkles', className: 'quality-melhorar' },
+            basico: { id: 'basico', label: 'Básico', icon: 'fa-solid fa-circle-exclamation', className: 'quality-basico' }
+        };
+
+        const tableWrap = document.getElementById('tableWrap');
+        const animalCount = document.getElementById('animalCount');
+        const portfolioSubtitle = document.getElementById('portfolioSubtitle');
+        const filterButtons = [...document.querySelectorAll('[data-quality]')];
+        let allMyAnimals = [];
+        let activeQuality = '';
+
+        function normalizeQuality(value) {
+            const key = (value || '').toString().trim().toLowerCase();
+            return QUALITY_LEVELS[key] ? key : 'basico';
+        }
+
+        function getQuality(animal) {
+            return normalizeQuality(animal.nivelQualidade || animal.qualidadeRegisto?.nivel || animal.qualidadeRegisto?.id || 'basico');
+        }
+
+        function escapeHtml(value = '') {
+            return String(value).replace(/[&<>'"]/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[char]));
+        }
+
+        function renderTable() {
+            const animals = activeQuality ? allMyAnimals.filter(animal => getQuality(animal) === activeQuality) : allMyAnimals;
+            animalCount.textContent = `${animals.length} animal${animals.length === 1 ? '' : 'ais'}`;
+
+            if (!animals.length) {
+                tableWrap.innerHTML = '<div class="empty">Nenhum animal encontrado para este filtro.</div>';
+                return;
+            }
+
+            tableWrap.innerHTML = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Imagem</th>
+                            <th>Nome</th>
+                            <th>Nome científico</th>
+                            <th>Qualidade</th>
+                            <th>Editar</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${animals.map(animal => {
+                            const quality = QUALITY_LEVELS[getQuality(animal)];
+                            const img = animal.imagemUrl || '';
+                            return `
+                                <tr>
+                                    <td>${img ? `<img class="thumb" src="${escapeHtml(img)}" alt="${escapeHtml(animal.nome || 'Animal')}" loading="lazy">` : '<div class="thumb"></div>'}</td>
+                                    <td class="name">${escapeHtml(animal.nome || 'Sem nome')}</td>
+                                    <td class="scientific">${escapeHtml(animal.nomeCientifico || '—')}</td>
+                                    <td><span class="quality-pill"><i class="quality-icon ${quality.className} ${quality.icon}"></i>${quality.label}</span></td>
+                                    <td><a class="edit-btn" href="form/form.html?edit=${encodeURIComponent(animal.id)}"><i class="fa-solid fa-pen-to-square"></i> Editar</a></td>
+                                </tr>`;
+                        }).join('')}
+                    </tbody>
+                </table>`;
+        }
+
+        filterButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                activeQuality = button.dataset.quality || '';
+                filterButtons.forEach(btn => btn.classList.toggle('active', btn === button));
+                renderTable();
+            });
+        });
+
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+            await signOut(auth);
+            window.location.href = 'login.html';
+        });
+
+        onAuthStateChanged(auth, async user => {
+            if (!user) {
+                window.location.href = 'login.html?redirect=' + encodeURIComponent('myportefolio.html');
+                return;
+            }
+
+            portfolioSubtitle.textContent = `Animais criados por ${user.displayName || user.email || 'mim'}.`;
+            try {
+                const snap = await getDocs(query(collection(db, 'animais'), where('criadoPor', '==', user.uid)));
+                allMyAnimals = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }))
+                    .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+                renderTable();
+            } catch (error) {
+                console.error('Erro ao carregar portefólio:', error);
+                tableWrap.innerHTML = '<div class="empty">Não foi possível carregar os teus animais.</div>';
+                animalCount.textContent = 'Erro';
+            }
+        });
+    </script>
+</body>
+</html>
