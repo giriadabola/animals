@@ -340,7 +340,11 @@
                 const params = new URLSearchParams(window.location.search);
                 const redirect = params.get('redirect');
                 setTimeout(() => {
-                    window.location.href = redirect ? decodeURIComponent(redirect) : 'index.html';
+                    let target = redirect ? decodeURIComponent(redirect) : 'index.html';
+                    if (target === 'form.html' || target === './form.html') {
+                        target = 'form/form.html';
+                    }
+                    window.location.href = target;
                 }, 1000);
             } catch (err) {
                 console.error("Erro ao iniciar sessão:", err);
