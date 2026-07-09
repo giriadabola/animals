@@ -8,6 +8,10 @@ export const feedingTypes = [
     'Granívoro',
     'Nectarívoro',
     'Folívoro',
+    'Lignívoro',
+    'Algívoro',
+    'Fungívoro',
+    'Graminívoro',
     'Xilófago',
     'Necrófago',
     'Detritívoro',
@@ -28,6 +32,10 @@ export const feedingTypeDescriptions = {
     'Granívoro': 'Baseada em sementes e grãos',
     'Nectarívoro': 'Baseada em néctar',
     'Folívoro': 'Baseada sobretudo em folhas',
+    'Lignívoro': 'Consome tecidos lenhosos, casca ou madeira em decomposição',
+    'Algívoro': 'Baseada em algas ou biofilmes aquáticos',
+    'Fungívoro': 'Especializada em fungos, cogumelos ou micélios',
+    'Graminívoro': 'Baseada sobretudo em gramíneas e ervas rasteiras',
     'Xilófago': 'Consome madeira ou tecido lenhoso',
     'Necrófago': 'Consome carcaças',
     'Detritívoro': 'Consome matéria orgânica em decomposição',
@@ -53,6 +61,10 @@ export function getFeedingVisualMeta(type = '') {
     if (normalized.includes('granivoro')) return { key: 'granivoro', title: type || 'Granívoro', accent: 'accent-beak' };
     if (normalized.includes('nectarivoro')) return { key: 'nectarivoro', title: type || 'Nectarívoro', accent: 'accent-egg' };
     if (normalized.includes('folivoro')) return { key: 'folivoro', title: type || 'Folívoro', accent: 'accent-wing' };
+    if (normalized.includes('lignivoro')) return { key: 'lignivoro', title: type || 'Lignívoro', accent: 'accent-weight' };
+    if (normalized.includes('algivoro')) return { key: 'algivoro', title: type || 'Algívoro', accent: 'accent-water' };
+    if (normalized.includes('fungivoro')) return { key: 'fungivoro', title: type || 'Fungívoro', accent: 'accent-width' };
+    if (normalized.includes('graminivoro')) return { key: 'graminivoro', title: type || 'Graminívoro', accent: 'accent-climate' };
     if (normalized.includes('xilofago')) return { key: 'xilofago', title: type || 'Xilófago', accent: 'accent-weight' };
     if (normalized.includes('necrofago')) return { key: 'necrofago', title: type || 'Necrófago', accent: 'accent-tail' };
     if (normalized.includes('detritivoro')) return { key: 'detritivoro', title: type || 'Detritívoro', accent: 'accent-width' };
@@ -75,6 +87,10 @@ export function getFeedingModelSvg(key = 'alimentacao') {
         granivoro: `<svg class="metric-model-svg feeding-icon-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><ellipse cx="28" cy="49" rx="8" ry="15"/><ellipse cx="43" cy="40" rx="8" ry="15"/><ellipse cx="56" cy="53" rx="8" ry="15"/><path d="M24 66h36"/></svg>`,
         nectarivoro: `<svg class="metric-model-svg feeding-icon-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M40 16v49"/><path d="M40 32c-11-16-24-13-29 1c12 8 23 7 29-1Z"/><path d="M40 32c11-16 24-13 29 1c-12 8-23 7-29-1Z"/><path d="M30 64h20"/><path d="M35 54h10"/></svg>`,
         folivoro: `<svg class="metric-model-svg feeding-icon-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M15 58c9-25 27-39 51-43c-3 28-20 45-49 50"/><path d="M20 60c14-11 27-25 40-40"/><path d="M31 49l-7-13"/><path d="M44 36l13 7"/></svg>`,
+        lignivoro: `<svg class="metric-model-svg feeding-icon-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M26 14h28c8 0 14 6 14 14v24c0 8-6 14-14 14H26c-8 0-14-6-14-14V28c0-8 6-14 14-14Z"/><path d="M40 14v52"/><path d="M24 28h32"/><path d="M28 42h24"/><path d="M30 56h20"/><circle cx="33" cy="35" r="2.5"/><circle cx="48" cy="49" r="2.5"/></svg>`,
+        algivoro: `<svg class="metric-model-svg feeding-icon-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M22 64c0-18 8-33 22-46"/><path d="M39 62c0-16 6-29 18-39"/><path d="M18 48c7 0 12-4 15-11"/><path d="M34 36c7 0 12-4 15-11"/><path d="M29 64c9 0 16-5 20-15"/><path d="M48 54c7 0 12-3 15-9"/></svg>`,
+        fungivoro: `<svg class="metric-model-svg feeding-icon-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M18 35c2-13 12-22 25-22s23 9 25 22"/><path d="M22 35h36"/><path d="M40 35v22"/><path d="M31 57h18"/><path d="M27 25c4 4 8 6 13 6s9-2 13-6"/></svg>`,
+        graminivoro: `<svg class="metric-model-svg feeding-icon-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M21 64c0-21 3-35 10-46"/><path d="M33 64c0-19 2-32 7-42"/><path d="M45 64c0-19 2-32 7-42"/><path d="M57 64c0-21 3-35 10-46"/><path d="M27 33l7-8"/><path d="M40 27l7-8"/><path d="M52 33l7-8"/></svg>`,
         xilofago: `<svg class="metric-model-svg feeding-icon-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M35 12h10c7 0 13 6 13 13v30c0 7-6 13-13 13H35c-7 0-13-6-13-13V25c0-7 6-13 13-13Z"/><path d="M40 12v56"/><path d="M30 28h20"/><path d="M31 44h18"/><path d="M33 58h14"/></svg>`,
         necrofago: `<svg class="metric-model-svg feeding-icon-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M18 56c7-18 22-29 43-33l7 9l-8 8c-4 16-17 25-39 27"/><path d="M31 55l10-10"/><path d="M45 42l8-8"/><circle cx="58" cy="29" r="3"/></svg>`,
         detritivoro: `<svg class="metric-model-svg feeding-icon-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M16 56c10-13 25-16 45-9"/><path d="M20 42c11-8 22-9 34-3"/><circle cx="27" cy="57" r="5"/><circle cx="43" cy="51" r="4"/><circle cx="57" cy="58" r="5"/></svg>`,

@@ -3,9 +3,11 @@ import { locomotionCatalog, getLocomotionMeta, getLocomotionSvg } from "./locomo
 
 export const generalVisualOptions = [
     { tipo: 'Vida útil', unidade: 'anos' },
+    { tipo: 'Espetativa média de vida', unidade: 'anos' },
     { tipo: 'Velocidade máxima', unidade: 'km/h' },
     { tipo: 'Velocidade média', unidade: 'km/h' },
     { tipo: 'Força da mordida', unidade: 'PSI' },
+    { tipo: 'Número de dentes', unidade: '' },
     { tipo: 'Tamanho da População', unidade: 'milhares' },
     { tipo: 'Estratégia para obter alimento', unidade: '' },
     { tipo: 'Atividade', unidade: '' },
@@ -16,7 +18,7 @@ export const generalVisualOptions = [
     { tipo: 'Bioma', unidade: '' }
 ];
 
-export const generalVisualUnits = ['', 'dias', 'meses', 'anos', 'km/h', 'm/s', 'PSI', 'indivíduos', 'dezenas', 'centenas', 'milhares', 'milhões'];
+export const generalVisualUnits = ['', 'segundos', 'minutos', 'horas', 'dias', 'semanas', 'meses', 'anos', 'milénios', 'km/h', 'm/s', 'PSI', 'indivíduos', 'dezenas', 'centenas', 'milhares', 'milhões'];
 
 const feedingStrategyOptions = [
     'Caça',
@@ -102,15 +104,11 @@ const socialCatalog = [
 
 const climateZoneOptions = [
     'Tropical',
-    'Subtropical',
-    'Temperada',
+    'Árido',
+    'Temperado',
+    'Continental',
     'Polar',
-    'Ártica',
-    'Antártica',
-    'Desértica',
-    'Semiárida',
-    'Mediterrânica',
-    'Montanhosa / Alpina'
+    'Montanhoso'
 ];
 
 const biomaOptions = [
@@ -184,10 +182,14 @@ export function isDropdownOnlyGeneralModel(type = '') {
 
 export function getGeneralVisualMeta(type = '') {
     const normalized = normalizeGeneralVisualKey(type);
+    if (normalized.includes('espetativa media de vida') || normalized.includes('expectativa media de vida')) {
+        return { key: 'espetativa-vida', title: type || 'Espetativa média de vida', accent: 'accent-life' };
+    }
     if (normalized.includes('vida')) return { key: 'vida', title: type || 'Vida útil', accent: 'accent-life' };
     if (normalized.includes('maxima')) return { key: 'velocidade-maxima', title: type || 'Velocidade máxima', accent: 'accent-speed-max' };
     if (normalized.includes('media')) return { key: 'velocidade-media', title: type || 'Velocidade média', accent: 'accent-speed-average' };
     if (normalized.includes('mordida')) return { key: 'forca-mordida', title: type || 'Força da mordida', accent: 'accent-generic' };
+    if (normalized.includes('dentes')) return { key: 'numero-dentes', title: type || 'Número de dentes', accent: 'accent-generic' };
     if (normalized.includes('tamanho') && normalized.includes('popul')) return { key: 'populacao', title: type || 'Tamanho da População', accent: 'accent-generic' };
     if (normalized.includes('estrategia')) return { key: 'estrategia', title: type || 'Estratégia para obter alimento', accent: 'accent-generic' };
     if (normalized.includes('atividade')) return { key: 'atividade', title: type || 'Atividade', accent: 'accent-climate' };
@@ -206,9 +208,11 @@ function makeSvg(body, className = 'general-model-svg') {
 export function getGeneralModelSvg(key = 'geral') {
     const icons = {
         vida: makeSvg('<path d="M28 10h24"/><path d="M28 70h24"/><path d="M31 10c0 15 18 16 18 30S31 55 31 70"/><path d="M49 10c0 15-18 16-18 30s18 15 18 30"/><path d="M34 53h12"/><path d="M37 59h6"/>'),
+        'espetativa-vida': makeSvg('<path d="M40 16c-13 0-24 11-24 24s11 24 24 24s24-11 24-24S53 16 40 16Z"/><path d="M40 26v15l10 6"/><path d="M24 14l-6-6"/><path d="M56 14l6-6"/><path d="M18 66l8-8"/><path d="M62 58l-8-8"/>'),
         'velocidade-maxima': makeSvg('<path d="M14 58a26 26 0 0 1 52 0"/><path d="M24 58h32"/><path d="M40 58l18-24"/><path d="M28 30l-5-6"/><path d="M52 30l5-6"/><path d="M40 24v-9"/><path d="M61 58h7"/>'),
         'velocidade-media': makeSvg('<path d="M13 58a27 27 0 0 1 54 0"/><path d="M22 58h36"/><path d="M40 58l8-18"/><path d="M23 43h8"/><path d="M49 43h8"/><path d="M30 28l-4-7"/><path d="M50 28l4-7"/>'),
         'forca-mordida': makeSvg('<path d="M20 30c0-6 10-10 20-10s20 4 20 10v6H20v-6z"/><path d="M20 50c0 6 10 10 20 10s20-4 20-10v-6H20v6z"/><path d="M28 30l2 6M36 30l1 6M44 30l-1 6M52 30l-2 6"/><path d="M28 50l2-6M36 50l1-6M44 50l-1-6M52 50l-2-6"/>'),
+        'numero-dentes': makeSvg('<path d="M18 30c0-7 10-12 22-12s22 5 22 12v7H18v-7Z"/><path d="M18 49c0 7 10 13 22 13s22-6 22-13v-7H18v7Z"/><path d="M24 37v8"/><path d="M32 37v10"/><path d="M40 37v10"/><path d="M48 37v10"/><path d="M56 37v8"/>'),
         populacao: makeSvg('<circle cx="24" cy="33" r="7"/><circle cx="40" cy="24" r="8"/><circle cx="56" cy="33" r="7"/><path d="M18 58c2-7 8-12 14-12s12 5 14 12"/><path d="M34 61c2-9 10-15 18-15s16 6 18 15"/><path d="M10 61c2-9 10-15 18-15"/>'),
         atividade: makeSvg('<circle cx="28" cy="29" r="9"/><path d="M52 24c8 0 14 6 14 14c0 7-5 13-12 14"/><path d="M20 57h40"/><path d="M40 14v8"/><path d="M14 29h8"/>', 'general-model-svg activity-model-svg'),
         'vida-social': makeSvg('<circle cx="24" cy="32" r="7"/><circle cx="40" cy="24" r="7"/><circle cx="56" cy="32" r="7"/><path d="M18 58c2-8 8-13 14-13s12 5 14 13"/><path d="M34 58c2-8 8-13 14-13s12 5 14 13"/><path d="M31 29l9-5l9 5"/>', 'general-model-svg social-model-svg'),

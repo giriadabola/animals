@@ -43,13 +43,13 @@ export function injectHeader() {
 
     header.innerHTML = `
         <div class="header-container">
-            <a href="index.html" class="logo">
+            <a href="${isForm ? '../index.html' : 'index.html'}" class="logo">
                 <span class="logo-emoji"><i class="fa-solid fa-paw"></i></span>
                 <span class="logo-text">Grandes Projetos</span>
             </a>
             <div id="header-center-info" style="display: flex; justify-content: center; align-items: center;"></div>
             <nav class="nav-links">
-                ${!isHome ? `<a href="index.html" class="nav-link hide-on-mobile"><i class="fa-solid fa-house"></i> Início</a>` : ''}
+                ${!isHome ? `<a href="${isForm ? '../index.html' : 'index.html'}" class="nav-link hide-on-mobile"><i class="fa-solid fa-house"></i> Início</a>` : ''}
                 <span id="header-auth-section" class="hide-on-mobile" style="display: flex; align-items: center; gap: 15px; margin-left: 10px;">
                     <!-- Auth info dynamically inserted -->
                 </span>
@@ -101,7 +101,7 @@ export function injectHeader() {
                     if (!gerirPortalLink) {
                         gerirPortalLink = document.createElement('a');
                         gerirPortalLink.id = 'nav-link-gerir-portal';
-                        gerirPortalLink.href = 'form.html';
+                        gerirPortalLink.href = isForm ? 'form.html' : 'form/form.html';
                         gerirPortalLink.className = `nav-link ${isForm ? 'active' : ''}`;
                         gerirPortalLink.innerHTML = `<i class="fa-solid fa-sliders"></i> Gerir Portal`;
                         authSection.parentNode.insertBefore(gerirPortalLink, authSection);
