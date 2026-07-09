@@ -38,7 +38,7 @@
     <script type="module">
         import { db } from "./js/firebase-config.js?v=5";
         import { collection, getDocs } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
-        import { hideLoadingOverlay } from "./js/loader.js?v=2";
+        import { hideLoadingOverlay, waitForPageImages } from "./js/loader.js?v=2";
 
         const categoryTitle = document.getElementById('category-title');
         const listContainer = document.getElementById('animal-list-container');
@@ -140,17 +140,40 @@
             }
         }
 
+
+        function normalizeAnimalSearchText(value = '') {
+            return String(value || '').normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().trim();
+        }
+
+        function getAlsoKnownAsNames(animal = {}) {
+            const curiosidades = animal.informacao?.curiosidades || {};
+            const names = [];
+            if (Array.isArray(curiosidades.tambemConhecidoComo)) names.push(...curiosidades.tambemConhecidoComo);
+            if (Array.isArray(curiosidades.detalhes)) {
+                curiosidades.detalhes
+                    .filter(item => item?.tipo === 'Também conhecido como' && item?.valor)
+                    .forEach(item => names.push(...String(item.valor).split(',')));
+            }
+            return names.map(name => String(name).trim()).filter(Boolean);
+        }
+
+        function animalMatchesSearch(animal = {}, normalizedQuery = '') {
+            if (!normalizedQuery) return true;
+            const searchable = [
+                animal.nome,
+                animal.nomeCientifico,
+                ...getAlsoKnownAsNames(animal)
+            ].map(normalizeAnimalSearchText);
+            return searchable.some(value => value.includes(normalizedQuery));
+        }
+
         function handleSearch(queryText) {
             const normalizedQuery = queryText.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
             if (!normalizedQuery) {
                 filteredAnimals = [...matchedAnimals];
                 clearSearch.style.display = 'none';
             } else {
-                filteredAnimals = matchedAnimals.filter(item => {
-                    const nome = (item.data.nome || '').normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
-                    const nomeCientifico = (item.data.nomeCientifico || '').normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
-                    return nome.includes(normalizedQuery) || nomeCientifico.includes(normalizedQuery);
-                });
+                filteredAnimals = matchedAnimals.filter(item => animalMatchesSearch(item.data, normalizedQuery));
                 clearSearch.style.display = 'block';
             }
             
@@ -466,10 +489,12 @@
                     renderPage(currentPage);
                     renderPagination();
                 }
+                await waitForPageImages();
                 hideLoadingOverlay();
             } catch (error) {
                 console.error("Erro ao carregar animais por filtros:", error);
                 loadingMessage.textContent = "Ocorreu um erro ao carregar os dados.";
+                await waitForPageImages();
                 hideLoadingOverlay();
             }
         }

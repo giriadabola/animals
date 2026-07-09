@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comparação de Animais</title>
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="icon" href="assets/logos/favicon.ico">
+    <link rel="apple-touch-icon" href="assets/logos/apple-touch-icon.png">
+    <meta name="theme-color" content="#0b3022">
+    <link rel="stylesheet" href="css/style.css?v=1.0.3">
+    <link rel="stylesheet" href="css/vs.css?v=1">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="js/runtime-guard.js"></script>
+</head>
+<body>
+    <main class="compare-page">
+        <section class="compare-hero">
+            <div>
+                <p class="compare-kicker">Comparação</p>
+                <h1>Animais lado a lado</h1>
+                <p class="compare-lead">Escolhe até quatro animais para comparar imagem, classificação, dados rápidos e dimensões na mesma grelha.</p>
+            </div>
+            <a class="compare-back-link" href="index.html">Voltar ao início</a>
+        </section>
+
+        <section class="compare-toolbar">
+            <div class="compare-search-block">
+                <label for="compareSearchInput">Adicionar animal</label>
+                <input id="compareSearchInput" type="search" placeholder="Pesquisar por nome comum ou científico..." autocomplete="off">
+                <div id="compareSearchResults" class="compare-search-results"></div>
+            </div>
+            <div class="compare-selected-block">
+                <span>Selecionados</span>
+                <div id="compareSelectedList" class="compare-selected-list"></div>
+            </div>
+        </section>
+
+        <section id="compareSimilarityPanel" class="compare-similarity-panel" hidden></section>
+
+        <section id="compareGrid" class="compare-grid" aria-live="polite"></section>
+    </main>
+
+    <script type="module" src="js/components.js?v=5"></script>
+    <script type="module" src="js/vs-page.js?v=4"></script>
+</body>
+</html>

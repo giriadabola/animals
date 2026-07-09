@@ -1,4 +1,4 @@
-const CACHE_NAME = 'animals-app-v1.0.44';
+const CACHE_NAME = 'animals-app-v1.0.45';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -6,8 +6,12 @@ const ASSETS_TO_CACHE = [
   './categories.html',
   './filtros.html',
   './css/style.css',
-  './css/globe-search.css',
-  './css/bioma-explorer.css',
+  './index/globe-search.css',
+  './index/bioma-explorer.css',
+  './index/main.js',
+  './index/globe-search.js',
+  './index/bioma-explorer.js',
+  './index/survival-lists.js',
   './js/components.js',
   './js/countries.json',
   './js/feeding-animal-options.js',
