@@ -668,7 +668,7 @@
             
             /* Mostrar ícone de início/home */
             .global-header .logo-emoji::after {
-                content: "\f015" !important;
+                content: "015" !important;
                 font-family: "Font Awesome 6 Free" !important;
                 font-weight: 900 !important;
                 font-size: 1.3rem !important;
@@ -771,7 +771,7 @@
             border-color: var(--border-hover);
         }
         .multiselect-selectBox::after {
-            content: "\f0d7";
+            content: "0d7";
             font-family: "Font Awesome 6 Free";
             font-weight: 900;
             margin-left: 10px;
@@ -1369,7 +1369,7 @@
                 transform: scale(0.9) !important;
             }
             #saveButton::before {
-                content: "\f0c7" !important;
+                content: "0c7" !important;
                 font-family: "Font Awesome 6 Free" !important;
                 font-weight: 900 !important;
                 font-size: 1.35rem !important;
@@ -1377,7 +1377,7 @@
                 display: inline-block !important;
             }
             #saveButton:disabled::before {
-                content: "\f1ce" !important;
+                content: "1ce" !important;
                 animation: fab-spin-override 1s linear infinite !important;
             }
             @keyframes fab-spin-override {
@@ -1584,18 +1584,12 @@ body.edit-theme #tabpanel-ecologia {
     border-color: rgba(34, 197, 94, 0.28) !important;
     background: linear-gradient(135deg, rgba(34, 197, 94, 0.10), rgba(255, 255, 255, 0.025)) !important;
 }
-.distance-preview-item {
-    border-color: rgba(14, 165, 233, 0.30) !important;
-    background: linear-gradient(135deg, rgba(14, 165, 233, 0.11), rgba(255, 255, 255, 0.025)) !important;
-}
 .human-relation-preview-item {
     border-color: rgba(251, 146, 60, 0.30) !important;
     background: linear-gradient(135deg, rgba(251, 146, 60, 0.11), rgba(255, 255, 255, 0.025)) !important;
 }
 .environment-preview-icon,
-.distance-preview-icon,
-.human-relation-preview-icon,
-.alias-preview-icon {
+.human-relation-preview-icon {
     width: 44px;
     height: 44px;
     border-radius: 14px;
@@ -1607,37 +1601,15 @@ body.edit-theme #tabpanel-ecologia {
     background: rgba(34, 197, 94, 0.14);
     border: 1px solid rgba(134, 239, 172, 0.22);
 }
-.distance-preview-icon {
-    color: #bae6fd;
-    background: rgba(14, 165, 233, 0.14);
-    border-color: rgba(125, 211, 252, 0.24);
-}
-.alias-preview-item {
-    border-color: rgba(96, 165, 250, 0.30) !important;
-    background: linear-gradient(135deg, rgba(96, 165, 250, 0.11), rgba(255, 255, 255, 0.025)) !important;
-}
-.alias-preview-icon {
-    color: #bfdbfe;
-    background: rgba(96, 165, 250, 0.14);
-    border-color: rgba(147, 197, 253, 0.24);
-}
 .human-relation-preview-icon {
     color: #fed7aa;
     background: rgba(251, 146, 60, 0.14);
     border-color: rgba(253, 186, 116, 0.24);
 }
-.curiosidade-value-wrapper.temperature-controls,
-.curiosidade-value-wrapper.distance-controls {
+.curiosidade-value-wrapper.temperature-controls {
     display: grid;
-    grid-template-columns: minmax(70px, 0.8fr) minmax(70px, 0.8fr) minmax(86px, 0.6fr);
+    grid-template-columns: minmax(70px, 0.8fr) minmax(70px, 0.8fr) minmax(54px, 0.45fr);
     gap: 8px;
-}
-.curiosidade-value-wrapper.alias-controls {
-    min-width: 0;
-}
-.curiosidade-value-wrapper.alias-controls input {
-    width: 100%;
-    min-width: 0;
 }
 .curiosidade-unit-badge {
     display: flex;
@@ -1844,6 +1816,7 @@ body.edit-theme #tabpanel-ecologia {
     }
 }
 
+
 /* =========================================================
    Ajuste fino: texto legível nos dropdowns de Alimentação e Ecologia
    ========================================================= */
@@ -1941,17 +1914,281 @@ body.edit-theme #tabpanel-ecologia {
 
 
 
-/* Correção: manter o editor de Curiosidades encostado ao topo.
-   Evita o grande espaço vertical quando a pré-visualização à direita cresce. */
-#tabpanel-curiosidades .curiosidades-layout {
-    align-items: start !important;
-}
-#tabpanel-curiosidades .curiosidades-editor {
-    justify-content: flex-start !important;
-    align-self: start !important;
-}
-#tabpanel-curiosidades .curiosidades-visual-preview {
-    align-self: start !important;
+/* =========================================================
+   Correção final: dropdowns sem cortar texto (Alimentação/Ecologia)
+   ========================================================= */
+#subtabpanel-alimentacao-modelo-visual .feeding-layout,
+#subtabpanel-ecologia-modelo-visual .ecology-layout {
+    grid-template-columns: minmax(0, 1fr) minmax(205px, 230px) !important;
+    gap: 12px !important;
 }
 
-.general-model-card.accent-captive-life { --model-accent: #0ea5e9; --model-accent-soft: rgba(14,165,233,0.16); --model-accent-glow: rgba(14,165,233,0.26); }
+#subtabpanel-alimentacao-modelo-visual .feeding-visual-preview,
+#subtabpanel-ecologia-modelo-visual .ecology-visual-preview {
+    max-width: 230px !important;
+    padding: 18px !important;
+}
+
+#subtabpanel-alimentacao-modelo-visual .feeding-row-header,
+#subtabpanel-alimentacao-modelo-visual .feeding-row {
+    grid-template-columns: minmax(190px, 1.2fr) minmax(270px, 1.75fr) 40px 40px 38px !important;
+    gap: 7px !important;
+}
+
+#subtabpanel-alimentacao-modelo-visual .feeding-detail-controls {
+    grid-template-columns: minmax(120px, 0.82fr) minmax(140px, 1fr) !important;
+    gap: 7px !important;
+}
+
+#subtabpanel-alimentacao-modelo-visual .feeding-detail-controls.measure-controls {
+    grid-template-columns: minmax(70px, 0.7fr) minmax(70px, 0.7fr) minmax(92px, 0.85fr) !important;
+}
+
+#subtabpanel-ecologia-modelo-visual .ecology-row-header,
+#subtabpanel-ecologia-modelo-visual .ecology-row {
+    grid-template-columns: minmax(205px, 0.95fr) minmax(250px, 1.35fr) 40px !important;
+    gap: 8px !important;
+}
+
+#subtabpanel-alimentacao-modelo-visual .feeding-row select,
+#subtabpanel-alimentacao-modelo-visual .feeding-detail-controls select,
+#subtabpanel-ecologia-modelo-visual .ecology-row select,
+#subtabpanel-ecologia-modelo-visual .ecology-detail-controls select {
+    font-size: 0.80rem !important;
+    line-height: 1.05 !important;
+    padding-left: 10px !important;
+    padding-right: 22px !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+}
+
+#subtabpanel-alimentacao-modelo-visual .feeding-row input,
+#subtabpanel-ecologia-modelo-visual .ecology-row input {
+    font-size: 0.84rem !important;
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+}
+
+#subtabpanel-alimentacao-modelo-visual .feeding-row .gender-toggle-btn,
+#subtabpanel-alimentacao-modelo-visual .feeding-row .fase-toggle-btn,
+#subtabpanel-alimentacao-modelo-visual .feeding-row .remove-dimension-btn,
+#subtabpanel-ecologia-modelo-visual .ecology-row .remove-dimension-btn {
+    width: 40px !important;
+    min-width: 40px !important;
+    height: 46px !important;
+}
+
+@media (max-width: 900px) {
+    #subtabpanel-alimentacao-modelo-visual .feeding-layout,
+    #subtabpanel-ecologia-modelo-visual .ecology-layout {
+        grid-template-columns: 1fr !important;
+    }
+    #subtabpanel-alimentacao-modelo-visual .feeding-visual-preview,
+    #subtabpanel-ecologia-modelo-visual .ecology-visual-preview {
+        max-width: 100% !important;
+    }
+}
+
+
+/* =========================================================
+   Ajuste proporcional definitivo: dropdowns Alimentação/Ecologia
+   com as mesmas regras visuais da secção Dimensões
+   ========================================================= */
+#subtabpanel-alimentacao-modelo-visual .feeding-layout,
+#subtabpanel-ecologia-modelo-visual .ecology-layout {
+    grid-template-columns: minmax(0, 1fr) minmax(180px, 210px) !important;
+    gap: 12px !important;
+}
+
+#subtabpanel-alimentacao-modelo-visual .feeding-visual-preview,
+#subtabpanel-ecologia-modelo-visual .ecology-visual-preview {
+    max-width: 210px !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    padding: 16px !important;
+    justify-self: end !important;
+}
+
+#subtabpanel-alimentacao-modelo-visual .feeding-editor,
+#subtabpanel-ecologia-modelo-visual .ecology-editor {
+    min-width: 0 !important;
+    overflow-x: auto !important;
+    overflow-y: visible !important;
+    padding-bottom: 4px !important;
+    -webkit-overflow-scrolling: touch !important;
+}
+
+#subtabpanel-alimentacao-modelo-visual .feeding-row-header,
+#subtabpanel-alimentacao-modelo-visual .feeding-row {
+    grid-template-columns: minmax(154px, 0.95fr) minmax(330px, 1.85fr) minmax(42px, 0.42fr) minmax(42px, 0.42fr) 38px !important;
+    gap: 8px !important;
+    min-width: 650px !important;
+}
+
+#subtabpanel-alimentacao-modelo-visual .feeding-detail-controls {
+    grid-template-columns: minmax(160px, 0.9fr) minmax(170px, 1fr) !important;
+    gap: 8px !important;
+}
+
+#subtabpanel-alimentacao-modelo-visual .feeding-detail-controls.measure-controls {
+    grid-template-columns: minmax(78px, 0.7fr) minmax(78px, 0.7fr) minmax(112px, 0.85fr) !important;
+}
+
+#subtabpanel-ecologia-modelo-visual .ecology-row-header,
+#subtabpanel-ecologia-modelo-visual .ecology-row {
+    grid-template-columns: minmax(230px, 1.25fr) minmax(330px, 1.75fr) 38px !important;
+    gap: 8px !important;
+    min-width: 620px !important;
+}
+
+#subtabpanel-alimentacao-modelo-visual .feeding-row select,
+#subtabpanel-alimentacao-modelo-visual .feeding-detail-controls select,
+#subtabpanel-ecologia-modelo-visual .ecology-row select,
+#subtabpanel-ecologia-modelo-visual .ecology-detail-controls select {
+    width: 100% !important;
+    min-width: 0 !important;
+    height: 42px !important;
+    font-size: 0.82rem !important;
+    line-height: 1.2 !important;
+    padding: 8px 24px 8px 10px !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+}
+
+#subtabpanel-alimentacao-modelo-visual .feeding-row input,
+#subtabpanel-ecologia-modelo-visual .ecology-row input {
+    width: 100% !important;
+    min-width: 0 !important;
+    height: 42px !important;
+    font-size: 0.82rem !important;
+    line-height: 1.2 !important;
+    padding: 8px 10px !important;
+}
+
+#subtabpanel-alimentacao-modelo-visual .feeding-row .gender-toggle-btn,
+#subtabpanel-alimentacao-modelo-visual .feeding-row .fase-toggle-btn,
+#subtabpanel-alimentacao-modelo-visual .feeding-row .remove-dimension-btn,
+#subtabpanel-ecologia-modelo-visual .ecology-row .remove-dimension-btn {
+    width: 38px !important;
+    min-width: 38px !important;
+    height: 42px !important;
+    font-size: 0.95rem !important;
+}
+
+@media (max-width: 1180px) {
+    #subtabpanel-alimentacao-modelo-visual .feeding-layout,
+    #subtabpanel-ecologia-modelo-visual .ecology-layout {
+        grid-template-columns: 1fr !important;
+    }
+    #subtabpanel-alimentacao-modelo-visual .feeding-visual-preview,
+    #subtabpanel-ecologia-modelo-visual .ecology-visual-preview {
+        max-width: 100% !important;
+        justify-self: stretch !important;
+    }
+}
+
+@media (max-width: 720px) {
+    #subtabpanel-alimentacao-modelo-visual .feeding-row,
+    #subtabpanel-ecologia-modelo-visual .ecology-row {
+        min-width: 0 !important;
+        grid-template-columns: 1fr 42px !important;
+    }
+}
+
+
+
+/* =========================================================
+   Correção final: modelos visuais por baixo das stats
+   Mantém a modularização de Ecologia, mas repõe o layout pedido:
+   edição/stats em largura total e preview abaixo.
+   ========================================================= */
+.general-visual-layout,
+.dimensions-layout,
+#subtabpanel-alimentacao-modelo-visual .feeding-layout,
+#subtabpanel-ecologia-modelo-visual .ecology-layout,
+#subtabpanel-reproducao-modelo-visual .reproduction-layout,
+.plumage-layout,
+#tabpanel-curiosidades .curiosidades-layout {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 22px !important;
+    align-items: start !important;
+}
+
+.general-visual-editor,
+.dimensions-editor,
+#subtabpanel-alimentacao-modelo-visual .feeding-editor,
+#subtabpanel-ecologia-modelo-visual .ecology-editor,
+#subtabpanel-reproducao-modelo-visual .reproduction-editor,
+.plumage-editor,
+#tabpanel-curiosidades .curiosidades-editor {
+    width: 100% !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    justify-content: flex-start !important;
+    align-self: stretch !important;
+}
+
+.general-visual-preview,
+.dimensions-visual-preview,
+#subtabpanel-alimentacao-modelo-visual .feeding-visual-preview,
+#subtabpanel-ecologia-modelo-visual .ecology-visual-preview,
+#subtabpanel-reproducao-modelo-visual .reproduction-visual-preview,
+.plumage-visual-preview,
+#tabpanel-curiosidades .curiosidades-visual-preview {
+    width: 100% !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    justify-self: stretch !important;
+    align-self: stretch !important;
+    box-sizing: border-box !important;
+}
+
+#subtabpanel-alimentacao-modelo-visual .feeding-editor,
+#subtabpanel-ecologia-modelo-visual .ecology-editor {
+    overflow-x: visible !important;
+    overflow-y: visible !important;
+}
+
+#subtabpanel-alimentacao-modelo-visual .feeding-row-header,
+#subtabpanel-alimentacao-modelo-visual .feeding-row {
+    grid-template-columns: minmax(142px, 0.72fr) minmax(0, 2.1fr) 44px 44px 40px !important;
+    min-width: 0 !important;
+    width: 100% !important;
+    gap: 10px !important;
+}
+
+#subtabpanel-alimentacao-modelo-visual .feeding-detail-controls {
+    grid-template-columns: minmax(170px, 0.95fr) minmax(180px, 1.05fr) !important;
+    gap: 10px !important;
+}
+
+#subtabpanel-alimentacao-modelo-visual .feeding-detail-controls.measure-controls {
+    grid-template-columns: minmax(90px, 0.75fr) minmax(90px, 0.75fr) minmax(130px, 1fr) !important;
+}
+
+#subtabpanel-ecologia-modelo-visual .ecology-row-header,
+#subtabpanel-ecologia-modelo-visual .ecology-row {
+    grid-template-columns: minmax(210px, 0.85fr) minmax(0, 2.15fr) 42px !important;
+    min-width: 0 !important;
+    width: 100% !important;
+    gap: 10px !important;
+}
+
+#subtabpanel-alimentacao-modelo-visual .feeding-row select,
+#subtabpanel-alimentacao-modelo-visual .feeding-detail-controls select,
+#subtabpanel-ecologia-modelo-visual .ecology-row select,
+#subtabpanel-ecologia-modelo-visual .ecology-detail-controls select {
+    height: 42px !important;
+    font-size: 0.95rem !important;
+}
+
+@media (max-width: 720px) {
+    #subtabpanel-alimentacao-modelo-visual .feeding-row,
+    #subtabpanel-ecologia-modelo-visual .ecology-row {
+        min-width: 0 !important;
+        grid-template-columns: 1fr 42px !important;
+    }
+}

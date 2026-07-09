@@ -1,0 +1,698 @@
+// Estado, referências DOM e catálogos base
+        let allAnimals = [];
+        let existingFamilies = new Set();
+        let existingReinos = new Set();
+        let existingFilos = new Set();
+        let existingSubfilos = new Set();
+        let existingClasses = new Set();
+        let existingSuperordens = new Set();
+        let existingOrdens = new Set();
+        let existingSubordens = new Set();
+        let existingInfraordens = new Set();
+        let existingGeneros = new Set();
+        let existingEspeciesList = new Set();
+        
+        let selectedSubespecies = []; // Guarda IDs dos animais selecionados
+
+        let isEditMode = false;
+        let currentEditingId = null;
+
+        const animalForm = document.getElementById('animalForm');
+        const saveButton = document.getElementById('saveButton');
+        const formTitle = document.getElementById('formTitle');
+        const formSubtitle = document.getElementById('formSubtitle');
+        const statusMessage = document.getElementById('statusMessage');
+        const nomeCientificoInput = document.getElementById('nomeCientifico');
+        const scientificPriorityGroup = nomeCientificoInput.closest('.scientific-name-priority');
+        const nomeCientificoWarning = document.getElementById('nomeCientificoWarning');
+        const familiaInput = document.getElementById('familia');
+        const familiaResultsContainer = document.getElementById('familiaResults');
+
+        // Novos campos avançados
+        const reinoInput = document.getElementById('reino');
+        const reinoResultsContainer = document.getElementById('reinoResults');
+        const filoInput = document.getElementById('filo');
+        const filoResultsContainer = document.getElementById('filoResults');
+        const subfiloInput = document.getElementById('subfilo');
+        const subfiloResultsContainer = document.getElementById('subfiloResults');
+        const classeInput = document.getElementById('classe');
+        const classeResultsContainer = document.getElementById('classeResults');
+        const superordemInput = document.getElementById('superordem');
+        const superordemResultsContainer = document.getElementById('superordemResults');
+        const ordemInput = document.getElementById('ordem');
+        const ordemResultsContainer = document.getElementById('ordemResults');
+        const subordemInput = document.getElementById('subordem');
+        const subordemResultsContainer = document.getElementById('subordemResults');
+        const infraordemInput = document.getElementById('infraordem');
+        const infraordemResultsContainer = document.getElementById('infraordemResults');
+        const generoInput = document.getElementById('genero');
+        const generoResultsContainer = document.getElementById('generoResults');
+        const especiesInput = document.getElementById('especies');
+        const especiesResultsContainer = document.getElementById('especiesResults');
+        
+        const subespeciesDeSearchInput = document.getElementById('subespeciesDeSearch');
+        const subespeciesDeResultsContainer = document.getElementById('subespeciesDeResults');
+        const selectedSubespeciesList = document.getElementById('selectedSubespeciesList');
+        
+        const toggleAdvancedBtn = document.getElementById('toggleAdvancedBtn');
+        const advancedFieldsContainer = document.getElementById('advancedFieldsContainer');
+        const advancedChevron = document.getElementById('advancedChevron');
+
+        const openEditModalBtn = document.getElementById('openEditModalBtn');
+        const closeEditModalBtn = document.getElementById('closeEditModalBtn');
+        const editModalOverlay = document.getElementById('editModalOverlay');
+        const editSearchInput = document.getElementById('editSearchInput');
+        const editListContainer = document.getElementById('editListContainer');
+        const dimensionRowsContainer = document.getElementById('dimensionRows');
+        const addDimensionBtn = document.getElementById('addDimensionBtn');
+        const animalSilhouette = document.getElementById('animalSilhouette');
+        const previewHeightValue = document.getElementById('previewHeightValue');
+        const previewWeightValue = document.getElementById('previewWeightValue');
+        const previewLengthValue = document.getElementById('previewLengthValue');
+        const previewDimensionModels = document.getElementById('previewDimensionModels');
+        const generalVisualRowsContainer = document.getElementById('generalVisualRows');
+        const addGeneralVisualBtn = document.getElementById('addGeneralVisualBtn');
+
+
+        const previewGeneralVisualModels = document.getElementById('previewGeneralVisualModels');
+        const feedingRowsContainer = document.getElementById('feedingRows');
+        const addFeedingBtn = document.getElementById('addFeedingBtn');
+        const feedingAnimalDropdown = document.getElementById('feedingAnimalDropdown');
+        const feedingAnimalTrigger = document.getElementById('feedingAnimalTrigger');
+        const feedingAnimalSearch = document.getElementById('feedingAnimalSearch');
+        const feedingAnimalList = document.getElementById('feedingAnimalList');
+        const feedingHeroIcon = document.getElementById('feedingHeroIcon');
+        const feedingHeroTitle = document.getElementById('feedingHeroTitle');
+        const previewFeedingModels = document.getElementById('previewFeedingModels');
+        const reproductionRowsContainer = document.getElementById('reproductionRows');
+        const addReproductionBtn = document.getElementById('addReproductionBtn');
+        const reproductionCategoryIcon = document.getElementById('reproductionCategoryIcon');
+        const reproductionCategoryName = document.getElementById('reproductionCategoryName');
+        const previewReproductionModels = document.getElementById('previewReproductionModels');
+        const feedingNutritionType = document.getElementById('feedingNutritionType');
+        const feedingNutritionDetail = document.getElementById('feedingNutritionDetail');
+        const feedingFoodMin = document.getElementById('feedingFoodMin');
+        const feedingFoodMax = document.getElementById('feedingFoodMax');
+        const feedingFoodUnit = document.getElementById('feedingFoodUnit');
+        const feedingWaterMin = document.getElementById('feedingWaterMin');
+        const feedingWaterMax = document.getElementById('feedingWaterMax');
+        const feedingWaterUnit = document.getElementById('feedingWaterUnit');
+        const ecologyRowsContainer = document.getElementById('ecologyRows');
+        const addEcologyBtn = document.getElementById('addEcologyBtn');
+        const ecologyHeroIcon = document.getElementById('ecologyHeroIcon');
+        const ecologyHeroTitle = document.getElementById('ecologyHeroTitle');
+        const previewEcologyModels = document.getElementById('previewEcologyModels');
+        const curiosidadesRowsContainer = document.getElementById('curiosidadesRows');
+        const addCuriosidadesBtn = document.getElementById('addCuriosidadesBtn');
+        const curiosidadesPreviewList = document.getElementById('curiosidadesPreviewList');
+        const baseDimensionOptions = [
+            { label: 'Altura', unit: 'cm' },
+            { label: 'Altura ao ombro', unit: 'm' },
+            { label: 'Comprimento total', unit: 'm' },
+            { label: 'Comprimento do corpo', unit: 'cm' },
+            { label: 'Comprimento da língua', unit: 'cm' },
+            { label: 'Peso', unit: 'kg' },
+            { label: 'Largura do corpo', unit: 'cm' },
+            { label: 'Altura do corpo', unit: 'cm' },
+            { label: 'Diâmetro do corpo', unit: 'cm' },
+            { label: 'Espessura do corpo', unit: 'cm' },
+            { label: 'Comprimento de grandes molares', unit: 'mm' }
+        ];
+
+        const dimensionOptionsByCategory = {
+            Mamiferos: [
+                { label: 'Altura', unit: 'cm' },
+                { label: 'Altura ao ombro', unit: 'm' },
+                { label: 'Comprimento total', unit: 'm' },
+                { label: 'Comprimento do corpo', unit: 'cm' },
+                { label: 'Peso', unit: 'kg' },
+                { label: 'Largura do corpo', unit: 'cm' },
+                { label: 'Perímetro torácico', unit: 'cm' },
+                { label: 'Comprimento da cauda', unit: 'cm' },
+                { label: 'Comprimento das patas', unit: 'cm' },
+                { label: 'Comprimento da orelha', unit: 'cm' },
+                { label: 'Comprimento do focinho', unit: 'cm' },
+                { label: 'Comprimento do pescoço', unit: 'cm' },
+                { label: 'Comprimento da tromba', unit: 'cm' },
+                { label: 'Comprimento das presas', unit: 'cm' },
+                { label: 'Comprimento dos caninos', unit: 'cm' },
+                { label: 'Comprimento dos cornos', unit: 'cm' },
+                { label: 'Comprimento das galhadas', unit: 'cm' },
+                { label: 'Comprimento da juba', unit: 'cm' },
+                { label: 'Largura da pata', unit: 'cm' },
+                { label: 'Comprimento da garra', unit: 'cm' },
+                { label: 'Comprimento do casco', unit: 'cm' },
+                { label: 'Comprimento da nadadeira', unit: 'cm' },
+                { label: 'Comprimento da barbatana dorsal', unit: 'cm' },
+                { label: 'Comprimento dos bigodes', unit: 'cm' },
+                { label: 'Envergadura', unit: 'm' },
+                { label: 'Comprimento de grandes molares', unit: 'mm' }
+            ],
+            Aves: [
+                { label: 'Comprimento total', unit: 'cm' },
+                { label: 'Comprimento do corpo', unit: 'cm' },
+                { label: 'Peso', unit: 'kg' },
+                { label: 'Altura', unit: 'cm' },
+                { label: 'Envergadura', unit: 'cm' },
+                { label: 'Comprimento da asa', unit: 'cm' },
+                { label: 'Comprimento do bico', unit: 'cm' },
+                { label: 'Comprimento da cauda', unit: 'cm' },
+                { label: 'Comprimento das patas', unit: 'cm' },
+                { label: 'Tamanho do ovo', unit: 'cm' },
+                { label: 'Peso do bico', unit: 'g' },
+                { label: 'Peso da cauda', unit: 'g' }
+            ],
+            Peixes: [
+                { label: 'Comprimento total', unit: 'cm' },
+                { label: 'Comprimento do corpo', unit: 'cm' },
+                { label: 'Peso', unit: 'kg' },
+                { label: 'Altura do corpo', unit: 'cm' },
+                { label: 'Largura do corpo', unit: 'cm' },
+                { label: 'Diâmetro do corpo', unit: 'cm' },
+                { label: 'Comprimento da cabeça', unit: 'cm' },
+                { label: 'Comprimento da cauda', unit: 'cm' },
+                { label: 'Comprimento da boca', unit: 'cm' },
+                { label: 'Largura da boca', unit: 'cm' },
+                { label: 'Comprimento da barbatana dorsal', unit: 'cm' },
+                { label: 'Altura da barbatana dorsal', unit: 'cm' },
+                { label: 'Comprimento da barbatana caudal', unit: 'cm' },
+                { label: 'Largura da barbatana caudal', unit: 'cm' },
+                { label: 'Comprimento das barbatanas peitorais', unit: 'cm' },
+                { label: 'Comprimento das barbatanas pélvicas', unit: 'cm' },
+                { label: 'Comprimento da barbatana anal', unit: 'cm' },
+                { label: 'Comprimento dos barbilhos', unit: 'cm' },
+                { label: 'Comprimento do rostro', unit: 'cm' },
+                { label: 'Comprimento da espada', unit: 'cm' },
+                { label: 'Comprimento dos dentes', unit: 'cm' },
+                { label: 'Comprimento das mandíbulas', unit: 'cm' },
+                { label: 'Largura das guelras', unit: 'cm' },
+                { label: 'Comprimento dos espinhos', unit: 'cm' },
+                { label: 'Comprimento dos tentáculos / filamentos', unit: 'cm' },
+                { label: 'Envergadura das barbatanas', unit: 'cm' },
+                { label: 'Largura do disco corporal', unit: 'cm' }
+            ],
+            Moluscos: [
+                { label: 'Comprimento total', unit: 'cm' },
+                { label: 'Comprimento do corpo', unit: 'cm' },
+                { label: 'Peso', unit: 'kg' },
+                { label: 'Largura do corpo', unit: 'cm' },
+                { label: 'Altura do corpo', unit: 'cm' },
+                { label: 'Diâmetro do corpo', unit: 'cm' },
+                { label: 'Comprimento da concha', unit: 'cm' },
+                { label: 'Largura da concha', unit: 'cm' },
+                { label: 'Altura da concha', unit: 'cm' },
+                { label: 'Diâmetro da concha', unit: 'cm' },
+                { label: 'Espessura da concha', unit: 'mm' },
+                { label: 'Peso da concha', unit: 'g' },
+                { label: 'Comprimento da abertura da concha', unit: 'cm' },
+                { label: 'Largura da abertura da concha', unit: 'cm' },
+                { label: 'Comprimento do manto', unit: 'cm' },
+                { label: 'Largura do manto', unit: 'cm' },
+                { label: 'Comprimento dos braços', unit: 'cm' },
+                { label: 'Comprimento dos tentáculos', unit: 'cm' },
+                { label: 'Comprimento do maior tentáculo', unit: 'cm' },
+                { label: 'Diâmetro das ventosas', unit: 'mm' },
+                { label: 'Comprimento do pé', unit: 'cm' },
+                { label: 'Largura do pé', unit: 'cm' },
+                { label: 'Comprimento dos tentáculos oculares', unit: 'cm' },
+                { label: 'Comprimento dos tentáculos sensoriais', unit: 'cm' },
+                { label: 'Número de braços', unit: 'unid.' },
+                { label: 'Número de tentáculos', unit: 'unid.' }
+            ],
+            Crustaceos: [
+                { label: 'Comprimento total', unit: 'cm' },
+                { label: 'Comprimento do corpo', unit: 'cm' },
+                { label: 'Peso', unit: 'kg' },
+                { label: 'Largura do corpo', unit: 'cm' },
+                { label: 'Altura do corpo', unit: 'cm' },
+                { label: 'Comprimento da carapaça', unit: 'cm' },
+                { label: 'Largura da carapaça', unit: 'cm' },
+                { label: 'Altura da carapaça', unit: 'cm' },
+                { label: 'Comprimento das pinças', unit: 'cm' },
+                { label: 'Largura das pinças', unit: 'cm' },
+                { label: 'Peso das pinças', unit: 'g' },
+                { label: 'Comprimento das patas', unit: 'cm' },
+                { label: 'Envergadura das patas', unit: 'cm' },
+                { label: 'Comprimento das antenas', unit: 'cm' },
+                { label: 'Comprimento do abdómen', unit: 'cm' },
+                { label: 'Comprimento da cauda', unit: 'cm' },
+                { label: 'Largura da cauda', unit: 'cm' },
+                { label: 'Diâmetro da base', unit: 'cm' },
+                { label: 'Largura da base', unit: 'cm' },
+                { label: 'Comprimento do pedúnculo', unit: 'cm' },
+                { label: 'Largura do pedúnculo', unit: 'cm' }
+            ],
+            Aracnideos: [
+                { label: 'Comprimento total', unit: 'cm' },
+                { label: 'Comprimento do corpo', unit: 'cm' },
+                { label: 'Peso', unit: 'g' },
+                { label: 'Largura do corpo', unit: 'cm' },
+                { label: 'Altura do corpo', unit: 'cm' },
+                { label: 'Comprimento do abdómen', unit: 'cm' },
+                { label: 'Largura do abdómen', unit: 'cm' },
+                { label: 'Comprimento do cefalotórax', unit: 'cm' },
+                { label: 'Largura do cefalotórax', unit: 'cm' },
+                { label: 'Comprimento das patas', unit: 'cm' },
+                { label: 'Envergadura das patas', unit: 'cm' },
+                { label: 'Comprimento dos pedipalpos', unit: 'cm' },
+                { label: 'Comprimento das quelíceras', unit: 'mm' },
+                { label: 'Comprimento das presas', unit: 'mm' },
+                { label: 'Comprimento da cauda', unit: 'cm' },
+                { label: 'Comprimento do ferrão', unit: 'mm' },
+                { label: 'Comprimento das pinças', unit: 'cm' },
+                { label: 'Largura das pinças', unit: 'cm' },
+                { label: 'Diâmetro do corpo', unit: 'mm' }
+            ],
+            Vermes: [
+                { label: 'Comprimento total', unit: 'cm' },
+                { label: 'Comprimento do corpo', unit: 'cm' },
+                { label: 'Peso', unit: 'g' },
+                { label: 'Largura do corpo', unit: 'mm' },
+                { label: 'Diâmetro do corpo', unit: 'mm' },
+                { label: 'Espessura do corpo', unit: 'mm' },
+                { label: 'Número de segmentos', unit: 'unid.' },
+                { label: 'Comprimento dos segmentos', unit: 'mm' },
+                { label: 'Comprimento da cabeça', unit: 'mm' },
+                { label: 'Largura da cabeça', unit: 'mm' },
+                { label: 'Comprimento da cauda', unit: 'mm' },
+                { label: 'Comprimento da boca', unit: 'mm' },
+                { label: 'Comprimento das cerdas', unit: 'mm' },
+                { label: 'Comprimento dos parapódios', unit: 'mm' },
+                { label: 'Comprimento dos proglótides', unit: 'mm' },
+                { label: 'Número de proglótides', unit: 'unid.' },
+                { label: 'Comprimento dos espículos', unit: 'mm' }
+            ],
+            Repteis: [
+                { label: 'Comprimento total', unit: 'cm' },
+                { label: 'Comprimento do corpo', unit: 'cm' },
+                { label: 'Peso', unit: 'kg' },
+                { label: 'Largura do corpo', unit: 'cm' },
+                { label: 'Altura do corpo', unit: 'cm' },
+                { label: 'Comprimento da cauda', unit: 'cm' },
+                { label: 'Comprimento da cabeça', unit: 'cm' },
+                { label: 'Largura da cabeça', unit: 'cm' },
+                { label: 'Comprimento do focinho', unit: 'cm' },
+                { label: 'Largura do focinho', unit: 'cm' },
+                { label: 'Comprimento da mandíbula', unit: 'cm' },
+                { label: 'Comprimento dos dentes', unit: 'cm' },
+                { label: 'Comprimento das presas', unit: 'cm' },
+                { label: 'Comprimento da língua', unit: 'cm' },
+                { label: 'Comprimento das patas', unit: 'cm' },
+                { label: 'Comprimento das garras', unit: 'cm' },
+                { label: 'Comprimento da carapaça', unit: 'cm' },
+                { label: 'Largura da carapaça', unit: 'cm' },
+                { label: 'Altura da carapaça', unit: 'cm' },
+                { label: 'Comprimento do pescoço', unit: 'cm' },
+                { label: 'Comprimento da crista', unit: 'cm' },
+                { label: 'Altura da crista', unit: 'cm' },
+                { label: 'Diâmetro do corpo', unit: 'cm' }
+            ],
+            Anfibios: [
+                { label: 'Comprimento total', unit: 'cm' },
+                { label: 'Comprimento do corpo', unit: 'cm' },
+                { label: 'Peso', unit: 'g' },
+                { label: 'Largura do corpo', unit: 'cm' },
+                { label: 'Altura do corpo', unit: 'cm' },
+                { label: 'Comprimento da cabeça', unit: 'cm' },
+                { label: 'Largura da cabeça', unit: 'cm' },
+                { label: 'Comprimento das patas', unit: 'cm' },
+                { label: 'Comprimento das patas dianteiras', unit: 'cm' },
+                { label: 'Comprimento das patas traseiras', unit: 'cm' },
+                { label: 'Comprimento dos dedos', unit: 'cm' },
+                { label: 'Largura dos discos adesivos', unit: 'mm' },
+                { label: 'Comprimento da cauda', unit: 'cm' },
+                { label: 'Distância entre os olhos', unit: 'mm' },
+                { label: 'Diâmetro dos olhos', unit: 'mm' },
+                { label: 'Comprimento das guelras externas', unit: 'cm' },
+                { label: 'Comprimento da crista dorsal', unit: 'cm' },
+                { label: 'Diâmetro do corpo', unit: 'cm' }
+            ],
+            Insetos: [
+                { label: 'Comprimento total', unit: 'mm' },
+                { label: 'Comprimento do corpo', unit: 'mm' },
+                { label: 'Peso', unit: 'mg' },
+                { label: 'Largura do corpo', unit: 'mm' },
+                { label: 'Altura do corpo', unit: 'mm' },
+                { label: 'Comprimento da cabeça', unit: 'mm' },
+                { label: 'Largura da cabeça', unit: 'mm' },
+                { label: 'Comprimento do tórax', unit: 'mm' },
+                { label: 'Largura do tórax', unit: 'mm' },
+                { label: 'Comprimento do abdómen', unit: 'mm' },
+                { label: 'Largura do abdómen', unit: 'mm' },
+                { label: 'Envergadura', unit: 'mm' },
+                { label: 'Comprimento da asa', unit: 'mm' },
+                { label: 'Largura da asa', unit: 'mm' },
+                { label: 'Comprimento das asas anteriores', unit: 'mm' },
+                { label: 'Comprimento das asas posteriores', unit: 'mm' },
+                { label: 'Largura das asas anteriores', unit: 'mm' },
+                { label: 'Largura das asas posteriores', unit: 'mm' },
+                { label: 'Comprimento das antenas', unit: 'mm' },
+                { label: 'Comprimento das patas', unit: 'mm' },
+                { label: 'Comprimento das patas dianteiras', unit: 'mm' },
+                { label: 'Comprimento das patas médias', unit: 'mm' },
+                { label: 'Comprimento das patas traseiras', unit: 'mm' },
+                { label: 'Comprimento das mandíbulas', unit: 'mm' },
+                { label: 'Comprimento da probóscide', unit: 'mm' },
+                { label: 'Comprimento do aparelho bucal', unit: 'mm' },
+                { label: 'Comprimento do ferrão', unit: 'mm' },
+                { label: 'Comprimento dos cornos', unit: 'mm' },
+                { label: 'Comprimento dos élitros', unit: 'mm' },
+                { label: 'Comprimento do ovipositor', unit: 'mm' }
+            ],
+            Microscopicos: [
+                { label: 'Comprimento total', unit: 'µm' },
+                { label: 'Comprimento do corpo', unit: 'µm' },
+                { label: 'Peso', unit: 'pg' },
+                { label: 'Comprimento celular', unit: 'µm' },
+                { label: 'Largura celular', unit: 'µm' },
+                { label: 'Diâmetro celular', unit: 'µm' },
+                { label: 'Espessura do corpo', unit: 'µm' },
+                { label: 'Espessura da parede celular', unit: 'nm' },
+                { label: 'Volume celular', unit: 'µm³' },
+                { label: 'Comprimento do flagelo', unit: 'µm' },
+                { label: 'Número de flagelos', unit: 'unid.' },
+                { label: 'Comprimento dos cílios', unit: 'µm' },
+                { label: 'Comprimento dos pili', unit: 'µm' },
+                { label: 'Comprimento dos pseudópodes', unit: 'µm' },
+                { label: 'Tamanho do núcleo', unit: 'µm' },
+                { label: 'Tamanho do vacúolo', unit: 'µm' },
+                { label: 'Comprimento dos filamentos', unit: 'µm' },
+                { label: 'Diâmetro da colónia', unit: 'µm' },
+                { label: 'Número de células por colónia', unit: 'unid.' },
+                { label: 'Comprimento das patas', unit: 'µm' },
+                { label: 'Comprimento dos apêndices', unit: 'µm' },
+                { label: 'Comprimento das garras', unit: 'µm' },
+                { label: 'Comprimento do aparelho bucal', unit: 'µm' },
+                { label: 'Diâmetro da partícula viral', unit: 'nm' },
+                { label: 'Comprimento da partícula viral', unit: 'nm' },
+                { label: 'Diâmetro do capsídeo', unit: 'nm' },
+                { label: 'Comprimento da cauda viral', unit: 'nm' }
+            ],
+            Extintos: [
+                { label: 'Comprimento total', unit: 'm' },
+                { label: 'Comprimento do corpo', unit: 'm' },
+                { label: 'Altura', unit: 'cm' },
+                { label: 'Altura ao ombro', unit: 'm' },
+                { label: 'Peso', unit: 'kg' },
+                { label: 'Comprimento da cauda', unit: 'm' },
+                { label: 'Comprimento da cabeça', unit: 'cm' },
+                { label: 'Largura da cabeça', unit: 'cm' },
+                { label: 'Comprimento do crânio', unit: 'cm' },
+                { label: 'Largura do crânio', unit: 'cm' },
+                { label: 'Comprimento dos dentes', unit: 'cm' },
+                { label: 'Comprimento das presas', unit: 'cm' },
+                { label: 'Comprimento dos cornos', unit: 'cm' },
+                { label: 'Comprimento das garras', unit: 'cm' },
+                { label: 'Envergadura', unit: 'm' },
+                { label: 'Comprimento da asa', unit: 'cm' }
+            ]
+        };
+
+        const dimensionDefaultsByCategory = {
+            Mamiferos: ['Altura', 'Comprimento total', 'Peso'],
+            Aves: ['Comprimento total', 'Envergadura', 'Peso'],
+            Peixes: ['Comprimento total', 'Altura do corpo', 'Peso'],
+            Moluscos: ['Comprimento total', 'Peso', 'Comprimento da concha'],
+            Crustaceos: ['Comprimento total', 'Largura da carapaça', 'Peso'],
+            Aracnideos: ['Comprimento do corpo', 'Envergadura das patas', 'Peso'],
+            Vermes: ['Comprimento total', 'Largura do corpo', 'Peso'],
+            Repteis: ['Comprimento total', 'Comprimento da cauda', 'Peso'],
+            Anfibios: ['Comprimento total', 'Comprimento do corpo', 'Peso'],
+            Insetos: ['Comprimento total', 'Envergadura', 'Peso'],
+            Microscopicos: ['Comprimento celular', 'Diâmetro celular', 'Comprimento do flagelo'],
+            Extintos: ['Comprimento total', 'Altura', 'Peso']
+        };
+
+        const reproductionTypesByCategory = {
+            Mamiferos: ['Vivíparo', 'Placental', 'Marsupial', 'Ovíparo'],
+            Aves: ['Ovíparo', 'Incubação externa', 'Nidícola', 'Nidífugo'],
+            Peixes: ['Ovíparo', 'Vivíparo', 'Ovovivíparo', 'Desova externa', 'Fertilização interna', 'Hermafrodita'],
+            Moluscos: ['Ovíparo', 'Hermafrodita', 'Sexos separados', 'Fertilização interna', 'Fertilização externa', 'Desenvolvimento larvar'],
+            Crustaceos: ['Ovíparo', 'Sexos separados', 'Fertilização interna', 'Ovos transportados pela fêmea', 'Desenvolvimento larvar', 'Metamorfose'],
+            Aracnideos: ['Ovíparo', 'Vivíparo', 'Fertilização interna', 'Saco de ovos', 'Cuidado parental', 'Canibalismo sexual'],
+            Vermes: ['Sexuada', 'Assexuada', 'Hermafrodita', 'Fragmentação', 'Regeneração', 'Postura de ovos', 'Ciclo parasitário'],
+            Repteis: ['Ovíparo', 'Vivíparo', 'Ovovivíparo', 'Fertilização interna', 'Incubação externa', 'Determinação sexual por temperatura'],
+            Anfibios: ['Ovíparo', 'Fertilização externa', 'Fertilização interna', 'Postura em água', 'Postura em locais húmidos', 'Metamorfose', 'Fase larvar'],
+            Insetos: ['Ovíparo', 'Vivíparo', 'Partenogénese', 'Metamorfose completa', 'Metamorfose incompleta', 'Postura de ovos', 'Reprodução social'],
+            Microscopicos: ['Divisão binária', 'Assexuada', 'Sexuada', 'Esporulação', 'Brotamento', 'Conjugação', 'Multiplicação celular'],
+            Extintos: ['Ovíparo provável', 'Vivíparo provável', 'Fertilização interna provável', 'Postura de ovos fossilizados', 'Cuidados parentais prováveis', 'Desconhecido', 'Estimado por comparação']
+        };
+
+        const reproductionTypeDescriptions = {
+            'Vivíparo': 'Crias nascem vivas',
+            'Placental': 'Desenvolvimento com placenta',
+            'Marsupial': 'Crias continuam na bolsa',
+            'Ovíparo': 'Postura de ovos',
+            'Incubação externa': 'Ovos chocados fora do corpo',
+            'Nidícola': 'Crias dependentes no ninho',
+            'Nidífugo': 'Crias móveis cedo',
+            'Ovovivíparo': 'Ovos desenvolvem-se internamente',
+            'Desova externa': 'Ovos libertados no ambiente',
+            'Fertilização interna': 'Fecundação dentro do corpo',
+            'Fertilização externa': 'Fecundação no ambiente',
+            'Hermafrodita': 'Pode ter Ã³rgãos dos dois sexos',
+            'Sexos separados': 'Macho e fêmea separados',
+            'Desenvolvimento larvar': 'Passa por fase de larva',
+            'Ovos transportados pela fêmea': 'Ovos presos ao corpo da fêmea',
+            'Metamorfose': 'Mudança corporal durante o crescimento',
+            'Saco de ovos': 'Ovos protegidos num saco',
+            'Cuidado parental': 'Adultos protegem ovos ou crias',
+            'Canibalismo sexual': 'Pode ocorrer após acasalamento',
+            'Sexuada': 'Envolve gâmetas',
+            'Assexuada': 'Sem parceiro sexual',
+            'Fragmentação': 'Corpo divide-se em partes',
+            'Regeneração': 'Partes regeneram novo indivíduo',
+            'Postura de ovos': 'Deposita ovos no ambiente',
+            'Ciclo parasitário': 'Depende de hospedeiros',
+            'Incubação externa': 'Ovos desenvolvem-se fora do corpo',
+            'Determinação sexual por temperatura': 'Temperatura influencia o sexo',
+            'Postura em água': 'Ovos colocados na água',
+            'Postura em locais húmidos': 'Ovos em ambientes húmidos',
+            'Fase larvar': 'Fase inicial diferente do adulto',
+            'Partenogénese': 'Desenvolvimento sem fecundação',
+            'Metamorfose completa': 'Ovo, larva, pupa e adulto',
+            'Metamorfose incompleta': 'Ovo, ninfa e adulto',
+            'Reprodução social': 'Organizada em colónias',
+            'Divisão binária': 'Uma célula divide-se em duas',
+            'Esporulação': 'Forma esporos resistentes',
+            'Brotamento': 'Novo organismo brota do corpo',
+            'Conjugação': 'Troca de material genético',
+            'Multiplicação celular': 'Aumento por divisão celular',
+            'Ovíparo provável': 'Provável postura de ovos',
+            'Vivíparo provável': 'Provável nascimento vivo',
+            'Fertilização interna provável': 'Inferido por comparação',
+            'Postura de ovos fossilizados': 'Evidência fóssil de ovos',
+            'Cuidados parentais prováveis': 'Inferido por fósseis ou parentes',
+            'Desconhecido': 'Sem dados suficientes',
+            'Estimado por comparação': 'Baseado em espécies semelhantes'
+        };
+
+        const birdEggVisuals = [
+            { label: 'Branco', image: '../assets/ovos/ovo_branco.png', average: '2-5 ovos' },
+            { label: 'Creme', image: '../assets/ovos/ovo_creme.png', average: '2-5 ovos' },
+            { label: 'Bege salpicado', image: '../assets/ovos/ovo_bege_salpicado.png', average: '2-5 ovos' },
+            { label: 'Castanho', image: '../assets/ovos/ovo_castanho.png', average: '2-5 ovos' },
+            { label: 'Azul claro', image: '../assets/ovos/ovo_azul_claro.png', average: '2-5 ovos' },
+            { label: 'Azul-esverdeado', image: '../assets/ovos/ovo_azul_esverdeado_salpicado.png', average: '2-5 ovos' },
+            { label: 'Manchado', image: '../assets/ovos/ovo_manchado_escuro.png', average: '2-5 ovos' },
+            { label: 'Camuflado', image: '../assets/ovos/ovo_camuflado_moteado.png', average: '2-5 ovos' }
+        ];
+
+        function getBirdEggVisualByLabel(label = '') {
+            return birdEggVisuals.find(egg => egg.label === label);
+        }
+
+        function isBirdEggSelection(item = {}) {
+            return !!getBirdEggVisualByLabel(item.tipo || item);
+        }
+
+        const plumageVisualGroups = {
+            plumagem: 'Tipo de plumagem',
+            pena: 'Tipo de pena'
+        };
+
+        const plumageTypes = [
+            'Penugem',
+            'Plumagem juvenil',
+            'Plumagem adulta',
+            'Plumagem nupcial',
+            'Plumagem de eclipse',
+            'Plumagem de inverno',
+            'Plumagem de verão',
+            'Plumagem de camuflagem',
+            'Plumagem ornamental',
+            'Plumagem impermeável',
+            'Plumagem sexualmente dimórfica'
+        ];
+
+        const featherTypes = [
+            'Rémiges',
+            'Retrizes',
+            'Tectrizes',
+            'Penugem',
+            'Semiplumas',
+            'Filoplumas',
+            'Cerdas'
+        ];
+
+        const plumageOptionsByGroup = {
+            plumagem: plumageTypes,
+            pena: featherTypes
+        };
+
+        const plumageTypeDescriptions = {
+            'Penugem': 'Penas muito macias e isolantes',
+            'Plumagem juvenil': 'Primeira plumagem após a penugem',
+            'Plumagem adulta': 'Aspeto típico da ave madura',
+            'Plumagem nupcial': 'Mais vistosa durante a reprodução',
+            'Plumagem de eclipse': 'Fase mais discreta após reprodução',
+            'Plumagem de inverno': 'Mais isolante e discreta',
+            'Plumagem de verão': 'Mais leve, definida e sazonal',
+            'Plumagem de camuflagem': 'Mistura-se com o bioma',
+            'Plumagem ornamental': 'Usada em exibição e atração',
+            'Plumagem impermeável': 'Adaptada Ã  repelência da água',
+            'Plumagem sexualmente dimórfica': 'Macho e fêmea com visuais distintos',
+            'Rémiges': 'Penas de voo das asas',
+            'Retrizes': 'Penas da cauda, direção e travagem',
+            'Tectrizes': 'Penas de cobertura do corpo e asas',
+            'Semiplumas': 'Misturam estrutura com suavidade',
+            'Filoplumas': 'Penas finas de função sensorial',
+            'Cerdas': 'Estruturas rígidas perto do bico e olhos'
+        };
+
+        const plumageVisualAssets = {
+            'Penugem': { image: '../assets/plumagem/penugem.png', group: 'plumagem' },
+            'Plumagem juvenil': { image: '../assets/plumagem/semiplumas.png', group: 'plumagem' },
+            'Plumagem adulta': { image: '../assets/plumagem/remiges.png', group: 'plumagem' },
+            'Plumagem nupcial': { image: '../assets/plumagem/retrizes.png', group: 'plumagem' },
+            'Plumagem de eclipse': { image: '../assets/plumagem/tectrizes.png', group: 'plumagem' },
+            'Plumagem de inverno': { image: '../assets/plumagem/semiplumas.png', group: 'plumagem' },
+            'Plumagem de verão': { image: '../assets/plumagem/remiges.png', group: 'plumagem' },
+            'Plumagem de camuflagem': { image: '../assets/plumagem/tectrizes.png', group: 'plumagem' },
+            'Plumagem ornamental': { image: '../assets/plumagem/retrizes.png', group: 'plumagem' },
+            'Plumagem impermeável': { image: '../assets/plumagem/remiges.png', group: 'plumagem' },
+            'Plumagem sexualmente dimórfica': { image: '../assets/plumagem/retrizes.png', group: 'plumagem' },
+            'Rémiges': { image: '../assets/plumagem/remiges.png', group: 'pena' },
+            'Retrizes': { image: '../assets/plumagem/retrizes.png', group: 'pena' },
+            'Tectrizes': { image: '../assets/plumagem/tectrizes.png', group: 'pena' },
+            'Semiplumas': { image: '../assets/plumagem/semiplumas.png', group: 'pena' },
+            'Filoplumas': { image: '../assets/plumagem/filoplumas.png', group: 'pena' },
+            'Cerdas': { image: '../assets/plumagem/cerdas.png', group: 'pena' }
+        };
+
+        const dimensionUnits = ['nm', 'µm', 'mm', 'cm', 'm', 'km', 'pg', 'ng', 'µg', 'mg', 'g', 'kg', 't', 'unid.', 'mm²', 'cm²', 'µm²', 'mm³', 'cm³', 'µm³'];
+
+
+        // --- SALVAR OU ATUALIZAR ---
+        animalForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            saveButton.disabled = true;
+            saveButton.textContent = isEditMode ? 'A atualizar...' : 'A gravar...';
+            
+            try {
+                const scientificNameKey = document.getElementById('nomeCientifico').value.trim().toLowerCase().replace(/\s+/g, '_');
+                const docId = isEditMode ? currentEditingId : scientificNameKey;
+                if (!docId) { throw new Error("Não foi possível determinar o ID do documento."); }
+                
+                let timestamp = Date.now();
+                let editado = [];
+                let criadoPor = auth.currentUser ? auth.currentUser.uid : null;
+                
+                if (isEditMode) {
+                    const existingAnimal = allAnimals.find(a => a.id === docId);
+                    if (existingAnimal && existingAnimal.timestamp) {
+                        timestamp = existingAnimal.timestamp;
+                    }
+                    if (existingAnimal && existingAnimal.criadoPor) {
+                        criadoPor = existingAnimal.criadoPor;
+                    }
+                    if (existingAnimal && existingAnimal.editado) {
+                        editado = Array.isArray(existingAnimal.editado) ? [...existingAnimal.editado] : [];
+                    }
+                    editado.push({
+                        timestamp: Date.now(),
+                        editadoPor: auth.currentUser ? auth.currentUser.uid : null
+                    });
+                }
+
+                const curiosidadesDetalhadas = getCuriosidadesData();
+                const ecologiaDetalhada = getEcologyData();
+
+                const animalData = {
+                    nome: document.getElementById('nomeAnimal').value,
+                    nomeCientifico: document.getElementById('nomeCientifico').value,
+                    familia: document.getElementById('familia').value.trim(),
+                    reino: document.getElementById('reino').value.trim(),
+                    filo: document.getElementById('filo').value.trim(),
+                    subfilo: document.getElementById('subfilo').value.trim(),
+                    classe: document.getElementById('classe').value.trim(),
+                    superordem: document.getElementById('superordem').value.trim(),
+                    ordem: document.getElementById('ordem').value.trim(),
+                    subordem: document.getElementById('subordem').value.trim(),
+                    infraordem: document.getElementById('infraordem').value.trim(),
+                    genero: document.getElementById('genero').value.trim(),
+                    especie: document.getElementById('especies').value.trim(),
+                    subespeciesDe: selectedSubespecies,
+                    imagemUrl: document.getElementById('imagemUrl').value,
+                    imagemObjectPosition: document.getElementById('imagemObjectPosition').value || 'center center',
+                    categoria: getSelectedCategoriesMap(),
+                    timestamp: timestamp,
+                    editado: editado,
+                    criadoPor: criadoPor,
+                    informacao: {
+                        geral: document.getElementById('infoGeral').value,
+                        geralDetalhada: expandCombinedGenderItems(getGeneralVisualData()),
+                        dimensoes: document.getElementById('infoDimensoes').value,
+                        dimensoesDetalhadas: expandCombinedGenderItems(getDimensionData()),
+                        alimentacao: document.getElementById('infoAlimentacao').value,
+                        alimentacaoDetalhada: getFeedingData(),
+                        ecologia: buildEcologyInfoObject(ecologiaDetalhada),
+                        reproducao: document.getElementById('infoReproducao').value,
+                        reproducaoDetalhada: getReproductionData(),
+                        plumagem: document.getElementById('infoPlumagem').value || '',
+                        plumagemDetalhada: getPlumageData(),
+                        distribuicao: {
+                            paises: selectedCountries,
+                            paisesDetalhes: paisesDetalhes,
+                            descricao: document.getElementById('infoDistribuicao').value || ''
+                        },
+                        curiosidades: {
+                            cor: getPreferredCuriosidadeValue(curiosidadesDetalhadas, 'Cor do animal'),
+                            estadoConservacao: getPreferredCuriosidadeValue(curiosidadesDetalhadas, 'Estado de Conservação'),
+                            tipoComunicacao: getPreferredCuriosidadeValue(curiosidadesDetalhadas, 'Tipo de Comunicação'),
+                            tipoComunicacaoDescricao: getPreferredCuriosidadeDescription(curiosidadesDetalhadas, 'Tipo de Comunicação'),
+                            temperaturaAmbiente: getPreferredCuriosidadeValue(curiosidadesDetalhadas, 'Temperatura do Ambiente'),
+                            relacaoHumanos: getPreferredCuriosidadeValue(curiosidadesDetalhadas, 'Relação com Humanos'),
+                            detalhes: curiosidadesDetalhadas,
+                            texto: document.getElementById('infoCuriosidades').value
+                        }
+                    },
+                    videos: [
+                        document.getElementById('video1').value,
+                        document.getElementById('video2').value,
+                        document.getElementById('video3').value,
+                        document.getElementById('video4').value,
+                        document.getElementById('video5').value
+                    ].filter(url => url)
+                };
+
+                await setDoc(doc(db, "animais", docId), animalData);
+                await backfillEcologyManualRefsForAnimal(docId, animalData);
+
+
+
+                statusMessage.className = 'grid-span-3 success';
+                statusMessage.textContent = `Animal ${isEditMode ? 'atualizado' : 'gravado'} com sucesso!`;
+                
+                await initializePage();
+                switchToCreateMode();
+            } catch (error) {
+                console.error("Erro ao gravar no Firestore:", error);
+                statusMessage.className = 'grid-span-3 error';
+                statusMessage.textContent = 'Ocorreu um erro ao gravar. Verifique a consola.';
+            } finally {
+                saveButton.disabled = false;
+            }
+        });
+
+        // --- DIMENSÕES E MODELO VISUAL ---
