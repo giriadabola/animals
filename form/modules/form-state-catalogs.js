@@ -663,6 +663,8 @@
                             tipoComunicacaoDescricao: getPreferredCuriosidadeDescription(curiosidadesDetalhadas, 'Tipo de Comunicação'),
                             temperaturaAmbiente: getPreferredCuriosidadeValue(curiosidadesDetalhadas, 'Temperatura do Ambiente'),
                             relacaoHumanos: getPreferredCuriosidadeValue(curiosidadesDetalhadas, 'Relação com Humanos'),
+                            horasSono: getPreferredCuriosidadeValue(curiosidadesDetalhadas, 'Horas de Sono'),
+                            distanciaPercorrida: getPreferredCuriosidadeValue(curiosidadesDetalhadas, 'Distância Percorrida'),
                             detalhes: curiosidadesDetalhadas,
                             texto: document.getElementById('infoCuriosidades').value
                         }

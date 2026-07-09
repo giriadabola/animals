@@ -62,6 +62,52 @@
             return '';
         }
 
+        function isSleepHoursCuriosidade(type = '') {
+            return normalizeSearchText(type).includes('horas de sono');
+        }
+
+        function isDistanceCuriosidade(type = '') {
+            return normalizeSearchText(type).includes('distancia percorrida');
+        }
+
+        function getCuriosidadeMetricUnits(type = '') {
+            if (isSleepHoursCuriosidade(type)) return ['horas/dia', 'horas/semana', 'horas/mes', 'horas/ano'];
+            if (isDistanceCuriosidade(type)) return ['m/dia', 'm/semana', 'm/mes', 'm/ano', 'km/dia', 'km/semana', 'km/mes', 'km/ano'];
+            return [];
+        }
+
+        function getCuriosidadeDefaultMetricUnit(type = '') {
+            if (isSleepHoursCuriosidade(type)) return 'horas/dia';
+            if (isDistanceCuriosidade(type)) return 'km/dia';
+            return '';
+        }
+
+        function parseCuriosidadeMetric(item = {}, type = '') {
+            const raw = String(item.valor || item.detalhe || '').trim();
+            const units = getCuriosidadeMetricUnits(type);
+            const defaultUnit = getCuriosidadeDefaultMetricUnit(type);
+            const result = { min: item.valorMin || '', max: item.valorMax || '', unit: item.unidade || defaultUnit };
+            if ((!result.min && !result.max) && raw) {
+                const match = raw.match(/(-?\d+(?:[.,]\d+)?)(?:\s*[-–]\s*(-?\d+(?:[.,]\d+)?))?\s*([^0-9]+)?$/);
+                if (match) {
+                    result.min = match[1] || '';
+                    result.max = match[2] || '';
+                    const rawUnit = String(match[3] || '').trim();
+                    if (rawUnit && units.includes(rawUnit)) result.unit = rawUnit;
+                }
+            }
+            if (!units.includes(result.unit)) result.unit = defaultUnit;
+            return result;
+        }
+
+        function buildCuriosidadeMetricValue(min = '', max = '', unit = '') {
+            const minVal = String(min || '').trim();
+            const maxVal = String(max || '').trim();
+            const unitVal = String(unit || '').trim();
+            const value = minVal && maxVal ? `${minVal}-${maxVal}` : `${minVal || maxVal}`;
+            return `${value}${unitVal ? ` ${unitVal}` : ''}`.trim();
+        }
+
         function renderCuriosidadeValueControls(row, type = '', data = {}) {
             const oldWrapper = row.querySelector('.curiosidade-value-wrapper');
             if (oldWrapper) oldWrapper.remove();
@@ -90,6 +136,32 @@
                 minInput.addEventListener('input', updateCuriosidadesPreview);
                 maxInput.addEventListener('input', updateCuriosidadesPreview);
                 wrapper.append(minInput, maxInput, unitBadge);
+            } else if (isSleepHoursCuriosidade(type) || isDistanceCuriosidade(type)) {
+                wrapper.classList.add('temperature-controls', 'metric-controls');
+                const parsed = parseCuriosidadeMetric(data, type);
+                const minInput = document.createElement('input');
+                minInput.type = 'number';
+                minInput.step = '0.01';
+                minInput.min = '0';
+                minInput.className = 'curiosidade-metric-min';
+                minInput.placeholder = isDistanceCuriosidade(type) ? 'Mín.' : 'Valor';
+                minInput.value = parsed.min;
+                const maxInput = document.createElement('input');
+                maxInput.type = 'number';
+                maxInput.step = '0.01';
+                maxInput.min = '0';
+                maxInput.className = 'curiosidade-metric-max';
+                maxInput.placeholder = 'Máx.';
+                maxInput.value = parsed.max;
+                maxInput.style.display = isSleepHoursCuriosidade(type) ? 'none' : '';
+                const unitSelect = document.createElement('select');
+                unitSelect.className = 'curiosidade-metric-unit';
+                unitSelect.innerHTML = getCuriosidadeMetricUnits(type).map(unit => `<option value="${unit}">${unit}</option>`).join('');
+                unitSelect.value = parsed.unit;
+                minInput.addEventListener('input', updateCuriosidadesPreview);
+                maxInput.addEventListener('input', updateCuriosidadesPreview);
+                unitSelect.addEventListener('change', updateCuriosidadesPreview);
+                wrapper.append(minInput, maxInput, unitSelect);
             } else {
                 const valueSelect = document.createElement('select');
                 valueSelect.className = 'curiosidade-value';
@@ -181,6 +253,16 @@
                         item.valorMax = max;
                         item.unidade = '°C';
                     }
+                    if (isSleepHoursCuriosidade(tipo) || isDistanceCuriosidade(tipo)) {
+                        const min = row.querySelector('.curiosidade-metric-min')?.value || '';
+                        const max = row.querySelector('.curiosidade-metric-max')?.value || '';
+                        const unit = row.querySelector('.curiosidade-metric-unit')?.value || getCuriosidadeDefaultMetricUnit(tipo);
+                        valor = buildCuriosidadeMetricValue(min, max, unit);
+                        item.valor = valor;
+                        item.valorMin = min;
+                        item.valorMax = max;
+                        item.unidade = unit;
+                    }
                     return item;
                 })
                 .filter(item => item.tipo && item.valor);
@@ -202,7 +284,7 @@
                     valor: item.valor || '',
                     valorMin: item.valorMin || '',
                     valorMax: item.valorMax || '',
-                    unidade: item.unidade || (item.tipo === 'Temperatura do Ambiente' ? '°C' : ''),
+                    unidade: item.unidade || (item.tipo === 'Temperatura do Ambiente' ? '°C' : getCuriosidadeDefaultMetricUnit(item.tipo || '')),
                     descricao: item.descricao || (item.tipo === 'Tipo de Comunicação' ? (curiosidadesCommunicationDescriptions[item.valor] || '') : ''),
                     genero: item.genero || GENDER_BOTH,
                     fase: item.fase || 'Adulto'
@@ -223,6 +305,14 @@
                 legacyItems.push({ tipo: 'Temperatura do Ambiente', valor: curiosidades.temperaturaAmbiente, valorMin: parsed.min, valorMax: parsed.max, unidade: '°C', genero: GENDER_BOTH, fase: 'Adulto' });
             }
             if (curiosidades?.relacaoHumanos) legacyItems.push({ tipo: 'Relação com Humanos', valor: curiosidades.relacaoHumanos, genero: GENDER_BOTH, fase: 'Adulto' });
+            if (curiosidades?.horasSono) {
+                const parsed = parseCuriosidadeMetric({ valor: curiosidades.horasSono }, 'Horas de Sono');
+                legacyItems.push({ tipo: 'Horas de Sono', valor: curiosidades.horasSono, valorMin: parsed.min, valorMax: parsed.max, unidade: parsed.unit, genero: GENDER_BOTH, fase: 'Adulto' });
+            }
+            if (curiosidades?.distanciaPercorrida) {
+                const parsed = parseCuriosidadeMetric({ valor: curiosidades.distanciaPercorrida }, 'Distância Percorrida');
+                legacyItems.push({ tipo: 'Distância Percorrida', valor: curiosidades.distanciaPercorrida, valorMin: parsed.min, valorMax: parsed.max, unidade: parsed.unit, genero: GENDER_BOTH, fase: 'Adulto' });
+            }
             return legacyItems;
         }
 
@@ -313,6 +403,32 @@
                             <span class="preview-label">Relação com Humanos</span>
                             <strong style="font-size: 1.05rem; font-weight: 700; color: var(--text-primary);">${item.valor}</strong>
                             <div class="communication-preview-desc">Modelo visual próprio desta relação.</div>
+                            ${renderCuriosidadeMeta(item)}
+                        </div>
+                    </div>`;
+            }
+
+            if (item.tipo === 'Horas de Sono') {
+                return `
+                    <div class="curiosidades-preview-item sleep-preview-item">
+                        <div class="communication-preview-icon"><i class="fa-solid fa-moon"></i></div>
+                        <div class="curiosidades-preview-info">
+                            <span class="preview-label">Horas de Sono</span>
+                            <strong style="font-size: 1.05rem; font-weight: 700; color: var(--text-primary);">${item.valor}</strong>
+                            <div class="communication-preview-desc">Modelo visual próprio do descanso diário ou sazonal.</div>
+                            ${renderCuriosidadeMeta(item)}
+                        </div>
+                    </div>`;
+            }
+
+            if (item.tipo === 'Distância Percorrida') {
+                return `
+                    <div class="curiosidades-preview-item distance-preview-item">
+                        <div class="communication-preview-icon"><i class="fa-solid fa-route"></i></div>
+                        <div class="curiosidades-preview-info">
+                            <span class="preview-label">Distância Percorrida</span>
+                            <strong style="font-size: 1.05rem; font-weight: 700; color: var(--text-primary);">${item.valor}</strong>
+                            <div class="communication-preview-desc">Modelo visual próprio de deslocação e movimento.</div>
                             ${renderCuriosidadeMeta(item)}
                         </div>
                     </div>`;

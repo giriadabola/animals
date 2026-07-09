@@ -11,9 +11,17 @@
 
         generalVisualOptions.length = 0;
         generalVisualOptions.push(...generalVisualCatalogOptions.filter(option => !isEcologyFunctionType(option.tipo)));
-        if (!generalVisualOptions.some(option => option.tipo === 'Espetativa média de vida')) {
-            generalVisualOptions.unshift({ tipo: 'Espetativa média de vida', unidade: 'anos' });
+        if (!generalVisualOptions.some(option => option.tipo === 'Expetativa média de vida')) {
+            generalVisualOptions.unshift({ tipo: 'Expetativa média de vida', unidade: 'anos' });
         }
+        [
+            { tipo: 'Vida útil (cativeiro)', unidade: 'km/dia' },
+            { tipo: 'Expetativa média de vida (cativeiro)', unidade: 'km/dia' }
+        ].forEach(option => {
+            if (!generalVisualOptions.some(existing => normalizeSearchText(existing.tipo) === normalizeSearchText(option.tipo))) {
+                generalVisualOptions.push(option);
+            }
+        });
         generalVisualUnits.length = 0;
         generalVisualUnits.push(...generalVisualCatalogUnits);
         ['segundos', 'minutos', 'horas', 'dias', 'semanas', 'meses', 'anos', 'milénios'].forEach(unit => {
@@ -55,7 +63,17 @@
             return ['segundos', 'minutos', 'horas', 'dias', 'semanas', 'meses', 'anos', 'milénios'];
         }
 
+        function isCaptivityMovementGeneralModel(type = '') {
+            const normalized = normalizeSearchText(type);
+            return normalized.includes('cativeiro') && (normalized.includes('vida util') || normalized.includes('expectativa media de vida') || normalized.includes('expetativa media de vida'));
+        }
+
+        function getCaptivityMovementUnits() {
+            return ['m/dia', 'm/semana', 'm/mes', 'm/ano', 'km/dia', 'km/semana', 'km/mes', 'km/ano'];
+        }
+
         function getGeneralUnitOptions(type = '') {
+            if (isCaptivityMovementGeneralModel(type)) return getCaptivityMovementUnits();
             if (isLifeExpectancyGeneralModel(type)) return getLifeExpectancyUnits();
             if (isNursingGeneralModel(type)) return ['dias', 'meses', 'anos'];
             if (isPopulationGeneralModel(type)) return ['dezenas', 'centenas', 'milhares', 'milhões'];
@@ -63,6 +81,7 @@
         }
 
         function getGeneralDefaultUnit(type = '') {
+            if (isCaptivityMovementGeneralModel(type)) return 'km/dia';
             if (isLifeExpectancyGeneralModel(type)) return 'anos';
             if (isNursingGeneralModel(type)) return 'meses';
             if (isPopulationGeneralModel(type)) return 'milhares';
@@ -79,6 +98,7 @@
         }
 
         function getGeneralMinPlaceholder(type = '') {
+            if (isCaptivityMovementGeneralModel(type)) return 'Mín.';
             if (isPopulationGeneralModel(type)) return 'Ex: 1200';
             if (isNursingGeneralModel(type)) return 'Ex: 2';
             if (isLifeExpectancyGeneralModel(type)) return 'Ex: 8';
@@ -86,6 +106,7 @@
         }
 
         function getGeneralMaxPlaceholder(type = '') {
+            if (isCaptivityMovementGeneralModel(type)) return 'Máx.';
             if (isPopulationGeneralModel(type)) return 'Ex: 3500';
             if (isNursingGeneralModel(type)) return 'Ex: 8';
             if (isLifeExpectancyGeneralModel(type)) return 'Ex: 15';
@@ -255,7 +276,7 @@
         }
 
         function getDefaultGeneralVisualOptions() {
-            const hiddenByDefault = new Set(['Velocidade média', 'Força da mordida', 'Estratégia para obter alimento', 'Tempo de Amamentação']);
+            const hiddenByDefault = new Set(['Velocidade média', 'Força da mordida', 'Estratégia para obter alimento', 'Tempo de Amamentação', 'Vida útil (cativeiro)', 'Expetativa média de vida (cativeiro)']);
             return generalVisualOptions.filter(option => !hiddenByDefault.has(option.tipo));
         }
 
@@ -321,8 +342,16 @@
         }
 
         function getGeneralVisualMeta(type = '') {
+            if (isCaptivityMovementGeneralModel(type)) {
+                const normalized = normalizeSearchText(type);
+                return {
+                    key: normalized.includes('vida util') ? 'vida-util-cativeiro' : 'expectativa-cativeiro',
+                    title: type || (normalized.includes('vida util') ? 'Vida útil (cativeiro)' : 'Expetativa média de vida (cativeiro)'),
+                    accent: normalized.includes('vida util') ? 'accent-captive-lifespan' : 'accent-captive-life-expectancy'
+                };
+            }
             if (isLifeExpectancyGeneralModel(type)) {
-                return { key: 'expectativa-vida', title: type || 'Espetativa média de vida', accent: 'accent-life-expectancy' };
+                return { key: 'expectativa-vida', title: type || 'Expetativa média de vida', accent: 'accent-life-expectancy' };
             }
             if (isNursingGeneralModel(type)) {
                 return { key: 'amamentacao', title: type || 'Tempo de Amamentação', accent: 'accent-life' };
@@ -374,6 +403,12 @@
         }
 
         function getGeneralModelSvg(key = 'geral') {
+            if (key === 'vida-util-cativeiro') {
+                return `<svg class="metric-model-svg general-model-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M18 58c8-16 20-24 36-24"/><path d="M24 62h36"/><path d="M50 21c8 4 12 12 10 21"/><path d="M20 38c8-10 18-14 30-12"/><path d="M30 22c-4 7-4 13 0 20"/><path d="M38 18c-1 9 1 16 7 22"/><path d="M22 50c6 0 10 4 10 10"/><path d="M47 50c8 0 14 4 17 12"/></svg>`;
+            }
+            if (key === 'expectativa-cativeiro') {
+                return `<svg class="metric-model-svg general-model-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M24 12h32"/><path d="M24 68h32"/><path d="M29 12c0 13 8 19 11 24c3-5 11-11 11-24"/><path d="M29 68c0-13 8-19 11-24c3 5 11 11 11 24"/><path d="M18 45c6-9 14-13 24-13"/><path d="M47 34c8 0 14 5 17 13"/><path d="M30 42h20"/></svg>`;
+            }
             if (key === 'expectativa-vida') {
                 return `<svg class="metric-model-svg general-model-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M25 10h30"/><path d="M25 70h30"/><path d="M29 10c0 12 7 18 11 22c4-4 11-10 11-22"/><path d="M29 70c0-12 7-18 11-22c4 4 11 10 11 22"/><path d="M32 34h16"/><path d="M40 48c-8-6-14-11-14-18c0-5 4-9 9-9c3 0 5 1 5 3c1-2 3-3 6-3c5 0 9 4 9 9c0 7-7 12-15 18Z"/></svg>`;
             }

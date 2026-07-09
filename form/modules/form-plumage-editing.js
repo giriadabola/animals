@@ -757,7 +757,9 @@
             'Estado de Conservação',
             'Tipo de Comunicação',
             'Temperatura do Ambiente',
-            'Relação com Humanos'
+            'Relação com Humanos',
+            'Horas de Sono',
+            'Distância Percorrida'
         ];
         const curiosidadesColorMap = {
             'Preto': '#111111',
