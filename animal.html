@@ -15,7 +15,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <!-- CSS Global -->
     <link rel="stylesheet" href="css/style.css?v=1.0.3">
-    <link rel="stylesheet" href="css/anatomy-viewer.css?v=1">
+    <link rel="stylesheet" href="css/anatomy-viewer.css?v=20260709_profile_950_1">
     <script src="js/runtime-guard.js"></script>
     <!-- jsVectorMap -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsvectormap/dist/css/jsvectormap.min.css">
@@ -2156,6 +2156,63 @@
             videoContainer.style.display = 'block';
         }
 
+
+        async function fetchAndRenderSubspeciesParents(subespeciesDe = []) {
+            const container = document.getElementById('subspecies-parent-animals-container');
+            const containerMobile = document.getElementById('subspecies-parent-animals-container-mobile');
+            if (container) container.style.display = 'none';
+            if (containerMobile) containerMobile.style.display = 'none';
+
+            const parentIds = Array.isArray(subespeciesDe)
+                ? [...new Set(subespeciesDe.map(id => String(id || '').trim()).filter(Boolean))]
+                : [];
+
+            if (parentIds.length === 0 || (!container && !containerMobile)) return;
+
+            try {
+                const parentAnimals = (await Promise.all(parentIds.map(async (parentId) => {
+                    try {
+                        const parentDoc = await getDoc(doc(db, "animais", parentId));
+                        if (!parentDoc.exists()) return null;
+                        return { id: parentDoc.id, ...parentDoc.data() };
+                    } catch (error) {
+                        console.error("Erro ao carregar animal anexado em Subespécies de:", error);
+                        return null;
+                    }
+                }))).filter(Boolean);
+
+                if (parentAnimals.length === 0) return;
+
+                parentAnimals.sort((a, b) => (a.nome || '').localeCompare(b.nome || '', 'pt'));
+
+                let listHTML = '<ul class="related-list subspecies-parent-list">';
+                parentAnimals.forEach(animal => {
+                    const objectPos = animal.imagemObjectPosition || 'center center';
+                    listHTML += `
+                        <li class="related-item subspecies-parent-item">
+                            <a href="animal.html?id=${animal.id}">
+                                <img src="${escapeHtml(animal.imagemUrl || '')}" alt="${escapeHtml(animal.nome || '')}" style="object-position: ${escapeHtml(objectPos)};">
+                                <span>${escapeHtml(animal.nome || 'Animal')}</span>
+                            </a>
+                        </li>
+                    `;
+                });
+                listHTML += '</ul>';
+
+                const sectionHTML = `<h3>Subespécie de</h3>${listHTML}`;
+                if (container) {
+                    container.innerHTML = sectionHTML;
+                    container.style.display = 'block';
+                }
+                if (containerMobile) {
+                    containerMobile.innerHTML = sectionHTML;
+                    containerMobile.style.display = 'block';
+                }
+            } catch (error) {
+                console.error("Erro ao renderizar animais anexados em Subespécies de:", error);
+            }
+        }
+
         async function fetchAndRenderRelatedAnimals(familia, currentAnimalId) {
             const container = document.getElementById('related-animals-container');
             const containerMobile = document.getElementById('related-animals-container-mobile');
@@ -2464,6 +2521,7 @@
                     <div class="left-column">
                         ${renderAnatomyBlock(animalData, animalId)}
                         ${scientificClassificationSectionDesktopFinalHTML}
+                        <div id="subspecies-parent-animals-container" class="desktop-only" style="display: none;"></div>
                         <div id="related-animals-container" class="desktop-only" style="display: none;"></div>
                     </div>
                     
@@ -2684,6 +2742,7 @@
                                 ${hasCuriosidadesText ? `<p style="margin-top: 15px; line-height: 1.6;">${animalData.informacao.curiosidades.texto}</p>` : ''}
                             </div>` : ''}
                             ${scientificClassificationSectionMobileFinalHTML}
+                            <div id="subspecies-parent-animals-container-mobile" class="info-section mobile-only" style="margin-top: 24px; display: none;"></div>
                             <div id="related-animals-container-mobile" class="info-section mobile-only" style="margin-top: 24px; display: none;"></div>
                         </div>
                     </div>
@@ -3044,6 +3103,7 @@
                 if (docSnap.exists()) {
                     const animalData = docSnap.data();
                     renderAnimalData(animalData, animalId);
+                    fetchAndRenderSubspeciesParents(animalData.subespeciesDe);
                     fetchAndRenderRelatedAnimals(animalData.familia, animalId);
                 } else {
                     mainContent.innerHTML = `<p class="error">Erro: Animal não encontrado.</p>`;

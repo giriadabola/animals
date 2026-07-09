@@ -1,4 +1,4 @@
-const CACHE_NAME = 'animals-app-v1.0.46-form-folder';
+const CACHE_NAME = 'animals-app-v1.0.47-fast-index-sw';
 
 const ASSETS_TO_CACHE = [
   './',
@@ -65,6 +65,13 @@ const ASSETS_TO_CACHE = [
 
 function shouldIgnoreRequest(request) {
   const url = new URL(request.url);
+
+  // Não deixar o Service Worker prender/partir imagens externas.
+  // Se uma imagem remota falhar, o browser trata o erro normalmente sem rebentar o fetch do SW.
+  if (request.destination === 'image' && url.origin !== self.location.origin) {
+    return true;
+  }
+
   return (
     request.method !== 'GET' ||
     url.protocol === 'chrome-extension:' ||
@@ -107,6 +114,22 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
+
+function createOfflineFallback(request) {
+  if (request.destination === 'image') {
+    const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="1" height="1" viewBox="0 0 1 1"></svg>';
+    return new Response(svg, {
+      status: 200,
+      headers: { 'Content-Type': 'image/svg+xml; charset=utf-8' }
+    });
+  }
+
+  return new Response('', {
+    status: 503,
+    statusText: 'Service Unavailable'
+  });
+}
+
 self.addEventListener('fetch', (event) => {
   if (shouldIgnoreRequest(event.request)) return;
 
@@ -123,8 +146,10 @@ self.addEventListener('fetch', (event) => {
         .catch(() => caches.match(event.request, { ignoreSearch: true }).then((cachedResponse) => {
           if (cachedResponse) return cachedResponse;
           const requestUrl = new URL(event.request.url);
-          if (requestUrl.pathname.includes('/form/')) return caches.match('./form/form.html');
-          return caches.match('./index.html');
+          if (requestUrl.pathname.includes('/form/')) {
+            return caches.match('./form/form.html').then((response) => response || createOfflineFallback(event.request));
+          }
+          return caches.match('./index.html').then((response) => response || createOfflineFallback(event.request));
         }))
     );
     return;
@@ -140,7 +165,7 @@ self.addEventListener('fetch', (event) => {
           }
           return response;
         })
-        .catch(() => cachedResponse);
+        .catch(() => cachedResponse || createOfflineFallback(event.request));
 
       return cachedResponse || fetchPromise;
     })

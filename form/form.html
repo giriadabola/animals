@@ -27,7 +27,7 @@
     <script src="https://cdn.jsdelivr.net/npm/jsvectormap"></script>
     <script src="https://cdn.jsdelivr.net/npm/jsvectormap/dist/maps/world.js"></script>
     <script src="./form-cache.js?v=20260709_portfolio_1"></script>
-    <link rel="stylesheet" href="./form.css?v=20260709_portfolio_1">
+    <link rel="stylesheet" href="./form.css?v=20260709_profile_950_1">
 </head>
 <body class="form-light">
     <!-- Authorization Guard Overlay -->
@@ -787,81 +787,84 @@
 
     <!-- Modal de Ajustar Perspetiva da Imagem -->
     <div class="modal-overlay" id="perspectiveModalOverlay">
-        <div class="modal" style="max-width: 700px; width: 100%;">
+        <div class="modal perspective-modal">
             <h2>Ajustar Perspetiva da Imagem</h2>
-            <p style="color: var(--text-secondary); margin-top: -15px; font-size: 0.95rem;">Arraste a imagem ou use os controlos para ajustar a miniatura que aparecerá no site (grid) e no telemóvel (lista).</p>
+            <p class="perspective-modal-description">Arraste a imagem ou use os controlos para ajustar a miniatura que aparecerá no site, no telemóvel e na foto de perfil da página do animal.</p>
             
-            <!-- Live Previews Container (Desktop & Mobile) -->
-            <div style="display: flex; gap: 20px; justify-content: center; align-items: center; flex-wrap: wrap; margin: 15px 0;">
-                <!-- Desktop/Grid Preview -->
-                <div style="display: flex; flex-direction: column; align-items: center; gap: 6px;">
-                    <span style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Ecrã Inteiro (Grid)</span>
-                    <div class="animal-list-item-preview-card" style="width: 190px; height: 260px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--border-radius); overflow: hidden; display: flex; flex-direction: column; cursor: move; user-select: none;">
-                        <div style="width: 100%; height: 150px; overflow: hidden; position: relative;">
-                            <img id="perspectivePreviewImg" src="" alt="Pré-visualização" style="width: 100%; height: 150px; object-fit: cover; object-position: center center; pointer-events: none;">
-                            <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.1); border-bottom: 1px solid var(--border-color);"></div>
+            <div class="perspective-previews-grid">
+                <div class="perspective-preview-block">
+                    <span class="perspective-preview-label">Ecrã inteiro (Grid)</span>
+                    <div class="animal-list-item-preview-card perspective-preview-card perspective-preview-grid-card">
+                        <div class="perspective-preview-image-wrap">
+                            <img id="perspectivePreviewImg" src="" alt="Pré-visualização" class="perspective-preview-image">
+                            <div class="perspective-preview-overlay"></div>
                         </div>
-                        <div style="padding: 16px; background: var(--bg-card); flex: 1; text-align: left;">
-                            <div id="previewCardTitle" style="font-weight: 800; font-size: 1.1rem; color: var(--text-primary); margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Nome do Animal</div>
-                            <div id="previewCardSubtitle" style="font-size: 0.85rem; color: var(--text-secondary); font-style: italic; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">(Nome científico)</div>
+                        <div class="perspective-preview-copy">
+                            <div id="previewCardTitle" class="perspective-preview-title">Nome do Animal</div>
+                            <div id="previewCardSubtitle" class="perspective-preview-subtitle">(Nome científico)</div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Mobile/Grid Preview -->
-                <div style="display: flex; flex-direction: column; align-items: center; gap: 6px;">
-                    <span style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Telemóvel (Grid / Ecrã Inteiro)</span>
-                    <div class="animal-list-item-preview-card-mobile" style="width: 340px; height: 230px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--border-radius); overflow: hidden; display: flex; flex-direction: column; cursor: move; user-select: none;">
-                        <div style="width: 100%; height: 150px; overflow: hidden; position: relative;">
-                            <img id="perspectivePreviewImgMobile" src="" alt="Pré-visualização Mobile" style="width: 100%; height: 150px; object-fit: cover; object-position: center center; pointer-events: none;">
-                            <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.1); border-bottom: 1px solid var(--border-color);"></div>
+                <div class="perspective-preview-block">
+                    <span class="perspective-preview-label">Telemóvel (Grid / Ecrã inteiro)</span>
+                    <div class="animal-list-item-preview-card-mobile perspective-preview-card perspective-preview-mobile-card">
+                        <div class="perspective-preview-image-wrap">
+                            <img id="perspectivePreviewImgMobile" src="" alt="Pré-visualização Mobile" class="perspective-preview-image">
+                            <div class="perspective-preview-overlay"></div>
                         </div>
-                        <div style="padding: 14px; background: var(--bg-card); flex: 1; text-align: left;">
-                            <div id="previewCardTitleMobile" style="font-weight: 800; font-size: 1.15rem; color: var(--text-primary); margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Nome do Animal</div>
-                            <div id="previewCardSubtitleMobile" style="font-size: 0.9rem; color: var(--text-secondary); font-style: italic; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">(Nome científico)</div>
+                        <div class="perspective-preview-copy compact">
+                            <div id="previewCardTitleMobile" class="perspective-preview-title">Nome do Animal</div>
+                            <div id="previewCardSubtitleMobile" class="perspective-preview-subtitle">(Nome científico)</div>
                         </div>
+                    </div>
+                </div>
+
+                <div class="perspective-preview-block perspective-profile-preview-block">
+                    <span class="perspective-preview-label">Foto Perfil</span>
+                    <div class="animal-profile-preview-card perspective-preview-card">
+                        <img id="perspectivePreviewImgProfile" src="" alt="Pré-visualização da foto de perfil" class="perspective-profile-preview-image">
+                        <div class="perspective-profile-size-badge">600 × 950 px</div>
                     </div>
                 </div>
             </div>
             
-            <!-- Sliders for positioning -->
-            <div style="display: flex; flex-direction: column; gap: 15px;">
-                <div style="display: flex; flex-direction: column; gap: 5px;">
-                    <div style="display: flex; justify-content: space-between; font-size: 0.9rem;">
+            <div class="perspective-controls">
+                <div class="perspective-slider-row">
+                    <div class="perspective-slider-label">
                         <label for="posXSlider">Posição Horizontal (X):</label>
                         <span id="posXVal">50%</span>
                     </div>
-                    <input type="range" id="posXSlider" min="0" max="100" value="50" style="width: 100%;">
+                    <input type="range" id="posXSlider" min="0" max="100" value="50">
                 </div>
                 
-                <div style="display: flex; flex-direction: column; gap: 5px;">
-                    <div style="display: flex; justify-content: space-between; font-size: 0.9rem;">
+                <div class="perspective-slider-row">
+                    <div class="perspective-slider-label">
                         <label for="posYSlider">Posição Vertical (Y):</label>
                         <span id="posYVal">50%</span>
                     </div>
-                    <input type="range" id="posYSlider" min="0" max="100" value="50" style="width: 100%;">
+                    <input type="range" id="posYSlider" min="0" max="100" value="50">
                 </div>
             </div>
 
-            <!-- Presets buttons -->
-            <div style="display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 5px;">
-                <button type="button" class="menu-button preset-btn" data-x="50" data-y="50" style="padding: 8px 12px; font-size: 0.85rem;">Centro</button>
-                <button type="button" class="menu-button preset-btn" data-x="50" data-y="0" style="padding: 8px 12px; font-size: 0.85rem;">Topo</button>
-                <button type="button" class="menu-button preset-btn" data-x="50" data-y="100" style="padding: 8px 12px; font-size: 0.85rem;">Fundo</button>
-                <button type="button" class="menu-button preset-btn" data-x="0" data-y="50" style="padding: 8px 12px; font-size: 0.85rem;">Esquerda</button>
-                <button type="button" class="menu-button preset-btn" data-x="100" data-y="50" style="padding: 8px 12px; font-size: 0.85rem;">Direita</button>
+            <div class="perspective-presets">
+                <button type="button" class="menu-button preset-btn" data-x="50" data-y="50">Centro</button>
+                <button type="button" class="menu-button preset-btn" data-x="50" data-y="0">Topo</button>
+                <button type="button" class="menu-button preset-btn" data-x="50" data-y="100">Fundo</button>
+                <button type="button" class="menu-button preset-btn" data-x="0" data-y="50">Esquerda</button>
+                <button type="button" class="menu-button preset-btn" data-x="100" data-y="50">Direita</button>
             </div>
             
-            <div style="display: flex; gap: 15px; margin-top: 10px;">
-                <button type="button" id="confirmPerspectiveBtn" class="menu-button" style="flex: 1; background: var(--accent-gradient); color: white;">Confirmar</button>
-                <button type="button" id="closePerspectiveModalBtn" class="menu-button" style="flex: 1;">Cancelar</button>
+            <div class="perspective-actions">
+                <button type="button" id="confirmPerspectiveBtn" class="menu-button perspective-confirm-btn">Confirmar</button>
+                <button type="button" id="closePerspectiveModalBtn" class="menu-button">Cancelar</button>
             </div>
         </div>
     </div>
 
     <!-- Componentes e Lógica -->
     <script type="module" src="../js/components.js?v=20260709_portfolio_1"></script>
-    <script type="module" src="./form.js?v=20260709_profile_click_1"></script>
+    <script type="module" src="./form.js?v=20260709_profile_950_1"></script>
     <!-- Service Worker PWA -->
     <script src="./sw-register.js?v=20260709_portfolio_1"></script>
 </body>

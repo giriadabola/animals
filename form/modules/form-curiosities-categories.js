@@ -616,6 +616,7 @@
         const confirmPerspectiveBtn = document.getElementById('confirmPerspectiveBtn');
         const perspectivePreviewImg = document.getElementById('perspectivePreviewImg');
         const perspectivePreviewImgMobile = document.getElementById('perspectivePreviewImgMobile');
+        const perspectivePreviewImgProfile = document.getElementById('perspectivePreviewImgProfile');
         const posXSlider = document.getElementById('posXSlider');
         const posYSlider = document.getElementById('posYSlider');
         const posXVal = document.getElementById('posXVal');
@@ -627,6 +628,7 @@
         const previewCardSubtitleMobile = document.getElementById('previewCardSubtitleMobile');
         const cardPreviewContainer = document.querySelector('.animal-list-item-preview-card');
         const cardPreviewContainerMobile = document.querySelector('.animal-list-item-preview-card-mobile');
+        const cardPreviewContainerProfile = document.querySelector('.animal-profile-preview-card');
 
         function getScientificNameGateControls() {
             return [...animalForm.querySelectorAll('input, textarea, select, button')]
@@ -661,6 +663,7 @@
 
             perspectivePreviewImg.src = imgUrl;
             perspectivePreviewImgMobile.src = imgUrl;
+            if (perspectivePreviewImgProfile) perspectivePreviewImgProfile.src = imgUrl;
             
             const animalName = document.getElementById('nomeAnimal').value.trim() || 'Nome do Animal';
             const scientificName = document.getElementById('nomeCientifico').value.trim() || 'Nome científico';
@@ -737,6 +740,7 @@
         function updatePreviewPosition() {
             perspectivePreviewImg.style.objectPosition = `${posXSlider.value}% ${posYSlider.value}%`;
             perspectivePreviewImgMobile.style.objectPosition = `${posXSlider.value}% ${posYSlider.value}%`;
+            if (perspectivePreviewImgProfile) perspectivePreviewImgProfile.style.objectPosition = `${posXSlider.value}% ${posYSlider.value}%`;
         }
 
         // Dragging implementation
@@ -757,6 +761,7 @@
 
         cardPreviewContainer.addEventListener('mousedown', (e) => onMouseDown(e, cardPreviewContainer));
         cardPreviewContainerMobile.addEventListener('mousedown', (e) => onMouseDown(e, cardPreviewContainerMobile));
+        if (cardPreviewContainerProfile) cardPreviewContainerProfile.addEventListener('mousedown', (e) => onMouseDown(e, cardPreviewContainerProfile));
 
         window.addEventListener('mousemove', (e) => {
             if (!isDragging) return;
@@ -798,6 +803,7 @@
 
         cardPreviewContainer.addEventListener('touchstart', onTouchStart, { passive: true });
         cardPreviewContainerMobile.addEventListener('touchstart', onTouchStart, { passive: true });
+        if (cardPreviewContainerProfile) cardPreviewContainerProfile.addEventListener('touchstart', onTouchStart, { passive: true });
 
         window.addEventListener('touchmove', (e) => {
             if (!isDragging || e.touches.length !== 1) return;

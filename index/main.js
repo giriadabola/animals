@@ -168,14 +168,6 @@ async function fetchAllAnimals() {
     console.log("fetchAllAnimals: A iniciar carregamento dos animais do Firestore...");
     
     try {
-        console.log("Teste de Conectividade: A tentar fazer fetch direto ao Firestore...");
-        const testRes = await fetch("https://firestore.googleapis.com/v1/projects/animals-1cb2d/databases/(default)/documents/animais", { method: 'GET', mode: 'cors' });
-        console.log("Teste de Conectividade: Ligação física OK! O servidor respondeu com status:", testRes.status);
-    } catch (err) {
-        console.error("TESTE DE CONECTIVIDADE FALHOU! O browser ou uma extensão (AdBlock/Proteção) está a bloquear ligações ao Firestore.", err);
-    }
-
-    try {
         console.log("fetchAllAnimals: A chamar getDocs(collection(db, 'animais'))...");
         const querySnapshot = await getDocs(collection(db, "animais"));
         console.log("fetchAllAnimals: getDocs concluído com sucesso. Registos obtidos:", querySnapshot.size);
@@ -194,13 +186,13 @@ async function fetchAllAnimals() {
         mainLayout = document.querySelector('.main-layout');
 
         console.log("fetchAllAnimals: A ocultar overlay de loading...");
-        await waitForPageImages();
         hideLoadingOverlay();
+        waitForPageImages().catch(() => {});
     } catch (error) {
         console.error("Erro ao carregar animais do Firestore:", error);
         if (loadingMessage) loadingMessage.textContent = "Não foi possível carregar os animais.";
-        await waitForPageImages();
         hideLoadingOverlay();
+        waitForPageImages().catch(() => {});
     }
 }
 
