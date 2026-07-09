@@ -635,6 +635,7 @@
                 const curiosidadesDetalhadas = getCuriosidadesData();
                 const ecologiaDetalhada = getEcologyData();
                 const qualitySaveData = getQualityLevelSaveData();
+                const profilePhotosSaveData = typeof getProfilePhotosData === 'function' ? getProfilePhotosData() : { primary: {}, profileImages: [] };
 
                 const animalData = {
                     nome: document.getElementById('nomeAnimal').value,
@@ -660,6 +661,9 @@
                     registoTaxonomico: recordTypeSaveData.registoTaxonomico,
                     imagemUrl: document.getElementById('imagemUrl').value,
                     imagemObjectPosition: document.getElementById('imagemObjectPosition').value || 'center center',
+                    imagemPerfilSexo: profilePhotosSaveData.primary?.gender || '',
+                    imagemPerfilFase: profilePhotosSaveData.primary?.phase || '',
+                    profileImages: profilePhotosSaveData.profileImages || [],
                     categoria: getSelectedCategoriesMap(),
                     qualidadeRegisto: qualitySaveData,
                     nivelQualidade: qualitySaveData.nivel,
@@ -684,6 +688,11 @@
                             descricao: document.getElementById('infoDistribuicao').value || ''
                         },
                         curiosidades: {
+                            tambemConhecidoComo: [...new Set(curiosidadesDetalhadas
+                                .filter(item => item.tipo === 'Também conhecido como')
+                                .flatMap(item => typeof parseAlsoKnownAsValues === 'function' ? parseAlsoKnownAsValues(item.valor) : [item.valor])
+                                .map(value => String(value || '').trim())
+                                .filter(Boolean))],
                             cor: getPreferredCuriosidadeValue(curiosidadesDetalhadas, 'Cor do animal'),
                             estadoConservacao: getPreferredCuriosidadeValue(curiosidadesDetalhadas, 'Estado de Conservação'),
                             tipoComunicacao: getPreferredCuriosidadeValue(curiosidadesDetalhadas, 'Tipo de Comunicação'),

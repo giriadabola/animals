@@ -163,15 +163,114 @@ function closeAnatomyPanel(widget) {
     if (panel) panel.hidden = true;
 }
 
+
+function normalizeProfileImageGender(value = '') {
+    const v = String(value || '').trim().toUpperCase();
+    if (v === 'M' || v === 'MACHO' || v === 'MALE') return 'M';
+    if (v === 'F' || v === 'FEMEA' || v === 'FÊMEA' || v === 'FEMALE') return 'F';
+    return '';
+}
+
+function normalizeProfileImagePhase(value = '') {
+    const v = String(value || '').trim().toLowerCase();
+    if (v === 'cria' || v === 'juvenil' || v === 'jovem') return 'Cria';
+    if (v === 'adulto' || v === 'adulta') return 'Adulto';
+    return '';
+}
+
+function getProfileImageEntries(animalData = {}) {
+    const images = Array.isArray(animalData.profileImages) ? animalData.profileImages : [];
+    const primaryFallback = animalData.imagemUrl ? [{
+        url: animalData.imagemUrl,
+        gender: animalData.imagemPerfilSexo || animalData.imagemSexo || '',
+        phase: animalData.imagemPerfilFase || animalData.imagemFase || '',
+        isPrimary: true
+    }] : [];
+
+    const entries = images.length ? images : primaryFallback;
+    return entries
+        .filter(item => item && item.url)
+        .map(item => ({
+            url: String(item.url || ''),
+            gender: normalizeProfileImageGender(item.gender || item.sexo || item.genero),
+            phase: normalizeProfileImagePhase(item.phase || item.fase || item.idade),
+            isPrimary: !!item.isPrimary
+        }));
+}
+
+function findProfileImageForBadge(entries = [], type = '', value = '', originalUrl = '') {
+    const normalizedOriginal = String(originalUrl || '').trim();
+    const matches = entries.filter(item => {
+        if (type === 'gender') return item.gender === value;
+        if (type === 'phase') return item.phase === value;
+        return false;
+    });
+
+    return matches.find(item => !item.isPrimary && item.url !== normalizedOriginal)?.url
+        || matches.find(item => item.url !== normalizedOriginal)?.url
+        || matches[0]?.url
+        || '';
+}
+
+function getProfileImageBadges(animalData = {}) {
+    const entries = getProfileImageEntries(animalData);
+    const genders = new Set(entries.map(item => item.gender).filter(Boolean));
+    const phases = new Set(entries.map(item => item.phase).filter(Boolean));
+    const originalUrl = animalData.imagemUrl || entries.find(item => item.isPrimary)?.url || entries[0]?.url || '';
+    const badges = [];
+
+    if (genders.has('M')) {
+        badges.push(`<button type="button" class="profile-image-badge male" data-profile-badge-key="gender:M" data-profile-badge-url="${escapeHtml(findProfileImageForBadge(entries, 'gender', 'M', originalUrl))}" title="Ver imagem de macho" aria-label="Ver imagem de macho">♂</button>`);
+    }
+    if (genders.has('F')) {
+        badges.push(`<button type="button" class="profile-image-badge female" data-profile-badge-key="gender:F" data-profile-badge-url="${escapeHtml(findProfileImageForBadge(entries, 'gender', 'F', originalUrl))}" title="Ver imagem de fêmea" aria-label="Ver imagem de fêmea">♀</button>`);
+    }
+    if (phases.has('Adulto')) {
+        badges.push(`<button type="button" class="profile-image-badge phase adult" data-profile-badge-key="phase:Adulto" data-profile-badge-url="${escapeHtml(findProfileImageForBadge(entries, 'phase', 'Adulto', originalUrl))}" title="Ver imagem de adulto" aria-label="Ver imagem de adulto"><i class="fa-solid fa-paw" aria-hidden="true"></i></button>`);
+    }
+    if (phases.has('Cria')) {
+        badges.push(`<button type="button" class="profile-image-badge phase young" data-profile-badge-key="phase:Cria" data-profile-badge-url="${escapeHtml(findProfileImageForBadge(entries, 'phase', 'Cria', originalUrl))}" title="Ver imagem de cria" aria-label="Ver imagem de cria"><i class="fa-solid fa-baby" aria-hidden="true"></i></button>`);
+    }
+
+    return badges.length ? `<div class="profile-image-badges" data-profile-image-badges>${badges.join('')}</div>` : '';
+}
+
+function toggleProfileImageByBadge(widget, button) {
+    const image = widget.querySelector('[data-profile-main-image]');
+    if (!image || !button) return;
+
+    const originalSrc = image.dataset.originalSrc || image.getAttribute('src') || '';
+    image.dataset.originalSrc = originalSrc;
+
+    const targetUrl = button.dataset.profileBadgeUrl || '';
+    const badgeKey = button.dataset.profileBadgeKey || '';
+    const isSameBadgeActive = widget.dataset.activeProfileBadge === badgeKey;
+
+    widget.querySelectorAll('[data-profile-badge-key]').forEach(btn => btn.classList.remove('active'));
+
+    if (isSameBadgeActive || !targetUrl) {
+        image.src = originalSrc;
+        widget.dataset.activeProfileBadge = '';
+        return;
+    }
+
+    image.src = targetUrl;
+    widget.dataset.activeProfileBadge = badgeKey;
+    button.classList.add('active');
+}
+
 export function renderAnatomyBlock(animalData = {}, animalId = '') {
     const objectPosition = animalData.imagemObjectPosition || 'center center';
     const supportsAnatomy = supportsBirdAnatomy(animalData);
     const compareHref = getComparisonHref(animalId);
 
+    const profileBadgesHTML = getProfileImageBadges(animalData);
+
     return `
         <section class="anatomy-widget" ${supportsAnatomy ? `data-manifest="${BIRD_MANIFEST_PATH}"` : ''}>
             <div class="animal-image">
-                <img src="${escapeHtml(animalData.imagemUrl || '')}" alt="${escapeHtml(animalData.nome || 'Animal')}" style="object-position: ${escapeHtml(objectPosition)};">
+                <img data-profile-main-image src="${escapeHtml(animalData.imagemUrl || '')}" alt="${escapeHtml(animalData.nome || 'Animal')}" style="object-position: ${escapeHtml(objectPosition)};">
+                ${profileBadgesHTML}
             </div>
             <div class="animal-media-actions">
                 ${supportsAnatomy ? `
@@ -208,6 +307,10 @@ export function initAnatomyViewer(root = document) {
 
         const toggle = widget.querySelector('[data-anatomy-toggle]');
         const close = widget.querySelector('[data-anatomy-close]');
+
+        widget.querySelectorAll('[data-profile-badge-key]').forEach(button => {
+            button.addEventListener('click', () => toggleProfileImageByBadge(widget, button));
+        });
 
         toggle?.addEventListener('click', async () => {
             const panel = widget.querySelector('[data-anatomy-panel]');

@@ -2394,3 +2394,281 @@ body.edit-theme #tabpanel-ecologia {
         min-width: 0;
     }
 }
+
+/* Fotos de perfil: URL principal + metadados macho/fêmea e adulto/cria */
+.profile-main-image-field .profile-image-inline-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 12px;
+    align-items: center;
+    width: 100%;
+}
+
+.profile-image-url-wrap {
+    min-width: 0;
+}
+
+.profile-photo-toggles {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.profile-photo-toggles.compact {
+    justify-content: flex-start;
+}
+
+.profile-toggle-pair {
+    display: inline-grid;
+    grid-template-columns: repeat(2, minmax(42px, auto));
+    gap: 8px;
+    align-items: center;
+}
+
+.profile-toggle-btn.gender-toggle-btn,
+.profile-toggle-btn.fase-toggle-btn {
+    min-width: 42px;
+    height: 42px;
+    border-radius: var(--border-radius-sm);
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.05rem;
+    font-weight: 800;
+    line-height: 1;
+    padding: 0;
+    box-sizing: border-box;
+    outline: none;
+    transition: all 0.2s;
+}
+
+.profile-toggle-btn.profile-toggle-text.fase-toggle-btn {
+    min-width: 74px;
+    padding: 0 12px;
+    font-size: 0.82rem;
+    letter-spacing: 0.01em;
+}
+
+.profile-toggle-btn.gender-toggle-btn:hover,
+.profile-toggle-btn.gender-toggle-btn:focus-visible,
+.profile-toggle-btn.fase-toggle-btn:hover,
+.profile-toggle-btn.fase-toggle-btn:focus-visible {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.3);
+    transform: translateY(-1px);
+}
+
+.profile-toggle-btn.active[data-profile-main-gender="M"],
+.profile-toggle-btn.active[data-profile-extra-gender="M"] {
+    background: linear-gradient(135deg, rgba(96, 165, 250, 0.24), rgba(59, 130, 246, 0.14));
+    border-color: rgba(96, 165, 250, 0.55);
+    color: #bfdbfe;
+    box-shadow: 0 0 0 1px rgba(96, 165, 250, 0.12), 0 8px 18px rgba(59, 130, 246, 0.12);
+}
+
+.profile-toggle-btn.active[data-profile-main-gender="F"],
+.profile-toggle-btn.active[data-profile-extra-gender="F"] {
+    background: linear-gradient(135deg, rgba(244, 114, 182, 0.24), rgba(236, 72, 153, 0.14));
+    border-color: rgba(244, 114, 182, 0.55);
+    color: #fbcfe8;
+    box-shadow: 0 0 0 1px rgba(244, 114, 182, 0.12), 0 8px 18px rgba(236, 72, 153, 0.12);
+}
+
+.profile-toggle-btn.active[data-profile-main-phase],
+.profile-toggle-btn.active[data-profile-extra-phase] {
+    background: linear-gradient(135deg, rgba(213, 160, 90, 0.25), rgba(217, 122, 104, 0.13));
+    border-color: rgba(213, 160, 90, 0.46);
+    color: var(--text-primary);
+    box-shadow: 0 0 0 1px rgba(213, 160, 90, 0.12), 0 8px 18px rgba(0, 0, 0, 0.12);
+}
+
+.profile-extra-photos-field {
+    padding-top: 4px;
+}
+
+.profile-extra-photos-rows {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+.profile-extra-photo-row {
+    display: grid;
+    grid-template-columns: minmax(220px, 1fr) auto 42px;
+    gap: 10px;
+    align-items: center;
+}
+
+.profile-extra-photo-row input {
+    min-width: 0;
+}
+
+.profile-remove-photo-btn {
+    width: 42px;
+    height: 42px;
+    border-radius: var(--border-radius-sm);
+    border: 1px solid rgba(248, 113, 113, 0.28);
+    background: rgba(127, 29, 29, 0.18);
+    color: #fecaca;
+    font-size: 1.3rem;
+    font-weight: 800;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.profile-remove-photo-btn:hover,
+.profile-remove-photo-btn:focus-visible {
+    transform: translateY(-1px);
+    border-color: rgba(248, 113, 113, 0.55);
+    background: rgba(127, 29, 29, 0.3);
+    outline: none;
+}
+
+.profile-add-photo-btn {
+    width: fit-content;
+    min-width: 184px;
+    min-height: 42px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    padding: 0 18px;
+    border-radius: 999px;
+    border: 1px solid rgba(213, 160, 90, 0.34);
+    background: linear-gradient(135deg, rgba(213, 160, 90, 0.2), rgba(217, 122, 104, 0.1));
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    font-weight: 800;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.profile-add-photo-btn:hover,
+.profile-add-photo-btn:focus-visible {
+    transform: translateY(-1px);
+    border-color: rgba(213, 160, 90, 0.55);
+    background: linear-gradient(135deg, rgba(213, 160, 90, 0.28), rgba(217, 122, 104, 0.16));
+    box-shadow: 0 14px 28px rgba(0, 0, 0, 0.16), 0 0 0 1px rgba(213, 160, 90, 0.1);
+    outline: none;
+}
+
+.profile-add-photo-btn i {
+    font-size: 0.95rem;
+}
+
+@media (max-width: 1100px) {
+    .profile-main-image-field .profile-image-inline-row,
+    .profile-extra-photo-row {
+        grid-template-columns: 1fr;
+    }
+
+    .profile-photo-toggles,
+    .profile-photo-toggles.compact {
+        justify-content: flex-start;
+    }
+
+    .profile-toggle-pair {
+        grid-template-columns: repeat(2, minmax(42px, max-content));
+    }
+
+    .profile-remove-photo-btn {
+        width: 100%;
+    }
+}
+
+/* Fotos de perfil: botões compactos com várias opções no mesmo botão */
+.profile-photo-toggles .profile-toggle-pair {
+    display: none;
+}
+
+.profile-multi-toggle {
+    min-width: 84px;
+    height: 46px;
+    border-radius: var(--border-radius-sm);
+    border: 1px solid var(--border-color);
+    background: rgba(255, 255, 255, 0.055);
+    color: var(--text-secondary);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    padding: 0 15px;
+    box-sizing: border-box;
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+.profile-multi-toggle:hover,
+.profile-multi-toggle:focus-visible,
+.profile-multi-toggle.active {
+    transform: translateY(-1px);
+    border-color: rgba(180, 130, 255, 0.42);
+    background: rgba(147, 98, 220, 0.12);
+    box-shadow: 0 10px 22px rgba(0, 0, 0, 0.16), 0 0 0 1px rgba(180, 130, 255, 0.08);
+}
+
+.profile-multi-icon {
+    min-width: 18px;
+    min-height: 18px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.08rem;
+    font-weight: 900;
+    line-height: 1;
+    opacity: 0.72;
+    filter: grayscale(0.2);
+    transform: scale(0.92);
+    transition: all 0.2s ease;
+}
+
+.profile-multi-icon.active {
+    opacity: 1;
+    transform: scale(1.1);
+    text-shadow: 0 0 12px currentColor;
+}
+
+.profile-multi-icon.gender-male {
+    color: #93c5fd;
+}
+
+.profile-multi-icon.gender-female {
+    color: #f0abfc;
+}
+
+.profile-multi-icon.phase-adult {
+    color: #34d399;
+}
+
+.profile-multi-icon.phase-young {
+    color: #c084fc;
+}
+
+.profile-phase-multi-toggle .profile-multi-icon:not(.active),
+.profile-gender-multi-toggle .profile-multi-icon:not(.active) {
+    opacity: 0.46;
+}
+
+.profile-phase-multi-toggle:not(.active) .profile-multi-icon,
+.profile-gender-multi-toggle:not(.active) .profile-multi-icon {
+    opacity: 0.82;
+}
+
+@media (max-width: 1100px) {
+    .profile-multi-toggle {
+        min-width: 78px;
+        height: 44px;
+    }
+}

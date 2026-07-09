@@ -83,6 +83,18 @@
             return '';
         }
 
+
+        function isAlsoKnownAsCuriosidade(type = '') {
+            return normalizeSearchText(type) === 'tambem conhecido como';
+        }
+
+        function parseAlsoKnownAsValues(value = '') {
+            return String(value || '')
+                .split(/[,;\n]+/)
+                .map(item => item.trim())
+                .filter(Boolean);
+        }
+
         function parseCuriosidadeMetric(item = {}, type = '') {
             const raw = String(item.valor || item.detalhe || '').trim();
             const units = getCuriosidadeMetricUnits(type);
@@ -116,7 +128,15 @@
             const wrapper = document.createElement('div');
             wrapper.className = 'curiosidade-value-wrapper';
 
-            if (type === 'Temperatura do Ambiente') {
+            if (isAlsoKnownAsCuriosidade(type)) {
+                const textInput = document.createElement('input');
+                textInput.type = 'text';
+                textInput.className = 'curiosidade-text-value curiosidade-also-known-value';
+                textInput.placeholder = 'Ex: nome alternativo, outro nome comum...';
+                textInput.value = data.valor || '';
+                textInput.addEventListener('input', updateCuriosidadesPreview);
+                wrapper.append(textInput);
+            } else if (type === 'Temperatura do Ambiente') {
                 wrapper.classList.add('temperature-controls');
                 const parsed = parseCuriosidadeTemperature(data);
                 const minInput = document.createElement('input');
@@ -238,6 +258,9 @@
                 .map(row => {
                     const tipo = row.querySelector('.curiosidade-type')?.value || '';
                     let valor = row.querySelector('.curiosidade-value')?.value || '';
+                    if (isAlsoKnownAsCuriosidade(tipo)) {
+                        valor = row.querySelector('.curiosidade-text-value')?.value || '';
+                    }
                     const item = {
                         tipo,
                         valor,
@@ -292,6 +315,12 @@
                 }));
             }
             const legacyItems = [];
+            if (Array.isArray(curiosidades?.tambemConhecidoComo)) {
+                curiosidades.tambemConhecidoComo
+                    .map(value => String(value || '').trim())
+                    .filter(Boolean)
+                    .forEach(value => legacyItems.push({ tipo: 'Também conhecido como', valor: value, genero: GENDER_BOTH, fase: 'Adulto' }));
+            }
             if (curiosidades?.cor) legacyItems.push({ tipo: 'Cor do animal', valor: curiosidades.cor, genero: GENDER_BOTH, fase: 'Adulto' });
             if (curiosidades?.estadoConservacao) legacyItems.push({ tipo: 'Estado de Conservação', valor: curiosidades.estadoConservacao, genero: GENDER_BOTH, fase: 'Adulto' });
             if (curiosidades?.tipoComunicacao) legacyItems.push({
@@ -358,6 +387,19 @@
         }
 
         function renderCuriosidadePreviewCard(item) {
+            if (item.tipo === 'Também conhecido como') {
+                return `
+                    <div class="curiosidades-preview-item also-known-preview-item">
+                        <div class="communication-preview-icon"><i class="fa-solid fa-tags"></i></div>
+                        <div class="curiosidades-preview-info">
+                            <span class="preview-label">Também conhecido como</span>
+                            <strong style="font-size: 1.05rem; font-weight: 700; color: var(--text-primary);">${item.valor}</strong>
+                            <div class="communication-preview-desc">Nome comum alternativo ou designação popular.</div>
+                            ${renderCuriosidadeMeta(item)}
+                        </div>
+                    </div>`;
+            }
+
             if (item.tipo === 'Cor do animal') {
                 const hexColor = curiosidadesColorMap[item.valor] || '#cccccc';
                 const circleBorder = (item.valor === 'Branco' || item.valor === 'Creme') ? '1px solid rgba(0,0,0,0.2)' : '1px solid rgba(255,255,255,0.1)';

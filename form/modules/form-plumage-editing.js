@@ -424,6 +424,7 @@
             document.getElementById('familia').value = animal.familia || '';
             document.getElementById('imagemUrl').value = animal.imagemUrl || '';
             document.getElementById('imagemObjectPosition').value = animal.imagemObjectPosition || 'center center';
+            if (typeof setProfilePhotosData === 'function') setProfilePhotosData(animal);
             setCategoryData(animal.categoria);
             setRecordTypeData(animal);
             setQualityLevelData(animal);
@@ -528,6 +529,7 @@
             
             document.getElementById('infoPlumagem').value = '';
             document.getElementById('imagemObjectPosition').value = 'center center';
+            if (typeof resetProfilePhotosData === 'function') resetProfilePhotosData();
             setGeneralVisualData();
             setDimensionData();
             setFeedingData();
@@ -815,6 +817,7 @@
 
         // --- CURIOSIDADES E MODELO VISUAL ---
         const curiosidadesTypeOptions = [
+            'Também conhecido como',
             'Cor do animal',
             'Estado de Conservação',
             'Tipo de Comunicação',

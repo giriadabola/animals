@@ -84,13 +84,25 @@
                     <div class="autocomplete-results" id="familiaResults"></div>
                 </div>
                 
-                <div class="form-group grid-span-2">
+                <div class="form-group grid-span-2 profile-main-image-field">
                     <label for="imagemUrl">URL da Imagem</label>
-                    <div class="input-with-button">
-                        <input type="url" id="imagemUrl" placeholder="https://exemplo.com/imagem.jpg" required>
-                        <button type="button" id="btnPreviewImage" class="preview-btn" title="Visualizar e Ajustar Perspetiva">
-                            <i class="fa-solid fa-crop-simple"></i>
-                        </button>
+                    <div class="profile-image-inline-row">
+                        <div class="input-with-button profile-image-url-wrap">
+                            <input type="url" id="imagemUrl" placeholder="https://exemplo.com/imagem.jpg" required>
+                            <button type="button" id="btnPreviewImage" class="preview-btn" title="Visualizar e Ajustar Perspetiva">
+                                <i class="fa-solid fa-crop-simple"></i>
+                            </button>
+                        </div>
+                        <div class="profile-photo-toggles" data-profile-toggle-group="main">
+                            <button type="button" class="profile-multi-toggle profile-gender-multi-toggle" data-profile-main-gender-cycle data-value="" title="Sexo da imagem: clicar alterna entre macho/fêmea/sem opção" aria-label="Sexo da imagem">
+                                <span class="profile-multi-icon gender-male" data-option="M">♂</span>
+                                <span class="profile-multi-icon gender-female" data-option="F">♀</span>
+                            </button>
+                            <button type="button" class="profile-multi-toggle profile-phase-multi-toggle" data-profile-main-phase-cycle data-value="" title="Fase da imagem: clicar alterna entre adulto/cria/sem opção" aria-label="Fase da imagem">
+                                <span class="profile-multi-icon phase-adult" data-option="Adulto"><i class="fa-solid fa-paw" aria-hidden="true"></i></span>
+                                <span class="profile-multi-icon phase-young" data-option="Cria"><i class="fa-solid fa-baby" aria-hidden="true"></i></span>
+                            </button>
+                        </div>
                     </div>
                     <input type="hidden" id="imagemObjectPosition" value="center center">
                 </div>
@@ -188,6 +200,13 @@
                         <input type="text" id="subespeciesDeSearch" autocomplete="off" placeholder="Pesquisar animal...">
                         <div class="autocomplete-results" id="subespeciesDeResults"></div>
                         <div class="country-tag-list" id="selectedSubespeciesList" style="margin-top: 10px;"></div>
+                    </div>
+                    <div class="form-group grid-span-3 profile-extra-photos-field">
+                        <label>Adicionar mais fotos de perfil</label>
+                        <div id="profileExtraPhotosRows" class="profile-extra-photos-rows"></div>
+                        <button type="button" id="addProfileExtraPhotoBtn" class="add-row-btn profile-add-photo-btn">
+                            <i class="fa-solid fa-plus"></i> Adicionar mais
+                        </button>
                     </div>
                 </div>
             </div>

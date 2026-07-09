@@ -1890,6 +1890,7 @@
                     curiosidades.cor ? { tipo: 'Cor do animal', valor: curiosidades.cor, genero: 'MF', fase: 'Adulto' } : null,
                     curiosidades.estadoConservacao ? { tipo: 'Estado de Conservação', valor: curiosidades.estadoConservacao, genero: 'MF', fase: 'Adulto' } : null,
                     curiosidades.relacaoHumanos ? { tipo: 'Relação com Humanos', valor: curiosidades.relacaoHumanos, genero: 'MF', fase: 'Adulto' } : null,
+                    curiosidades.importanciaEconomicaHumanos ? { tipo: 'Importância económica para os humanos', valor: curiosidades.importanciaEconomicaHumanos, genero: 'MF', fase: 'Adulto' } : null,
                     curiosidades.distanciaPercorrida ? { tipo: 'Distância Percorrida', valor: curiosidades.distanciaPercorrida, genero: 'MF', fase: 'Adulto' } : null,
                     curiosidades.horasSono ? { tipo: 'Horas de Sono', valor: curiosidades.horasSono, genero: 'MF', fase: 'Adulto' } : null,
                     Array.isArray(curiosidades.tambemConhecidoComo) && curiosidades.tambemConhecidoComo.length ? { tipo: 'Também conhecido como', valor: curiosidades.tambemConhecidoComo.join(', '), genero: 'MF', fase: 'Adulto' } : null,
@@ -2002,6 +2003,23 @@
                                     ${renderMetaSymbols(item)}
                                 </div>
                                 <strong class="dimension-model-value">Relação com Humanos</strong>
+                            </div>
+                        </article>
+                    `;
+                }
+
+                if (item.tipo === 'Importância económica para os humanos') {
+                    return `
+                        <article class="dimension-model-card curiosidades-model-card" style="width: 100%; box-sizing: border-box; display: flex; align-items: center;">
+                            <div class="dimension-model-icon" style="flex-shrink: 0; background: rgba(245, 158, 11, 0.18); color: #fbbf24; display: flex; align-items: center; justify-content: center;">
+                                <i class="fa-solid fa-scale-balanced"></i>
+                            </div>
+                            <div class="dimension-model-copy" style="display: flex; flex-direction: column; align-items: flex-start; text-align: left;">
+                                <div class="curiosidades-card-head">
+                                    <span class="dimension-model-label">${valuesHtml}</span>
+                                    ${renderMetaSymbols(item)}
+                                </div>
+                                <strong class="dimension-model-value">Importância económica para os humanos</strong>
                             </div>
                         </article>
                     `;

@@ -1,7 +1,7 @@
 // Contador modular de parâmetros estatísticos preenchidos no formulário.
-// "Parâmetros" = tipos únicos preenchidos dentro do catálogo principal de 56.
+// "Parâmetros" = tipos únicos preenchidos dentro do catálogo principal de 57.
 // "Dots" = todas as estatísticas preenchidas, incluindo repetidas.
-        const FORM_STATISTICS_TOTAL_PARAMETERS = 56;
+        const FORM_STATISTICS_TOTAL_PARAMETERS = 57;
         const formStatisticsSummary = document.getElementById('formStatisticsSummary');
         const formParamsCount = document.getElementById('formParamsCount');
         const formDotsCount = document.getElementById('formDotsCount');
@@ -26,6 +26,7 @@
             if (key.includes('espetativa media de vida') || key.includes('expectativa media de vida')) return 'expetativa media de vida';
             if (key.includes('taxa metabolica basal')) return 'taxa metabolica basal media';
             if (key.includes('funcao ecologica')) return 'funcao ecologica';
+            if (key.includes('tambem conhecido')) return 'tambem conhecido como';
             if (key.includes('importancia economica')) return 'importancia economica para os humanos';
             if (key.includes('epoca de reproducao')) return 'epoca de reproducao';
             if (key.includes('numero de crias')) return 'numero de crias';
