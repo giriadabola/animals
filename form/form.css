@@ -2674,6 +2674,7 @@ body.edit-theme #tabpanel-ecologia {
 }
 
 /* Ajuste modular do modal de perspetiva da imagem */
+/* A miniatura "Foto Perfil" usa a mesma proporção real da página do animal: 600 × 950. */
 #perspectiveModalOverlay .perspective-modal {
     width: min(980px, 100%);
     max-width: 980px !important;
@@ -2790,11 +2791,12 @@ body.edit-theme #tabpanel-ecologia {
 
 .animal-profile-preview-card {
     position: relative;
-    width: 148px;
-    height: 160px;
+    width: 114px;
+    height: 181px;
     aspect-ratio: 600 / 950;
     border-radius: 24px;
     background: rgba(9, 9, 20, 0.9);
+    flex: 0 0 auto;
 }
 
 .perspective-profile-preview-image {

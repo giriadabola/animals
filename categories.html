@@ -38,7 +38,7 @@
     <script type="module">
         import { db } from "./js/firebase-config.js?v=5";
         import { collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
-        import { hideLoadingOverlay, waitForPageImages } from "./js/loader.js?v=2";
+        import { hideLoadingOverlay } from "./js/loader.js?v=2";
 
         const categoryTitle = document.getElementById('category-title');
         const listContainer = document.getElementById('animal-list-container');
@@ -61,7 +61,7 @@
             const objectPos = animalData.imagemObjectPosition || 'center center';
 
             card.innerHTML = `
-                <img src="${animalData.imagemUrl}" alt="Imagem de ${animalData.nome}" style="object-position: ${objectPos};">
+                <img src="${animalData.imagemUrl}" alt="Imagem de ${animalData.nome}" loading="lazy" decoding="async" style="object-position: ${objectPos};">
                 <div class="list-item-text">
                     <div class="title">${animalData.nome}</div>
                     <div class="subtitle">(${animalData.nomeCientifico})</div>
@@ -303,12 +303,10 @@
                     renderPage(currentPage);
                     renderPagination();
                 }
-                await waitForPageImages();
                 hideLoadingOverlay();
             } catch (error) {
                 console.error("Erro ao carregar animais por categoria:", error);
                 loadingMessage.textContent = "Ocorreu um erro ao carregar os dados.";
-                await waitForPageImages();
                 hideLoadingOverlay();
             }
         }
