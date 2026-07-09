@@ -2192,3 +2192,153 @@ body.edit-theme #tabpanel-ecologia {
         grid-template-columns: 1fr 42px !important;
     }
 }
+
+/* Ajustes isolados: qualidade do registo + filtro no popup de edição.
+   Mantém o design base completo do formulário. */
+.save-quality-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    width: 100%;
+}
+.save-quality-row #saveButton {
+    width: min(360px, 100%);
+    min-width: 260px;
+    margin: 0;
+}
+.animal-quality-selector {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px;
+    border: 1px solid var(--border-color);
+    border-radius: 999px;
+    background: rgba(255,255,255,0.035);
+    flex: 0 0 auto;
+}
+.animal-quality-selector .quality-choice,
+.edit-quality-filter-panel .quality-filter-choice {
+    appearance: none;
+    border: 1px solid transparent;
+    border-radius: 999px;
+    min-width: 40px;
+    min-height: 40px;
+    padding: 0 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    cursor: pointer;
+    color: #fff;
+    font-weight: 800;
+    line-height: 1;
+    box-shadow: none;
+}
+.animal-quality-selector .quality-choice span {
+    font-size: 0.82rem;
+}
+.animal-quality-selector .quality-choice.active,
+.edit-quality-filter-panel .quality-filter-choice.active {
+    border-color: rgba(255,255,255,0.92);
+    box-shadow: 0 0 0 3px rgba(255,255,255,0.12);
+}
+.quality-forte,
+.animal-quality-selector .quality-forte,
+.edit-quality-filter-panel [data-quality-filter="forte"],
+.quality-mini-icon.quality-forte {
+    background: linear-gradient(135deg, #16a34a, #15803d);
+}
+.quality-melhorar,
+.animal-quality-selector .quality-melhorar,
+.edit-quality-filter-panel [data-quality-filter="melhorar"],
+.quality-mini-icon.quality-melhorar {
+    background: linear-gradient(135deg, #eab308, #ca8a04);
+}
+.quality-basico,
+.animal-quality-selector .quality-basico,
+.edit-quality-filter-panel [data-quality-filter="basico"],
+.quality-mini-icon.quality-basico {
+    background: linear-gradient(135deg, #ef4444, #b91c1c);
+}
+.edit-search-row {
+    display: flex;
+    align-items: stretch;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+.edit-search-row #editSearchInput {
+    flex: 1 1 auto;
+    margin-bottom: 0;
+}
+.edit-quality-filter-btn {
+    width: 54px;
+    flex: 0 0 54px;
+    border-radius: var(--border-radius-sm);
+    border: 1px solid var(--border-color);
+    background: var(--bg-card);
+    color: var(--text-primary);
+    cursor: pointer;
+    font-size: 1rem;
+}
+.edit-quality-filter-panel {
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    margin: -2px 0 12px;
+}
+.edit-quality-filter-panel .quality-filter-choice {
+    width: 40px;
+    height: 40px;
+    padding: 0;
+}
+.edit-quality-filter-panel .quality-filter-clear {
+    background: rgba(255,255,255,0.08);
+    color: var(--text-primary);
+    border-color: var(--border-color);
+}
+.edit-item-category-line {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+.quality-mini-icon {
+    width: 22px;
+    height: 22px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 0.72rem;
+    flex: 0 0 auto;
+}
+@media (max-width: 760px) {
+    .save-quality-row {
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+    }
+    .animal-quality-selector {
+        gap: 0;
+        padding: 5px;
+        border-radius: 999px;
+        order: -1;
+    }
+    .animal-quality-selector .quality-choice {
+        min-width: 38px;
+        width: 38px;
+        height: 38px;
+        min-height: 38px;
+        padding: 0;
+        border-radius: 0;
+    }
+    .animal-quality-selector .quality-choice:first-child { border-radius: 999px 0 0 999px; }
+    .animal-quality-selector .quality-choice:last-child { border-radius: 0 999px 999px 0; }
+    .animal-quality-selector .quality-choice span { display: none; }
+    .save-quality-row #saveButton {
+        width: 100%;
+        min-width: 0;
+    }
+}
