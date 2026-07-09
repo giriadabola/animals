@@ -1,5 +1,7 @@
 // Estado, referências DOM e catálogos base
         let allAnimals = [];
+        let editModalAnimals = [];
+        let activeEditQualityFilter = '';
         let existingFamilies = new Set();
         let existingReinos = new Set();
         let existingFilos = new Set();
@@ -590,9 +592,24 @@
             saveButton.textContent = isEditMode ? 'A atualizar...' : 'A gravar...';
             
             try {
-                const scientificNameKey = document.getElementById('nomeCientifico').value.trim().toLowerCase().replace(/\s+/g, '_');
-                const docId = isEditMode ? currentEditingId : scientificNameKey;
-                if (!docId) { throw new Error("Não foi possível determinar o ID do documento."); }
+                const recordIdentity = getRecordIdentity();
+                const docId = isEditMode ? currentEditingId : recordIdentity.docId;
+                if (!recordIdentity.scientificNameKey) { throw new Error("Preenche o nome científico antes de gravar."); }
+                if (!docId) {
+                    throw new Error(recordIdentity.useCompositeId
+                        ? "Para este tipo de registo, preenche também o Nome Comum para criar um ID único."
+                        : "Não foi possível determinar o ID do documento.");
+                }
+
+                if (!isEditMode) {
+                    const existingDocSnap = await getDoc(doc(db, "animais", docId));
+                    if (existingDocSnap.exists() || recordIdentityExists(recordIdentity)) {
+                        nomeCientificoWarning.style.display = 'inline-block';
+                        throw new Error("Este registo já se encontra registado.");
+                    }
+                }
+
+                const recordTypeSaveData = getRecordTypeSaveData(recordIdentity);
                 
                 let timestamp = Date.now();
                 let editado = [];
@@ -617,6 +634,7 @@
 
                 const curiosidadesDetalhadas = getCuriosidadesData();
                 const ecologiaDetalhada = getEcologyData();
+                const qualitySaveData = getQualityLevelSaveData();
 
                 const animalData = {
                     nome: document.getElementById('nomeAnimal').value,
@@ -633,9 +651,18 @@
                     genero: document.getElementById('genero').value.trim(),
                     especie: document.getElementById('especies').value.trim(),
                     subespeciesDe: selectedSubespecies,
+                    tipoRegisto: recordTypeSaveData.tipoRegisto,
+                    tipoRegistoPersonalizado: recordTypeSaveData.tipoRegistoPersonalizado,
+                    registoBaseId: recordTypeSaveData.registoBaseId,
+                    sufixoRegisto: recordTypeSaveData.sufixoRegisto,
+                    designacaoRegisto: recordTypeSaveData.designacaoRegisto,
+                    especieBaseId: recordTypeSaveData.especieBaseId,
+                    registoTaxonomico: recordTypeSaveData.registoTaxonomico,
                     imagemUrl: document.getElementById('imagemUrl').value,
                     imagemObjectPosition: document.getElementById('imagemObjectPosition').value || 'center center',
                     categoria: getSelectedCategoriesMap(),
+                    qualidadeRegisto: qualitySaveData,
+                    nivelQualidade: qualitySaveData.nivel,
                     timestamp: timestamp,
                     editado: editado,
                     criadoPor: criadoPor,
@@ -692,7 +719,7 @@
             } catch (error) {
                 console.error("Erro ao gravar no Firestore:", error);
                 statusMessage.className = 'grid-span-3 error';
-                statusMessage.textContent = 'Ocorreu um erro ao gravar. Verifique a consola.';
+                statusMessage.textContent = error.message || 'Ocorreu um erro ao gravar. Verifique a consola.';
             } finally {
                 saveButton.disabled = false;
             }

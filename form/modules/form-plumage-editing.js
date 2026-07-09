@@ -165,20 +165,7 @@
             } catch (error) { console.error("Erro ao pesquisar vídeos:", error); }
         };
         nomeCientificoInput.addEventListener('input', () => {
-            if (!isEditMode) {
-                const enteredName = nomeCientificoInput.value.trim().toLowerCase();
-                const exists = allAnimals.some(animal => 
-                    (animal.nomeCientifico && animal.nomeCientifico.trim().toLowerCase() === enteredName) || 
-                    (animal.id && animal.id === enteredName.replace(/\s+/g, '_'))
-                );
-                if (exists && enteredName.length > 0) {
-                    nomeCientificoWarning.style.display = 'inline-block';
-                } else {
-                    nomeCientificoWarning.style.display = 'none';
-                }
-            } else {
-                nomeCientificoWarning.style.display = 'none';
-            }
+            updateRecordDuplicateWarning();
             updateScientificNameGate();
             debounce(searchAndFillVideos, 800);
         });
@@ -341,6 +328,32 @@
             return str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, '');
         }
 
+        function getEditModalSourceAnimals() {
+            return Array.isArray(editModalAnimals) && editModalAnimals.length ? editModalAnimals : allAnimals;
+        }
+
+        function getAnimalQualityLevel(animal = {}) {
+            return normalizeQualityLevel(animal.nivelQualidade || animal.qualidadeRegisto?.nivel || animal.qualidadeRegisto?.id || 'basico');
+        }
+
+        function getEditFilteredAnimals() {
+            const normalizedSearchTerm = normalizeString(editSearchInput.value.trim());
+            return getEditModalSourceAnimals().filter(animal => {
+                const matchesSearch = !normalizedSearchTerm ||
+                    normalizeString(animal.nome).includes(normalizedSearchTerm) ||
+                    normalizeString(animal.nomeCientifico).includes(normalizedSearchTerm);
+                const matchesQuality = !activeEditQualityFilter || getAnimalQualityLevel(animal) === activeEditQualityFilter;
+                return matchesSearch && matchesQuality;
+            });
+        }
+
+        function renderCategoryWithQuality(animal, catDisplay) {
+            const qualityLevel = getAnimalQualityLevel(animal);
+            const qualityMeta = getQualityLevelMeta(qualityLevel);
+            const categoryText = catDisplay || 'Sem categoria';
+            return `<span class="edit-category-text">${categoryText}</span><span class="quality-mini-icon ${qualityMeta.className}" title="${qualityMeta.label}" aria-label="${qualityMeta.label}"><i class="${qualityMeta.icon}"></i></span>`;
+        }
+
         function populateEditList(animals) {
             editListContainer.innerHTML = '';
             if (animals.length === 0) {
@@ -362,35 +375,50 @@
                 item.innerHTML = `
                     <div class="edit-item-info">
                         <div class="nome">${animal.nome} (${animal.nomeCientifico})</div>
-                        <div class="categoria">${catDisplay}</div>
+                        <div class="categoria edit-item-category-line">${renderCategoryWithQuality(animal, catDisplay)}</div>
                     </div>
                     <button class="edit-item-btn" data-id="${animal.id}">Editar</button>`;
                 editListContainer.appendChild(item);
             });
         }
 
-        editSearchInput.addEventListener('input', () => {
-            const normalizedSearchTerm = normalizeString(editSearchInput.value.trim());
-            if (normalizedSearchTerm.length === 0) {
-                populateEditList(allAnimals);
-                return;
-            }
-            const filtered = allAnimals.filter(animal => {
-                return normalizeString(animal.nome).includes(normalizedSearchTerm) || 
-                       normalizeString(animal.nomeCientifico).includes(normalizedSearchTerm);
+        function refreshEditList() {
+            populateEditList(getEditFilteredAnimals());
+        }
+
+        editSearchInput.addEventListener('input', refreshEditList);
+
+        const editQualityFilterBtn = document.getElementById('editQualityFilterBtn');
+        const editQualityFilterPanel = document.getElementById('editQualityFilterPanel');
+        editQualityFilterBtn?.addEventListener('click', () => {
+            editQualityFilterPanel.style.display = editQualityFilterPanel.style.display === 'none' ? 'flex' : 'none';
+        });
+        editQualityFilterPanel?.addEventListener('click', (e) => {
+            const btn = e.target.closest('[data-quality-filter]');
+            if (!btn) return;
+            activeEditQualityFilter = normalizeQualityLevel(btn.dataset.qualityFilter || '');
+            if (!btn.dataset.qualityFilter) activeEditQualityFilter = '';
+            editQualityFilterPanel.querySelectorAll('.quality-filter-choice').forEach(item => {
+                item.classList.toggle('active', item.dataset.qualityFilter === activeEditQualityFilter);
             });
-            populateEditList(filtered);
+            refreshEditList();
         });
 
         function loadDataIntoForm(animalId) {
-            const animal = allAnimals.find(a => a.id === animalId);
+            const animal = allAnimals.find(a => a.id === animalId) || editModalAnimals.find(a => a.id === animalId);
             if (!animal) return;
+            if (!allAnimals.some(a => a.id === animal.id)) {
+                allAnimals.push(animal);
+                loadExistingFamilies();
+            }
             document.getElementById('nomeAnimal').value = animal.nome || '';
             document.getElementById('nomeCientifico').value = animal.nomeCientifico || '';
             document.getElementById('familia').value = animal.familia || '';
             document.getElementById('imagemUrl').value = animal.imagemUrl || '';
             document.getElementById('imagemObjectPosition').value = animal.imagemObjectPosition || 'center center';
             setCategoryData(animal.categoria);
+            setRecordTypeData(animal);
+            setQualityLevelData(animal);
             
             // Carregar campos avançados
             document.getElementById('reino').value = animal.reino || '';
@@ -482,6 +510,8 @@
             isEditMode = false;
             currentEditingId = null;
             animalForm.reset();
+            setRecordTypeData();
+            resetQualityLevelData();
             setCategoryData('');
             selectedSubespecies = [];
             renderSubespeciesTags();
@@ -536,10 +566,29 @@
             updateScientificNameGate({ focusScientificField: true });
         }
 
-        function openModal() {
-            populateEditList(allAnimals);
+        async function loadAllAnimalsForEditModal() {
+            if (editModalAnimals.length) return editModalAnimals;
+            editListContainer.innerHTML = '<p style="padding: 15px; text-align: center; color: var(--text-secondary);">A carregar todos os animais...</p>';
+            const querySnapshot = await getDocs(firestoreQuery(collection(db, "animais"), orderBy("timestamp", "desc")));
+            editModalAnimals = [];
+            querySnapshot.forEach(doc => { editModalAnimals.push({ id: doc.id, ...doc.data() }); });
+            editModalAnimals.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+            return editModalAnimals;
+        }
+
+        async function openModal() {
             editModalOverlay.style.display = 'flex';
             editSearchInput.value = '';
+            activeEditQualityFilter = '';
+            document.getElementById('editQualityFilterPanel').style.display = 'none';
+            document.querySelectorAll('.quality-filter-choice').forEach(item => item.classList.remove('active'));
+            try {
+                await loadAllAnimalsForEditModal();
+                refreshEditList();
+            } catch (error) {
+                console.error('Erro ao carregar todos os animais para edição:', error);
+                populateEditList(allAnimals);
+            }
             editSearchInput.focus();
         }
         function closeModal() { editModalOverlay.style.display = 'none'; }

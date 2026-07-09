@@ -590,6 +590,7 @@
             return [...animalForm.querySelectorAll('input, textarea, select, button')]
                 .filter(element => {
                     if (element === nomeCientificoInput) return false;
+                    if (scientificPriorityGroup?.contains(element)) return false;
                     if (element.type === 'hidden') return false;
                     return true;
                 });
