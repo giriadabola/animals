@@ -1,10 +1,15 @@
-const CACHE_NAME = 'animals-app-v1.0.45';
+const CACHE_NAME = 'animals-app-v1.0.46-form-folder';
+
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
   './animal.html',
   './categories.html',
   './filtros.html',
+  './gestor-index.html',
+  './login.html',
+  './myportefolio.html',
+
   './css/style.css',
   './index/globe-search.css',
   './index/bioma-explorer.css',
@@ -12,6 +17,7 @@ const ASSETS_TO_CACHE = [
   './index/globe-search.js',
   './index/bioma-explorer.js',
   './index/survival-lists.js',
+
   './js/components.js',
   './js/countries.json',
   './js/feeding-animal-options.js',
@@ -20,6 +26,35 @@ const ASSETS_TO_CACHE = [
   './js/firebase-config.js',
   './js/loader.js',
   './js/mating-systems.js',
+  './js/runtime-guard.js',
+  './js/general-visual-catalog.js',
+  './js/ecology-visuals.js',
+  './js/locomotion-visuals.js',
+  './js/communication-catalog.js',
+  './js/ecological-functions.js',
+
+  './form/form.html',
+  './form/form.css',
+  './form/form.js',
+  './form/form-auth.js',
+  './form/form-cache.js',
+  './form/sw-register.js',
+  './form/sw-admin.js',
+  './form/manifest-admin.webmanifest',
+  './form/modules/form-state-catalogs.js',
+  './form/modules/form-record-type.js',
+  './form/modules/form-quality-level.js',
+  './form/modules/form-profile-link.js',
+  './form/modules/form-dimensions.js',
+  './form/modules/form-general.js',
+  './form/modules/form-feeding.js',
+  './form/modules/form-ecology.js',
+  './form/modules/form-reproduction.js',
+  './form/modules/form-plumage-editing.js',
+  './form/modules/form-curiosities-categories.js',
+  './form/modules/form-statistics-counter.js',
+  './form/modules/form-distribution-submit.js',
+
   './assets/logos/favicon.ico',
   './assets/logos/apple-touch-icon.png',
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css',
@@ -28,92 +63,86 @@ const ASSETS_TO_CACHE = [
   'https://cdn.jsdelivr.net/npm/jsvectormap/dist/maps/world.js'
 ];
 
-// Instalar e armazenar em cache os recursos estáticos
-self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(ASSETS_TO_CACHE);
+function shouldIgnoreRequest(request) {
+  const url = new URL(request.url);
+  return (
+    request.method !== 'GET' ||
+    url.protocol === 'chrome-extension:' ||
+    url.href.includes('firestore.googleapis.com') ||
+    url.href.includes('firebase') ||
+    url.href.includes('googleapis.com/identitytoolkit') ||
+    url.href.includes('securetoken.googleapis.com')
+  );
+}
+
+async function cacheAssetsSafely() {
+  const cache = await caches.open(CACHE_NAME);
+  await Promise.allSettled(
+    ASSETS_TO_CACHE.map(async (asset) => {
+      try {
+        await cache.add(new Request(asset, { cache: 'reload' }));
+      } catch (error) {
+        console.warn('[SW] Recurso ignorado no cache inicial:', asset, error);
+      }
     })
   );
+}
+
+self.addEventListener('install', (event) => {
+  event.waitUntil(cacheAssetsSafely());
   self.skipWaiting();
 });
 
-// Limpar caches antigos
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames.map((cache) => {
-          if (cache !== CACHE_NAME) {
-            return caches.delete(cache);
-          }
-        })
-      );
-    })
+    caches.keys().then((cacheNames) => Promise.all(
+      cacheNames.map((cache) => {
+        if (cache !== CACHE_NAME && cache.startsWith('animals-app-')) {
+          return caches.delete(cache);
+        }
+        return Promise.resolve();
+      })
+    ))
   );
   self.clients.claim();
 });
 
-// Intercetar pedidos de rede
 self.addEventListener('fetch', (event) => {
-  // Ignorar pedidos que não sejam GET e requisições do Firebase/Firestore
-  if (
-    event.request.method !== 'GET' || 
-    event.request.url.includes('firestore.googleapis.com') || 
-    event.request.url.includes('firebase')
-  ) {
-    return;
-  }
-  
-  // Estratégia Network-First para navegação (HTML) para obter sempre o mais recente se online
+  if (shouldIgnoreRequest(event.request)) return;
+
   if (event.request.mode === 'navigate') {
     event.respondWith(
-      fetch(event.request).then((response) => {
-        if (response.status === 200) {
-          const responseToCache = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseToCache));
-        }
-        return response;
-      }).catch(() => {
-        return caches.match(event.request, { ignoreSearch: true }).then((cachedResponse) => {
-          if (cachedResponse) {
-            return cachedResponse;
+      fetch(event.request)
+        .then((response) => {
+          if (response && response.status === 200) {
+            const responseToCache = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseToCache));
           }
+          return response;
+        })
+        .catch(() => caches.match(event.request, { ignoreSearch: true }).then((cachedResponse) => {
+          if (cachedResponse) return cachedResponse;
+          const requestUrl = new URL(event.request.url);
+          if (requestUrl.pathname.includes('/form/')) return caches.match('./form/form.html');
           return caches.match('./index.html');
-        });
-      })
+        }))
     );
     return;
   }
-  
+
   event.respondWith(
     caches.match(event.request, { ignoreSearch: true }).then((cachedResponse) => {
-      if (cachedResponse) {
-        // Padrão Stale-While-Revalidate: serve do cache e atualiza em background
-        fetch(event.request).then((response) => {
-          if (response.status === 200) {
-            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, response));
+      const fetchPromise = fetch(event.request)
+        .then((response) => {
+          if (response && response.status === 200) {
+            const responseToCache = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseToCache));
           }
-        }).catch(() => {/* Ignorar erro de fetch em background */});
-        
-        return cachedResponse;
-      }
-      
-      return fetch(event.request).then((response) => {
-        if (!response || response.status !== 200 || response.type !== 'basic') {
           return response;
-        }
-        const responseToCache = response.clone();
-        caches.open(CACHE_NAME).then((cache) => {
-          cache.put(event.request, responseToCache);
-        });
-        return response;
-      }).catch(() => {
-        // Redirecionar para index.html em caso de falha de navegação offline
-        if (event.request.mode === 'navigate') {
-          return caches.match('./index.html');
-        }
-      });
+        })
+        .catch(() => cachedResponse);
+
+      return cachedResponse || fetchPromise;
     })
   );
 });
