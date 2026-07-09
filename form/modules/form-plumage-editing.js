@@ -396,11 +396,19 @@
         editQualityFilterPanel?.addEventListener('click', (e) => {
             const btn = e.target.closest('[data-quality-filter]');
             if (!btn) return;
-            activeEditQualityFilter = normalizeQualityLevel(btn.dataset.qualityFilter || '');
-            if (!btn.dataset.qualityFilter) activeEditQualityFilter = '';
+
+            const selectedFilter = btn.dataset.qualityFilter || '';
+            const isClearButton = !selectedFilter || btn.classList.contains('quality-filter-clear');
+
+            activeEditQualityFilter = isClearButton ? '' : normalizeQualityLevel(selectedFilter);
             editQualityFilterPanel.querySelectorAll('.quality-filter-choice').forEach(item => {
-                item.classList.toggle('active', item.dataset.qualityFilter === activeEditQualityFilter);
+                item.classList.toggle('active', !!activeEditQualityFilter && item.dataset.qualityFilter === activeEditQualityFilter);
             });
+
+            if (isClearButton) {
+                editQualityFilterPanel.style.display = 'none';
+            }
+
             refreshEditList();
         });
 

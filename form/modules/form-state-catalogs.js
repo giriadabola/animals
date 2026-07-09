@@ -709,12 +709,34 @@
                 await setDoc(doc(db, "animais", docId), animalData);
                 await backfillEcologyManualRefsForAnimal(docId, animalData);
 
-
+                const savedAnimalForCache = { id: docId, ...animalData };
 
                 statusMessage.className = 'grid-span-3 success';
                 statusMessage.textContent = `Animal ${isEditMode ? 'atualizado' : 'gravado'} com sucesso!`;
                 
                 await initializePage();
+
+                // Mantém o popup "Selecionar Animal para Editar" sincronizado em direto.
+                // Isto evita que o ícone Forte/Melhorar/Básico fique preso ao valor antigo
+                // quando o animal é criado/editado e a lista do popup já estava em cache.
+                const upsertAnimalInList = (list, animal) => {
+                    if (!Array.isArray(list) || !animal?.id) return;
+                    const index = list.findIndex(item => item.id === animal.id);
+                    if (index >= 0) {
+                        list[index] = { ...list[index], ...animal };
+                    } else {
+                        list.unshift(animal);
+                    }
+                };
+
+                upsertAnimalInList(allAnimals, savedAnimalForCache);
+                if (Array.isArray(editModalAnimals) && editModalAnimals.length) {
+                    upsertAnimalInList(editModalAnimals, savedAnimalForCache);
+                }
+                if (typeof refreshEditList === 'function') {
+                    refreshEditList();
+                }
+
                 switchToCreateMode();
             } catch (error) {
                 console.error("Erro ao gravar no Firestore:", error);

@@ -391,7 +391,48 @@
             });
         }
 
-        initializePage();
-        updateScientificNameGate({ focusScientificField: true });
+        async function loadEditParamAnimalIfNeeded() {
+            const params = new URLSearchParams(window.location.search);
+            const animalIdFromUrl = params.get('edit') || params.get('id') || params.get('animal');
+            if (!animalIdFromUrl) return;
+
+            let animal = allAnimals.find(item => item.id === animalIdFromUrl) ||
+                (Array.isArray(editModalAnimals) ? editModalAnimals.find(item => item.id === animalIdFromUrl) : null);
+
+            if (!animal) {
+                try {
+                    const snap = await getDoc(doc(db, 'animais', animalIdFromUrl));
+                    if (snap.exists()) {
+                        animal = { id: snap.id, ...snap.data() };
+                        allAnimals.unshift(animal);
+                        if (Array.isArray(editModalAnimals)) editModalAnimals.unshift(animal);
+                        await loadExistingFamilies();
+                    }
+                } catch (error) {
+                    console.error('Erro ao carregar animal pelo parâmetro de edição:', error);
+                }
+            }
+
+            if (animal) {
+                loadDataIntoForm(animal.id);
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+        }
+
+        async function bootFormWhenScientificSectionIsReady() {
+            try {
+                await initializePage();
+                updateScientificNameGate({ focusScientificField: true });
+                await loadEditParamAnimalIfNeeded();
+                document.documentElement.dataset.formScientificReady = 'true';
+                window.dispatchEvent(new CustomEvent('form:scientificGateReady'));
+            } catch (error) {
+                console.error('Erro ao preparar o formulário:', error);
+                document.documentElement.dataset.formScientificReady = 'error';
+                window.dispatchEvent(new CustomEvent('form:scientificGateReady'));
+            }
+        }
+
+        bootFormWhenScientificSectionIsReady();
 
     
