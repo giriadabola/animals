@@ -2314,6 +2314,41 @@ body.edit-theme #tabpanel-ecologia {
     font-size: 0.72rem;
     flex: 0 0 auto;
 }
+
+.form-statistics-summary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px;
+    border: 1px solid var(--border-color);
+    border-radius: 999px;
+    background: rgba(255,255,255,0.035);
+    color: var(--text-primary);
+    flex: 0 0 auto;
+    white-space: nowrap;
+}
+.form-stat-pill {
+    min-height: 40px;
+    padding: 0 12px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.08);
+    color: #fff;
+    font-size: 0.82rem;
+    font-weight: 700;
+    line-height: 1;
+}
+.form-stat-pill strong {
+    font-size: 0.9rem;
+    font-weight: 900;
+}
+.form-stat-pill-params i { color: #38bdf8; }
+.form-stat-pill-dots i { color: #f59e0b; }
+
 @media (max-width: 760px) {
     .save-quality-row {
         flex-direction: column;
@@ -2337,6 +2372,23 @@ body.edit-theme #tabpanel-ecologia {
     .animal-quality-selector .quality-choice:first-child { border-radius: 999px 0 0 999px; }
     .animal-quality-selector .quality-choice:last-child { border-radius: 0 999px 999px 0; }
     .animal-quality-selector .quality-choice span { display: none; }
+    .form-statistics-summary {
+        gap: 0;
+        padding: 5px;
+        width: 100%;
+        justify-content: center;
+        max-width: 360px;
+    }
+    .form-stat-pill {
+        min-height: 36px;
+        height: 36px;
+        flex: 1 1 0;
+        padding: 0 8px;
+        font-size: 0.76rem;
+        border-radius: 0;
+    }
+    .form-stat-pill:first-child { border-radius: 999px 0 0 999px; }
+    .form-stat-pill:last-child { border-radius: 0 999px 999px 0; }
     .save-quality-row #saveButton {
         width: 100%;
         min-width: 0;

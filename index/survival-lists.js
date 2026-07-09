@@ -379,9 +379,11 @@ export async function populateSurvivalLists(allAnimals, db, searchResultsContain
         }
     });
 
-    // Sincronizar o layout principal e a caixa de resultados de pesquisa com o primeiro container de grelha gerado
+    // A pesquisa principal fica fixa dentro do card inicial do index.
+    // Mantemos esta guarda para projetos antigos onde o contentor ainda não esteja ancorado no hero.
     const mainLayout = document.querySelector('.main-layout');
-    if (mainLayout && searchResultsContainer) {
+    const searchResultsIsAnchoredInHero = searchResultsContainer?.dataset?.searchResultsAnchor === 'hero';
+    if (mainLayout && searchResultsContainer && !searchResultsIsAnchoredInHero) {
         const rightPanel = mainLayout.querySelector('.right-panel');
         if (rightPanel) {
             rightPanel.innerHTML = '';

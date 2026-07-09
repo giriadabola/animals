@@ -14,8 +14,56 @@ let allAnimals = [];
 let mainLayout = null;
 const searchInput = document.getElementById('searchInput');
 const searchResultsContainer = document.getElementById('searchResults');
+const heroSearchSection = document.querySelector('.hero-wrapper-section');
 const loadingMessage = document.getElementById('loading-message');
 const categoriesContainer = document.getElementById('categories-list');
+const heroContentGrid = document.querySelector('.hero-content-grid');
+const indexSearchArea = document.getElementById('indexSearchArea');
+
+function setSearchResultsOpen(isOpen) {
+    if (heroSearchSection) heroSearchSection.classList.toggle('search-results-open', Boolean(isOpen));
+    if (mainLayout) mainLayout.classList.toggle('has-results', Boolean(isOpen));
+}
+
+function syncSearchResultsPlacement() {
+    if (!searchResultsContainer || !heroContentGrid || !indexSearchArea) return;
+    const shouldLiveUnderInput = window.innerWidth <= 992;
+    const desiredParent = shouldLiveUnderInput ? indexSearchArea : heroContentGrid;
+
+    if (searchResultsContainer.parentElement !== desiredParent) {
+        desiredParent.appendChild(searchResultsContainer);
+    }
+}
+
+function keepSearchResultsTopVisible(forceScroll = false) {
+    if (!searchResultsContainer) return;
+    syncSearchResultsPlacement();
+    searchResultsContainer.scrollTop = 0;
+
+    const rect = searchResultsContainer.getBoundingClientRect();
+    const safeTop = window.innerWidth <= 992 ? 18 : 76;
+    const targetY = window.scrollY + rect.top - safeTop;
+
+    if (forceScroll || rect.top < safeTop || rect.top > window.innerHeight * 0.42) {
+        window.scrollTo({ top: Math.max(0, targetY), behavior: 'smooth' });
+    }
+}
+
+function keepSearchCardTopVisible() {
+    const anchor = heroSearchSection || document.querySelector('.hero-content-grid') || indexSearchArea;
+    if (!anchor) return;
+
+    const rect = anchor.getBoundingClientRect();
+    const safeTop = window.innerWidth <= 992 ? 12 : 64;
+    const targetY = window.scrollY + rect.top - safeTop;
+
+    if (rect.top < safeTop || rect.top > window.innerHeight * 0.22) {
+        window.scrollTo({ top: Math.max(0, targetY), behavior: 'smooth' });
+    }
+}
+
+window.addEventListener('resize', syncSearchResultsPlacement);
+syncSearchResultsPlacement();
 
 const categoryIcons = {
     Mamiferos: '<i class="fa-solid fa-paw"></i>',
@@ -158,10 +206,11 @@ async function fetchAllAnimals() {
 
 function displayResults(results) {
     if (!searchResultsContainer) return;
+    syncSearchResultsPlacement();
     searchResultsContainer.innerHTML = '';
     if (results.length === 0) {
         searchResultsContainer.style.display = 'none';
-        if (mainLayout) mainLayout.classList.remove('has-results');
+        setSearchResultsOpen(false);
         return;
     }
     results.forEach(animal => {
@@ -182,29 +231,31 @@ function displayResults(results) {
         searchResultsContainer.appendChild(resultElement);
     });
     searchResultsContainer.style.display = 'block';
-    if (mainLayout) mainLayout.classList.add('has-results');
+    setSearchResultsOpen(true);
+    requestAnimationFrame(() => keepSearchResultsTopVisible(true));
 }
 
 if (searchInput) {
     searchInput.addEventListener('input', () => {
         const searchTerm = searchInput.value.trim();
         if (searchTerm.length === 0) {
-            if (searchResultsContainer) searchResultsContainer.style.display = 'none';
-            if (mainLayout) mainLayout.classList.remove('has-results');
+            if (searchResultsContainer) {
+                searchResultsContainer.style.display = 'none';
+                searchResultsContainer.scrollTop = 0;
+            }
+            setSearchResultsOpen(false);
+            requestAnimationFrame(keepSearchCardTopVisible);
             return;
         }
         const filteredAnimals = allAnimals.filter(animal => animalMatchesSearch(animal, searchTerm));
         displayResults(filteredAnimals);
-        if (window.innerWidth > 992 && filteredAnimals.length > 0 && mainLayout) {
-            mainLayout.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
     });
 }
 
 document.addEventListener('click', (event) => {
     if (!event.target.closest('.search-container') && !event.target.closest('#searchResults')) {
         if (searchResultsContainer) searchResultsContainer.style.display = 'none';
-        if (mainLayout) mainLayout.classList.remove('has-results');
+        setSearchResultsOpen(false);
     }
 });
 

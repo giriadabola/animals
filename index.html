@@ -80,12 +80,20 @@
                 <h1>GRANDES PROJETOS</h1>
             </section>
 
-            <div class="search-container">
-                <input type="text" id="searchInput" placeholder="Pesquise por nome comum ou científico...">
-            </div>
+            <div class="hero-content-grid">
+                <div class="hero-left-column">
+                    <div class="index-search-area" id="indexSearchArea">
+                        <div class="search-container">
+                            <input type="text" id="searchInput" placeholder="Pesquise por nome comum ou científico...">
+                        </div>
+                    </div>
 
-            <p id="loading-message">A carregar animais...</p>
-            <div class="categories-container" id="categories-list" style="display: none;"></div>
+                    <p id="loading-message">A carregar animais...</p>
+                    <div class="categories-container" id="categories-list" style="display: none;"></div>
+                </div>
+
+                <div id="searchResults" class="index-search-results" data-search-results-anchor="hero"></div>
+            </div>
         </div>
 
         <!-- Globe Country Search Card -->
