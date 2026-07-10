@@ -716,7 +716,7 @@
         import { getGeneralVisualMeta as getGeneralVisualCatalogMeta, getGeneralModelSvg as getGeneralCatalogModelSvg, getActivityMeta, getActivitySvg, getSocialMeta, getSocialSvg, getEcologicalFunctionMeta, getEcologicalFunctionSvg, getLocomotionMeta, getLocomotionSvg } from "./js/general-visual-catalog.js";
         import { collapseCombinedGenderItems, collectConcreteGenders, genderMatchesSelection, normalizeGenderValue } from "./js/gender-utils.js?v=2";
         import { renderAnatomyBlock, initAnatomyViewer } from "./js/anatomy-viewer.js?v=20260710_audio_3";
-        import { renderAnimalAudioThumbnail, initAnimalAudioControls } from "./js/animal-audio.js?v=20260710_audio_3";
+        import { renderAnimalAudioThumbnail, initAnimalAudioControls, pauseAllAnimalAudio } from "./js/animal-audio.js?v=20260710_audio_4";
         
         const mainContent = document.getElementById('main-content-area');
 
@@ -2418,6 +2418,8 @@
         function playVideo(videoUrl, thumbnailElement) {
             const videoId = getYouTubeVideoId(videoUrl);
             if (!videoId) return;
+
+            pauseAllAnimalAudio({ reset: false });
             
             // Remover classe active de outras thumbnails e adicionar nesta
             document.querySelectorAll('.thumbnail').forEach(t => t.classList.remove('active'));
@@ -2425,7 +2427,7 @@
 
             const videoContainer = document.getElementById('main-video-container');
             const iframe = videoContainer.querySelector('iframe');
-            iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
+            iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&enablejsapi=1`;
             videoContainer.style.display = 'block';
         }
 

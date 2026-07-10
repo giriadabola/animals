@@ -1,4 +1,4 @@
-const CACHE_NAME = 'animals-app-v1.0.47-fast-index-sw';
+const CACHE_NAME = 'animals-app-v1.0.48-audio-sw';
 
 const ASSETS_TO_CACHE = [
   './',
@@ -23,6 +23,9 @@ const ASSETS_TO_CACHE = [
   './js/feeding-animal-options.js',
   './js/feeding-strategies.js',
   './js/feeding-visuals.js',
+  './js/animal-audio.js',
+  './js/anatomy-viewer.js',
+  './css/anatomy-viewer.css',
   './js/firebase-config.js',
   './js/loader.js',
   './js/mating-systems.js',
@@ -65,6 +68,19 @@ const ASSETS_TO_CACHE = [
 
 function shouldIgnoreRequest(request) {
   const url = new URL(request.url);
+
+  // Não interceptar áudio/streaming externo. O xeno-canto usa pedidos de media/range,
+  // e o Service Worker pode impedir a reprodução se tentar colocar isso em cache.
+  if (
+    request.destination === 'audio' ||
+    request.headers.has('range') ||
+    url.hostname.includes('xeno-canto.org') ||
+    url.hostname.includes('youtube.com') ||
+    url.hostname.includes('ytimg.com') ||
+    url.hostname.includes('googlevideo.com')
+  ) {
+    return true;
+  }
 
   // Não deixar o Service Worker prender/partir imagens externas.
   // Se uma imagem remota falhar, o browser trata o erro normalmente sem rebentar o fetch do SW.
