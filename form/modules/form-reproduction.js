@@ -196,6 +196,19 @@
 
             if (isParental) {
                 rowModeSelect.value = 'parental_investment';
+                if (detailStr) {
+                    const parentalParts = detailStr.split(/\s*(?:•|\||;|,)\s*/).map(part => part.trim()).filter(Boolean);
+                    minInput.value = parentalParts[0] || '';
+                    maxInput.value = parentalParts[1] || '';
+                    const actorValue = parentalParts[2] || '';
+                    if (actorValue) {
+                        const customActorOption = document.createElement('option');
+                        customActorOption.value = actorValue;
+                        customActorOption.textContent = actorValue;
+                        unitSelect.append(customActorOption);
+                        unitSelect.value = actorValue;
+                    }
+                }
             } else if (isGestation) {
                 rowModeSelect.value = 'gestacao';
                 if (detailStr) {
@@ -629,10 +642,20 @@
                         fase: row.querySelector('.reproduction-fase-toggle')?.dataset.value || 'Adulto'
                     };
                     if (rowModeSelect.value === 'parental_investment') {
+                        const etapa = row.querySelector('.parental-stage-select, .reproduction-gestation-min')?.value || '';
+                        const cuidado = row.querySelector('.parental-care-select, .reproduction-gestation-max')?.value || '';
+                        const responsavel = row.querySelector('.parental-actor-select, .reproduction-gestation-unit')?.value || '';
+                        const detalhe = [etapa, cuidado, responsavel].filter(Boolean).join(' • ');
                         return {
                             ...rowMeta,
                             tipo: 'Investimento Parental',
-                            detalhe: ''
+                            etapa,
+                            cuidado,
+                            responsavel,
+                            valorMin: etapa,
+                            valorMax: cuidado,
+                            unidade: responsavel,
+                            detalhe
                         };
                     } else if (rowModeSelect.value === 'tipo') {
                         const typeVal = row.querySelector('.reproduction-type')?.value || '';
@@ -792,12 +815,22 @@
             if (normalRows.length === 0) {
                 createReproductionRow();
             } else {
-                normalRows.forEach(item => createReproductionRow(
-                    item.tipo || '',
-                    item.detalhe || item.descricao || '',
-                    item.genero || GENDER_BOTH,
-                    item.fase || 'Adulto'
-                ));
+                normalRows.forEach(item => {
+                    const isParentalItem = item?.tipo === 'Investimento Parental' || item?.tipo === 'parental_investment';
+                    const parentalDetail = isParentalItem
+                        ? [
+                            item.etapa || item.valorMin || '',
+                            item.cuidado || item.valorMax || '',
+                            item.responsavel || item.unidade || ''
+                        ].filter(Boolean).join(' • ')
+                        : '';
+                    createReproductionRow(
+                        item.tipo || '',
+                        parentalDetail || item.detalhe || item.descricao || '',
+                        item.genero || GENDER_BOTH,
+                        item.fase || 'Adulto'
+                    );
+                });
             }
             updateReproductionPreview();
         }

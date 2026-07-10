@@ -1,4 +1,4 @@
-const CACHE_NAME = 'animals-admin-v1.0.12-parental-placeholder';
+const CACHE_NAME = 'animals-admin-v1.0.13-parental-save-fix';
 
 const ASSETS_TO_CACHE = [
   './',
