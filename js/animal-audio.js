@@ -146,6 +146,8 @@ async function toggleAudio(audioId = '') {
         }
     });
 
+    pauseEmbeddedYoutubeVideos();
+
     const requestToken = markNewAudioRequest(audio);
     try {
         const playPromise = audio.play();
@@ -160,6 +162,27 @@ async function toggleAudio(audioId = '') {
         setControlState(audioId, 'paused');
         throw error;
     }
+}
+
+
+export function pauseAllAnimalAudio({ reset = false } = {}) {
+    document.querySelectorAll('audio[data-xeno-canto-audio]').forEach(audio => {
+        markNewAudioRequest(audio);
+        audio.pause();
+        if (reset) {
+            try { audio.currentTime = 0; } catch (_) {}
+        }
+        setControlState(audio.dataset.xenoCantoAudio, 'paused');
+    });
+}
+
+function pauseEmbeddedYoutubeVideos() {
+    document.querySelectorAll('#main-video-container iframe').forEach(iframe => {
+        if (iframe.src) iframe.src = '';
+    });
+    const videoContainer = document.getElementById('main-video-container');
+    if (videoContainer) videoContainer.style.display = 'none';
+    document.querySelectorAll('.thumbnail[data-video-url]').forEach(t => t.classList.remove('active'));
 }
 
 export function initAnimalAudioControls(root = document) {
