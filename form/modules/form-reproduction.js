@@ -69,41 +69,30 @@
 
             const rowModeSelect = document.createElement('select');
             rowModeSelect.className = 'reproduction-row-mode';
-            
-            const optTipo = document.createElement('option');
-            optTipo.value = 'tipo';
+
+            const optPlaceholder = document.createElement('option');
+            optPlaceholder.value = '';
+            optPlaceholder.textContent = 'Escolhe um modelo';
+
             const optAcasalamento = document.createElement('option');
             optAcasalamento.value = 'acasalamento';
             optAcasalamento.textContent = 'Acasalamento';
-            optTipo.textContent = 'Tipo de reprodução';
-            
-            const optGestacao = document.createElement('option');
-            optGestacao.value = 'gestacao';
-            optGestacao.textContent = 'Tempo de Gestação';
 
-            const optCrias = document.createElement('option');
-            optCrias.value = 'crias';
-            optCrias.textContent = 'Número de Crias';
+            const optEpocaReproducao = document.createElement('option');
+            optEpocaReproducao.value = 'epoca_reproducao';
+            optEpocaReproducao.textContent = 'Época de reprodução';
+
+            const optParental = document.createElement('option');
+            optParental.value = 'parental_investment';
+            optParental.textContent = 'Investimento Parental';
 
             const optMaturidade = document.createElement('option');
             optMaturidade.value = 'maturidade_sexual';
             optMaturidade.textContent = 'Maturidade Sexual';
 
-            const optAlimentacaoTipo = document.createElement('option');
-            optAlimentacaoTipo.value = 'alimentacao_tipo';
-            optAlimentacaoTipo.textContent = 'Tipo de Alimentação';
-
-            const optAlimentoMedio = document.createElement('option');
-            optAlimentoMedio.value = 'alimento_medio';
-            optAlimentoMedio.textContent = 'Alimento Ingerido em Média';
-
-            const optAguaMedia = document.createElement('option');
-            optAguaMedia.value = 'agua_media';
-            optAguaMedia.textContent = 'Água bebida em Média';
-
-            const optEpocaReproducao = document.createElement('option');
-            optEpocaReproducao.value = 'epoca_reproducao';
-            optEpocaReproducao.textContent = 'Época de reprodução';
+            const optCrias = document.createElement('option');
+            optCrias.value = 'crias';
+            optCrias.textContent = 'Número de Crias';
 
             const optNumeroOvos = document.createElement('option');
             optNumeroOvos.value = 'numero_ovos';
@@ -112,8 +101,16 @@
             const optTempoEclosao = document.createElement('option');
             optTempoEclosao.value = 'tempo_eclosao';
             optTempoEclosao.textContent = 'Tempo até à eclosão';
+
+            const optGestacao = document.createElement('option');
+            optGestacao.value = 'gestacao';
+            optGestacao.textContent = 'Tempo de Gestação';
+
+            const optTipo = document.createElement('option');
+            optTipo.value = 'tipo';
+            optTipo.textContent = 'Tipo de reprodução';
             
-            rowModeSelect.append(optTipo, optAcasalamento, optGestacao, optMaturidade, optCrias, optEpocaReproducao, optNumeroOvos, optTempoEclosao);
+            rowModeSelect.append(optPlaceholder, optAcasalamento, optEpocaReproducao, optParental, optMaturidade, optCrias, optNumeroOvos, optTempoEclosao, optGestacao, optTipo);
 
             const typeSelect = document.createElement('select');
             typeSelect.className = 'reproduction-type';
@@ -185,6 +182,7 @@
             const initialMatingValue = normalizeSearchText(typeStr).includes('acasalamento') ? detailStr : typeStr;
             const isMating = isMatingReproductionItem(typeStr);
 
+            const isParental = typeStr === 'Investimento Parental' || typeStr === 'parental_investment';
             const isGestation = typeStr === 'Tempo de Gestação' || typeStr.toLowerCase().includes('gestação') || typeStr.toLowerCase().includes('gestacao');
             const isCrias = typeStr === 'Número de Crias' || typeStr.toLowerCase().includes('cria');
             const isMaturidade = typeStr === 'Maturidade Sexual' || normalizeSearchText(typeStr).includes('maturidade sexual');
@@ -196,7 +194,9 @@
             const isNumeroOvos = normalizedReproductionType.includes('numero de ovos') || normalizedReproductionType.includes('número de ovos');
             const isTempoEclosao = normalizedReproductionType.includes('tempo ate a eclosao') || normalizedReproductionType.includes('tempo até à eclosão') || normalizedReproductionType.includes('eclosao');
 
-            if (isGestation) {
+            if (isParental) {
+                rowModeSelect.value = 'parental_investment';
+            } else if (isGestation) {
                 rowModeSelect.value = 'gestacao';
                 if (detailStr) {
                     let minVal = '';
@@ -375,16 +375,26 @@
                 }
                 unitSelect.dataset.eclosaoUnit = unitVal;
                 unitSelect.value = unitVal;
-            } else {
+            } else if (isParental) {
+                rowModeSelect.value = 'parental_investment';
+            } else if (typeStr) {
                 rowModeSelect.value = 'tipo';
                 fillReproductionTypeSelect(typeSelect, typeStr);
+            } else {
+                rowModeSelect.value = '';
             }
 
             function updateRowVisibility() {
                 row.innerHTML = '';
                 row.append(rowModeSelect);
-                if (rowModeSelect.value === 'tipo') {
-                    fillReproductionTypeSelect(typeSelect, typeSelect.value || (!isGestation && !isCrias && !isMaturidade && !isMating && !isAlimentacaoTipo && !isAlimentoMedio && !isAguaMedia && !isEpocaReproducao && !isNumeroOvos && !isTempoEclosao ? typeStr : ''));
+                if (rowModeSelect.value === '') {
+                    const spacer = document.createElement('div');
+                    spacer.style.gridColumn = 'span 3';
+                    row.append(spacer, genderBtn, faseBtn, removeBtn);
+                } else if (rowModeSelect.value === 'parental_investment') {
+                    row.append(minInput, maxInput, unitSelect, genderBtn, faseBtn, removeBtn);
+                } else if (rowModeSelect.value === 'tipo') {
+                    fillReproductionTypeSelect(typeSelect, typeSelect.value || (!isGestation && !isCrias && !isMaturidade && !isMating && !isAlimentacaoTipo && !isAlimentoMedio && !isAguaMedia && !isEpocaReproducao && !isNumeroOvos && !isTempoEclosao && !isParental ? typeStr : ''));
                     row.append(typeSelect, genderBtn, faseBtn, removeBtn);
                 } else if (rowModeSelect.value === 'acasalamento') {
                     fillMatingTypeSelect(matingSelect, matingSelect.value || initialMatingValue);
@@ -618,7 +628,13 @@
                         genero: normalizeGenderValue(row.querySelector('.reproduction-gender-toggle')?.dataset.value, GENDER_BOTH),
                         fase: row.querySelector('.reproduction-fase-toggle')?.dataset.value || 'Adulto'
                     };
-                    if (rowModeSelect.value === 'tipo') {
+                    if (rowModeSelect.value === 'parental_investment') {
+                        return {
+                            ...rowMeta,
+                            tipo: 'Investimento Parental',
+                            detalhe: ''
+                        };
+                    } else if (rowModeSelect.value === 'tipo') {
                         const typeVal = row.querySelector('.reproduction-type')?.value || '';
                         return {
                             ...rowMeta,

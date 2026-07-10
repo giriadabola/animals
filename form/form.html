@@ -27,15 +27,30 @@
     <script src="https://cdn.jsdelivr.net/npm/jsvectormap"></script>
     <script src="https://cdn.jsdelivr.net/npm/jsvectormap/dist/maps/world.js"></script>
     <script src="./form-cache.js?v=20260709_portfolio_1"></script>
-    <link rel="stylesheet" href="./form.css?v=20260709_profile_950_2">
+    <link rel="stylesheet" href="./form.css?v=20260710_auth_flash_fix_1">
+
+    <style id="form-auth-critical-css">
+        /* Evita flash do formulário antes de confirmar login. */
+        body.form-auth-pending > :not(#loading-overlay):not(script) {
+            visibility: hidden !important;
+            pointer-events: none !important;
+        }
+        body.form-auth-pending #loading-overlay {
+            display: flex !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            pointer-events: auto !important;
+        }
+    </style>
 </head>
-<body class="form-light">
+<body class="form-light form-auth-pending">
     <!-- Authorization Guard Overlay -->
     <div id="loading-overlay">
         <div class="spinner"></div>
         <div id="loading-status" style="font-size: 1.1rem; font-weight: 600; letter-spacing: 0.5px;">A verificar autorização...</div>
     </div>
-    <script type="module" src="./form-auth.js?v=20260709_portfolio_1"></script>
+    <script type="module" src="./form-auth.js?v=20260710_auth_flash_fix_1"></script>
+    <script src="./form-startup-guard.js?v=20260710_auth_flash_fix_1"></script>
 
     <div class="top-menu">
         <a href="../gestor-index.html" class="menu-button"><i class="fa-solid fa-list-check" style="margin-right: 8px;"></i> Gestor do Index</a>
@@ -289,23 +304,44 @@
                                             <option value="Montanhosa / Alpina"></option>
                                         </datalist>
                                         <datalist id="biomaOptions">
+                                            <option value="Água fresca"></option>
+                                            <option value="Água salobra"></option>
+                                            <option value="Agrícola"></option>
                                             <option value="Áreas rochosas"></option>
+                                            <option value="Bioma antropogênico"></option>
                                             <option value="Bosque"></option>
                                             <option value="Calota de gelo"></option>
+                                            <option value="Campo"></option>
                                             <option value="Caverna"></option>
                                             <option value="Chaparral"></option>
+                                            <option value="Clima semiárido"></option>
                                             <option value="Costa"></option>
                                             <option value="Duna"></option>
                                             <option value="Estepe"></option>
+                                            <option value="Estuário"></option>
                                             <option value="Fauna urbana"></option>
                                             <option value="Floresta"></option>
+                                            <option value="Floresta húmida"></option>
+                                            <option value="Floresta montana"></option>
+                                            <option value="Floresta nublada"></option>
+                                            <option value="Floresta tropical pluvial"></option>
+                                            <option value="Lago"></option>
                                             <option value="Marinho"></option>
                                             <option value="Marinho (corais)"></option>
                                             <option value="Matagal"></option>
                                             <option value="Montanha"></option>
                                             <option value="Pântano"></option>
+                                            <option value="Paul"></option>
+                                            <option value="Piscinas temporárias"></option>
                                             <option value="Pradaria"></option>
+                                            <option value="Rio"></option>
                                             <option value="Savana"></option>
+                                            <option value="Subúrbio"></option>
+                                            <option value="Zona entremarés"></option>
+                                            <option value="Zona nerítica"></option>
+                                            <option value="Zona pelágica"></option>
+                                            <option value="Zona ripária"></option>
+                                            <option value="Zona úmida"></option>
                                         </datalist>
                                         <button type="button" id="addGeneralVisualBtn" class="secondary-action-btn">+ Adicionar modelo</button>
                                         <p class="form-hint">Usa esta área para dados gerais com modelo visual: vida útil, velocidades, força da mordida, tamanho da população, tempo de amamentação, atividade, vida social, função ecológica, locomoção, estratégia para obter alimento, zona climática e bioma.</p>
@@ -614,6 +650,17 @@
                                 <div class="preview-card-title">Mapa de Distribuição (Pré-visualização)</div>
                                 <div class="map-container" id="distributionMapForm"></div>
                             </div>
+                            <div class="form-group distribution-biogeographic-field">
+                                <div class="distribution-region-row-header">
+                                    <span>Tipo</span>
+                                    <span>Região</span>
+                                    <span></span>
+                                </div>
+                                <div class="distribution-region-rows" id="distributionRegionRows"></div>
+                                <button type="button" class="secondary-action-btn add-distribution-region-btn" id="addDistributionRegionBtn">
+                                    <i class="fa-solid fa-plus"></i> Adicionar modelo
+                                </button>
+                            </div>
                         </div>
                     </div>
 
@@ -710,7 +757,7 @@
                 <div class="form-statistics-summary" id="formStatisticsSummary" aria-live="polite" title="Resumo dos parâmetros estatísticos preenchidos">
                     <span class="form-stat-pill form-stat-pill-params">
                         <i class="fa-solid fa-list-check" aria-hidden="true"></i>
-                        <strong id="formParamsCount">0/56</strong> parâmetros
+                        <strong id="formParamsCount">0/58</strong> parâmetros
                     </span>
                     <span class="form-stat-pill form-stat-pill-dots">
                         <i class="fa-solid fa-circle-dot" aria-hidden="true"></i>
@@ -863,10 +910,11 @@
     </div>
 
     <!-- Componentes e Lógica -->
-    <script type="module" src="../js/components.js?v=20260709_portfolio_1"></script>
-    <script type="module" src="./form.js?v=20260709_profile_950_2"></script>
+    <script type="module" src="../js/components.js?v=20260710_no_animais_snapshot_1"></script>
+    <script src="./modules/form-distribution-regions.js?v=20260710_1"></script>
+    <script type="module" src="./form.js?v=20260710_reproduction_placeholder_1"></script>
     <!-- Service Worker PWA -->
-    <script src="./sw-register.js?v=20260709_portfolio_1"></script>
+    <script src="./sw-register.js?v=20260710_no_animais_snapshot_1"></script>
 </body>
 </html>
 

@@ -1658,6 +1658,28 @@ button[type="submit"]:hover {
     border: 1px solid var(--border-color);
     border-radius: var(--border-radius);
     background: rgba(0, 0, 0, 0.2);
+    scrollbar-width: thin;
+    scrollbar-color: var(--primary-color) rgba(0, 0, 0, 0.1);
+}
+
+.edit-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.edit-list::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 10px;
+}
+
+.edit-list::-webkit-scrollbar-thumb {
+    background: var(--primary-color);
+    border-radius: 10px;
+    transition: background 0.2s ease;
+}
+
+.edit-list::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-color);
+    filter: brightness(1.15);
 }
 
 .edit-item {

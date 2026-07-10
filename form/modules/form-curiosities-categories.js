@@ -584,29 +584,64 @@
         });
 
         // --- INICIALIZAÇÃO ---
+        const FORM_EDIT_LOG_PREFIX = '[FORM][EDIT-LIST]';
+        const formEditLog = (...args) => console.log(FORM_EDIT_LOG_PREFIX, ...args);
+        const formEditWarn = (...args) => console.warn(FORM_EDIT_LOG_PREFIX, ...args);
+        const formEditError = (...args) => console.error(FORM_EDIT_LOG_PREFIX, ...args);
+
+        function setEditButtonReady(reason = '') {
+            if (!openEditModalBtn) return;
+            openEditModalBtn.disabled = false;
+            openEditModalBtn.innerHTML = '<i class="fa-solid fa-magnifying-glass" style="margin-right: 8px;"></i> Procurar p/ Editar';
+            formEditLog('Botão Procurar p/ Editar desbloqueado.', reason);
+        }
+
+        function setEditButtonLoading(reason = '') {
+            if (!openEditModalBtn) return;
+            openEditModalBtn.disabled = true;
+            openEditModalBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin" style="margin-right: 8px;"></i> A carregar...';
+            formEditLog('Botão Procurar p/ Editar em loading.', reason);
+        }
+
+        function withEditTimeout(promise, ms, label) {
+            return Promise.race([
+                promise,
+                new Promise((_, reject) => {
+                    setTimeout(() => reject(new Error(`${label} demorou mais de ${ms}ms`)), ms);
+                })
+            ]);
+        }
+
         async function initializePage() {
-            try {
-                allAnimals = [];
-                const animalsQuery = firestoreQuery(collection(db, "animais"), orderBy("timestamp", "desc"), limit(40));
-                const querySnapshot = await getDocs(animalsQuery);
-                querySnapshot.forEach(doc => { allAnimals.push({ id: doc.id, ...doc.data() }); });
-                allAnimals.sort((a, b) => {
-                    const dateA = a.timestamp || 0;
-                    const dateB = b.timestamp || 0;
-                    return dateB - dateA;
+            const startTime = performance.now();
+            formEditLog('initializePage: início');
+
+            // Importante: a lista do popup "Procurar p/ Editar" NÃO deve carregar ao abrir o form.
+            // Esse getDocs estava a ficar pendurado antes do auth estar totalmente pronto e deixava
+            // o botão em "A carregar...", bloqueando a utilização do formulário.
+            allAnimals = [];
+            setEditButtonReady('lista de edição em lazy-load; só carrega ao clicar');
+
+            // Estes carregamentos são auxiliares. Não podem bloquear o form nem o botão de edição.
+            formEditLog('Caches/autocomplete: a carregar famílias e taxonomia em segundo plano...');
+            loadExistingFamilies()
+                .then(() => formEditLog('Caches/autocomplete: concluído.', { ms: Math.round(performance.now() - startTime) }))
+                .catch(error => formEditWarn('Caches/autocomplete: falhou, mas não bloqueia o form.', error));
+
+            formEditLog('Países: a carregar ../js/countries.json em segundo plano...');
+            fetch('../js/countries.json', { cache: 'no-store' })
+                .then(res => {
+                    formEditLog('Países: resposta recebida.', { ok: res.ok, status: res.status });
+                    if (!res.ok) throw new Error(`countries.json status ${res.status}`);
+                    return res.json();
+                })
+                .then(json => {
+                    countryList = json;
+                    formEditLog('Países: JSON carregado.', { total: Array.isArray(countryList) ? countryList.length : Object.keys(countryList || {}).length });
+                })
+                .catch(error => {
+                    formEditWarn('Países: falhou, mas não bloqueia o form.', error);
                 });
-                await loadExistingFamilies();
-                
-                // Carregar lista de países
-                const countriesRes = await fetch('../js/countries.json');
-                countryList = await countriesRes.json();
-                
-                openEditModalBtn.disabled = false;
-                openEditModalBtn.innerHTML = '<i class="fa-solid fa-magnifying-glass" style="margin-right: 8px;"></i> Procurar p/ Editar';
-            } catch (error) {
-                console.error("Erro fatal na inicialização:", error);
-                openEditModalBtn.innerHTML = '<i class="fa-solid fa-circle-exclamation" style="margin-right: 8px;"></i> Erro';
-            }
         }
 
         // --- CONTROLO DA PERSPETIVA DA IMAGEM ---

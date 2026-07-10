@@ -8,7 +8,7 @@ import { db, auth } from "../js/firebase-config.js?v=5";
         import { GENDER_BOTH, collapseCombinedGenderItems, expandCombinedGenderItems, getGenderUi, getNextGenderValue, normalizeGenderValue } from "../js/gender-utils.js?v=2";
         import { getEcologyVisualMeta as getSharedEcologyVisualMeta, getEcologyModelSvg as getSharedEcologyModelSvg } from "../js/ecology-visuals.js?v=2";
 
-const FORM_JS_VERSION = '25_profile_photos';
+const FORM_JS_VERSION = '31_reproduction_placeholder';
 
 const FORM_MODULE_FILES = [
     './modules/form-state-catalogs.js',
@@ -21,6 +21,7 @@ const FORM_MODULE_FILES = [
     './modules/form-feeding.js',
     './modules/form-ecology.js',
     './modules/form-reproduction.js',
+    './modules/form-reproduction-parental-investment.js',
     './modules/form-plumage-editing.js',
     './modules/form-curiosities-categories.js',
     './modules/form-statistics-counter.js',
@@ -30,23 +31,40 @@ const FORM_MODULE_FILES = [
 async function loadFormModules() {
     const baseUrl = new URL('.', import.meta.url);
     const moduleSources = [];
+    const missingModules = [];
 
     for (const file of FORM_MODULE_FILES) {
         const url = new URL(`${file}?v=${FORM_JS_VERSION}`, baseUrl);
-        const response = await fetch(url, { cache: 'no-store' });
 
-        if (!response.ok) {
-            throw new Error(`Falha ao carregar ${file}: ${response.status} ${response.statusText}`);
+        try {
+            const response = await fetch(url, { cache: 'no-store' });
+
+            if (!response.ok) {
+                missingModules.push(`${file} (${response.status})`);
+                console.warn(`Form: módulo não encontrado, a continuar sem bloquear: ${file}`);
+                continue;
+            }
+
+            const source = await response.text();
+            moduleSources.push(`\n// ===== ${file} =====\n${source}`);
+        } catch (error) {
+            missingModules.push(`${file} (${error.message})`);
+            console.warn(`Form: falha ao carregar módulo, a continuar sem bloquear: ${file}`, error);
         }
+    }
 
-        const source = await response.text();
-        moduleSources.push(`\n// ===== ${file} =====\n${source}`);
+    if (!moduleSources.length) {
+        throw new Error('Nenhum módulo do formulário foi carregado.');
     }
 
     // Mantém a execução na mesma ordem e no mesmo escopo dos imports acima.
-    // Os blocos foram separados em ficheiros pequenos para facilitar manutenção,
-    // sem alterar a lógica original do formulário.
     eval(moduleSources.join('\n'));
+
+    if (missingModules.length) {
+        console.warn('Form: alguns módulos opcionais/core não foram carregados:', missingModules);
+    }
+
+    document.dispatchEvent(new CustomEvent('form:modules-loaded', { detail: { missingModules } }));
 }
 
 loadFormModules().catch((error) => {
@@ -56,4 +74,5 @@ loadFormModules().catch((error) => {
         statusMessage.textContent = 'Erro ao carregar o formulário. Verifica a consola.';
         statusMessage.className = 'error';
     }
+    document.dispatchEvent(new CustomEvent('form:modules-error', { detail: { error } }));
 });

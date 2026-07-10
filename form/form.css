@@ -638,6 +638,17 @@
             to { transform: rotate(360deg); }
         }
 
+        #loading-overlay.form-loading-hidden {
+            opacity: 0 !important;
+            visibility: hidden !important;
+            pointer-events: none !important;
+        }
+
+        #loading-overlay.form-loading-hidden .spinner,
+        #loading-overlay.form-loading-hidden #loading-status {
+            pointer-events: none !important;
+        }
+
         /* Ajustar o top-menu para ficar posicionado abaixo do cabeçalho flutuante */
         .top-menu {
             position: absolute !important;
@@ -2902,4 +2913,254 @@ body.edit-theme #tabpanel-ecologia {
     .perspective-actions {
         flex-direction: column;
     }
+}
+
+/* Distribuição — Regiões Biogeográficas */
+#tabpanel-distribuicao .distribution-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    gap: 28px;
+    align-items: start;
+}
+
+#tabpanel-distribuicao .distribution-editor,
+#tabpanel-distribuicao .map-container-wrapper {
+    min-width: 0;
+}
+
+.distribution-biogeographic-field {
+    grid-column: 1 / -1;
+    margin-top: 6px;
+    padding: 18px;
+    border: 1px solid rgba(180, 132, 255, 0.22);
+    border-radius: 18px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.035), rgba(124, 92, 255, 0.045));
+}
+
+.distribution-region-row-header,
+.distribution-region-row {
+    display: grid;
+    grid-template-columns: minmax(220px, 1fr) minmax(260px, 1.25fr) 44px;
+    gap: 12px;
+    align-items: center;
+}
+
+.distribution-region-row-header {
+    color: var(--text-secondary);
+    font-size: 0.72rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 8px;
+    padding: 0 6px;
+}
+
+.distribution-region-rows {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.distribution-region-row {
+    padding: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    background: rgba(0, 0, 0, 0.16);
+}
+
+.distribution-region-row select {
+    width: 100%;
+    min-height: 46px;
+    border-radius: 13px;
+    border: 1px solid rgba(180, 132, 255, 0.18);
+    background: #181322;
+    color: var(--text-primary);
+    padding: 0 14px;
+    font-weight: 800;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.025);
+    color-scheme: dark;
+}
+
+.distribution-region-row select:focus {
+    outline: none;
+    border-color: rgba(184, 132, 255, 0.78);
+    box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.14);
+}
+
+.distribution-region-row select option {
+    background: #1f1829;
+    color: #f4ecff;
+    font-weight: 700;
+}
+
+.distribution-region-row select option:checked,
+.distribution-region-row select option:hover {
+    background: #5b3d74;
+    color: #ffffff;
+}
+
+.remove-distribution-region-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 13px;
+    border: 1px solid rgba(255, 90, 90, 0.45);
+    background: rgba(255, 72, 72, 0.12);
+    color: #ffd2d2;
+    cursor: pointer;
+    font-size: 1.05rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease;
+}
+
+.remove-distribution-region-btn:hover,
+.remove-distribution-region-btn:focus-visible {
+    transform: translateY(-1px);
+    background: rgba(255, 72, 72, 0.22);
+    border-color: rgba(255, 120, 120, 0.75);
+    outline: none;
+}
+
+.add-distribution-region-btn {
+    margin-top: 12px;
+    width: auto !important;
+    min-height: 42px;
+    justify-content: flex-start !important;
+    border-radius: 12px !important;
+    padding: 11px 18px !important;
+}
+
+@media (max-width: 900px) {
+    #tabpanel-distribuicao .distribution-layout {
+        grid-template-columns: 1fr;
+        gap: 18px;
+    }
+
+    .distribution-biogeographic-field {
+        grid-column: 1;
+    }
+}
+
+@media (max-width: 720px) {
+    .distribution-region-row-header {
+        display: none;
+    }
+
+    .distribution-region-row {
+        grid-template-columns: 1fr 44px;
+        gap: 8px;
+        padding: 8px;
+    }
+
+    .distribution-region-row select {
+        min-height: 42px;
+        font-size: 0.84rem;
+        padding: 0 10px;
+    }
+
+    .distribution-region-type,
+    .distribution-region-value {
+        grid-column: 1;
+    }
+
+    .remove-distribution-region-btn {
+        grid-column: 2;
+        grid-row: 1 / span 2;
+        align-self: center;
+    }
+
+    .add-distribution-region-btn {
+        width: 100% !important;
+        justify-content: center !important;
+    }
+}
+
+/* =========================================================
+   Reprodução: Investimento Parental
+   ========================================================= */
+#subtabpanel-reproducao-modelo-visual .reproduction-row.reproduction-parental-row {
+    grid-template-columns: minmax(128px, 0.95fr) minmax(64px, 0.55fr) minmax(64px, 0.55fr) minmax(76px, 0.7fr) 46px 46px 42px !important;
+}
+
+#subtabpanel-reproducao-modelo-visual .reproduction-row.reproduction-parental-row .reproduction-type {
+    grid-column: auto !important;
+}
+
+#subtabpanel-reproducao-modelo-visual .parental-investment-select {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 100%;
+    min-width: 0;
+    color: #f8f4ff !important;
+    background: linear-gradient(135deg, rgba(31, 24, 46, 0.98), rgba(24, 18, 34, 0.98)) !important;
+    border: 1px solid rgba(178, 119, 255, 0.28) !important;
+    border-radius: 14px !important;
+    padding: 0 34px 0 14px !important;
+    font-weight: 800;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 8px 20px rgba(0,0,0,0.18);
+    background-image:
+        linear-gradient(45deg, transparent 50%, rgba(220, 198, 255, 0.95) 50%),
+        linear-gradient(135deg, rgba(220, 198, 255, 0.95) 50%, transparent 50%),
+        linear-gradient(135deg, rgba(31, 24, 46, 0.98), rgba(24, 18, 34, 0.98)) !important;
+    background-position:
+        calc(100% - 18px) 50%,
+        calc(100% - 12px) 50%,
+        0 0 !important;
+    background-size: 6px 6px, 6px 6px, 100% 100% !important;
+    background-repeat: no-repeat !important;
+}
+
+#subtabpanel-reproducao-modelo-visual .parental-investment-select:focus {
+    outline: none;
+    border-color: rgba(190, 134, 255, 0.78) !important;
+    box-shadow: 0 0 0 3px rgba(151, 91, 255, 0.18), inset 0 1px 0 rgba(255,255,255,0.06);
+}
+
+#subtabpanel-reproducao-modelo-visual .parental-investment-select option {
+    color: #fff;
+    background: #251b34;
+    font-weight: 700;
+}
+
+@media (max-width: 720px) {
+    #subtabpanel-reproducao-modelo-visual .reproduction-row.reproduction-parental-row {
+        grid-template-columns: 1fr 46px !important;
+    }
+
+    #subtabpanel-reproducao-modelo-visual .reproduction-row.reproduction-parental-row .reproduction-type,
+    #subtabpanel-reproducao-modelo-visual .reproduction-row.reproduction-parental-row .parental-investment-select {
+        grid-column: 1 / -1 !important;
+    }
+}
+
+
+/* Segurança: o overlay de autenticação nunca pode bloquear o formulário depois do auth. */
+#loading-overlay.form-loading-hidden,
+body.form-auth-ready #loading-overlay,
+body.form-ui-ready #loading-overlay {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+body.form-ui-ready #animalForm {
+    pointer-events: auto;
+}
+
+/* Auth guard: evita mostrar o formulário antes de confirmar login. */
+body.form-auth-pending > :not(#loading-overlay):not(script) {
+    visibility: hidden !important;
+    pointer-events: none !important;
+}
+body.form-auth-pending #loading-overlay {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+}
+body.form-auth-ready > :not(#loading-overlay),
+body.form-ui-ready > :not(#loading-overlay) {
+    visibility: visible;
 }

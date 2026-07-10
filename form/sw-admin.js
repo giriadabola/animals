@@ -1,4 +1,4 @@
-const CACHE_NAME = 'animals-admin-v1.0.9-form-folder';
+const CACHE_NAME = 'animals-admin-v1.0.12-parental-placeholder';
 
 const ASSETS_TO_CACHE = [
   './',

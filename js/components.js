@@ -1,6 +1,6 @@
 import { auth, db } from "./firebase-config.js?v=5";
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
-import { doc, getDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
+import { doc, onSnapshot } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
 
 export function injectHeader() {
     // Evita duplicar se já existir
@@ -61,7 +61,7 @@ export function injectHeader() {
     // Dynamic auth UI update
     const authSection = document.getElementById('header-auth-section');
     let unsubscribeProfile = null;
-    let unsubscribeAnimais = null;
+    let unsubscribeAnimais = null; // reservado para compatibilidade, mas sem snapshot global no form
 
     onAuthStateChanged(auth, async (user) => {
         // Limpar escutadores ativos ao mudar estado
@@ -119,39 +119,23 @@ export function injectHeader() {
                 console.error("Erro ao escutar dados do perfil:", err);
             });
 
-            // 2. Escutar a coleção de animais para contar os criados e editados pelo utilizador (apenas no form.html)
-            if (isForm) {
-                unsubscribeAnimais = onSnapshot(collection(db, "animais"), (snapshot) => {
-                    let criadosCount = 0;
-                    let editadosCount = 0;
-
-                    snapshot.forEach((animalDoc) => {
-                        const animalData = animalDoc.data();
-                        if (animalData.criadoPor === user.uid) {
-                            criadosCount++;
-                        }
-                        if (animalData.editado && Array.isArray(animalData.editado)) {
-                            const isEditedByUser = animalData.editado.some(
-                                (edit) => edit && edit.editadoPor === user.uid
-                            );
-                            if (isEditedByUser) {
-                                editadosCount++;
-                            }
-                        }
-                    });
-
-                    if (centerInfo) {
-                        centerInfo.innerHTML = `
-                            <span style="display: inline-flex; align-items: center; gap: 10px; background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color); padding: 8px 18px; border-radius: var(--border-radius-sm); font-size: 0.85rem; font-weight: 600; color: var(--text-secondary);">
-                                <i class="fa-solid fa-circle-plus" style="color: var(--primary-color);"></i> Criou: <strong style="color: var(--text-primary);">${criadosCount}</strong>
-                                <span style="opacity: 0.2;">|</span>
-                                <i class="fa-solid fa-pen-to-square" style="color: var(--accent-color);"></i> Editados: <strong style="color: var(--text-primary);">${editadosCount}</strong>
-                            </span>
-                        `;
-                    }
-                }, (err) => {
-                    console.error("Erro ao escutar coleção de animais:", err);
-                });
+            // 2. NÃO escutar a coleção inteira de animais no form.html.
+            //
+            // A versão anterior fazia:
+            //   onSnapshot(collection(db, "animais"), ...)
+            // apenas para contar "Criou" e "Editados" no cabeçalho.
+            //
+            // Isso obriga o browser a receber e percorrer TODOS os documentos de animais,
+            // incluindo arrays/campos grandes, logo ao abrir o formulário. Com muitos animais,
+            // o separador fica com a thread principal presa e até fechar a aba se torna difícil.
+            // O formulário não precisa destes contadores para funcionar, por isso o cabeçalho
+            // passa a mostrar apenas um atalho leve para o portefólio.
+            if (isForm && centerInfo) {
+                centerInfo.innerHTML = `
+                    <a href="../myportefolio.html" class="nav-link" style="display: inline-flex; align-items: center; gap: 8px; background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color); padding: 8px 18px; border-radius: var(--border-radius-sm); font-size: 0.85rem; font-weight: 600; color: var(--text-secondary); text-decoration: none;">
+                        <i class="fa-solid fa-table-list" style="color: var(--primary-color);"></i> Meu portefólio
+                    </a>
+                `;
             }
 
             authSection.innerHTML = `

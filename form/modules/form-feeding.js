@@ -77,10 +77,10 @@
         }
 
         const feedingModelOptions = [
-            'Tipo de Alimentação',
-            'Alimento Ingerido em Média',
             'Água bebida em Média',
-            'Estratégia para obter alimentos'
+            'Alimento Ingerido em Média',
+            'Estratégia para obter alimentos',
+            'Tipo de Alimentação'
         ];
 
         const feedingFoodUnits = ['g/dia', 'g/semana', 'g/mes', 'g/ano', 'kg/dia', 'kg/semana', 'kg/mes', 'kg/ano'];
@@ -342,13 +342,12 @@
 
         setFeedingData();
 
-        // --- ECOLOGIA E MODELO VISUAL ---
         const ecologyModelOptions = [
+            'Ameaças naturais',
+            'Competidores',
             'Função Ecológica',
             'Predadores naturais',
             'Presas',
-            'Competidores',
-            'Ameaças naturais',
             'Relações Simbióticas'
         ];
 

@@ -576,30 +576,113 @@
             updateScientificNameGate({ focusScientificField: true });
         }
 
+        let editModalLoadPromise = null;
+
+        function logEditModal(...args) {
+            console.log('[FORM][EDIT-MODAL]', ...args);
+        }
+        function warnEditModal(...args) {
+            console.warn('[FORM][EDIT-MODAL]', ...args);
+        }
+        function errorEditModal(...args) {
+            console.error('[FORM][EDIT-MODAL]', ...args);
+        }
+        function withEditModalTimeout(promise, ms, label) {
+            return Promise.race([
+                promise,
+                new Promise((_, reject) => {
+                    setTimeout(() => reject(new Error(`${label} demorou mais de ${ms}ms`)), ms);
+                })
+            ]);
+        }
+
         async function loadAllAnimalsForEditModal() {
-            if (editModalAnimals.length) return editModalAnimals;
-            editListContainer.innerHTML = '<p style="padding: 15px; text-align: center; color: var(--text-secondary);">A carregar todos os animais...</p>';
-            const querySnapshot = await getDocs(firestoreQuery(collection(db, "animais"), orderBy("timestamp", "desc")));
-            editModalAnimals = [];
-            querySnapshot.forEach(doc => { editModalAnimals.push({ id: doc.id, ...doc.data() }); });
-            editModalAnimals.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
-            return editModalAnimals;
+            const startTime = performance.now();
+            logEditModal('loadAllAnimalsForEditModal: início', { cached: editModalAnimals.length, allAnimals: allAnimals.length });
+
+            if (editModalAnimals.length) {
+                logEditModal('A usar cache editModalAnimals.', { total: editModalAnimals.length });
+                return editModalAnimals;
+            }
+
+            if (editModalLoadPromise) {
+                logEditModal('Já existe carregamento em curso. A reutilizar a mesma Promise.');
+                return editModalLoadPromise;
+            }
+
+            editListContainer.innerHTML = '<p style="padding: 15px; text-align: center; color: var(--text-secondary);">A carregar os últimos 15 animais...</p>';
+
+            editModalLoadPromise = (async () => {
+                try {
+                    let querySnapshot = null;
+
+                    try {
+                        logEditModal('Firestore: tentativa 1 — últimos 15 por timestamp...', { collection: 'animais', orderBy: 'timestamp desc', limit: 15 });
+                        querySnapshot = await withEditModalTimeout(
+                            getDocs(firestoreQuery(collection(db, "animais"), orderBy("timestamp", "desc"), limit(15))),
+                            5000,
+                            'getDocs últimos 15 por timestamp'
+                        );
+                    } catch (primaryError) {
+                        warnEditModal('Tentativa 1 falhou/demorou. Vou tentar fallback sem orderBy timestamp.', primaryError);
+                        querySnapshot = await withEditModalTimeout(
+                            getDocs(firestoreQuery(collection(db, "animais"), limit(15))),
+                            5000,
+                            'getDocs fallback limit(15) sem orderBy'
+                        );
+                    }
+
+                    editModalAnimals = [];
+                    querySnapshot.forEach(doc => { editModalAnimals.push({ id: doc.id, ...doc.data() }); });
+                    editModalAnimals.sort((a, b) => {
+                        const ta = typeof a.timestamp?.toMillis === 'function' ? a.timestamp.toMillis() : (a.timestamp || 0);
+                        const tb = typeof b.timestamp?.toMillis === 'function' ? b.timestamp.toMillis() : (b.timestamp || 0);
+                        return tb - ta;
+                    });
+
+                    logEditModal('Firestore: popup carregado.', {
+                        total: editModalAnimals.length,
+                        ms: Math.round(performance.now() - startTime),
+                        ids: editModalAnimals.map(a => a.id)
+                    });
+
+                    return editModalAnimals;
+                } finally {
+                    editModalLoadPromise = null;
+                }
+            })();
+
+            return editModalLoadPromise;
         }
 
         async function openModal() {
+            logEditModal('Clique no botão Procurar p/ Editar.', {
+                disabled: openEditModalBtn?.disabled,
+                allAnimals: allAnimals.length,
+                cachedEditAnimals: editModalAnimals.length
+            });
+
             editModalOverlay.style.display = 'flex';
             editSearchInput.value = '';
             activeEditQualityFilter = '';
             document.getElementById('editQualityFilterPanel').style.display = 'none';
             document.querySelectorAll('.quality-filter-choice').forEach(item => item.classList.remove('active'));
+
             try {
                 await loadAllAnimalsForEditModal();
                 refreshEditList();
+                logEditModal('Lista renderizada.', { rendered: getEditFilteredAnimals().length });
             } catch (error) {
-                console.error('Erro ao carregar todos os animais para edição:', error);
-                populateEditList(allAnimals);
+                errorEditModal('Erro ao carregar os últimos 15 animais para edição. Vou usar allAnimals como fallback.', error);
+                if (Array.isArray(allAnimals) && allAnimals.length) {
+                    populateEditList(allAnimals);
+                    warnEditModal('Fallback allAnimals usado.', { total: allAnimals.length });
+                } else {
+                    editListContainer.innerHTML = '<p style="padding: 15px; text-align: center; color: var(--text-secondary);">Não foi possível carregar a lista. Vê a consola para o motivo.</p>';
+                }
+            } finally {
+                requestAnimationFrame(() => editSearchInput.focus());
             }
-            editSearchInput.focus();
         }
         function closeModal() { editModalOverlay.style.display = 'none'; }
         
@@ -817,15 +900,15 @@
 
         // --- CURIOSIDADES E MODELO VISUAL ---
         const curiosidadesTypeOptions = [
-            'Também conhecido como',
             'Cor do animal',
+            'Distância Percorrida',
             'Estado de Conservação',
-            'Tipo de Comunicação',
-            'Temperatura do Ambiente',
-            'Relação com Humanos',
-            'Importância económica para os humanos',
             'Horas de Sono',
-            'Distância Percorrida'
+            'Importância económica para os humanos',
+            'Relação com Humanos',
+            'Também conhecido como',
+            'Temperatura do Ambiente',
+            'Tipo de Comunicação'
         ];
         const curiosidadesColorMap = {
             'Preto': '#111111',

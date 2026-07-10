@@ -1,10 +1,17 @@
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw-admin.js', { scope: './' })
-      .then((reg) => {
-        console.log('Service Worker de Administração registado:', reg.scope);
-        if (reg.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+  const registerAdminServiceWorker = () => {
+    navigator.serviceWorker.register('./sw-admin.js?v=20260710_parental_placeholder_1', { scope: './' })
+      .then((registration) => {
+        console.log('Service Worker de Administração registado:', registration.scope);
       })
-      .catch((err) => console.log('Erro ao registar o Service Worker de Administração:', err));
-  });
+      .catch((error) => {
+        console.warn('Falha ao registar Service Worker de Administração:', error);
+      });
+  };
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', registerAdminServiceWorker, { once: true });
+  } else {
+    registerAdminServiceWorker();
+  }
 }

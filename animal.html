@@ -178,6 +178,25 @@
             font-weight: 700;
         }
 
+        .reproduction-model-card.accent-parental-investment,
+        .parental-investment-card {
+            border-color: rgba(196, 140, 255, 0.34) !important;
+            background: linear-gradient(135deg, rgba(105, 54, 156, 0.24), rgba(36, 27, 52, 0.88)) !important;
+        }
+
+        .parental-investment-card .dimension-model-icon {
+            background: linear-gradient(135deg, rgba(167, 139, 250, 0.26), rgba(45, 212, 191, 0.12)) !important;
+            color: #c4b5fd !important;
+        }
+
+        .parental-investment-card .parental-investment-detail {
+            display: block;
+            margin-top: 2px;
+            font-size: 0.82rem;
+            color: rgba(255,255,255,0.68);
+            line-height: 1.35;
+        }
+
         /* Aumentar 30% em relação ao tamanho reduzido dos cards de Alimentação, Reprodução e Curiosidades */
         .feeding-model-card,
         .feeding-strategy-card,
@@ -541,6 +560,67 @@
         .ecology-animal-link-static {
             cursor: default;
         }
+
+
+        .distribution-countries-collapse {
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-sm);
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .distribution-countries-collapse summary {
+            list-style: none;
+            cursor: pointer;
+            padding: 15px;
+            color: var(--text-primary);
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .distribution-countries-collapse summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .distribution-countries-collapse summary i {
+            color: var(--accent-color);
+            transition: transform 0.2s ease;
+        }
+
+        .distribution-countries-collapse[open] summary i {
+            transform: rotate(180deg);
+        }
+
+        .distribution-countries-body {
+            border-top: 1px solid var(--border-color);
+            padding: 0 15px 15px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        .distribution-regions-card {
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-sm);
+            background: rgba(0, 0, 0, 0.16);
+            padding: 16px;
+        }
+
+        .distribution-regions-card .reproduction-model-grid {
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        }
+
+        .reproduction-model-card.accent-biogeographic-region {
+            --card-accent: #38bdf8;
+            --card-accent-soft: rgba(56, 189, 248, 0.16);
+        }
+
+        .reproduction-model-card.accent-biogeographic-region .dimension-model-icon {
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.24), rgba(34, 197, 94, 0.16));
+            color: #7dd3fc;
+        }
 </style>
 </head>
 <body>
@@ -902,6 +982,29 @@
                 return '<span class="dimension-model-gender-symbol female-symbol" aria-label="Fêmea" title="Fêmea">&#9792;</span>';
             }
             return '';
+        }
+
+        function renderInlineGenderPhaseSymbol(item) {
+            if (!item) return '';
+            let html = '';
+            
+            // Gender
+            const normalizedGender = normalizeGenderValue(item.genero || '', '');
+            if (normalizedGender === 'M') {
+                html += ' <span class="dimension-model-gender-symbol male-symbol" aria-label="Macho" title="Macho" style="font-size: 1rem; margin-left: 4px;">&#9794;</span>';
+            } else if (normalizedGender === 'F') {
+                html += ' <span class="dimension-model-gender-symbol female-symbol" aria-label="Fêmea" title="Fêmea" style="font-size: 1rem; margin-left: 4px;">&#9792;</span>';
+            }
+
+            // Phase
+            const phase = String(item.fase || '').trim().toLowerCase();
+            if (phase === 'cria') {
+                html += ' <span class="parental-investment-phase-symbol young-symbol" aria-label="Cria" title="Cria" style="font-size: 0.82rem; margin-left: 4px; opacity: 0.8;"><i class="fa-solid fa-baby"></i></span>';
+            } else if (phase === 'adulto') {
+                html += ' <span class="parental-investment-phase-symbol adult-symbol" aria-label="Adulto" title="Adulto" style="font-size: 0.82rem; margin-left: 4px; opacity: 0.8;"><i class="fa-solid fa-paw"></i></span>';
+            }
+
+            return html;
         }
 
         function formatGeneralVisualValue(item, fallback = '—') {
@@ -1651,6 +1754,7 @@
         
         function getReproductionVisualMeta(type = '') {
             const normalized = normalizeDimensionKey(type);
+            if (normalized.includes('investimento parental')) return { key: 'investimentoParental', title: type || 'Investimento Parental', accent: 'accent-parental-investment' };
             if (normalized.includes('acasalamento')) return { key: 'acasalamento', title: type || 'Acasalamento', accent: 'accent-generic' };
             if (normalized.includes('cria') || normalized.includes('filhote')) return { key: 'cuidado', title: type || 'Número de Crias', accent: 'accent-tail' };
             if (normalized.includes('gestacao') || normalized.includes('gestação') || normalized.includes('gravidez') || normalized.includes('tempo')) return { key: 'gestacao', title: type || 'Gestação', accent: 'accent-weight' };
@@ -1678,6 +1782,7 @@
                 celular: `<svg class="metric-model-svg reproduction-icon-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><circle cx="30" cy="40" r="18"/><circle cx="50" cy="40" r="18"/><path d="M40 23v34"/><circle cx="30" cy="40" r="4"/><circle cx="50" cy="40" r="4"/></svg>`,
                 fossil: `<svg class="metric-model-svg reproduction-icon-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M19 59c12-25 31-39 52-42c-3 22-17 39-42 52L19 59Z"/><path d="M31 56L58 29"/><path d="M23 67h35"/></svg>`,
                 cuidado: `<svg class="metric-model-svg reproduction-icon-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M14 43c6-16 18-25 36-24c11 1 20 7 25 17"/><path d="M21 47c8 13 20 20 36 20"/><circle cx="39" cy="47" r="8"/><path d="M55 35l12-4"/></svg>`,
+                investimentoParental: `<svg class="metric-model-svg reproduction-icon-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M17 48c5-14 15-22 29-22c13 0 23 8 28 22"/><path d="M22 52c7 11 17 17 31 17c10 0 18-4 24-12"/><circle cx="39" cy="43" r="8"/><path d="M39 35V22"/><path d="M30 22h18"/><path d="M16 32c5-8 12-12 21-12"/><path d="M64 32c-5-8-12-12-21-12"/></svg>`,
                 alimentacaoTipo: `<svg class="metric-model-svg reproduction-icon-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M22 20c13 0 23 8 23 21c0 12-9 20-23 20V20Z"/><path d="M48 23c8 3 13 10 13 19s-5 16-13 19"/><path d="M18 38h44"/><path d="M29 31c3 5 3 13 0 18"/></svg>`,
                 alimentoMedio: `<svg class="metric-model-svg reproduction-icon-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M24 28h32l-4 35H28L24 28Z"/><path d="M20 28h40"/><path d="M31 28c0-8 18-8 18 0"/><path d="M33 43h14"/><path d="M33 53h10"/></svg>`,
                 aguaMedia: `<svg class="metric-model-svg reproduction-icon-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M40 10c12 16 22 29 22 42c0 12-9 20-22 20S18 64 18 52c0-13 10-26 22-42Z"/><path d="M30 55c4 6 11 8 18 4"/><path d="M50 27c7 9 10 16 9 24"/></svg>`,
@@ -1689,6 +1794,22 @@
         function renderReproductionModelCard(item, animalData = {}) {
             const egg = hasCategory(animalData.categoria, 'Aves') ? getBirdEggVisualByLabel(item.tipo) : null;
             const inlineGenderSymbol = renderInlineGenderSymbol(item);
+            if (String(item.tipo || '').trim() === 'Investimento Parental') {
+                const etapa = String(item.etapa || item.valorMin || item.min || '').trim();
+                const cuidado = String(item.cuidado || item.valorMax || item.max || item.detalhe || '').trim();
+                const responsavel = String(item.responsavel || item.unidade || item.unit || '').trim();
+                const linhaPrincipal = cuidado || etapa || 'Investimento parental';
+                const detalhe = [etapa, responsavel].filter(Boolean).join(' • ');
+                return `
+                <article class="dimension-model-card reproduction-model-card parental-investment-card accent-parental-investment">
+                    <div class="dimension-model-icon">${getReproductionModelSvg('investimentoParental')}</div>
+                    <div class="dimension-model-copy">
+                        <div class="dimension-model-label${inlineGenderSymbol ? ' with-gender' : ''}">${escapeHtml(linhaPrincipal)}${inlineGenderSymbol}</div>
+                        <div class="dimension-model-value">Investimento Parental</div>
+                        ${detalhe ? `<span class="parental-investment-detail">${escapeHtml(detalhe)}</span>` : ''}
+                    </div>
+                </article>`;
+            }
             if (egg) {
                 return `
                     <article class="dimension-model-card reproduction-model-card bird-egg-selected-card">
@@ -2268,6 +2389,69 @@
             }
         }
 
+
+
+        function normalizeDistributionRegions(distributionData = {}) {
+            const raw = distributionData.regioesBiogeograficas || distributionData.regioes || [];
+            if (!Array.isArray(raw)) return [];
+            return raw
+                .map(item => {
+                    if (!item) return null;
+                    const tipo = String(item.tipo || item.type || 'Regiões Biogeográficas').trim() || 'Regiões Biogeográficas';
+                    const valor = String(item.valor || item.regiao || item.region || '').trim();
+                    if (!valor) return null;
+                    return { tipo: 'Regiões Biogeográficas', valor };
+                })
+                .filter(Boolean)
+                .filter((item, index, arr) => arr.findIndex(other => other.tipo === item.tipo && other.valor === item.valor) === index)
+                .sort((a, b) => a.valor.localeCompare(b.valor, 'pt-PT'));
+        }
+
+        function renderCountriesCollapse() {
+            return `
+                <details class="distribution-countries-collapse">
+                    <summary>
+                        <span>Países assinalados:</span>
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </summary>
+                    <div class="distribution-countries-body">
+                        <span class="highlightedCountriesNames">Carregando...</span>
+                    </div>
+                </details>`;
+        }
+
+        function getBiogeographicRegionSvg() {
+            return `<svg class="metric-model-svg reproduction-icon-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="40" cy="40" r="27"/>
+                <path d="M13 40h54"/>
+                <path d="M40 13c8 7 13 16 13 27S48 60 40 67"/>
+                <path d="M40 13c-8 7-13 16-13 27s5 20 13 27"/>
+                <path d="M21 24c10 5 28 5 38 0"/>
+                <path d="M21 56c10-5 28-5 38 0"/>
+                <path d="M34 32l6-4l7 3l-2 6l-8 1l-3-6Z"/>
+                <path d="M27 45l7-2l5 5l-3 7l-8-2l-1-8Z"/>
+            </svg>`;
+        }
+
+        function renderDistributionRegionsCard(distributionData = {}) {
+            const regions = normalizeDistributionRegions(distributionData);
+            if (!regions.length) return '';
+            return `
+                <div class="distribution-regions-card reproduction-visual-card">
+                    <div class="reproduction-model-grid">
+                        ${regions.map(item => `
+                            <article class="dimension-model-card reproduction-model-card accent-biogeographic-region">
+                                <div class="dimension-model-icon">${getBiogeographicRegionSvg()}</div>
+                                <div class="dimension-model-copy">
+                                    <div class="dimension-model-label">${escapeHtml(item.valor)}</div>
+                                    <div class="dimension-model-value">Regiões Biogeográficas</div>
+                                </div>
+                            </article>
+                        `).join('')}
+                    </div>
+                </div>`;
+        }
+
         function renderAnimalData(animalData, animalId) {
             console.log("Loaded animalData in browser:", animalData);
             document.title = `${animalData.nome} - Grandes Projetos`;
@@ -2326,10 +2510,12 @@
             const hasPlumagemVisual = Array.isArray(animalData.informacao?.plumagemDetalhada) && animalData.informacao.plumagemDetalhada.some(item => item?.tipo || item?.detalhe);
             const hasPlumagem = hasPlumagemText || hasPlumagemVisual;
             
+            const distributionRegions = normalizeDistributionRegions(animalData.informacao?.distribuicao || {});
             const hasDistribicaoText = animalData.informacao?.distribuicao?.descricao && animalData.informacao.distribuicao.descricao.trim() !== "";
             const hasDistribicao = animalData.informacao?.distribuicao && 
                                    ((Array.isArray(animalData.informacao.distribuicao.paises) && animalData.informacao.distribuicao.paises.length > 0) || 
-                                    hasDistribicaoText);
+                                    hasDistribicaoText ||
+                                    distributionRegions.length > 0);
 
             const hasCuriosidadesText = animalData.informacao?.curiosidades?.texto && animalData.informacao.curiosidades.texto.trim() !== "";
             const hasCuriosidadesVisual = animalData.informacao?.curiosidades && (
@@ -2574,10 +2760,8 @@
                                 <div class="map-container-wrapper">
                                     <div class="map-container" id="distributionMapDetailDesktop" style="height: 320px;"></div>
                                 </div>
-                                <div style="font-size: 0.95rem; line-height: 1.5; background: rgba(0,0,0,0.2); padding: 15px; border-radius: var(--border-radius-sm); border: 1px solid var(--border-color);">
-                                    <strong style="color: var(--text-primary); display: block; margin-bottom: 5px;">Países assinalados:</strong> 
-                                    <span class="highlightedCountriesNames" style="color: var(--text-secondary);">Carregando...</span>
-                                </div>
+                                ${renderCountriesCollapse()}
+                                ${renderDistributionRegionsCard(animalData.informacao.distribuicao)}
                             </div>
                         </div>` : ''}
 
@@ -2728,10 +2912,8 @@
                                     <div class="map-container-wrapper">
                                         <div class="map-container" id="distributionMapDetailMobile" style="height: 320px;"></div>
                                     </div>
-                                    <div style="font-size: 0.95rem; line-height: 1.5; background: rgba(0,0,0,0.2); padding: 15px; border-radius: var(--border-radius-sm); border: 1px solid var(--border-color);">
-                                        <strong style="color: var(--text-primary); display: block; margin-bottom: 5px;">Países assinalados:</strong> 
-                                        <span class="highlightedCountriesNames" style="color: var(--text-secondary);">Carregando...</span>
-                                    </div>
+                                    ${renderCountriesCollapse()}
+                                    ${renderDistributionRegionsCard(animalData.informacao.distribuicao)}
                                 </div>
                             </div>` : ''}
 
