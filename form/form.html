@@ -27,7 +27,7 @@
     <script src="https://cdn.jsdelivr.net/npm/jsvectormap"></script>
     <script src="https://cdn.jsdelivr.net/npm/jsvectormap/dist/maps/world.js"></script>
     <script src="./form-cache.js?v=20260709_portfolio_1"></script>
-    <link rel="stylesheet" href="./form.css?v=20260710_auth_flash_fix_1">
+    <link rel="stylesheet" href="./form.css?v=20260710_audio_1">
 
     <style id="form-auth-critical-css">
         /* Evita flash do formulário antes de confirmar login. */
@@ -736,6 +736,11 @@
                         <label for="video5">Vídeo 5</label>
                         <input type="url" id="video5" placeholder="URL do YouTube">
                     </div>
+                    <div class="form-group xeno-audio-form-group">
+                        <label for="xenoCantoAudioId">Áudio xeno-canto</label>
+                        <input type="text" id="xenoCantoAudioId" inputmode="numeric" pattern="[0-9]*" placeholder="Código do áudio, ex: 1067401">
+                        <small class="form-hint">Coloca apenas o número da gravação. Ex: 1067401.</small>
+                    </div>
                 </div>
             </fieldset>
             
@@ -912,7 +917,7 @@
     <!-- Componentes e Lógica -->
     <script type="module" src="../js/components.js?v=20260710_no_animais_snapshot_1"></script>
     <script src="./modules/form-distribution-regions.js?v=20260710_1"></script>
-    <script type="module" src="./form.js?v=20260710_reproduction_placeholder_1"></script>
+    <script type="module" src="./form.js?v=20260710_edit_modal_global_search_1"></script>
     <!-- Service Worker PWA -->
     <script src="./sw-register.js?v=20260710_no_animais_snapshot_1"></script>
 </body>

@@ -266,3 +266,66 @@
         max-height: 950px;
     }
 }
+
+/* Áudio xeno-canto da página do animal */
+.animal-media-action-audio {
+    color: #bbf7d0;
+    border-color: rgba(34, 197, 94, 0.24);
+    background: rgba(22, 101, 52, 0.18);
+}
+
+.animal-media-action-audio:hover,
+.animal-media-action-audio:focus-visible {
+    border-color: rgba(34, 197, 94, 0.52);
+    background: rgba(22, 101, 52, 0.32);
+}
+
+.animal-audio-panel {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 12px;
+    padding: 8px;
+    border-radius: 999px;
+    border: 1px solid rgba(34, 197, 94, 0.22);
+    background: rgba(9, 9, 20, 0.72);
+    box-shadow: 0 16px 34px rgba(0, 0, 0, 0.22), inset 0 1px 0 rgba(255,255,255,0.05);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+.animal-audio-panel[hidden] {
+    display: none !important;
+}
+
+.animal-audio-control {
+    height: 38px;
+    padding: 0 13px;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.04);
+    color: rgba(255, 255, 255, 0.86);
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    cursor: pointer;
+    font-weight: 800;
+    letter-spacing: 0.01em;
+}
+
+.animal-audio-control:hover,
+.animal-audio-control:focus-visible {
+    border-color: rgba(34, 197, 94, 0.36);
+    background: rgba(34, 197, 94, 0.14);
+    color: #ffffff;
+    outline: none;
+}
+
+.animal-audio-control svg {
+    width: 17px;
+    height: 17px;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}

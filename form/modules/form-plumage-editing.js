@@ -329,7 +329,17 @@
         }
 
         function getEditModalSourceAnimals() {
-            return Array.isArray(editModalAnimals) && editModalAnimals.length ? editModalAnimals : allAnimals;
+            const source = [];
+            const seen = new Set();
+            const addAnimal = (animal) => {
+                if (!animal?.id || seen.has(animal.id)) return;
+                seen.add(animal.id);
+                source.push(animal);
+            };
+
+            if (Array.isArray(editModalAnimals)) editModalAnimals.forEach(addAnimal);
+            if (Array.isArray(allAnimals)) allAnimals.forEach(addAnimal);
+            return source;
         }
 
         function getAnimalQualityLevel(animal = {}) {
@@ -386,7 +396,90 @@
             populateEditList(getEditFilteredAnimals());
         }
 
-        editSearchInput.addEventListener('input', refreshEditList);
+        let editModalFullSearchLoaded = false;
+        let editModalFullSearchPromise = null;
+        let editModalSearchDebounceTimer = null;
+
+        function mergeAnimalsIntoEditCache(animals = []) {
+            if (!Array.isArray(animals) || !animals.length) return;
+            if (!Array.isArray(editModalAnimals)) editModalAnimals = [];
+            if (!Array.isArray(allAnimals)) allAnimals = [];
+
+            const upsert = (list, animal) => {
+                if (!animal?.id) return;
+                const index = list.findIndex(item => item.id === animal.id);
+                if (index >= 0) {
+                    list[index] = { ...list[index], ...animal };
+                } else {
+                    list.push(animal);
+                }
+            };
+
+            animals.forEach(animal => {
+                upsert(editModalAnimals, animal);
+                upsert(allAnimals, animal);
+            });
+        }
+
+        async function ensureEditModalFullSearchLoaded() {
+            if (editModalFullSearchLoaded) return;
+            if (editModalFullSearchPromise) return editModalFullSearchPromise;
+
+            editModalFullSearchPromise = (async () => {
+                const startTime = performance.now();
+                logEditModal('Pesquisa global: a carregar todos os animais para procurar fora dos últimos 15...');
+                const querySnapshot = await withEditModalTimeout(
+                    getDocs(collection(db, "animais")),
+                    12000,
+                    'getDocs pesquisa global de animais'
+                );
+
+                const fetchedAnimals = [];
+                querySnapshot.forEach(doc => fetchedAnimals.push({ id: doc.id, ...doc.data() }));
+                mergeAnimalsIntoEditCache(fetchedAnimals);
+                editModalFullSearchLoaded = true;
+
+                logEditModal('Pesquisa global: concluída.', {
+                    total: fetchedAnimals.length,
+                    ms: Math.round(performance.now() - startTime)
+                });
+            })().finally(() => {
+                editModalFullSearchPromise = null;
+            });
+
+            return editModalFullSearchPromise;
+        }
+
+        async function refreshEditListWithGlobalSearch() {
+            const searchTerm = editSearchInput.value.trim();
+
+            refreshEditList();
+
+            // O popup abre rápido com os últimos 15. Só quando o utilizador pesquisa é que
+            // carregamos o resto da coleção, para encontrar animais que não estão nessa lista.
+            if (searchTerm.length < 2 || editModalFullSearchLoaded) return;
+
+            const currentToken = normalizeString(searchTerm);
+            const currentResults = getEditFilteredAnimals();
+            if (currentResults.length) return;
+
+            editListContainer.innerHTML = '<p style="padding: 15px; text-align: center; color: var(--text-secondary);">A procurar na base de dados...</p>';
+
+            try {
+                await ensureEditModalFullSearchLoaded();
+            } catch (error) {
+                warnEditModal('Pesquisa global falhou. A manter resultados já carregados.', error);
+            }
+
+            // Se o utilizador mudou a pesquisa durante o carregamento, não repomos resultados antigos.
+            if (normalizeString(editSearchInput.value.trim()) !== currentToken) return;
+            refreshEditList();
+        }
+
+        editSearchInput.addEventListener('input', () => {
+            clearTimeout(editModalSearchDebounceTimer);
+            editModalSearchDebounceTimer = setTimeout(refreshEditListWithGlobalSearch, 220);
+        });
 
         const editQualityFilterBtn = document.getElementById('editQualityFilterBtn');
         const editQualityFilterPanel = document.getElementById('editQualityFilterPanel');
@@ -496,7 +589,18 @@
                 document.getElementById(`video${i + 1}`).value = videoVal;
                 if (videoVal) hasVideos = true;
             }
-            toggleVideosFieldset(hasVideos);
+            const audioVal = String(
+                animal.xenoCantoAudioId ||
+                animal.audioXenoCantoId ||
+                animal.xenoCantoId ||
+                animal.informacao?.xenoCantoAudioId ||
+                animal.informacao?.audioXenoCantoId ||
+                animal.informacao?.audio?.codigo ||
+                ''
+            ).replace(/\D/g, '');
+            const audioInput = document.getElementById('xenoCantoAudioId');
+            if (audioInput) audioInput.value = audioVal;
+            toggleVideosFieldset(hasVideos || Boolean(audioVal));
             closeModal();
             switchToEditMode(animalId);
             updatePlumagemTabVisibility();

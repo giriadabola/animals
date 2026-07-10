@@ -14,8 +14,8 @@
     <meta name="apple-mobile-web-app-title" content="Animais">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <!-- CSS Global -->
-    <link rel="stylesheet" href="css/style.css?v=1.0.3">
-    <link rel="stylesheet" href="css/anatomy-viewer.css?v=20260709_profile_950_1">
+    <link rel="stylesheet" href="css/style.css?v=20260710_audio_2">
+    <link rel="stylesheet" href="css/anatomy-viewer.css?v=20260710_audio_2">
     <script src="js/runtime-guard.js"></script>
     <!-- jsVectorMap -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsvectormap/dist/css/jsvectormap.min.css">
@@ -180,13 +180,42 @@
 
         .reproduction-model-card.accent-parental-investment,
         .parental-investment-card {
-            border-color: rgba(196, 140, 255, 0.34) !important;
-            background: linear-gradient(135deg, rgba(105, 54, 156, 0.24), rgba(36, 27, 52, 0.88)) !important;
+            --model-accent: #c4b5fd;
+            --model-accent-soft: rgba(196, 181, 253, 0.18);
+            --model-accent-glow: rgba(168, 85, 247, 0.26);
+        }
+
+        .parental-investment-card {
+            border-color: color-mix(in srgb, var(--model-accent) 35%, var(--border-color)) !important;
+            background:
+                radial-gradient(circle at top right, var(--model-accent-soft), transparent 48%),
+                linear-gradient(180deg, rgba(255,255,255,0.045), rgba(255,255,255,0.018)) !important;
+            box-shadow:
+                inset 0 1px 0 rgba(255,255,255,0.04),
+                0 10px 28px -24px var(--model-accent-glow) !important;
+            color: var(--model-accent) !important;
         }
 
         .parental-investment-card .dimension-model-icon {
-            background: linear-gradient(135deg, rgba(167, 139, 250, 0.26), rgba(45, 212, 191, 0.12)) !important;
-            color: #c4b5fd !important;
+            width: 44px !important;
+            height: 44px !important;
+            min-width: 44px !important;
+            border-radius: 12px !important;
+            background: color-mix(in srgb, var(--model-accent) 12%, rgba(255,255,255,0.04)) !important;
+            border-color: color-mix(in srgb, var(--model-accent) 24%, rgba(255,255,255,0.06)) !important;
+            color: var(--model-accent) !important;
+        }
+
+        .parental-investment-card .dimension-model-icon svg {
+            width: 28px !important;
+            height: 28px !important;
+        }
+
+        .parental-investment-card .dimension-model-copy {
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
 
         .parental-investment-card .parental-investment-detail {
@@ -195,6 +224,53 @@
             font-size: 0.82rem;
             color: rgba(255,255,255,0.68);
             line-height: 1.35;
+        }
+
+        .parental-investment-card .parental-investment-stage {
+            color: #ffffff !important;
+            font-size: 1.18rem !important;
+            line-height: 1.16 !important;
+            font-weight: 800 !important;
+        }
+
+        .parental-investment-care-list {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            margin: 4px 0 3px;
+            color: rgba(255,255,255,0.88);
+            font-size: 0.92rem;
+            font-weight: 700;
+            line-height: 1.25;
+        }
+
+        .parental-investment-care-row {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+
+        .parental-investment-actor-text {
+            color: rgba(255,255,255,0.68);
+            font-size: 0.82rem;
+            font-weight: 600;
+        }
+
+        .parental-investment-card .dimension-model-value {
+            color: var(--text-secondary) !important;
+            font-size: 0.92rem !important;
+            line-height: 1.25 !important;
+            font-weight: 600 !important;
+            margin-top: 2px !important;
+        }
+
+        .parental-investment-phase-symbol.young-symbol {
+            color: #f9a8d4;
+        }
+
+        .parental-investment-phase-symbol.adult-symbol {
+            color: #c4b5fd;
         }
 
         /* Aumentar 30% em relação ao tamanho reduzido dos cards de Alimentação, Reprodução e Curiosidades */
@@ -639,7 +715,8 @@
         import { ecologyBlockConfigs, getEcologyBlockSvg } from "./js/ecology-visuals.js?v=1";
         import { getGeneralVisualMeta as getGeneralVisualCatalogMeta, getGeneralModelSvg as getGeneralCatalogModelSvg, getActivityMeta, getActivitySvg, getSocialMeta, getSocialSvg, getEcologicalFunctionMeta, getEcologicalFunctionSvg, getLocomotionMeta, getLocomotionSvg } from "./js/general-visual-catalog.js";
         import { collapseCombinedGenderItems, collectConcreteGenders, genderMatchesSelection, normalizeGenderValue } from "./js/gender-utils.js?v=2";
-        import { renderAnatomyBlock, initAnatomyViewer } from "./js/anatomy-viewer.js?v=4";
+        import { renderAnatomyBlock, initAnatomyViewer } from "./js/anatomy-viewer.js?v=20260710_audio_3";
+        import { renderAnimalAudioThumbnail, initAnimalAudioControls } from "./js/animal-audio.js?v=20260710_audio_3";
         
         const mainContent = document.getElementById('main-content-area');
 
@@ -1005,6 +1082,84 @@
             }
 
             return html;
+        }
+
+        function isParentalInvestmentItem(item) {
+            if (!item) return false;
+            const type = String(item.tipo || '').trim();
+            return type === 'Investimento Parental' || type === 'parental_investment';
+        }
+
+        function getParentalStageValue(item) {
+            return String(item?.etapa || item?.valorMin || item?.min || '').trim();
+        }
+
+        function getParentalCareValue(item) {
+            return String(item?.cuidado || item?.valorMax || item?.max || item?.detalhe || '').trim();
+        }
+
+        function getParentalResponsibleValue(item) {
+            return String(item?.responsavel || item?.unidade || item?.unit || '').trim();
+        }
+
+        function renderParentalActorMarker(item) {
+            const responsible = getParentalResponsibleValue(item);
+            if (!responsible || normalizeDimensionKey(responsible) === 'nenhum') return '';
+            const normalized = normalizeDimensionKey(responsible);
+            let html = '';
+
+            const hasMale = normalized.includes('macho') || normalized.includes('pai') || normalized.includes('masculino') || normalized.includes('casal') || normalized.includes('ambos');
+            const hasFemale = normalized.includes('femea') || normalized.includes('mae') || normalized.includes('feminino') || normalized.includes('casal') || normalized.includes('ambos');
+
+            if (hasMale) {
+                html += '<span class="dimension-model-gender-symbol male-symbol" aria-label="Macho" title="Macho">&#9794;</span>';
+            }
+            if (hasFemale) {
+                html += '<span class="dimension-model-gender-symbol female-symbol" aria-label="Fêmea" title="Fêmea">&#9792;</span>';
+            }
+            if (!html && (normalized.includes('cria') || normalized.includes('juvenil'))) {
+                html = '<span class="parental-investment-phase-symbol young-symbol" aria-label="Cria" title="Cria"><i class="fa-solid fa-baby"></i></span>';
+            }
+            if (!html && (normalized.includes('adulto') || normalized.includes('progenitor') || normalized.includes('reprodutor'))) {
+                html = '<span class="parental-investment-phase-symbol adult-symbol" aria-label="Adulto" title="Adulto"><i class="fa-solid fa-paw"></i></span>';
+            }
+            if (html) return html;
+
+            return `<span class="parental-investment-actor-text">${escapeHtml(responsible)}</span>`;
+        }
+
+        function renderParentalInvestmentGroupCard(group) {
+            const stage = group.stage || 'Fase não definida';
+            const seen = new Set();
+            const careRows = group.items.map(item => {
+                const care = getParentalCareValue(item) || 'Cuidado parental';
+                const responsible = getParentalResponsibleValue(item);
+                const dedupeKey = `${normalizeDimensionKey(care)}|${normalizeDimensionKey(responsible)}`;
+                if (seen.has(dedupeKey)) return '';
+                seen.add(dedupeKey);
+                return `<div class="parental-investment-care-row"><span>${escapeHtml(care)}</span>${renderParentalActorMarker(item)}</div>`;
+            }).filter(Boolean).join('');
+
+            return `
+                <article class="dimension-model-card reproduction-model-card parental-investment-card accent-parental-investment">
+                    <div class="dimension-model-icon">${getReproductionModelSvg('investimentoParental')}</div>
+                    <div class="dimension-model-copy">
+                        <div class="dimension-model-label parental-investment-stage">${escapeHtml(stage)}</div>
+                        <div class="parental-investment-care-list">${careRows || '<div class="parental-investment-care-row"><span>Cuidado parental</span></div>'}</div>
+                        <div class="dimension-model-value">Investimento Parental</div>
+                    </div>
+                </article>`;
+        }
+
+        function groupParentalInvestmentItems(items) {
+            const groups = new Map();
+            items.forEach(item => {
+                const stage = getParentalStageValue(item) || 'Fase não definida';
+                const key = normalizeDimensionKey(stage) || '__sem_fase__';
+                if (!groups.has(key)) groups.set(key, { stage, items: [] });
+                groups.get(key).items.push(item);
+            });
+            return Array.from(groups.values());
         }
 
         function formatGeneralVisualValue(item, fallback = '—') {
@@ -1794,21 +1949,11 @@
         function renderReproductionModelCard(item, animalData = {}) {
             const egg = hasCategory(animalData.categoria, 'Aves') ? getBirdEggVisualByLabel(item.tipo) : null;
             const inlineGenderSymbol = renderInlineGenderSymbol(item);
-            if (String(item.tipo || '').trim() === 'Investimento Parental') {
-                const etapa = String(item.etapa || item.valorMin || item.min || '').trim();
-                const cuidado = String(item.cuidado || item.valorMax || item.max || item.detalhe || '').trim();
-                const responsavel = String(item.responsavel || item.unidade || item.unit || '').trim();
-                const linhaPrincipal = cuidado || etapa || 'Investimento parental';
-                const detalhe = [etapa, responsavel].filter(Boolean).join(' • ');
-                return `
-                <article class="dimension-model-card reproduction-model-card parental-investment-card accent-parental-investment">
-                    <div class="dimension-model-icon">${getReproductionModelSvg('investimentoParental')}</div>
-                    <div class="dimension-model-copy">
-                        <div class="dimension-model-label${inlineGenderSymbol ? ' with-gender' : ''}">${escapeHtml(linhaPrincipal)}${inlineGenderSymbol}</div>
-                        <div class="dimension-model-value">Investimento Parental</div>
-                        ${detalhe ? `<span class="parental-investment-detail">${escapeHtml(detalhe)}</span>` : ''}
-                    </div>
-                </article>`;
+            if (isParentalInvestmentItem(item)) {
+                return renderParentalInvestmentGroupCard({
+                    stage: getParentalStageValue(item) || 'Fase não definida',
+                    items: [item]
+                });
             }
             if (egg) {
                 return `
@@ -1854,13 +1999,20 @@
                 ...(animalData.informacao?.reproducaoDetalhada || []),
                 ...getLegacyGeneralMatingReproductionItems(animalData.informacao?.geralDetalhada || [])
             ];
-            const valid = Array.isArray(reproduction) ? reproduction.filter(item => item.tipo || item.detalhe) : [];
+            const valid = Array.isArray(reproduction) ? reproduction.filter(item => item.tipo || item.detalhe || item.etapa || item.cuidado) : [];
             if (!valid.length) return '';
+
+            const parentalItems = valid.filter(isParentalInvestmentItem);
+            const regularItems = valid.filter(item => !isParentalInvestmentItem(item));
+            const cards = [
+                ...regularItems.map(item => renderReproductionModelCard(item, animalData)),
+                ...groupParentalInvestmentItems(parentalItems).map(renderParentalInvestmentGroupCard)
+            ].join('');
 
             return `
                 <div class="reproduction-visual-card">
                     <div class="reproduction-model-grid">
-                        ${valid.map(item => renderReproductionModelCard(item, animalData)).join('')}
+                        ${cards}
                     </div>
                 </div>`;
         }
@@ -2468,6 +2620,7 @@
                     }
                 });
             }
+            thumbnailsHTML += renderAnimalAudioThumbnail(animalData);
 
             const hasGeralText = animalData.informacao && animalData.informacao.geral && animalData.informacao.geral.trim() !== "";
             const hasGeralVisual = Array.isArray(animalData.informacao?.geralDetalhada) && animalData.informacao.geralDetalhada.some(item => item?.tipo && (item?.valor || item?.valorMin || item?.valorMax) && !isLegacyGeneralMatingItem(item));
@@ -2931,6 +3084,7 @@
                 </div>`;
 
             initAnatomyViewer(mainContent);
+            initAnimalAudioControls(mainContent);
             
             if (hasDistribicao) {
                 const selectedCodes = animalData.informacao.distribuicao.paises || [];
@@ -3133,7 +3287,7 @@
                 }
             }
 
-            document.querySelectorAll('.thumbnail').forEach(thumb => {
+            document.querySelectorAll('.thumbnail[data-video-url]').forEach(thumb => {
                 thumb.addEventListener('click', () => {
                     playVideo(thumb.dataset.videoUrl, thumb);
                 });

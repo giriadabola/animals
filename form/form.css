@@ -3164,3 +3164,15 @@ body.form-auth-ready > :not(#loading-overlay),
 body.form-ui-ready > :not(#loading-overlay) {
     visibility: visible;
 }
+
+.xeno-audio-form-group input {
+    letter-spacing: 0.04em;
+    font-weight: 700;
+}
+
+.xeno-audio-form-group .form-hint {
+    display: block;
+    margin-top: 7px;
+    font-size: 0.82rem;
+    color: var(--text-secondary, #8a94a6);
+}

@@ -1,3 +1,5 @@
+import { getAnimalAudioId, getAnimalAudioIconSvg } from './animal-audio.js?v=20260710_audio_2';
+
 const BIRD_MANIFEST_PATH = 'assets/anatomy/birds/parts/manifest.json';
 
 const anatomyLabels = {
@@ -266,6 +268,8 @@ export function renderAnatomyBlock(animalData = {}, animalId = '') {
 
     const profileBadgesHTML = getProfileImageBadges(animalData);
 
+    const audioId = getAnimalAudioId(animalData);
+
     return `
         <section class="anatomy-widget" ${supportsAnatomy ? `data-manifest="${BIRD_MANIFEST_PATH}"` : ''}>
             <div class="animal-image">
@@ -281,7 +285,22 @@ export function renderAnatomyBlock(animalData = {}, animalId = '') {
                 <a class="animal-media-action" href="${compareHref}" aria-label="Comparação" title="Comparação">
                     ${getActionIconSvg('comparacao')}
                 </a>
+                ${audioId ? `
+                    <button type="button" class="animal-media-action animal-media-action-audio" data-animal-audio-panel-toggle data-audio-id="${escapeHtml(audioId)}" aria-label="Áudio" title="Áudio">
+                        ${getAnimalAudioIconSvg('audio')}
+                    </button>
+                ` : ''}
             </div>
+            ${audioId ? `
+                <div class="animal-audio-panel" data-animal-audio-panel hidden>
+                    <button type="button" class="animal-audio-control" data-animal-audio-pause data-audio-id="${escapeHtml(audioId)}">
+                        ${getAnimalAudioIconSvg('pause')}<span>Pause</span>
+                    </button>
+                    <button type="button" class="animal-audio-control" data-animal-audio-stop data-audio-id="${escapeHtml(audioId)}">
+                        ${getAnimalAudioIconSvg('stop')}<span>Parar</span>
+                    </button>
+                </div>
+            ` : ''}
             ${supportsAnatomy ? `
                 <div class="anatomy-panel" data-anatomy-panel hidden>
                     <div class="anatomy-panel-head">

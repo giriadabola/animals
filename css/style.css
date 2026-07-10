@@ -5253,3 +5253,78 @@ button[type="submit"]:hover {
         margin-left: 0;
     }
 }
+
+/* Miniatura modular de áudio xeno-canto */
+.animal-audio-thumbnail {
+    width: 190px;
+    height: 105px;
+    padding: 0;
+    border: 2px solid transparent;
+    background: rgba(9, 9, 20, 0.72);
+    appearance: none;
+    -webkit-appearance: none;
+}
+
+.animal-audio-thumbnail img {
+    width: 100%;
+    height: 100%;
+    filter: blur(5px) saturate(1.08) brightness(0.72);
+    transform: scale(1.08);
+}
+
+.animal-audio-thumbnail:hover img,
+.animal-audio-thumbnail.is-playing img {
+    transform: scale(1.13);
+}
+
+.animal-audio-thumbnail.is-playing,
+.animal-audio-thumbnail:hover {
+    border-color: var(--primary-color);
+}
+
+.animal-audio-thumbnail-blur {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at center, rgba(34, 197, 94, 0.20), rgba(9, 9, 20, 0.18) 44%, rgba(9, 9, 20, 0.72));
+    pointer-events: none;
+}
+
+.animal-audio-play-icon svg {
+    width: 28px;
+    height: 28px;
+    stroke: currentColor;
+    stroke-width: 1.7;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.animal-audio-thumbnail.is-playing .animal-audio-play-icon {
+    background-color: var(--primary-color);
+    box-shadow: 0 0 18px var(--primary-glow);
+}
+
+.animal-audio-play-icon svg .animal-audio-play-triangle {
+    fill: currentColor;
+    stroke: none;
+}
+
+button.animal-audio-thumbnail {
+    padding: 0;
+    font: inherit;
+    background: transparent;
+}
+
+.animal-audio-label {
+    position: absolute;
+    left: 10px;
+    right: 10px;
+    bottom: 8px;
+    z-index: 2;
+    color: #ffffff;
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.72);
+    pointer-events: none;
+}

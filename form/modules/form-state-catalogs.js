@@ -636,6 +636,7 @@
                 const ecologiaDetalhada = getEcologyData();
                 const qualitySaveData = getQualityLevelSaveData();
                 const profilePhotosSaveData = typeof getProfilePhotosData === 'function' ? getProfilePhotosData() : { primary: {}, profileImages: [] };
+                const xenoCantoAudioId = String(document.getElementById('xenoCantoAudioId')?.value || '').replace(/\D/g, '').trim();
 
                 const animalData = {
                     nome: document.getElementById('nomeAnimal').value,
@@ -687,6 +688,14 @@
                             paisesDetalhes: paisesDetalhes,
                             descricao: document.getElementById('infoDistribuicao').value || ''
                         },
+                        audioXenoCantoId: xenoCantoAudioId,
+                        xenoCantoAudioId: xenoCantoAudioId,
+                        audio: xenoCantoAudioId ? {
+                            origem: 'xeno-canto',
+                            codigo: xenoCantoAudioId,
+                            urlDownload: `https://xeno-canto.org/${xenoCantoAudioId}/download`,
+                            urlPagina: `https://xeno-canto.org/${xenoCantoAudioId}`
+                        } : null,
                         curiosidades: {
                             tambemConhecidoComo: [...new Set(curiosidadesDetalhadas
                                 .filter(item => item.tipo === 'Também conhecido como')
@@ -712,7 +721,9 @@
                         document.getElementById('video3').value,
                         document.getElementById('video4').value,
                         document.getElementById('video5').value
-                    ].filter(url => url)
+                    ].filter(url => url),
+                    xenoCantoAudioId: xenoCantoAudioId,
+                    audioXenoCantoId: xenoCantoAudioId
                 };
 
                 await setDoc(doc(db, "animais", docId), animalData);
