@@ -99,3 +99,10 @@ function initDistributionRegionsControls() {
 }
 
 document.addEventListener('DOMContentLoaded', initDistributionRegionsControls);
+
+
+// Expor funções no escopo global porque o form.js carrega os módulos principais via eval().
+// Assim, a gravação/edição consegue ler e repor as Regiões Biogeográficas com segurança.
+window.getDistributionRegionsData = getDistributionRegionsData;
+window.setDistributionRegionsData = setDistributionRegionsData;
+window.initDistributionRegionsControls = initDistributionRegionsControls;

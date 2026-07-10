@@ -637,6 +637,9 @@
                 const qualitySaveData = getQualityLevelSaveData();
                 const profilePhotosSaveData = typeof getProfilePhotosData === 'function' ? getProfilePhotosData() : { primary: {}, profileImages: [] };
                 const xenoCantoAudioId = String(document.getElementById('xenoCantoAudioId')?.value || '').replace(/\D/g, '').trim();
+                const distributionRegionsSaveData = typeof window.getDistributionRegionsData === 'function'
+                    ? window.getDistributionRegionsData()
+                    : [];
 
                 const animalData = {
                     nome: document.getElementById('nomeAnimal').value,
@@ -686,7 +689,9 @@
                         distribuicao: {
                             paises: selectedCountries,
                             paisesDetalhes: paisesDetalhes,
-                            descricao: document.getElementById('infoDistribuicao').value || ''
+                            descricao: document.getElementById('infoDistribuicao').value || '',
+                            regioesBiogeograficas: distributionRegionsSaveData,
+                            regioes: distributionRegionsSaveData
                         },
                         audioXenoCantoId: xenoCantoAudioId,
                         xenoCantoAudioId: xenoCantoAudioId,

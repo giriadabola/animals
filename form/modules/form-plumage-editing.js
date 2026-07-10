@@ -559,10 +559,13 @@
             setReproductionData(mergeUniqueReproductionItems([...cleanedReproducaoDetalhada, ...legacyMatingItems]));
             setPlumageData(animal.informacao.plumagemDetalhada || []);
             
-            const distData = animal.informacao.distribuicao || { paises: [], paisesDetalhes: {}, descricao: '' };
+            const distData = animal.informacao.distribuicao || { paises: [], paisesDetalhes: {}, descricao: '', regioesBiogeograficas: [] };
             selectedCountries = distData.paises || [];
             paisesDetalhes = distData.paisesDetalhes || {};
             document.getElementById('infoDistribuicao').value = distData.descricao || '';
+            if (typeof window.setDistributionRegionsData === 'function') {
+                window.setDistributionRegionsData(distData.regioesBiogeograficas || distData.regioes || []);
+            }
             renderSelectedCountries();
             if (mapForm) {
                 mapForm.setSelectedRegions(selectedCountries);
@@ -650,6 +653,9 @@
             selectedCountries = [];
             paisesDetalhes = {};
             document.getElementById('infoDistribuicao').value = '';
+            if (typeof window.setDistributionRegionsData === 'function') {
+                window.setDistributionRegionsData([]);
+            }
             renderSelectedCountries();
             if (mapForm) {
                 mapForm.setSelectedRegions([]);
