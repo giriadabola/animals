@@ -1,4 +1,4 @@
-const CACHE_NAME = 'animals-admin-v1.0.13-parental-save-fix';
+const CACHE_NAME = 'animals-admin-v20260711-cache-reset-1';
 
 const ASSETS_TO_CACHE = [
   './',
@@ -89,12 +89,7 @@ self.addEventListener('install', (event) => {
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((cacheNames) => Promise.all(
-      cacheNames.map((cache) => {
-        if (cache !== CACHE_NAME && cache.startsWith('animals-admin-')) {
-          return caches.delete(cache);
-        }
-        return Promise.resolve();
-      })
+      cacheNames.map((cache) => cache === CACHE_NAME ? Promise.resolve() : caches.delete(cache))
     ))
   );
   self.clients.claim();
@@ -105,7 +100,7 @@ self.addEventListener('fetch', (event) => {
 
   if (event.request.mode === 'navigate') {
     event.respondWith(
-      fetch(event.request)
+      fetch(event.request, { cache: 'no-store' })
         .then((response) => {
           if (response && response.status === 200) {
             const responseToCache = response.clone();
@@ -121,7 +116,7 @@ self.addEventListener('fetch', (event) => {
 
   event.respondWith(
     caches.match(event.request, { ignoreSearch: true }).then((cachedResponse) => {
-      const fetchPromise = fetch(event.request)
+      const fetchPromise = fetch(event.request, { cache: 'no-store' })
         .then((response) => {
           if (response && response.status === 200) {
             const responseToCache = response.clone();
@@ -131,7 +126,7 @@ self.addEventListener('fetch', (event) => {
         })
         .catch(() => cachedResponse);
 
-      return cachedResponse || fetchPromise;
+      return fetchPromise;
     })
   );
 });

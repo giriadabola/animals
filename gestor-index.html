@@ -1,6 +1,10 @@
 <!DOCTYPE html>
 <html lang="pt-PT">
 <head>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <script src="js/cache-reset.js?v=20260711-cache-reset-1"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestor do Index - Grandes Projetos</title>
@@ -456,6 +460,10 @@
                 title: "Explorar por Biomas",
                 desc: "Card grande com abas e cenários para descobrir e filtrar animais por biomas terrestres, aquáticos ou de transição."
             },
+            "explorar-continentes": {
+                title: "Explorar Continentes",
+                desc: "Apresenta círculos ilustrados de cada continente. Ao clicar, abre os animais distribuídos nesse continente."
+            },
             "estrategia-alimento": {
                 title: "Estratégia para obter alimento",
                 desc: "Agrupa animais pelas suas estratégias alimentares (Mergulho, Emboscada, Caça, etc.)."
@@ -516,10 +524,11 @@
             "especie": { title: "Espécie", icon: "fa-dna" }
         };
 
-        let currentOrder = ["pesquisa-globo", "explorar-biomas", "estrategia-alimento", "acasalamento", "zona-climatica", "categoria", "familia", "classificacao-cientifica-niveis", "estatisticas"];
+        let currentOrder = ["pesquisa-globo", "explorar-biomas", "explorar-continentes", "estrategia-alimento", "acasalamento", "zona-climatica", "categoria", "familia", "classificacao-cientifica-niveis", "estatisticas"];
         let currentActive = {
             "pesquisa-globo": true,
             "explorar-biomas": true,
+            "explorar-continentes": true,
             "estrategia-alimento": true,
             "acasalamento": false,
             "zona-climatica": false,
@@ -984,7 +993,7 @@
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw-admin.js', { scope: './gestor-index.html' })
+                navigator.serviceWorker.register('./sw-admin.js?v=20260711-cache-reset-1', { scope: './', updateViaCache: 'none' })
                     .then(reg => console.log('Service Worker de Administração registrado:', reg.scope))
                     .catch(err => console.log('Erro ao registrar o Service Worker de Administração:', err));
             });

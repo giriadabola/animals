@@ -4,7 +4,7 @@ import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.15.0/fi
 import { hideLoadingOverlay, waitForPageImages } from "../js/loader.js?v=2";
 import { initGlobeSearch } from "./globe-search.js";
 import { initBiomaExplorer } from "./bioma-explorer.js";
-import { populateSurvivalLists } from "./survival-lists.js";
+import { populateSurvivalLists } from "./survival-lists.js?v=2";
 
 onAuthStateChanged(auth, (user) => {
     console.log("AUTH STATE: Estado de autenticação recebido. Utilizador:", user ? (user.email || user.uid) : "Anónimo");

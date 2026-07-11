@@ -5328,3 +5328,101 @@ button.animal-audio-thumbnail {
     text-shadow: 0 2px 10px rgba(0, 0, 0, 0.72);
     pointer-events: none;
 }
+
+
+/* Explorador de continentes */
+.continent-explorer-section {
+    width: 100%;
+    padding: 4px 0 10px;
+}
+
+.continent-circles-grid {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: clamp(8px, 1.2vw, 16px);
+    align-items: start;
+    margin-top: 24px;
+}
+
+.continent-circle-card {
+    position: relative;
+    width: min(100%, 138px);
+    aspect-ratio: 1;
+    justify-self: center;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    overflow: hidden;
+    text-decoration: none;
+    isolation: isolate;
+    box-shadow: 0 15px 34px rgba(0, 0, 0, .34);
+    transition: transform .25s ease, box-shadow .25s ease;
+}
+
+.continent-circle-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    border-radius: inherit;
+    background: radial-gradient(circle at 50% 42%, rgba(0,0,0,.04) 0 28%, rgba(4,7,18,.28) 68%, rgba(4,7,18,.64) 100%);
+    box-shadow: inset 0 0 0 2px rgba(255,255,255,.16);
+    pointer-events: none;
+}
+
+.continent-circle-card img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    border-radius: 50%;
+    transition: transform .35s ease, filter .35s ease;
+}
+
+.continent-circle-card span {
+    position: relative;
+    z-index: 2;
+    max-width: 78%;
+    color: #fff;
+    font-size: clamp(1rem, 1.7vw, 1.28rem);
+    font-weight: 900;
+    line-height: 1.12;
+    text-align: center;
+    text-shadow: 0 2px 5px rgba(0,0,0,.95), 0 0 18px rgba(0,0,0,.9);
+}
+
+.continent-circle-card:hover,
+.continent-circle-card:focus-visible {
+    transform: translateY(-7px) scale(1.035);
+    box-shadow: 0 22px 44px rgba(0, 0, 0, .44), 0 0 0 4px rgba(125, 211, 252, .15);
+    outline: none;
+}
+
+.continent-circle-card:hover img,
+.continent-circle-card:focus-visible img {
+    transform: scale(1.06);
+    filter: saturate(1.08) brightness(1.04);
+}
+
+@media (max-width: 980px) and (min-width: 701px) {
+    .continent-circles-grid {
+        gap: 8px;
+    }
+    .continent-circle-card span {
+        font-size: clamp(.78rem, 1.65vw, 1rem);
+    }
+}
+
+@media (max-width: 700px) {
+    .continent-circles-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px 12px;
+    }
+    .continent-circle-card {
+        width: min(100%, 158px);
+    }
+    .continent-circle-card span {
+        font-size: .98rem;
+    }
+}

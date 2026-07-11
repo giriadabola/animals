@@ -1,6 +1,10 @@
 <!DOCTYPE html>
 <html lang="pt-PT">
 <head>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <script src="js/cache-reset.js?v=20260711-cache-reset-1"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Filtros - Grandes Projetos</title>
@@ -15,7 +19,7 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- CSS Global -->
-    <link rel="stylesheet" href="css/style.css?v=1.0.1">
+    <link rel="stylesheet" href="css/style.css?v=1.0.8">
     <script src="js/runtime-guard.js"></script>
 
     <style>
@@ -482,6 +486,9 @@
                 titlePrefix = 'Ranking: ';
                 filterValue = 'Mais Espesso';
                 isRanking = true;
+            } else if (filterType === 'continente') {
+                iconClass = 'fa-earth-americas';
+                titlePrefix = 'Continente: ';
             } else if (filterType === 'pais') {
                 iconClass = 'fa-earth-americas';
                 titlePrefix = 'País: ';
@@ -556,6 +563,20 @@
                 }
             }, 0);
 
+            let countriesByCode = {};
+            if (filterType === 'continente') {
+                try {
+                    const response = await fetch('./js/countries.json');
+                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                    countriesByCode = await response.json();
+                } catch (countryError) {
+                    console.error('Erro ao carregar países e continentes:', countryError);
+                    loadingMessage.textContent = 'Não foi possível carregar a associação dos países aos continentes.';
+                    hideLoadingOverlay();
+                    return;
+                }
+            }
+
             try {
                 const querySnapshot = await getDocs(collection(db, "animais"));
                 matchedAnimals = [];
@@ -608,7 +629,15 @@
                             // If filterValue is a country code (2 letters), match directly
                             // Otherwise try using params valor
                             const codeToMatch = params.get('valor')?.trim().toUpperCase() || targetCode;
-                            match = paises.some(p => p.toUpperCase() === codeToMatch);
+                            match = paises.some(p => String(typeof p === 'object' ? (p.codigo || p.code || p.id || '') : p).toUpperCase() === codeToMatch);
+                        } else if (filterType === 'continente') {
+                            const paises = animalData.informacao?.distribuicao?.paises || [];
+                            const targetContinent = normalizeFilterText(filterValue);
+                            match = paises.some(country => {
+                                const code = String(typeof country === 'object' ? (country.codigo || country.code || country.id || '') : country).trim().toUpperCase();
+                                const continent = countriesByCode[code]?.continente || '';
+                                return normalizeFilterText(continent) === targetContinent;
+                            });
                         } else if (taxonomyFieldMap[filterType]) {
                             const fieldValue = animalData[taxonomyFieldMap[filterType]];
                             match = typeof fieldValue === 'string' &&
@@ -687,7 +716,7 @@
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js')
+                navigator.serviceWorker.register('./sw.js?v=20260711-cache-reset-1', { updateViaCache: 'none' })
                     .then(reg => console.log('Service Worker registrado com sucesso:', reg.scope))
                     .catch(err => console.log('Erro ao registrar o Service Worker:', err));
             });

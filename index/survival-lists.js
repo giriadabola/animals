@@ -30,12 +30,13 @@ export async function populateSurvivalLists(allAnimals, db, searchResultsContain
     if (!container) return;
     container.innerHTML = '';
 
-    let order = ["pesquisa-globo", "explorar-biomas", "estrategia-alimento", "acasalamento", "zona-climatica", "categoria", "familia", "classificacao-cientifica-niveis", "estatisticas"];
+    let order = ["pesquisa-globo", "explorar-biomas", "explorar-continentes", "estrategia-alimento", "acasalamento", "zona-climatica", "categoria", "familia", "classificacao-cientifica-niveis", "estatisticas"];
     let subClassificationOrder = ["reino", "filo", "subfilo", "classe", "superordem", "subordem", "ordem", "familia-sub", "genero", "especie"];
     let subStatsOrder = ["mais-velozes", "mais-vida-util", "mais-altos", "mais-pesados", "mais-largo", "mais-espesso", "maior-envergadura", "gestacao-longa", "mais-crias", "mais-longos", "forca-mordida", "maior-populacao"];
     let active = {
         "pesquisa-globo": true,
         "explorar-biomas": true,
+        "explorar-continentes": true,
         "estrategia-alimento": true,
         "acasalamento": false,
         "zona-climatica": false,
@@ -82,14 +83,33 @@ export async function populateSurvivalLists(allAnimals, db, searchResultsContain
         "especie": 12
     };
 
+    let visibleContinents = {
+        "africa": true,
+        "america-do-norte": true,
+        "america-do-sul": true,
+        "antartida": true,
+        "asia": true,
+        "europa": true,
+        "oceania": true
+    };
+
     try {
         const settingsSnap = await getDoc(doc(db, "settings", "index-lists"));
         if (settingsSnap.exists()) {
             const data = settingsSnap.data();
-            if (data.order) order = data.order;
+            if (data.order) {
+                const defaultOrder = ["pesquisa-globo", "explorar-biomas", "explorar-continentes", "estrategia-alimento", "acasalamento", "zona-climatica", "categoria", "familia", "classificacao-cientifica-niveis", "estatisticas"];
+                order = data.order.filter(key => defaultOrder.includes(key));
+                defaultOrder.forEach(key => {
+                    if (!order.includes(key)) order.push(key);
+                });
+            }
             if (data.subClassificationOrder) subClassificationOrder = data.subClassificationOrder;
             if (data.subStatsOrder) subStatsOrder = data.subStatsOrder;
-            if (data.active) active = data.active;
+            if (data.active) active = { ...active, ...data.active };
+            if (data.continents && typeof data.continents === 'object') {
+                visibleContinents = { ...visibleContinents, ...data.continents };
+            }
             if (data.cardLimits) cardLimits = data.cardLimits;
         }
     } catch (err) {
@@ -195,6 +215,44 @@ export async function populateSurvivalLists(allAnimals, db, searchResultsContain
                 biomaExplorerCard.style.display = 'flex';
                 container.appendChild(biomaExplorerCard);
             }
+            return;
+        }
+
+        if (key === 'explorar-continentes') {
+            const continents = [
+                { key: 'africa', name: 'África', image: 'africa.png' },
+                { key: 'america-do-norte', name: 'América do Norte', image: 'america_do_norte.png' },
+                { key: 'america-do-sul', name: 'América do Sul', image: 'america_do_sul.png' },
+                { key: 'antartida', name: 'Antártida', image: 'antartida.png' },
+                { key: 'asia', name: 'Ásia', image: 'asia.png' },
+                { key: 'europa', name: 'Europa', image: 'europa.png' },
+                { key: 'oceania', name: 'Oceânia', image: 'oceania.png' }
+            ].filter(continent => visibleContinents[continent.key] !== false);
+
+            if (continents.length === 0) return;
+
+            const section = document.createElement('section');
+            section.className = 'continent-explorer-section';
+            section.setAttribute('aria-labelledby', 'continent-explorer-title');
+            section.innerHTML = `
+                <h2 class="section-title gradient-cyan" id="continent-explorer-title">Explorar Continentes</h2>
+                <div class="continent-circles-grid"></div>
+            `;
+
+            const grid = section.querySelector('.continent-circles-grid');
+            continents.forEach(continent => {
+                const link = document.createElement('a');
+                link.className = 'continent-circle-card';
+                link.href = `filtros.html?tipo=continente&valor=${encodeURIComponent(continent.name)}`;
+                link.setAttribute('aria-label', `Ver animais de ${continent.name}`);
+                link.innerHTML = `
+                    <img src="assets/capas/continentes/${continent.image}" alt="" loading="lazy" decoding="async">
+                    <span>${continent.name}</span>
+                `;
+                grid.appendChild(link);
+            });
+
+            container.appendChild(createSectionGridWrapper(section));
             return;
         }
 

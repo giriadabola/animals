@@ -1,6 +1,17 @@
 // Distribuição, mapa e submissão
         let countryList = {};
 
+        function getCountryName(codeOrEntry, fallback = '') {
+            const entry = typeof codeOrEntry === 'string' && countryList[codeOrEntry] ? countryList[codeOrEntry] : codeOrEntry;
+            if (entry && typeof entry === 'object') return entry.nome || fallback;
+            return entry || fallback;
+        }
+
+        function getCountryContinent(codeOrEntry) {
+            const entry = typeof codeOrEntry === 'string' && countryList[codeOrEntry] ? countryList[codeOrEntry] : codeOrEntry;
+            return entry && typeof entry === 'object' ? (entry.continente || '') : '';
+        }
+
         let selectedCountries = [];
         let paisesDetalhes = {};
         let mapForm = null;
@@ -17,7 +28,7 @@
 
         function openSubregionModal(code) {
             activeModalCountryCode = code;
-            const countryName = countryList[code] || code;
+            const countryName = getCountryName(code, code);
             subregionModalTitle.textContent = `Área - ${countryName}`;
             subregionSelectModal.value = paisesDetalhes[code] || 'inteiro';
             subregionModalOverlay.style.display = 'flex';
@@ -208,7 +219,8 @@
             const valClean = clean(searchText);
             if (!valClean) return null;
 
-            const entries = Object.entries(countryList).map(([code, name]) => {
+            const entries = Object.entries(countryList).map(([code, entry]) => {
+                const name = getCountryName(entry, code);
                 let enName = '';
                 if (englishNames) {
                     try {
@@ -279,7 +291,8 @@
                 return;
             }
 
-            const matches = Object.entries(countryList).filter(([code, name]) => {
+            const matches = Object.entries(countryList).filter(([code, entry]) => {
+                const name = getCountryName(entry, code);
                 let enName = '';
                 if (englishNames) {
                     try {
@@ -297,7 +310,8 @@
             }
 
             countryAutocompleteDropdown.innerHTML = '';
-            matches.forEach(([code, name]) => {
+            matches.forEach(([code, entry]) => {
+                const name = getCountryName(entry, code);
                 const item = document.createElement('div');
                 item.className = 'autocomplete-item';
                 item.textContent = name;
@@ -363,7 +377,7 @@
         function renderSelectedCountries() {
             selectedCountriesList.innerHTML = '';
             selectedCountries.forEach(code => {
-                const name = countryList[code] || code;
+                const name = getCountryName(code, code);
                 const subLabels = {
                     'inteiro': 'País inteiro',
                     'esquerdo': 'Lado esquerdo',
