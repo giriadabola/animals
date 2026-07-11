@@ -45,6 +45,7 @@ body{background:#090a14;color:#fff;min-height:100vh}
 </style>
 </head>
 <body><main class="family-page"><a class="family-back" href="javascript:history.back()"><i class="fa-solid fa-arrow-left"></i> Voltar</a><section id="hero" class="family-hero"><div class="family-hero-content"><span class="family-kicker">Bem-vindo à subfamília</span><h1 id="familyName">A carregar...</h1></div></section><p id="familyIntro" class="family-intro"></p><section><h2 class="section-title">Árvore da subfamília</h2><div id="familyTree" class="family-tree"><div class="empty-state">A carregar animais...</div></div></section><section id="animalDetails" class="animal-details"></section><section class="table-panel"><h2 class="section-title">Comparação da subfamília</h2><div id="metricFilters" class="metric-filters"></div><div class="table-wrap"><table class="family-table"><thead id="tableHead"></thead><tbody id="tableBody"></tbody></table></div></section></main>
+<script type="module" src="js/components.js?v=5"></script>
 <script type="module">
 import {db} from './js/firebase-config.js?v=5';
 import {collection,query,where,getDocs,doc,getDoc} from 'https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js';
