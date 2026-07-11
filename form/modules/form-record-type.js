@@ -126,6 +126,50 @@
             });
         }
 
+        let duplicateScientificCheckTimer = null;
+        let duplicateScientificCheckSequence = 0;
+
+        async function scientificNameExistsInDatabase(scientificName) {
+            const normalized = String(scientificName || '').trim();
+            if (!normalized || isEditMode) return false;
+
+            const cachedMatch = allAnimals.some(animal =>
+                animal.id !== currentEditingId &&
+                String(animal.nomeCientifico || '').trim().localeCompare(normalized, undefined, { sensitivity: 'accent' }) === 0
+            );
+            if (cachedMatch) return true;
+
+            try {
+                const snapshot = await getDocs(firestoreQuery(
+                    collection(db, 'animais'),
+                    where('nomeCientifico', '==', normalized),
+                    limit(2)
+                ));
+                return snapshot.docs.some(resultDoc => resultDoc.id !== currentEditingId);
+            } catch (error) {
+                console.warn('Não foi possível confirmar o nome científico duplicado no Firebase.', error);
+                return false;
+            }
+        }
+
+        function scheduleScientificDuplicateCheck() {
+            clearTimeout(duplicateScientificCheckTimer);
+            const sequence = ++duplicateScientificCheckSequence;
+
+            if (isEditMode || !nomeCientificoInput.value.trim()) {
+                if (nomeCientificoWarning) nomeCientificoWarning.style.display = 'none';
+                return;
+            }
+
+            duplicateScientificCheckTimer = setTimeout(async () => {
+                const valueAtStart = nomeCientificoInput.value.trim();
+                const exists = await scientificNameExistsInDatabase(valueAtStart);
+                if (sequence !== duplicateScientificCheckSequence) return;
+                if (isEditMode || nomeCientificoInput.value.trim() !== valueAtStart) return;
+                nomeCientificoWarning.style.display = exists ? 'inline-block' : 'none';
+            }, 350);
+        }
+
         function updateRecordDuplicateWarning() {
             if (!nomeCientificoWarning) return false;
             if (isEditMode) {
@@ -135,6 +179,7 @@
             const identity = getRecordIdentity();
             const exists = recordIdentityExists(identity);
             nomeCientificoWarning.style.display = exists ? 'inline-block' : 'none';
+            if (!exists) scheduleScientificDuplicateCheck();
             return exists;
         }
 
@@ -181,4 +226,5 @@
         personalizarTipoRegistoInput?.addEventListener('change', updateRecordTypeUi);
         tipoRegistoSelect?.addEventListener('change', updateRecordTypeUi);
         nomeAnimalInput?.addEventListener('input', updateRecordDuplicateWarning);
+        nomeCientificoInput?.addEventListener('blur', scheduleScientificDuplicateCheck);
         updateRecordTypeUi();

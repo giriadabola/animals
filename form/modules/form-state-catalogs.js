@@ -38,6 +38,7 @@
         const subfiloInput = document.getElementById('subfilo');
         const subfiloResultsContainer = document.getElementById('subfiloResults');
         const classeInput = document.getElementById('classe');
+        const infraclasseInput = document.getElementById('infraclasse');
         const classeResultsContainer = document.getElementById('classeResults');
         const superordemInput = document.getElementById('superordem');
         const superordemResultsContainer = document.getElementById('superordemResults');
@@ -47,9 +48,12 @@
         const subordemResultsContainer = document.getElementById('subordemResults');
         const infraordemInput = document.getElementById('infraordem');
         const infraordemResultsContainer = document.getElementById('infraordemResults');
+        const subfamiliaInput = document.getElementById('subfamilia');
         const generoInput = document.getElementById('genero');
+        const subgeneroInput = document.getElementById('subgenero');
         const generoResultsContainer = document.getElementById('generoResults');
         const especiesInput = document.getElementById('especies');
+        const autoridadeTaxonomicaInput = document.getElementById('autoridadeTaxonomica');
         const especiesResultsContainer = document.getElementById('especiesResults');
         
         const subespeciesDeSearchInput = document.getElementById('subespeciesDeSearch');
@@ -649,12 +653,16 @@
                     filo: document.getElementById('filo').value.trim(),
                     subfilo: document.getElementById('subfilo').value.trim(),
                     classe: document.getElementById('classe').value.trim(),
+                    infraclasse: document.getElementById('infraclasse')?.value.trim() || '',
                     superordem: document.getElementById('superordem').value.trim(),
                     ordem: document.getElementById('ordem').value.trim(),
                     subordem: document.getElementById('subordem').value.trim(),
                     infraordem: document.getElementById('infraordem').value.trim(),
+                    subfamilia: document.getElementById('subfamilia')?.value.trim() || '',
                     genero: document.getElementById('genero').value.trim(),
+                    subgenero: document.getElementById('subgenero')?.value.trim() || '',
                     especie: document.getElementById('especies').value.trim(),
+                    autoridadeTaxonomica: document.getElementById('autoridadeTaxonomica')?.value.trim() || '',
                     subespeciesDe: selectedSubespecies,
                     tipoRegisto: recordTypeSaveData.tipoRegisto,
                     tipoRegistoPersonalizado: recordTypeSaveData.tipoRegistoPersonalizado,

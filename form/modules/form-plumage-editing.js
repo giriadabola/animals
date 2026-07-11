@@ -527,12 +527,16 @@
             document.getElementById('filo').value = animal.filo || '';
             document.getElementById('subfilo').value = animal.subfilo || '';
             document.getElementById('classe').value = animal.classe || '';
+            if (document.getElementById('infraclasse')) document.getElementById('infraclasse').value = animal.infraclasse || '';
             document.getElementById('superordem').value = animal.superordem || '';
             document.getElementById('ordem').value = animal.ordem || '';
             document.getElementById('subordem').value = animal.subordem || '';
             document.getElementById('infraordem').value = animal.infraordem || '';
+            if (document.getElementById('subfamilia')) document.getElementById('subfamilia').value = animal.subfamilia || '';
             document.getElementById('genero').value = animal.genero || '';
+            if (document.getElementById('subgenero')) document.getElementById('subgenero').value = animal.subgenero || '';
             document.getElementById('especies').value = animal.especie || '';
+            if (document.getElementById('autoridadeTaxonomica')) document.getElementById('autoridadeTaxonomica').value = animal.autoridadeTaxonomica || '';
             selectedSubespecies = animal.subespeciesDe || [];
             renderSubespeciesTags();
 
@@ -845,18 +849,26 @@
                     'filo': 'filo',
                     'subfilo': 'subfilo',
                     'classe': 'classe',
+                    'infraclasse': 'infraclasse',
                     'superordem': 'superordem',
                     'ordem': 'ordem',
                     'subordem': 'subordem',
                     'infraordem': 'infraordem',
                     'família': 'familia',
                     'familia': 'familia',
+                    'subfamilia': 'subfamilia',
                     'género': 'genero',
                     'genero': 'genero',
+                    'subgenero': 'subgenero',
                     'espécie': 'especies',
                     'espécies': 'especies',
                     'especie': 'especies',
-                    'especies': 'especies'
+                    'especies': 'especies',
+                    'autoridade taxonómica': 'autoridadeTaxonomica',
+                    'autoridade taxonomica': 'autoridadeTaxonomica',
+                    'autoridadetaxonomica': 'autoridadeTaxonomica',
+                    'taxonomic authority': 'autoridadeTaxonomica',
+                    'authority': 'autoridadeTaxonomica'
                 };
 
                 for (const [key, value] of Object.entries(parsed)) {
@@ -875,40 +887,75 @@
         }
 
         function parseClassificationText(text) {
-            const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+            const lines = String(text || '')
+                .replace(/\r/g, '')
+                .split('\n')
+                .map(line => line.replace(/\u00a0/g, ' ').trim())
+                .filter(Boolean);
+
             const result = {};
-            const normalizeClassificationKey = (value = '') => String(value)
+            const aliases = {
+                reino: 'reino', kingdom: 'reino',
+                filo: 'filo', phylum: 'filo',
+                subfilo: 'subfilo', subphylum: 'subfilo',
+                classe: 'classe', class: 'classe',
+                infraclasse: 'infraclasse', infraclass: 'infraclasse',
+                superordem: 'superordem', superorder: 'superordem',
+                ordem: 'ordem', order: 'ordem',
+                subordem: 'subordem', suborder: 'subordem',
+                infraordem: 'infraordem', infraorder: 'infraordem',
+                familia: 'familia', family: 'familia',
+                subfamilia: 'subfamilia', subfamily: 'subfamilia',
+                genero: 'genero', genus: 'genero',
+                subgenero: 'subgenero', subgenus: 'subgenero',
+                especie: 'especies', especies: 'especies', species: 'especies',
+                autoridadetaxonomica: 'autoridadeTaxonomica', taxonomicauthority: 'autoridadeTaxonomica', authority: 'autoridadeTaxonomica'
+            };
+
+            const normalizeKey = (value = '') => String(value)
                 .toLowerCase()
                 .normalize('NFD')
                 .replace(/[\u0300-\u036f]/g, '')
+                .replace(/[.:\-–—]+$/g, '')
+                .replace(/\s+/g, '')
                 .trim();
-            const knownKeys = ['reino', 'filo', 'subfilo', 'classe', 'superordem', 'ordem', 'subordem', 'infraordem', 'familia', 'genero', 'especie', 'especies'];
-            
-            let parsedAnySeparator = false;
-            for (let line of lines) {
-                const match = line.match(/^([^:-]+)\s*[:-]\s*(.+)$/);
-                if (match) {
-                    const rawKey = normalizeClassificationKey(match[1]);
-                    if (knownKeys.includes(rawKey)) {
-                        result[rawKey] = match[2].trim();
-                        parsedAnySeparator = true;
-                    }
+
+            const savePair = (rawKey, rawValue) => {
+                const key = aliases[normalizeKey(rawKey)];
+                const value = String(rawValue || '').replace(/^[:\-–—\t\s]+/, '').trim();
+                if (key && value) result[key] = value;
+                return !!(key && value);
+            };
+
+            // Formatos "Kingdom: Animalia", com dois-pontos, hífen ou tabulação.
+            for (const line of lines) {
+                const separatorMatch = line.match(/^(.+?)(?:\s*:\s*|\s+\t+\s*|\s+[–—-]\s+)(.+)$/);
+                if (separatorMatch) savePair(separatorMatch[1], separatorMatch[2]);
+            }
+
+            // Formato em linhas alternadas: Kingdom / Animalia / Phylum / Chordata.
+            for (let index = 0; index < lines.length; index++) {
+                const canonicalKey = aliases[normalizeKey(lines[index])];
+                if (!canonicalKey) continue;
+
+                let valueIndex = index + 1;
+                while (valueIndex < lines.length && !lines[valueIndex]) valueIndex++;
+                if (valueIndex < lines.length && !aliases[normalizeKey(lines[valueIndex])]) {
+                    result[canonicalKey] = lines[valueIndex].replace(/^[:\-–—\t\s]+/, '').trim();
+                    index = valueIndex;
                 }
             }
-            
-            if (!parsedAnySeparator) {
-                for (let i = 0; i < lines.length - 1; i++) {
-                    const potentialKey = normalizeClassificationKey(lines[i]);
-                    if (knownKeys.includes(potentialKey)) {
-                        result[potentialKey] = lines[i+1];
-                        i++;
-                    }
+
+            // Expande abreviaturas de espécie, por exemplo "B. quarlesi" → "Bubalus quarlesi".
+            if (result.especies && result.genero) {
+                const abbreviated = result.especies.match(/^([A-Za-z])\.\s*(.+)$/);
+                if (abbreviated && result.genero.charAt(0).toLowerCase() === abbreviated[1].toLowerCase()) {
+                    result.especies = `${result.genero} ${abbreviated[2].trim()}`;
                 }
             }
-            
+
             return result;
         }
-
 
         // --- CONTROLO DAS ABAS DO FORMULÁRIO ---
         const tabButtons = document.querySelectorAll('.form-tab-nav-btn');

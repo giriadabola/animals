@@ -1,5 +1,5 @@
 import { db, auth } from "../js/firebase-config.js?v=5";
-        import { doc, setDoc, collection, getDocs, getDoc, updateDoc, arrayUnion, writeBatch, query as firestoreQuery, orderBy, limit } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
+        import { doc, setDoc, collection, getDocs, getDoc, updateDoc, arrayUnion, writeBatch, query as firestoreQuery, where, orderBy, limit } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
         import { feedingTypes, feedingTypeDescriptions, getFeedingVisualMeta, getFeedingModelSvg } from "../js/feeding-visuals.js";
         import { feedingAnimalOptions } from "../js/feeding-animal-options.js?v=2";
         import { getFeedingStrategyMeta, getFeedingStrategySvg } from "../js/feeding-strategies.js";
@@ -8,7 +8,7 @@ import { db, auth } from "../js/firebase-config.js?v=5";
         import { GENDER_BOTH, collapseCombinedGenderItems, expandCombinedGenderItems, getGenderUi, getNextGenderValue, normalizeGenderValue } from "../js/gender-utils.js?v=2";
         import { getEcologyVisualMeta as getSharedEcologyVisualMeta, getEcologyModelSvg as getSharedEcologyModelSvg } from "../js/ecology-visuals.js?v=2";
 
-const FORM_JS_VERSION = '33_parental_save_fix';
+const FORM_JS_VERSION = '35_taxonomy_complete_fields';
 
 const FORM_MODULE_FILES = [
     './modules/form-state-catalogs.js',

@@ -181,6 +181,11 @@
                         <div class="autocomplete-results" id="classeResults"></div>
                     </div>
                     <div class="form-group autocomplete-container">
+                        <label for="infraclasse">Infraclasse</label>
+                        <input type="text" id="infraclasse" autocomplete="off" placeholder="Ex: Placentalia">
+                        <div class="autocomplete-results" id="infraclasseResults"></div>
+                    </div>
+                    <div class="form-group autocomplete-container">
                         <label for="superordem">Superordem</label>
                         <input type="text" id="superordem" autocomplete="off" placeholder="Ex: Euarchontoglires">
                         <div class="autocomplete-results" id="superordemResults"></div>
@@ -201,14 +206,28 @@
                         <div class="autocomplete-results" id="infraordemResults"></div>
                     </div>
                     <div class="form-group autocomplete-container">
+                        <label for="subfamilia">Subfamília</label>
+                        <input type="text" id="subfamilia" autocomplete="off" placeholder="Ex: Bovinae">
+                        <div class="autocomplete-results" id="subfamiliaResults"></div>
+                    </div>
+                    <div class="form-group autocomplete-container">
                         <label for="genero">Género</label>
                         <input type="text" id="genero" autocomplete="off" placeholder="Ex: Macaca">
                         <div class="autocomplete-results" id="generoResults"></div>
                     </div>
                     <div class="form-group autocomplete-container">
+                        <label for="subgenero">Subgénero</label>
+                        <input type="text" id="subgenero" autocomplete="off" placeholder="Ex: Anoa">
+                        <div class="autocomplete-results" id="subgeneroResults"></div>
+                    </div>
+                    <div class="form-group autocomplete-container">
                         <label for="especies">Espécies</label>
                         <input type="text" id="especies" autocomplete="off" placeholder="Ex: Macaca fuscata">
                         <div class="autocomplete-results" id="especiesResults"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="autoridadeTaxonomica">Autoridade taxonómica</label>
+                        <input type="text" id="autoridadeTaxonomica" placeholder="Ex: Laurillard, 1841">
                     </div>
                     <div class="form-group grid-span-3 autocomplete-container">
                         <label for="subespeciesDeSearch">Subespécies de (outros animais)</label>
@@ -804,7 +823,7 @@
             <h2>Importar Classificação Científica</h2>
             <p style="color: var(--text-secondary); margin-top: -10px; font-size: 0.9rem; margin-bottom: 15px;">Cole o texto de classificação (ex: Wikipédia) para preencher os campos automaticamente.</p>
             <div style="margin-bottom: 15px;">
-                <textarea id="importTaxTextarea" placeholder="Cole o texto aqui...&#10;Exemplo:&#10;Reino&#10;Animalia&#10;Filo&#10;Chordata&#10;..." style="width: 100%; height: 200px; padding: 12px; background: var(--bg-card); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--border-radius-sm); font-family: monospace; resize: vertical; box-sizing: border-box;"></textarea>
+                <textarea id="importTaxTextarea" placeholder="Cole o texto aqui...&#10;&#10;Aceita formatos como:&#10;Kingdom&#10;Animalia&#10;Phylum&#10;Chordata&#10;&#10;ou:&#10;Kingdom: Animalia&#10;Phylum: Chordata" style="width: 100%; height: 200px; padding: 12px; background: var(--bg-card); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--border-radius-sm); font-family: monospace; resize: vertical; box-sizing: border-box;"></textarea>
             </div>
             <div style="display: flex; gap: 10px; justify-content: flex-end;">
                 <button type="button" id="closeImportTaxModalBtn" class="menu-button" style="background: transparent; border: 1px solid var(--border-color); color: var(--text-secondary); margin: 0;">Cancelar</button>
@@ -917,7 +936,7 @@
     <!-- Componentes e Lógica -->
     <script type="module" src="../js/components.js?v=20260710_no_animais_snapshot_1"></script>
     <script src="./modules/form-distribution-regions.js?v=20260710_1"></script>
-    <script type="module" src="./form.js?v=20260710_edit_modal_global_search_1"></script>
+    <script type="module" src="./form.js?v=20260711_taxonomy_import_duplicate_1"></script>
     <!-- Service Worker PWA -->
     <script src="./sw-register.js?v=20260710_no_animais_snapshot_1"></script>
 </body>

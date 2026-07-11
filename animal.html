@@ -156,7 +156,7 @@
         .dimension-model-label.with-gender {
             display: inline-flex;
             align-items: center;
-            gap: 6px;
+            gap: 4px;
             flex-wrap: wrap;
         }
 
@@ -566,16 +566,137 @@
             box-shadow: 0 8px 32px rgba(148, 163, 184, 0.03), inset 0 1px 0 rgba(255, 255, 255, 0.02) !important;
         }
 
-        /* Estilo super elegante para animais da mesma família */
+        /* Faz a secção da família usar apenas um único card visível */
+        #related-animals-container,
+        #related-animals-container-mobile {
+            background: transparent !important;
+            padding: 0 !important;
+            border: 0 !important;
+            border-radius: 0 !important;
+            box-shadow: none !important;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+        }
+
+        /* Portal para a página da família */
+        .family-portal-link {
+            position: relative;
+            display: block;
+            min-height: 118px;
+            margin-bottom: 16px;
+            border-radius: 18px;
+            overflow: hidden;
+            text-decoration: none;
+            border: 1px solid rgba(255,255,255,.10);
+            background:
+                linear-gradient(90deg, rgba(5,16,13,.88), rgba(5,16,13,.42)),
+                url('assets/capas/familias/familia-banner.jpg') center 56% / cover no-repeat,
+                #0f231d;
+            box-shadow: 0 16px 38px rgba(0,0,0,.28), inset 0 1px rgba(255,255,255,.06);
+            isolation: isolate;
+        }
+        .family-portal-link::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(circle at 82% 18%, rgba(110,231,183,.22), transparent 30%),
+                linear-gradient(90deg, rgba(3,12,9,.54), rgba(3,12,9,.10));
+            z-index: -1;
+        }
+        .family-portal-link::after {
+            content: '';
+            position: absolute;
+            inset: 10px;
+            border: 1px solid rgba(167,243,208,.24);
+            border-radius: 13px;
+            pointer-events: none;
+        }
+        .family-portal-content { padding: 24px 24px 22px; }
+        .family-portal-eyebrow {
+            display: block;
+            margin-bottom: 7px;
+            color: #a7f3d0;
+            font-size: .88rem;
+            font-weight: 900;
+            letter-spacing: .11em;
+            text-transform: uppercase;
+        }
+        .family-portal-name {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            color: #fff;
+            font-size: 1.23rem;
+            font-weight: 800;
+            line-height: 1.15;
+        }
+        .family-portal-name i { font-size: .88rem; color: #6ee7b7; transition: transform .25s ease; }
+        .family-portal-link:hover { transform: translateY(-2px); border-color: rgba(110,231,183,.38); }
+        .family-portal-link:hover .family-portal-name i { transform: translateX(4px); }
+
+        .related-family-shell {
+            position: relative;
+            padding: 0;
+            border-radius: 28px;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,.06);
+            background: linear-gradient(180deg, rgba(13, 18, 45, 0.98) 0%, rgba(10, 17, 40, 0.97) 100%);
+            box-shadow: 0 16px 36px rgba(0,0,0,.26), inset 0 1px 0 rgba(255,255,255,.03);
+            isolation: isolate;
+        }
+        .related-family-shell::before,
+        .related-family-shell::after {
+            content: none;
+            display: none;
+        }
+        .related-family-shell .family-portal-link {
+            margin-bottom: 0;
+            min-height: 152px;
+            border: 0;
+            border-radius: 0;
+            box-shadow: none;
+        }
+        .related-family-shell .family-portal-link::after {
+            inset: 14px 14px 12px;
+            border-radius: 16px;
+            border-color: rgba(167,243,208,.18);
+        }
+        .related-family-shell .family-portal-content {
+            padding: 26px 26px 24px;
+        }
+        .related-family-list-block {
+            position: relative;
+            margin-top: 0;
+            padding: 16px 22px 16px;
+            background: transparent !important;
+            border-top: 0;
+        }
+        .related-family-list-block::before {
+            content: none;
+            display: none;
+        }
+        .related-family-list-block h3 {
+            margin-top: 0;
+        }
+
+                /* Estilo super elegante para animais da mesma família */
         .related-list {
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            gap: 4px !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+        .related-item {
+            margin: 0 !important;
+            padding: 0 !important;
         }
         .related-item a {
             display: flex;
             align-items: center;
-            padding: 8px 12px !important;
+            padding: 6px 12px !important;
             border-radius: 12px !important;
             background: rgba(255, 255, 255, 0.015) !important;
             border: 1px solid rgba(255, 255, 255, 0.05) !important;
@@ -2488,62 +2609,48 @@
             }
         }
 
-        async function fetchAndRenderRelatedAnimals(familia, currentAnimalId) {
+        async function fetchAndRenderRelatedAnimals(subfamilia, currentAnimalId) {
             const container = document.getElementById('related-animals-container');
             const containerMobile = document.getElementById('related-animals-container-mobile');
             if (container) container.style.display = 'none';
             if (containerMobile) containerMobile.style.display = 'none';
-            
-            if (!familia) return;
-            if (!container && !containerMobile) return;
-            
-            try {
-                const animalsRef = collection(db, "animais");
-                const q = query(animalsRef, where("familia", "==", familia));
-                const querySnapshot = await getDocs(q);
-                let relatedAnimals = [];
-                querySnapshot.forEach(doc => {
-                    if (doc.id !== currentAnimalId) {
-                        relatedAnimals.push({ id: doc.id, ...doc.data() });
-                    }
-                });
+            if (!subfamilia || (!container && !containerMobile)) return;
 
-                // Ordenar por ordem alfabética do nome do animal
+            const familyUrl = `family.html?subfamilia=${encodeURIComponent(subfamilia)}`;
+            const portalHTML = `
+                <a class="family-portal-link" href="${familyUrl}" aria-label="Visitar a subfamília ${escapeHtml(subfamilia)}">
+                    <div class="family-portal-content">
+                        <span class="family-portal-eyebrow">Visite a Subfamília</span>
+                        <span class="family-portal-name">${escapeHtml(subfamilia)} <i class="fa-solid fa-arrow-right"></i></span>
+                    </div>
+                </a>`;
+
+            try {
+                const q = query(collection(db, "animais"), where("subfamilia", "==", subfamilia));
+                const querySnapshot = await getDocs(q);
+                const relatedAnimals = [];
+                querySnapshot.forEach(resultDoc => {
+                    if (resultDoc.id !== currentAnimalId) relatedAnimals.push({ id: resultDoc.id, ...resultDoc.data() });
+                });
                 relatedAnimals.sort((a, b) => (a.nome || '').localeCompare(b.nome || '', 'pt'));
 
-                if (relatedAnimals.length > 0) {
-                    let listHTML = '<ul class="related-list">';
-                    relatedAnimals.forEach(animal => {
+                let listHTML = '';
+                if (relatedAnimals.length) {
+                    listHTML = '<div class="related-family-list-block"><h3>Da mesma subfamília</h3><ul class="related-list">' + relatedAnimals.map(animal => {
                         const objectPos = animal.imagemObjectPosition || 'center center';
-                        listHTML += `
-                            <li class="related-item">
-                                <a href="animal.html?id=${animal.id}">
-                                    <img src="${animal.imagemUrl}" alt="${animal.nome}" style="object-position: ${objectPos};">
-                                    <span>${animal.nome}</span>
-                                </a>
-                            </li>
-                        `;
-                    });
-                    listHTML += '</ul>';
-                    
-                    if (container) {
-                        container.innerHTML = `<h3>Da mesma família</h3>${listHTML}`;
-                        container.style.display = 'block';
-                    }
-                    if (containerMobile) {
-                        containerMobile.innerHTML = `<h3>Da mesma família</h3>${listHTML}`;
-                        containerMobile.style.display = 'block';
-                    }
+                        return `<li class="related-item"><a href="animal.html?id=${encodeURIComponent(animal.id)}"><img src="${escapeHtml(animal.imagemUrl || '')}" alt="${escapeHtml(animal.nome || '')}" style="object-position:${escapeHtml(objectPos)}"><span>${escapeHtml(animal.nome || 'Animal')}</span></a></li>`;
+                    }).join('') + '</ul></div>';
                 }
+                const html = `<div class="related-family-shell">${portalHTML}${listHTML}</div>`;
+                if (container) { container.innerHTML = html; container.style.display = 'block'; }
+                if (containerMobile) { containerMobile.innerHTML = html; containerMobile.style.display = 'block'; }
             } catch (error) {
                 console.error("Erro ao buscar animais relacionados:", error);
-                const errHTML = `<p>Não foi possível carregar animais relacionados.</p>`;
-                if (container) container.innerHTML = errHTML;
-                if (containerMobile) containerMobile.innerHTML = errHTML;
+                const fallbackHTML = `<div class="related-family-shell">${portalHTML}</div>`;
+                if (container) { container.innerHTML = fallbackHTML; container.style.display = 'block'; }
+                if (containerMobile) { containerMobile.innerHTML = fallbackHTML; containerMobile.style.display = 'block'; }
             }
         }
-
-
 
         function normalizeDistributionRegions(distributionData = {}) {
             const raw = distributionData.regioesBiogeograficas || distributionData.regioes || [];
@@ -2765,13 +2872,17 @@
                 animalData.filo ||
                 animalData.subfilo ||
                 animalData.classe ||
+                animalData.infraclasse ||
                 animalData.superordem ||
                 animalData.ordem ||
                 animalData.subordem ||
                 animalData.infraordem ||
                 animalData.familia ||
+                animalData.subfamilia ||
                 animalData.genero ||
+                animalData.subgenero ||
                 animalData.especie ||
+                animalData.autoridadeTaxonomica ||
                 (Array.isArray(animalData.subespeciesDe) && animalData.subespeciesDe.length > 0)
             );
 
@@ -2785,13 +2896,17 @@
                 ['filo', 'Filo:', animalData.filo],
                 ['subfilo', 'Subfilo:', animalData.subfilo],
                 ['classe', 'Classe:', animalData.classe],
+                ['infraclasse', 'Infraclasse:', animalData.infraclasse],
                 ['superordem', 'Superordem:', animalData.superordem],
                 ['ordem', 'Ordem:', animalData.ordem],
                 ['subordem', 'Subordem:', animalData.subordem],
                 ['infraordem', 'Infraordem:', animalData.infraordem],
                 ['familia', 'Família:', animalData.familia],
+                ['subfamilia', 'Subfamília:', animalData.subfamilia],
                 ['genero', 'Género:', animalData.genero, { italic: true }],
-                ['especie', 'Espécie:', animalData.especie, { italic: true }]
+                ['subgenero', 'Subgénero:', animalData.subgenero, { italic: true }],
+                ['especie', 'Espécie:', animalData.especie, { italic: true }],
+                ['autoridadeTaxonomica', 'Autoridade taxonómica:', animalData.autoridadeTaxonomica]
             ].map(([filterType, label, value, options]) => {
                 return classificationRow(filterType, label, value, options);
             }).join('') + ((Array.isArray(animalData.subespeciesDe) && animalData.subespeciesDe.length > 0) ? `
@@ -3442,7 +3557,7 @@
                     const animalData = docSnap.data();
                     renderAnimalData(animalData, animalId);
                     fetchAndRenderSubspeciesParents(animalData.subespeciesDe);
-                    fetchAndRenderRelatedAnimals(animalData.familia, animalId);
+                    fetchAndRenderRelatedAnimals(animalData.subfamilia, animalId);
                 } else {
                     mainContent.innerHTML = `<p class="error">Erro: Animal não encontrado.</p>`;
                 }
