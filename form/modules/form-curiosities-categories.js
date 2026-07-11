@@ -71,15 +71,21 @@
             return normalizeSearchText(type).includes('distancia percorrida');
         }
 
+        function isMaiorPesoRegistadoCuriosidade(type = '') {
+            return normalizeSearchText(type) === 'maior peso registado';
+        }
+
         function getCuriosidadeMetricUnits(type = '') {
             if (isSleepHoursCuriosidade(type)) return ['horas/dia', 'horas/semana', 'horas/mes', 'horas/ano'];
             if (isDistanceCuriosidade(type)) return ['m/dia', 'm/semana', 'm/mes', 'm/ano', 'km/dia', 'km/semana', 'km/mes', 'km/ano'];
+            if (isMaiorPesoRegistadoCuriosidade(type)) return ['g', 'kg', 't', 'lb'];
             return [];
         }
 
         function getCuriosidadeDefaultMetricUnit(type = '') {
             if (isSleepHoursCuriosidade(type)) return 'horas/dia';
             if (isDistanceCuriosidade(type)) return 'km/dia';
+            if (isMaiorPesoRegistadoCuriosidade(type)) return 'kg';
             return '';
         }
 
@@ -157,7 +163,7 @@
                 minInput.addEventListener('input', updateCuriosidadesPreview);
                 maxInput.addEventListener('input', updateCuriosidadesPreview);
                 wrapper.append(minInput, maxInput, unitBadge);
-            } else if (isSleepHoursCuriosidade(type) || isDistanceCuriosidade(type)) {
+            } else if (isSleepHoursCuriosidade(type) || isDistanceCuriosidade(type) || isMaiorPesoRegistadoCuriosidade(type)) {
                 wrapper.classList.add('temperature-controls', 'metric-controls');
                 const parsed = parseCuriosidadeMetric(data, type);
                 const minInput = document.createElement('input');
@@ -165,7 +171,7 @@
                 minInput.step = '0.01';
                 minInput.min = '0';
                 minInput.className = 'curiosidade-metric-min';
-                minInput.placeholder = isDistanceCuriosidade(type) ? 'Mín.' : 'Valor';
+                minInput.placeholder = (isDistanceCuriosidade(type) || isMaiorPesoRegistadoCuriosidade(type)) ? 'Mín.' : 'Valor';
                 minInput.value = parsed.min;
                 const maxInput = document.createElement('input');
                 maxInput.type = 'number';
@@ -277,7 +283,7 @@
                         item.valorMax = max;
                         item.unidade = '°C';
                     }
-                    if (isSleepHoursCuriosidade(tipo) || isDistanceCuriosidade(tipo)) {
+                    if (isSleepHoursCuriosidade(tipo) || isDistanceCuriosidade(tipo) || isMaiorPesoRegistadoCuriosidade(tipo)) {
                         const min = row.querySelector('.curiosidade-metric-min')?.value || '';
                         const max = row.querySelector('.curiosidade-metric-max')?.value || '';
                         const unit = row.querySelector('.curiosidade-metric-unit')?.value || getCuriosidadeDefaultMetricUnit(tipo);
@@ -343,6 +349,10 @@
             if (curiosidades?.distanciaPercorrida) {
                 const parsed = parseCuriosidadeMetric({ valor: curiosidades.distanciaPercorrida }, 'Distância Percorrida');
                 legacyItems.push({ tipo: 'Distância Percorrida', valor: curiosidades.distanciaPercorrida, valorMin: parsed.min, valorMax: parsed.max, unidade: parsed.unit, genero: GENDER_BOTH, fase: 'Adulto' });
+            }
+            if (curiosidades?.maiorPesoRegistado) {
+                const parsed = parseCuriosidadeMetric({ valor: curiosidades.maiorPesoRegistado }, 'Maior peso registado');
+                legacyItems.push({ tipo: 'Maior peso registado', valor: curiosidades.maiorPesoRegistado, valorMin: parsed.min, valorMax: parsed.max, unidade: parsed.unit, genero: GENDER_BOTH, fase: 'Adulto' });
             }
             return legacyItems;
         }
@@ -460,6 +470,22 @@
                             <span class="preview-label">Importância económica para os humanos</span>
                             <strong style="font-size: 1.05rem; font-weight: 700; color: var(--text-primary);">${item.valor}</strong>
                             <div class="communication-preview-desc">Modelo visual próprio da relação económica com humanos.</div>
+                            ${renderCuriosidadeMeta(item)}
+                        </div>
+                    </div>`;
+            }
+
+            if (item.tipo === 'Maior peso registado') {
+                return `
+                    <div class="curiosidades-preview-item record-weight-preview-item" style="border-color: rgba(250, 204, 21, 0.35); background: linear-gradient(135deg, rgba(120, 53, 15, 0.18), rgba(234, 179, 8, 0.08));">
+                        <div class="communication-preview-icon" style="position: relative; background: linear-gradient(145deg, #fde68a, #d97706); color: #422006; box-shadow: 0 8px 20px rgba(217, 119, 6, 0.28);">
+                            <i class="fa-solid fa-trophy"></i>
+                            <i class="fa-solid fa-weight-hanging" style="position: absolute; right: -5px; bottom: -5px; width: 18px; height: 18px; display: grid; place-items: center; border-radius: 50%; background: #451a03; color: #fef3c7; font-size: 0.58rem; border: 2px solid #fbbf24;"></i>
+                        </div>
+                        <div class="curiosidades-preview-info">
+                            <span class="preview-label">Maior peso registado</span>
+                            <strong style="font-size: 1.05rem; font-weight: 800; color: #facc15;">${item.valor}</strong>
+                            <div class="communication-preview-desc">Recorde de peso documentado para este sexo e fase de vida.</div>
                             ${renderCuriosidadeMeta(item)}
                         </div>
                     </div>`;

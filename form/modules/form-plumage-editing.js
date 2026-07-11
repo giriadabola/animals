@@ -1065,6 +1065,7 @@
             'Estado de Conservação',
             'Horas de Sono',
             'Importância económica para os humanos',
+            'Maior peso registado',
             'Relação com Humanos',
             'Também conhecido como',
             'Temperatura do Ambiente',

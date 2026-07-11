@@ -1,10 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-PT">
 <head>
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
-    <script src="js/cache-reset.js?v=20260711-cache-reset-1"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Detalhes do Animal - Grandes Projetos</title>
@@ -842,7 +838,7 @@
         import { collapseCombinedGenderItems, collectConcreteGenders, genderMatchesSelection, normalizeGenderValue } from "./js/gender-utils.js?v=2";
         import { renderAnatomyBlock, initAnatomyViewer } from "./js/anatomy-viewer.js?v=20260710_audio_3";
         import { renderAnimalAudioThumbnail, initAnimalAudioControls, pauseAllAnimalAudio } from "./js/animal-audio.js?v=20260710_audio_4";
-        import { initAnimalProfileActions } from "./js/profile-favorites.js?v=20260711_roles_1";
+        import { initAnimalProfileActions } from "./js/profile-favorites.js?v=4";
         
         const mainContent = document.getElementById('main-content-area');
 
@@ -863,17 +859,6 @@
         }
 
         let countryList = {};
-        function getCountryName(code, fallback = '') {
-            const entry = countryList[code];
-            if (entry && typeof entry === 'object') return entry.nome || fallback || code;
-            return entry || fallback || code;
-        }
-
-        function getCountryContinent(code) {
-            const entry = countryList[code];
-            return entry && typeof entry === 'object' ? (entry.continente || '') : '';
-        }
-
         async function loadCountryList() {
             try {
                 const response = await fetch('js/countries.json');
@@ -2303,6 +2288,7 @@
                     curiosidades.importanciaEconomicaHumanos ? { tipo: 'Importância económica para os humanos', valor: curiosidades.importanciaEconomicaHumanos, genero: 'MF', fase: 'Adulto' } : null,
                     curiosidades.distanciaPercorrida ? { tipo: 'Distância Percorrida', valor: curiosidades.distanciaPercorrida, genero: 'MF', fase: 'Adulto' } : null,
                     curiosidades.horasSono ? { tipo: 'Horas de Sono', valor: curiosidades.horasSono, genero: 'MF', fase: 'Adulto' } : null,
+                    curiosidades.maiorPesoRegistado ? { tipo: 'Maior peso registado', valor: curiosidades.maiorPesoRegistado, genero: 'MF', fase: 'Adulto' } : null,
                     Array.isArray(curiosidades.tambemConhecidoComo) && curiosidades.tambemConhecidoComo.length ? { tipo: 'Também conhecido como', valor: curiosidades.tambemConhecidoComo.join(', '), genero: 'MF', fase: 'Adulto' } : null,
                     curiosidades.temperaturaAmbiente ? { tipo: 'Temperatura do Ambiente', valor: curiosidades.temperaturaAmbiente, genero: 'MF', fase: 'Adulto' } : null
                 ].filter(Boolean);
@@ -2466,6 +2452,28 @@
                                     ${renderMetaSymbols(item)}
                                 </div>
                                 <strong class="dimension-model-value">Tipo de Comunicação</strong>
+                            </div>
+                        </article>
+                    `;
+                }
+
+                if (item.tipo === 'Maior peso registado') {
+                    return `
+                        <article class="dimension-model-card curiosidades-model-card record-weight-card" style="width: 100%; box-sizing: border-box; display: flex; align-items: center; border: 1px solid rgba(250, 204, 21, 0.30); background: linear-gradient(135deg, rgba(69, 26, 3, 0.72), rgba(120, 53, 15, 0.35) 48%, rgba(30, 41, 59, 0.82)); box-shadow: inset 0 1px 0 rgba(254, 240, 138, 0.10), 0 10px 24px rgba(0,0,0,0.18);">
+                            <div class="dimension-model-icon" style="position: relative; flex-shrink: 0; overflow: visible; background: radial-gradient(circle at 35% 28%, #fef3c7 0 13%, #facc15 36%, #b45309 100%); color: #451a03; border: 2px solid rgba(254, 240, 138, 0.72); box-shadow: 0 7px 18px rgba(217, 119, 6, 0.32); display: flex; align-items: center; justify-content: center;">
+                                <svg viewBox="0 0 64 64" fill="none" aria-hidden="true" style="width: 31px; height: 31px;">
+                                    <path d="M21 10h22v8c0 10-5 17-11 17S21 28 21 18v-8Z" fill="currentColor" opacity=".92"/>
+                                    <path d="M21 14H12v4c0 8 5 13 13 13M43 14h9v4c0 8-5 13-13 13" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M32 35v8M23 53h18M27 43h10l3 10H24l3-10Z" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                <span style="position:absolute; right:-7px; bottom:-6px; width:22px; height:22px; border-radius:50%; display:grid; place-items:center; background:#1c1917; color:#fde68a; border:2px solid #f59e0b; font-size:.62rem; box-shadow:0 3px 8px rgba(0,0,0,.35);"><i class="fa-solid fa-weight-hanging"></i></span>
+                            </div>
+                            <div class="dimension-model-copy" style="display: flex; flex-direction: column; align-items: flex-start; text-align: left;">
+                                <div class="curiosidades-card-head">
+                                    <span class="dimension-model-label" style="color:#fde68a; font-weight:800;">${valuesHtml}</span>
+                                    ${renderMetaSymbols(item)}
+                                </div>
+                                <strong class="dimension-model-value" style="color:#facc15;">Maior peso registado</strong>
                             </div>
                         </article>
                     `;
@@ -2803,6 +2811,7 @@
                 animalData.informacao.curiosidades.temperaturaAmbiente ||
                 animalData.informacao.curiosidades.distanciaPercorrida ||
                 animalData.informacao.curiosidades.horasSono ||
+                animalData.informacao.curiosidades.maiorPesoRegistado ||
                 animalData.informacao.curiosidades.relacaoHumanos ||
                 (Array.isArray(animalData.informacao.curiosidades.tambemConhecidoComo) && animalData.informacao.curiosidades.tambemConhecidoComo.length > 0) ||
                 (Array.isArray(animalData.informacao.curiosidades.detalhes) && animalData.informacao.curiosidades.detalhes.some(item => item?.tipo && item?.valor))
@@ -3389,7 +3398,7 @@
                         'baixo': 'Lado de baixo'
                     };
                     const countryNames = selectedCodes.map(code => {
-                        const name = getCountryName(code, code);
+                        const name = countryList[code] || code;
                         const subregion = paisesDetalhes[code] || 'inteiro';
                         return `${name} (${subLabels[subregion]})`;
                     });
@@ -3591,7 +3600,7 @@
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js?v=20260711-cache-reset-1', { updateViaCache: 'none' })
+                navigator.serviceWorker.register('./sw.js')
                     .then(reg => console.log('Service Worker registrado com sucesso:', reg.scope))
                     .catch(err => console.log('Erro ao registrar o Service Worker:', err));
             });
