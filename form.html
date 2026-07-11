@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <meta http-equiv="Surrogate-Control" content="no-store">
+    <title>Gerir Portal - Grandes Projetos</title>
+    <!-- PWA Config -->
+    <link rel="manifest" href="manifest-admin.webmanifest">
+    <link rel="icon" href="../assets/logos/admin/favicon.ico">
+    <link rel="apple-touch-icon" href="../assets/logos/admin/apple-touch-icon.png">
+    <meta name="theme-color" content="#0b2f22">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="Admin">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- CSS Global -->
+    <link rel="stylesheet" href="../css/style.css?v=20260709_portfolio_1">
+    <script src="../js/runtime-guard.js"></script>
+    <!-- jsVectorMap -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsvectormap/dist/css/jsvectormap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/jsvectormap"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsvectormap/dist/maps/world.js"></script>
+    <script src="./form-cache.js?v=20260709_portfolio_1"></script>
+    <link rel="stylesheet" href="./form.css?v=20260710_audio_1">
+
+    <style id="form-auth-critical-css">
+        /* Evita flash do formulário antes de confirmar login. */
+        body.form-auth-pending > :not(#loading-overlay):not(script) {
+            visibility: hidden !important;
+            pointer-events: none !important;
+        }
+        body.form-auth-pending #loading-overlay {
+            display: flex !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            pointer-events: auto !important;
+        }
+    </style>
+</head>
+<body class="form-light form-auth-pending">
+    <!-- Authorization Guard Overlay -->
+    <div id="loading-overlay">
+        <div class="spinner"></div>
+        <div id="loading-status" style="font-size: 1.1rem; font-weight: 600; letter-spacing: 0.5px;">A verificar autorização...</div>
+    </div>
+    <script type="module" src="./form-auth.js?v=20260711_roles_1"></script>
+    <script src="./form-startup-guard.js?v=20260710_auth_flash_fix_1"></script>
+
+    <div class="top-menu">
+        <a href="../gestor-index.html" id="gestorIndexBtn" class="menu-button" style="display:none;"><i class="fa-solid fa-list-check" style="margin-right: 8px;"></i> Gestor do Index</a>
+        <button id="openEditModalBtn" class="menu-button" disabled><i class="fa-solid fa-spinner fa-spin" style="margin-right: 8px;"></i> A carregar...</button>
+    </div>
+
+    <div class="container">
+        <h1 class="form-title" id="formTitle" style="display: none;">Gerir Grandes Projetos</h1>
+        <p class="subtitle" id="formSubtitle" style="display: none;">Formulário de Criação de Animais</p>
+        
+        <form id="animalForm">
+            <div class="form-header-fields">
+                <div class="form-group">
+                    <label for="nomeAnimal">Nome Comum</label>
+                    <input type="text" id="nomeAnimal" required placeholder="Ex: Leão">
+                </div>
+                
+                <div class="form-group scientific-name-priority">
+                    <label for="nomeCientifico">Nome Científico</label>
+                    <input type="text" id="nomeCientifico" required placeholder="Ex: Panthera leo">
+                    <label for="personalizarTipoRegisto" class="record-type-toggle" style="display: inline-flex; align-items: center; gap: 8px; margin-top: 10px; font-size: 0.9rem; font-weight: 600; cursor: pointer;">
+                        <input type="checkbox" id="personalizarTipoRegisto" style="width: auto; margin: 0;">
+                        Personalizar
+                    </label>
+                    <div id="tipoRegistoCustomArea" class="record-type-custom-area" style="display: none; margin-top: 8px;">
+                        <select id="tipoRegisto" aria-label="Tipo de registo do animal">
+                            <option value="Espécie">Espécie</option>
+                            <option value="Subespécie">Subespécie</option>
+                            <option value="Raça">Raça</option>
+                            <option value="Variedade">Variedade</option>
+                            <option value="Híbrido">Híbrido</option>
+                            <option value="Outro">Outro</option>
+                        </select>
+                        <small id="tipoRegistoHint" style="display: block; margin-top: 6px; color: var(--text-secondary); line-height: 1.35;">
+                            Se escolheres Raça, Variedade, Híbrido, Outro ou uma Subespécie sem nome científico próprio, o ID será criado com o nome científico + nome comum.
+                        </small>
+                    </div>
+                    <span id="nomeCientificoWarning" style="color: #f87171; font-size: 0.85rem; display: none; margin-top: 5px; font-weight: 500;">
+                        <i class="fa-solid fa-triangle-exclamation"></i> Este registo já se encontra registado.
+                    </span>
+                </div>
+                
+                <div class="form-group" style="position: relative;">
+                    <label>Categorias</label>
+                    <input type="hidden" id="categoria" value="">
+                    <div class="custom-multiselect" id="categoria-multiselect">
+                        <div class="multiselect-selectBox" id="multiselect-toggle">
+                            <div class="selectBox-label" id="multiselect-label">Selecione Categorias</div>
+                        </div>
+                        <div class="multiselect-checkboxes" id="multiselect-options">
+                            <label><input type="checkbox" class="categoria-checkbox" value="Mamiferos" data-label="Mamíferos"> Mamíferos</label>
+                            <label><input type="checkbox" class="categoria-checkbox" value="Aves" data-label="Aves"> Aves</label>
+                            <label><input type="checkbox" class="categoria-checkbox" value="Peixes" data-label="Peixes"> Peixes</label>
+                            <label><input type="checkbox" class="categoria-checkbox" value="Moluscos" data-label="Moluscos"> Moluscos</label>
+                            <label><input type="checkbox" class="categoria-checkbox" value="Crustaceos" data-label="Crustáceos"> Crustáceos</label>
+                            <label><input type="checkbox" class="categoria-checkbox" value="Aracnideos" data-label="Aracnídeos"> Aracnídeos</label>
+                            <label><input type="checkbox" class="categoria-checkbox" value="Vermes" data-label="Vermes"> Vermes</label>
+                            <label><input type="checkbox" class="categoria-checkbox" value="Repteis" data-label="Répteis"> Répteis</label>
+                            <label><input type="checkbox" class="categoria-checkbox" value="Anfibios" data-label="Anfíbios"> Anfíbios</label>
+                            <label><input type="checkbox" class="categoria-checkbox" value="Insetos" data-label="Insetos"> Insetos</label>
+                            <label><input type="checkbox" class="categoria-checkbox" value="Microscopicos" data-label="Microscópicos"> Microscópicos</label>
+                            <label><input type="checkbox" class="categoria-checkbox" value="Extintos" data-label="Extintos"> Extintos</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group grid-span-2 profile-main-image-field">
+                    <label for="imagemUrl">URL da Imagem</label>
+                    <div class="profile-image-inline-row">
+                        <div class="input-with-button profile-image-url-wrap">
+                            <input type="url" id="imagemUrl" placeholder="https://exemplo.com/imagem.jpg" required>
+                            <button type="button" id="btnPreviewImage" class="preview-btn" title="Visualizar e Ajustar Perspetiva">
+                                <i class="fa-solid fa-crop-simple"></i>
+                            </button>
+                        </div>
+                        <div class="profile-photo-toggles" data-profile-toggle-group="main">
+                            <button type="button" class="profile-multi-toggle profile-gender-multi-toggle" data-profile-main-gender-cycle data-value="" title="Sexo da imagem: clicar alterna entre macho/fêmea/sem opção" aria-label="Sexo da imagem">
+                                <span class="profile-multi-icon gender-male" data-option="M">♂</span>
+                                <span class="profile-multi-icon gender-female" data-option="F">♀</span>
+                            </button>
+                            <button type="button" class="profile-multi-toggle profile-phase-multi-toggle" data-profile-main-phase-cycle data-value="" title="Fase da imagem: clicar alterna entre adulto/cria/sem opção" aria-label="Fase da imagem">
+                                <span class="profile-multi-icon phase-adult" data-option="Adulto"><i class="fa-solid fa-paw" aria-hidden="true"></i></span>
+                                <span class="profile-multi-icon phase-young" data-option="Cria"><i class="fa-solid fa-baby" aria-hidden="true"></i></span>
+                            </button>
+                        </div>
+                    </div>
+                    <input type="hidden" id="imagemObjectPosition" value="center center">
+                </div>
+                
+                <button type="button" class="btn-toggle-advanced" id="toggleAdvancedBtn">
+                    <i class="fa-solid fa-gears"></i> Avançadas
+                </button>
+
+                <!-- Campos Avançados Colapsáveis -->
+                <div class="form-advanced-fields" id="advancedFieldsContainer" style="display: none;">
+                    <div class="advanced-section-header" style="grid-column: span 3; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 8px; margin-bottom: 10px;">
+                        <span style="font-size: 0.95rem; font-weight: 600; color: var(--primary-color); display: flex; align-items: center; gap: 8px;">
+                            <i class="fa-solid fa-dna"></i> Classificação Científica
+                        </span>
+                        <button type="button" id="btnOpenImportTaxModal" class="preview-btn" style="padding: 6px 12px; font-size: 0.8rem; display: flex; align-items: center; gap: 6px; margin: 0; height: auto;" title="Importar Classificação Científica">
+                            <i class="fa-solid fa-file-import"></i> Preenchimento Rápido
+                        </button>
+                    </div>
+                    <div class="form-group autocomplete-container">
+                        <label for="reino">Reino</label>
+                        <input type="text" id="reino" autocomplete="off" placeholder="Ex: Animalia">
+                        <div class="autocomplete-results" id="reinoResults"></div>
+                    </div>
+                    <div class="form-group autocomplete-container">
+                        <label for="filo">Filo</label>
+                        <input type="text" id="filo" autocomplete="off" placeholder="Ex: Chordata">
+                        <div class="autocomplete-results" id="filoResults"></div>
+                    </div>
+                    <div class="form-group autocomplete-container">
+                        <label for="subfilo">Subfilo</label>
+                        <input type="text" id="subfilo" autocomplete="off" placeholder="Ex: Vertebrata">
+                        <div class="autocomplete-results" id="subfiloResults"></div>
+                    </div>
+                    <div class="form-group autocomplete-container">
+                        <label for="classe">Classe</label>
+                        <input type="text" id="classe" autocomplete="off" placeholder="Ex: Mammalia">
+                        <div class="autocomplete-results" id="classeResults"></div>
+                    </div>
+                    <div class="form-group autocomplete-container">
+                        <label for="infraclasse">Infraclasse</label>
+                        <input type="text" id="infraclasse" autocomplete="off" placeholder="Ex: Placentalia">
+                        <div class="autocomplete-results" id="infraclasseResults"></div>
+                    </div>
+                    <div class="form-group autocomplete-container">
+                        <label for="superordem">Superordem</label>
+                        <input type="text" id="superordem" autocomplete="off" placeholder="Ex: Euarchontoglires">
+                        <div class="autocomplete-results" id="superordemResults"></div>
+                    </div>
+                    <div class="form-group autocomplete-container">
+                        <label for="ordem">Ordem</label>
+                        <input type="text" id="ordem" autocomplete="off" placeholder="Ex: Primates">
+                        <div class="autocomplete-results" id="ordemResults"></div>
+                    </div>
+                    <div class="form-group autocomplete-container">
+                        <label for="subordem">Subordem</label>
+                        <input type="text" id="subordem" autocomplete="off" placeholder="Ex: Haplorhini">
+                        <div class="autocomplete-results" id="subordemResults"></div>
+                    </div>
+                    <div class="form-group autocomplete-container">
+                        <label for="infraordem">Infraordem</label>
+                        <input type="text" id="infraordem" autocomplete="off" placeholder="Ex: Simiiformes">
+                        <div class="autocomplete-results" id="infraordemResults"></div>
+                    </div>
+                    <div class="form-group autocomplete-container">
+                        <label for="familia">Família</label>
+                        <input type="text" id="familia" autocomplete="off" placeholder="Ex: Felidae">
+                        <div class="autocomplete-results" id="familiaResults"></div>
+                    </div>
+                    <div class="form-group autocomplete-container">
+                        <label for="subfamilia">Subfamília</label>
+                        <input type="text" id="subfamilia" autocomplete="off" placeholder="Ex: Bovinae">
+                        <div class="autocomplete-results" id="subfamiliaResults"></div>
+                    </div>
+                    <div class="form-group autocomplete-container">
+                        <label for="genero">Género</label>
+                        <input type="text" id="genero" autocomplete="off" placeholder="Ex: Macaca">
+                        <div class="autocomplete-results" id="generoResults"></div>
+                    </div>
+                    <div class="form-group autocomplete-container">
+                        <label for="subgenero">Subgénero</label>
+                        <input type="text" id="subgenero" autocomplete="off" placeholder="Ex: Anoa">
+                        <div class="autocomplete-results" id="subgeneroResults"></div>
+                    </div>
+                    <div class="form-group autocomplete-container">
+                        <label for="especies">Espécies</label>
+                        <input type="text" id="especies" autocomplete="off" placeholder="Ex: Macaca fuscata">
+                        <div class="autocomplete-results" id="especiesResults"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="autoridadeTaxonomica">Autoridade taxonómica</label>
+                        <input type="text" id="autoridadeTaxonomica" placeholder="Ex: Laurillard, 1841">
+                    </div>
+                    <div class="form-group grid-span-3 autocomplete-container">
+                        <label for="subespeciesDeSearch">Subespécies de (outros animais)</label>
+                        <input type="text" id="subespeciesDeSearch" autocomplete="off" placeholder="Pesquisar animal...">
+                        <div class="autocomplete-results" id="subespeciesDeResults"></div>
+                        <div class="country-tag-list" id="selectedSubespeciesList" style="margin-top: 10px;"></div>
+                    </div>
+                    <div class="form-group grid-span-3 profile-extra-photos-field">
+                        <label>Adicionar mais fotos de perfil</label>
+                        <div id="profileExtraPhotosRows" class="profile-extra-photos-rows"></div>
+                        <button type="button" id="addProfileExtraPhotoBtn" class="add-row-btn profile-add-photo-btn">
+                            <i class="fa-solid fa-plus"></i> Adicionar mais
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="form-tabs-wrapper grid-span-3 active-geral">
+                <div class="form-tabs-navigation" role="tablist">
+                    <button type="button" class="form-tab-nav-btn active" data-tab="geral" role="tab" aria-selected="true" aria-controls="tabpanel-geral" title="Geral"><i class="fa-solid fa-circle-info"></i></button>
+                    <button type="button" class="form-tab-nav-btn" data-tab="dimensoes" role="tab" aria-selected="false" aria-controls="tabpanel-dimensoes" title="Dimensões"><i class="fa-solid fa-ruler-combined"></i></button>
+                    <button type="button" class="form-tab-nav-btn" data-tab="alimentacao" role="tab" aria-selected="false" aria-controls="tabpanel-alimentacao" title="Alimentação"><i class="fa-solid fa-utensils"></i></button>
+                    <button type="button" class="form-tab-nav-btn" data-tab="ecologia" role="tab" aria-selected="false" aria-controls="tabpanel-ecologia" title="Ecologia"><i class="fa-solid fa-seedling"></i></button>
+                    <button type="button" class="form-tab-nav-btn" data-tab="reproducao" role="tab" aria-selected="false" aria-controls="tabpanel-reproducao" title="Reprodução"><i class="fa-solid fa-heart"></i></button>
+                    <button type="button" class="form-tab-nav-btn" data-tab="distribuicao" role="tab" aria-selected="false" aria-controls="tabpanel-distribuicao" title="Distribuição"><i class="fa-solid fa-map-location-dot"></i></button>
+                    <button type="button" class="form-tab-nav-btn" data-tab="curiosidades" role="tab" aria-selected="false" aria-controls="tabpanel-curiosidades" title="Curiosidades"><i class="fa-solid fa-lightbulb"></i></button>
+                    <button type="button" class="form-tab-nav-btn" data-tab="plumagem" id="tab-btn-plumagem" role="tab" aria-selected="false" aria-controls="tabpanel-plumagem" style="display: none;" title="Plumagem"><i class="fa-solid fa-feather"></i></button>
+                </div>
+
+                <div class="form-tabs-content">
+                    <!-- Aba: Geral -->
+                    <div class="form-tab-panel active" id="tabpanel-geral" role="tabpanel">
+                        <div class="sub-tabs-navigation" role="tablist">
+                            <button type="button" class="form-subtab-nav-btn active" data-subtab="geral-modelo-visual" role="tab" aria-selected="true" aria-controls="subtabpanel-geral-modelo-visual">Modelo Visual</button>
+                            <button type="button" class="form-subtab-nav-btn" data-subtab="geral-resumo-textual" role="tab" aria-selected="false" aria-controls="subtabpanel-geral-resumo-textual">Resumo textual</button>
+                        </div>
+
+                        <div class="sub-tabs-content">
+                            <!-- Sub-aba: Modelo Visual -->
+                            <div class="form-subtab-panel active" id="subtabpanel-geral-modelo-visual" role="tabpanel">
+                                <div class="general-visual-layout">
+                                    <div class="general-visual-editor">
+                                        <div class="general-visual-row-header">
+                                            <span>Modelo</span>
+                                            <span>Mín.</span>
+                                            <span>Máx.</span>
+                                            <span>Unidade</span>
+                                            <span>Género</span>
+                                            <span>Fase</span>
+                                        </div>
+                                        <div id="generalVisualRows" class="general-visual-rows"></div>
+                                        <datalist id="feedingStrategyOptions">
+                                            <option value="Caça"></option>
+                                            <option value="Perseguição"></option>
+                                            <option value="Emboscada"></option>
+                                            <option value="Mergulho"></option>
+                                            <option value="Pesca"></option>
+                                            <option value="Filtração"></option>
+                                            <option value="Pastoreio"></option>
+                                            <option value="Ramoneio"></option>
+                                            <option value="Escavação"></option>
+                                            <option value="Raspagem"></option>
+                                            <option value="Sucção"></option>
+                                            <option value="Picagem"></option>
+                                            <option value="Coleta"></option>
+                                            <option value="Procura no solo"></option>
+                                            <option value="Procura em árvores"></option>
+                                            <option value="Necrofagia"></option>
+                                            <option value="Parasitismo"></option>
+                                            <option value="Roubo de alimento"></option>
+                                            <option value="Armadilha"></option>
+                                            <option value="Camuflagem"></option>
+                                            <option value="Cooperação em grupo"></option>
+                                            <option value="Migração para alimento"></option>
+                                            <option value="Armazenamento de alimento"></option>
+                                        </datalist>
+                                        <datalist id="matingOptions">
+                                            <option value="Monogamia"></option>
+                                            <option value="Poligamia"></option>
+                                            <option value="Poliginia"></option>
+                                            <option value="Poliandria"></option>
+                                            <option value="Poliginandria"></option>
+                                        </datalist>
+                                        <datalist id="climateZoneOptions">
+                                            <option value="Tropical"></option>
+                                            <option value="Subtropical"></option>
+                                            <option value="Temperada"></option>
+                                            <option value="Polar"></option>
+                                            <option value="Ártica"></option>
+                                            <option value="Antártica"></option>
+                                            <option value="Desértica"></option>
+                                            <option value="Semiárida"></option>
+                                            <option value="Mediterrânica"></option>
+                                            <option value="Montanhosa / Alpina"></option>
+                                        </datalist>
+                                        <datalist id="biomaOptions">
+                                            <option value="Água fresca"></option>
+                                            <option value="Água salobra"></option>
+                                            <option value="Agrícola"></option>
+                                            <option value="Áreas rochosas"></option>
+                                            <option value="Bioma antropogênico"></option>
+                                            <option value="Bosque"></option>
+                                            <option value="Calota de gelo"></option>
+                                            <option value="Campo"></option>
+                                            <option value="Caverna"></option>
+                                            <option value="Chaparral"></option>
+                                            <option value="Clima semiárido"></option>
+                                            <option value="Costa"></option>
+                                            <option value="Duna"></option>
+                                            <option value="Estepe"></option>
+                                            <option value="Estuário"></option>
+                                            <option value="Fauna urbana"></option>
+                                            <option value="Floresta"></option>
+                                            <option value="Floresta húmida"></option>
+                                            <option value="Floresta montana"></option>
+                                            <option value="Floresta nublada"></option>
+                                            <option value="Floresta tropical pluvial"></option>
+                                            <option value="Lago"></option>
+                                            <option value="Marinho"></option>
+                                            <option value="Marinho (corais)"></option>
+                                            <option value="Matagal"></option>
+                                            <option value="Montanha"></option>
+                                            <option value="Pântano"></option>
+                                            <option value="Paul"></option>
+                                            <option value="Piscinas temporárias"></option>
+                                            <option value="Pradaria"></option>
+                                            <option value="Rio"></option>
+                                            <option value="Savana"></option>
+                                            <option value="Subúrbio"></option>
+                                            <option value="Zona entremarés"></option>
+                                            <option value="Zona nerítica"></option>
+                                            <option value="Zona pelágica"></option>
+                                            <option value="Zona ripária"></option>
+                                            <option value="Zona úmida"></option>
+                                        </datalist>
+                                        <button type="button" id="addGeneralVisualBtn" class="secondary-action-btn">+ Adicionar modelo</button>
+                                        <p class="form-hint">Usa esta área para dados gerais com modelo visual: vida útil, velocidades, força da mordida, tamanho da população, tempo de amamentação, atividade, vida social, função ecológica, locomoção, estratégia para obter alimento, zona climática e bioma.</p>
+                                    </div>
+
+                                    <div class="general-visual-preview" aria-live="polite">
+                                        <div class="preview-card-title">Modelo visual geral</div>
+                                        <div class="general-preview-hero">
+                                            <div class="general-preview-icon" aria-hidden="true">
+                                                <svg class="metric-model-svg general-model-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true">
+                                                    <path d="M18 58c8-22 24-34 47-36"/>
+                                                    <path d="M21 61h38"/>
+                                                    <path d="M57 22l5-8"/>
+                                                    <path d="M53 26l-7-6"/>
+                                                    <circle cx="30" cy="57" r="4"/>
+                                                    <circle cx="56" cy="57" r="4"/>
+                                                </svg>
+                                            </div>
+                                            <div class="general-preview-copy">
+                                                <span>Informação Geral</span>
+                                                <strong>Dados rápidos do animal</strong>
+                                            </div>
+                                        </div>
+                                        <div class="general-visual-models" id="previewGeneralVisualModels"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Sub-aba: Resumo textual -->
+                            <div class="form-subtab-panel" id="subtabpanel-geral-resumo-textual" role="tabpanel">
+                                <div class="form-group">
+                                    <label for="infoGeral">Informação Geral</label>
+                                    <textarea id="infoGeral" rows="8" placeholder="Escreva uma descrição geral detalhada sobre o animal..."></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Aba: Dimensões -->
+                    <div class="form-tab-panel" id="tabpanel-dimensoes" role="tabpanel">
+                        <div class="sub-tabs-navigation" role="tablist">
+                            <button type="button" class="form-subtab-nav-btn active" data-subtab="modelo-visual" role="tab" aria-selected="true" aria-controls="subtabpanel-modelo">Modelo Visual</button>
+                            <button type="button" class="form-subtab-nav-btn" data-subtab="resumo-textual" role="tab" aria-selected="false" aria-controls="subtabpanel-resumo">Resumo textual</button>
+                        </div>
+                        
+                        <div class="sub-tabs-content">
+                            <!-- Sub-aba: Modelo Visual -->
+                            <div class="form-subtab-panel active" id="subtabpanel-modelo-visual" role="tabpanel">
+                                <div class="dimensions-layout">
+                                    <div class="dimensions-editor">
+                                        <div class="dimension-row-header">
+                                            <span>Medida</span>
+                                            <span>Mín.</span>
+                                            <span>Máx.</span>
+                                            <span>Unidade</span>
+                                            <span>Género</span>
+                                            <span>Fase</span>
+                                        </div>
+                                        <div id="dimensionRows" class="dimension-rows"></div>
+                                        <button type="button" id="addDimensionBtn" class="secondary-action-btn">+ Adicionar medida</button>
+                                        <p class="form-hint">Para intervalos, preenche mínimo e máximo. Ex.: Comprimento total, mín. 66, máx. 76, unidade cm â†’ â€œ66–76 cm”. Para valores exatos, preenche só o mínimo.</p>
+                                    </div>
+
+                                    <div class="animal-measure-preview" aria-live="polite">
+                                        <div class="preview-card-title">Modelo visual</div>
+                                        <div class="preview-stage">
+                                            <div class="height-ruler">
+                                                <span id="previewHeightValue">Altura</span>
+                                            </div>
+                                            <div class="animal-silhouette" id="animalSilhouette" aria-hidden="true"></div>
+                                            <div class="weight-badge" id="previewWeightValue">Peso</div>
+                                            <div class="length-ruler" id="previewLengthValue">Comprimento</div>
+                                        </div>
+                                        <div class="preview-dimension-models" id="previewDimensionModels"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Sub-aba: Resumo textual -->
+                            <div class="form-subtab-panel" id="subtabpanel-resumo-textual" role="tabpanel">
+                                <div class="form-group">
+                                    <label for="infoDimensoes">Resumo textual</label>
+                                    <textarea id="infoDimensoes" rows="10" placeholder="Ex: Animal de grande porte, com corpo robusto e cauda comprida..."></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Aba: Alimentação -->
+                    <div class="form-tab-panel" id="tabpanel-alimentacao" role="tabpanel">
+                        <div class="sub-tabs-navigation" role="tablist">
+                            <button type="button" class="form-subtab-nav-btn active" data-subtab="alimentacao-modelo-visual" role="tab" aria-selected="true" aria-controls="subtabpanel-alimentacao-modelo-visual">Modelo Visual</button>
+                            <button type="button" class="form-subtab-nav-btn" data-subtab="alimentacao-resumo-textual" role="tab" aria-selected="false" aria-controls="subtabpanel-alimentacao-resumo-textual">Resumo textual</button>
+                        </div>
+
+                        <div class="sub-tabs-content">
+                            <div class="form-subtab-panel active" id="subtabpanel-alimentacao-modelo-visual" role="tabpanel">
+                                <div class="reproduction-layout feeding-layout">
+                                    <div class="reproduction-editor feeding-editor">
+                                        <div class="feeding-row-header">
+                                            <span>Modelo</span>
+                                            <span>Detalhe curto</span>
+                                            <span>Género</span>
+                                            <span>Fase</span>
+                                        </div>
+                                        <div id="feedingRows" class="feeding-rows"></div>
+
+                                        <button type="button" id="addFeedingBtn" class="secondary-action-btn">+ Adicionar modelo</button>
+                                        <div class="feeding-animal-dropdown" id="feedingAnimalDropdown">
+                                            <button type="button" class="feeding-animal-trigger" id="feedingAnimalTrigger" aria-expanded="false" aria-controls="feedingAnimalMenu">
+                                                <span>Escolher animal da dieta</span>
+                                                <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+                                            </button>
+                                            <div class="feeding-animal-menu" id="feedingAnimalMenu">
+                                                <input type="search" id="feedingAnimalSearch" class="feeding-animal-search" placeholder="Pesquisar animal..." autocomplete="off">
+                                                <div class="feeding-animal-list" id="feedingAnimalList" role="listbox" aria-label="Animais por ordem alfabética"></div>
+                                            </div>
+                                        </div>
+                                        <p class="form-hint">Escolhe um ou mais tipos de dieta. O modelo visual mostra um ícone próprio para cada tipo selecionado.</p>
+                                    </div>
+
+                                    <div class="reproduction-visual-preview feeding-visual-preview" aria-live="polite">
+                                        <div class="preview-card-title">Modelo visual da alimentação</div>
+                                        <div class="reproduction-preview-stage feeding-preview-stage">
+                                            <div class="reproduction-category-icon" id="feedingHeroIcon" aria-hidden="true"></div>
+                                            <div class="reproduction-category-copy">
+                                                <span>Dieta</span>
+                                                <strong id="feedingHeroTitle">Tipos de alimentação</strong>
+                                            </div>
+                                        </div>
+                                        <div class="reproduction-model-grid feeding-model-grid" id="previewFeedingModels"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-subtab-panel" id="subtabpanel-alimentacao-resumo-textual" role="tabpanel">
+                                <div class="form-group">
+                                    <label for="infoAlimentacao">Alimentação</label>
+                                    <textarea id="infoAlimentacao" rows="10" placeholder="Tipo de dieta, presas favoritas..."></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Aba: Ecologia -->
+                    <div class="form-tab-panel" id="tabpanel-ecologia" role="tabpanel">
+                        <div class="sub-tabs-navigation" role="tablist">
+                            <button type="button" class="form-subtab-nav-btn active" data-subtab="ecologia-modelo-visual" role="tab" aria-selected="true" aria-controls="subtabpanel-ecologia-modelo-visual">Modelo Visual</button>
+                            <button type="button" class="form-subtab-nav-btn" data-subtab="ecologia-resumo-textual" role="tab" aria-selected="false" aria-controls="subtabpanel-ecologia-resumo-textual">Resumo textual</button>
+                        </div>
+
+                        <div class="sub-tabs-content">
+                            <div class="form-subtab-panel active" id="subtabpanel-ecologia-modelo-visual" role="tabpanel">
+                                <div class="ecology-layout">
+                                    <div class="ecology-editor">
+                                        <div class="ecology-row-header">
+                                            <span>Modelo</span>
+                                            <span>Relação / animais</span>
+                                        </div>
+                                        <div id="ecologyRows" class="ecology-rows"></div>
+                                        <button type="button" id="addEcologyBtn" class="secondary-action-btn">+ Adicionar relação</button>
+                                        <p class="form-hint">Regista a função ecológica e as relações com outras espécies. A pesquisa usa nome comum ou nome científico já gravado na base de dados.</p>
+                                    </div>
+
+                                    <div class="ecology-visual-preview" aria-live="polite">
+                                        <div class="preview-card-title">Modelo visual da ecologia</div>
+                                        <div class="ecology-preview-stage">
+                                            <div class="ecology-hero-icon" id="ecologyHeroIcon" aria-hidden="true"></div>
+                                            <div class="reproduction-category-copy">
+                                                <span>Ecologia</span>
+                                                <strong id="ecologyHeroTitle">Relações ecológicas</strong>
+                                            </div>
+                                        </div>
+                                        <div class="ecology-model-grid" id="previewEcologyModels"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-subtab-panel" id="subtabpanel-ecologia-resumo-textual" role="tabpanel">
+                                <div class="form-group">
+                                    <label for="infoEcologia">Ecologia</label>
+                                    <textarea id="infoEcologia" rows="10" placeholder="Resumo textual sobre função ecológica, predadores, presas, competidores, ameaças naturais e relações simbióticas..."></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Aba: Reprodução -->
+                    <div class="form-tab-panel" id="tabpanel-reproducao" role="tabpanel">
+                        <div class="sub-tabs-navigation" role="tablist">
+                            <button type="button" class="form-subtab-nav-btn active" data-subtab="reproducao-modelo-visual" role="tab" aria-selected="true" aria-controls="subtabpanel-reproducao-modelo-visual">Modelo Visual</button>
+                            <button type="button" class="form-subtab-nav-btn" data-subtab="reproducao-resumo-textual" role="tab" aria-selected="false" aria-controls="subtabpanel-reproducao-resumo-textual">Resumo textual</button>
+                        </div>
+
+                        <div class="sub-tabs-content">
+                            <div class="form-subtab-panel active" id="subtabpanel-reproducao-modelo-visual" role="tabpanel">
+                                <div class="reproduction-layout">
+                                    <div class="reproduction-editor">
+                                        <div class="reproduction-row-header">
+                                            <span>Propriedade</span>
+                                            <span>Mín.</span>
+                                            <span>Máx.</span>
+                                            <span>Unidade</span>
+                                            <span>Género</span>
+                                            <span>Fase</span>
+                                        </div>
+                                        <div id="reproductionRows" class="reproduction-rows"></div>
+
+                                        <button type="button" id="addReproductionBtn" class="secondary-action-btn">+ Adicionar tipo</button>
+                                        <p class="form-hint" id="reproductionHint">As opções mudam conforme a categoria escolhida. Ex: aves mostram ovíparo/incubação; mamíferos mostram vivíparo/placental/marsupial.</p>
+                                    </div>
+
+                                    <div class="reproduction-visual-preview" aria-live="polite">
+                                        <div class="preview-card-title">Modelo visual da reprodução</div>
+                                        <div class="reproduction-preview-stage">
+                                            <div class="reproduction-category-icon" id="reproductionCategoryIcon" aria-hidden="true"></div>
+                                            <div class="reproduction-category-copy">
+                                                <span>Categoria</span>
+                                                <strong id="reproductionCategoryName">Seleciona uma categoria</strong>
+                                            </div>
+                                        </div>
+                                        <div class="reproduction-model-grid" id="previewReproductionModels"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-subtab-panel" id="subtabpanel-reproducao-resumo-textual" role="tabpanel">
+                                <div class="form-group">
+                                    <label for="infoReproducao">Resumo textual</label>
+                                    <textarea id="infoReproducao" rows="10" placeholder="Gestação, época de acasalamento, número de ovos ou crias..."></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Aba: Plumagem -->
+                    <div class="form-tab-panel" id="tabpanel-plumagem" role="tabpanel">
+                        <div class="sub-tabs-navigation" role="tablist">
+                            <button type="button" class="form-subtab-nav-btn active" data-subtab="plumagem-modelo-visual" role="tab" aria-selected="true" aria-controls="subtabpanel-plumagem-modelo-visual">Modelo Visual</button>
+                            <button type="button" class="form-subtab-nav-btn" data-subtab="plumagem-resumo-textual" role="tab" aria-selected="false" aria-controls="subtabpanel-plumagem-resumo-textual">Resumo textual</button>
+                        </div>
+
+                        <div class="sub-tabs-content">
+                            <div class="form-subtab-panel active" id="subtabpanel-plumagem-modelo-visual" role="tabpanel">
+                                <div class="plumage-layout">
+                                    <div class="plumage-editor">
+                                        <div class="plumage-row-header">
+                                            <span>Grupo visual</span>
+                                            <span>Tipo</span>
+                                            <span>Detalhe curto</span>
+                                        </div>
+                                        <div id="plumageRows" class="plumage-rows"></div>
+                                        <button type="button" id="addPlumageBtn" class="secondary-action-btn">+ Adicionar tipo</button>
+                                        <p class="form-hint">Podes escolher um <strong>tipo de plumagem</strong> (ex: nupcial, camuflagem, ornamental) ou um <strong>tipo de pena</strong> (ex: rémiges, retrizes, tectrizes, penugem). O modelo visual mostra a peça correspondente com fundo realmente transparente.</p>
+                                    </div>
+
+                                    <div class="plumage-visual-preview" aria-live="polite">
+                                        <div class="preview-card-title">Modelo visual da plumagem</div>
+                                        <div class="plumage-preview-stage">
+                                            <div class="plumage-hero-figure">
+                                                <img id="plumageHeroImage" src="../assets/plumagem/remiges.png" alt="Modelo visual de plumagem">
+                                            </div>
+                                            <div class="plumage-hero-copy">
+                                                <span>Secção exclusiva de aves</span>
+                                                <strong id="plumageHeroTitle">Plumagem e tipos de pena</strong>
+                                                <p id="plumageHeroText">Seleciona tipos de plumagem ou de pena para gerar um modelo visual coerente.</p>
+                                            </div>
+                                        </div>
+                                        <div class="plumage-model-grid" id="previewPlumageModels"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-subtab-panel" id="subtabpanel-plumagem-resumo-textual" role="tabpanel">
+                                <div class="form-group">
+                                    <label for="infoPlumagem">Plumagem (Apenas para Aves)</label>
+                                    <textarea id="infoPlumagem" rows="10" placeholder="Ex: Plumagem colorida, com tons de azul e verde brilhantes..."></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Aba: Distribuição -->
+                    <div class="form-tab-panel" id="tabpanel-distribuicao" role="tabpanel">
+                        <div class="distribution-layout">
+                            <div class="distribution-editor">
+                                <div class="form-group">
+                                    <label for="countrySearchInput">Adicionar Países</label>
+                                    <div class="country-search-wrapper">
+                                        <input type="text" id="countrySearchInput" placeholder="Escreva o nome de um país (ex: Portugal, Brasil)..." autocomplete="off">
+                                        <div class="autocomplete-dropdown" id="countryAutocompleteDropdown" style="display: none;"></div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <span class="highlighted-countries-title">Países Selecionados</span>
+                                    <div class="country-tag-list" id="selectedCountriesList">
+                                        <!-- Tags will be dynamically added here -->
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="infoDistribuicao">Descrição da Distribuição</label>
+                                    <textarea id="infoDistribuicao" rows="6" placeholder="Descreva a distribuição geográfica do animal, biomas comuns, migração..."></textarea>
+                                </div>
+                            </div>
+                            <div class="map-container-wrapper">
+                                <div class="preview-card-title">Mapa de Distribuição (Pré-visualização)</div>
+                                <div class="map-container" id="distributionMapForm"></div>
+                            </div>
+                            <div class="form-group distribution-biogeographic-field">
+                                <div class="distribution-region-row-header">
+                                    <span>Tipo</span>
+                                    <span>Região</span>
+                                    <span></span>
+                                </div>
+                                <div class="distribution-region-rows" id="distributionRegionRows"></div>
+                                <button type="button" class="secondary-action-btn add-distribution-region-btn" id="addDistributionRegionBtn">
+                                    <i class="fa-solid fa-plus"></i> Adicionar modelo
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Aba: Curiosidades -->
+                    <div class="form-tab-panel" id="tabpanel-curiosidades" role="tabpanel">
+                        <div class="sub-tabs-navigation" role="tablist">
+                            <button type="button" class="form-subtab-nav-btn active" data-subtab="curiosidades-modelo-visual" role="tab" aria-selected="true" aria-controls="subtabpanel-curiosidades-modelo-visual">Modelo Visual</button>
+                            <button type="button" class="form-subtab-nav-btn" data-subtab="curiosidades-resumo-textual" role="tab" aria-selected="false" aria-controls="subtabpanel-curiosidades-resumo-textual">Texto</button>
+                        </div>
+
+                        <div class="sub-tabs-content">
+                            <!-- Sub-aba: Modelo Visual -->
+                            <div class="form-subtab-panel active" id="subtabpanel-curiosidades-modelo-visual" role="tabpanel">
+                                <div class="curiosidades-layout">
+                                    <div class="curiosidades-editor">
+                                        <div class="curiosidades-row-header">
+                                            <span>Propriedade</span>
+                                            <span>Valor</span>
+                                            <span>Género</span>
+                                            <span>Fase</span>
+                                        </div>
+                                        <div id="curiosidadesRows" class="curiosidades-rows"></div>
+                                        <button type="button" id="addCuriosidadesBtn" class="secondary-action-btn">+ Adicionar campo</button>
+                                        <p class="form-hint">Podes registar variantes por sexo e por fase, por exemplo cores diferentes entre macho/fêmea ou diferenças entre adulto e cria.</p>
+                                    </div>
+                                    <div class="curiosidades-visual-preview" aria-live="polite">
+                                        <div class="preview-card-title">Modelo visual de curiosidades</div>
+                                        <div class="curiosidades-preview-stage">
+                                            <div id="curiosidadesPreviewList" class="curiosidades-preview-list"></div>
+                                            <div class="curiosidades-preview-empty" id="curiosidadesEmptyPreview">
+                                                <i class="fa-solid fa-eye-slash" style="font-size: 2rem; opacity: 0.3; margin-bottom: 10px;"></i>
+                                                <p>Preencha as opções para ver a pré-visualização.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Sub-aba: Texto -->
+                            <div class="form-subtab-panel" id="subtabpanel-curiosidades-resumo-textual" role="tabpanel">
+                                <div class="form-group">
+                                    <label for="infoCuriosidades">Curiosidades (Texto)</label>
+                                    <textarea id="infoCuriosidades" rows="10" placeholder="Ex: Curiosidades interessantes sobre o animal, comportamento peculiar, hábitos únicos..."></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <fieldset class="grid-span-3 collapsible-fieldset collapsed" id="videosFieldset">
+                <legend id="videosLegend">
+                    Vídeos Complementares (YouTube) <i class="fa-solid fa-chevron-down" style="margin-left: 8px; font-size: 0.8em; transition: transform 0.3s ease;"></i>
+                </legend>
+                <div class="fieldset-content" style="display: none; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-top: 15px;">
+                    <div class="form-group">
+                        <label for="video1">Vídeo 1</label>
+                        <input type="url" id="video1" placeholder="URL do YouTube">
+                    </div>
+                    <div class="form-group">
+                        <label for="video2">Vídeo 2</label>
+                        <input type="url" id="video2" placeholder="URL do YouTube">
+                    </div>
+                    <div class="form-group">
+                        <label for="video3">Vídeo 3</label>
+                        <input type="url" id="video3" placeholder="URL do YouTube">
+                    </div>
+                    <div class="form-group">
+                        <label for="video4">Vídeo 4</label>
+                        <input type="url" id="video4" placeholder="URL do YouTube">
+                    </div>
+                    <div class="form-group">
+                        <label for="video5">Vídeo 5</label>
+                        <input type="url" id="video5" placeholder="URL do YouTube">
+                    </div>
+                    <div class="form-group xeno-audio-form-group">
+                        <label for="xenoCantoAudioId">Áudio xeno-canto</label>
+                        <input type="text" id="xenoCantoAudioId" inputmode="numeric" pattern="[0-9]*" placeholder="Código do áudio, ex: 1067401">
+                        <small class="form-hint">Coloca apenas o número da gravação. Ex: 1067401.</small>
+                    </div>
+                </div>
+            </fieldset>
+            
+            <div class="save-quality-row grid-span-3">
+                <div class="animal-quality-selector" id="animalQualitySelector" aria-label="Nível de qualidade do registo">
+                    <button type="button" class="quality-choice quality-forte" data-quality="forte" title="Forte" aria-label="Forte">
+                        <i class="fa-solid fa-shield-halved"></i>
+                        <span>Forte</span>
+                    </button>
+                    <button type="button" class="quality-choice quality-melhorar" data-quality="melhorar" title="Melhorar" aria-label="Melhorar">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                        <span>Melhorar</span>
+                    </button>
+                    <button type="button" class="quality-choice quality-basico active" data-quality="basico" title="Básico" aria-label="Básico">
+                        <i class="fa-solid fa-circle-exclamation"></i>
+                        <span>Básico</span>
+                    </button>
+                </div>
+                <div class="form-statistics-summary" id="formStatisticsSummary" aria-live="polite" title="Resumo dos parâmetros estatísticos preenchidos">
+                    <span class="form-stat-pill form-stat-pill-params">
+                        <i class="fa-solid fa-list-check" aria-hidden="true"></i>
+                        <strong id="formParamsCount">0/58</strong> parâmetros
+                    </span>
+                    <span class="form-stat-pill form-stat-pill-dots">
+                        <i class="fa-solid fa-circle-dot" aria-hidden="true"></i>
+                        <strong id="formDotsCount">0</strong> dots
+                    </span>
+                </div>
+                <button type="submit" id="saveButton">Gravar Novo Animal</button>
+            </div>
+            <div id="statusMessage" class="grid-span-3"></div>
+        </form>
+    </div>
+
+    <!-- Modal de Seleção de Edição -->
+    <div class="modal-overlay" id="editModalOverlay">
+        <div class="modal">
+            <h2>Selecionar Animal para Editar</h2>
+            <div class="edit-search-row">
+                <input type="text" id="editSearchInput" placeholder="Pesquisar por nome comum ou científico...">
+                <button type="button" id="editQualityFilterBtn" class="edit-quality-filter-btn" title="Filtrar por qualidade" aria-label="Filtrar por qualidade">
+                    <i class="fa-solid fa-filter"></i>
+                </button>
+            </div>
+            <div id="editQualityFilterPanel" class="edit-quality-filter-panel" style="display: none;">
+                <button type="button" class="quality-filter-choice" data-quality-filter="forte" title="Forte" aria-label="Filtrar Forte"><i class="fa-solid fa-shield-halved"></i></button>
+                <button type="button" class="quality-filter-choice" data-quality-filter="melhorar" title="Melhorar" aria-label="Filtrar Melhorar"><i class="fa-solid fa-wand-magic-sparkles"></i></button>
+                <button type="button" class="quality-filter-choice" data-quality-filter="basico" title="Básico" aria-label="Filtrar Básico"><i class="fa-solid fa-circle-exclamation"></i></button>
+                <button type="button" class="quality-filter-choice quality-filter-clear" data-quality-filter="" title="Limpar filtro" aria-label="Limpar filtro"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="edit-list" id="editListContainer">
+                <p style="padding: 15px; text-align: center; color: var(--text-secondary);">A carregar animais...</p>
+            </div>
+            <button id="closeEditModalBtn" class="menu-button">Fechar</button>
+        </div>
+    </div>
+
+    <!-- Modal de Importação de Classificação Científica -->
+    <div class="modal-overlay" id="importTaxModalOverlay" style="z-index: 2500;">
+        <div class="modal" style="max-width: 500px;">
+            <h2>Importar Classificação Científica</h2>
+            <p style="color: var(--text-secondary); margin-top: -10px; font-size: 0.9rem; margin-bottom: 15px;">Cole o texto de classificação (ex: Wikipédia) para preencher os campos automaticamente.</p>
+            <div style="margin-bottom: 15px;">
+                <textarea id="importTaxTextarea" placeholder="Cole o texto aqui...&#10;&#10;Aceita formatos como:&#10;Kingdom&#10;Animalia&#10;Phylum&#10;Chordata&#10;&#10;ou:&#10;Kingdom: Animalia&#10;Phylum: Chordata" style="width: 100%; height: 200px; padding: 12px; background: var(--bg-card); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--border-radius-sm); font-family: monospace; resize: vertical; box-sizing: border-box;"></textarea>
+            </div>
+            <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                <button type="button" id="closeImportTaxModalBtn" class="menu-button" style="background: transparent; border: 1px solid var(--border-color); color: var(--text-secondary); margin: 0;">Cancelar</button>
+                <button type="button" id="confirmImportTaxBtn" class="menu-button" style="background: var(--primary-color); color: var(--bg-primary); border: none; margin: 0;">Importar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Seleção de Subregião -->
+    <div class="modal-overlay" id="subregionModalOverlay" style="z-index: 2000;">
+        <div class="modal" style="max-width: 440px;">
+            <h2 id="subregionModalTitle">Selecionar Área</h2>
+            <p style="color: var(--text-secondary); margin-top: -10px; font-size: 0.9rem;">Escolha qual parte do país pretende assinalar.</p>
+            <div class="form-group">
+                <select id="subregionSelectModal" style="width: 100%; padding: 12px; background: var(--bg-card); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--border-radius-sm);">
+                    <option value="inteiro">País inteiro (Predefinido)</option>
+                    <option value="esquerdo">Lado esquerdo (Oeste)</option>
+                    <option value="direito">Lado direito (Este)</option>
+                    <option value="cima">Lado de cima (Norte)</option>
+                    <option value="baixo">Lado de baixo (Sul)</option>
+                </select>
+            </div>
+            <div style="display: flex; gap: 10px; justify-content: space-between; margin-top: 20px;">
+                <button id="removeSubregionCountryBtn" class="secondary-action-btn" style="padding: 10px 16px; border-color: #ef4444; color: #ef4444; background: transparent;">Remover</button>
+                <div style="display: flex; gap: 10px;">
+                    <button id="closeSubregionModalBtn" class="secondary-action-btn" style="padding: 10px 16px;">Cancelar</button>
+                    <button id="saveSubregionModalBtn" class="menu-button" style="padding: 10px 20px; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">Confirmar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Ajustar Perspetiva da Imagem -->
+    <div class="modal-overlay" id="perspectiveModalOverlay">
+        <div class="modal perspective-modal">
+            <h2>Ajustar Perspetiva da Imagem</h2>
+            <p class="perspective-modal-description">Arraste a imagem ou use os controlos para ajustar as miniaturas que aparecerão no site, no telemóvel, na foto de perfil e na página da subfamília.</p>
+            
+            <div class="perspective-previews-grid">
+                <div class="perspective-preview-block">
+                    <span class="perspective-preview-label">Ecrã inteiro (Grid)</span>
+                    <div class="animal-list-item-preview-card perspective-preview-card perspective-preview-grid-card">
+                        <div class="perspective-preview-image-wrap">
+                            <img id="perspectivePreviewImg" src="" alt="Pré-visualização" class="perspective-preview-image">
+                            <div class="perspective-preview-overlay"></div>
+                        </div>
+                        <div class="perspective-preview-copy">
+                            <div id="previewCardTitle" class="perspective-preview-title">Nome do Animal</div>
+                            <div id="previewCardSubtitle" class="perspective-preview-subtitle">(Nome científico)</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="perspective-preview-block">
+                    <span class="perspective-preview-label">Telemóvel (Grid / Ecrã inteiro)</span>
+                    <div class="animal-list-item-preview-card-mobile perspective-preview-card perspective-preview-mobile-card">
+                        <div class="perspective-preview-image-wrap">
+                            <img id="perspectivePreviewImgMobile" src="" alt="Pré-visualização Mobile" class="perspective-preview-image">
+                            <div class="perspective-preview-overlay"></div>
+                        </div>
+                        <div class="perspective-preview-copy compact">
+                            <div id="previewCardTitleMobile" class="perspective-preview-title">Nome do Animal</div>
+                            <div id="previewCardSubtitleMobile" class="perspective-preview-subtitle">(Nome científico)</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="perspective-preview-block perspective-profile-preview-block">
+                    <span class="perspective-preview-label">Foto Perfil</span>
+                    <div class="animal-profile-preview-card perspective-preview-card">
+                        <img id="perspectivePreviewImgProfile" src="" alt="Pré-visualização da foto de perfil" class="perspective-profile-preview-image">
+                        <div class="perspective-profile-size-badge">600 × 950 px</div>
+                    </div>
+                </div>
+
+                <div class="perspective-preview-block perspective-family-preview-block">
+                    <span class="perspective-preview-label">Página da subfamília</span>
+                    <div class="family-tree-preview-card perspective-preview-card">
+                        <img id="perspectivePreviewImgFamily" src="" alt="Pré-visualização da miniatura na página da subfamília" class="perspective-family-preview-image">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="perspective-controls">
+                <div class="perspective-slider-row">
+                    <div class="perspective-slider-label">
+                        <label for="posXSlider">Posição Horizontal (X):</label>
+                        <span id="posXVal">50%</span>
+                    </div>
+                    <input type="range" id="posXSlider" min="0" max="100" value="50">
+                </div>
+                
+                <div class="perspective-slider-row">
+                    <div class="perspective-slider-label">
+                        <label for="posYSlider">Posição Vertical (Y):</label>
+                        <span id="posYVal">50%</span>
+                    </div>
+                    <input type="range" id="posYSlider" min="0" max="100" value="50">
+                </div>
+            </div>
+
+            <div class="perspective-presets">
+                <button type="button" class="menu-button preset-btn" data-x="50" data-y="50">Centro</button>
+                <button type="button" class="menu-button preset-btn" data-x="50" data-y="0">Topo</button>
+                <button type="button" class="menu-button preset-btn" data-x="50" data-y="100">Fundo</button>
+                <button type="button" class="menu-button preset-btn" data-x="0" data-y="50">Esquerda</button>
+                <button type="button" class="menu-button preset-btn" data-x="100" data-y="50">Direita</button>
+            </div>
+            
+            <div class="perspective-actions">
+                <button type="button" id="confirmPerspectiveBtn" class="menu-button perspective-confirm-btn">Confirmar</button>
+                <button type="button" id="closePerspectiveModalBtn" class="menu-button">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Componentes e Lógica -->
+    <script type="module" src="../js/components.js?v=20260710_no_animais_snapshot_1"></script>
+    <script src="./modules/form-distribution-regions.js?v=20260710_1"></script>
+    <script type="module" src="./form.js?v=20260711_family_thumbnail_preview_1"></script>
+    <!-- Service Worker PWA -->
+    <script src="./sw-register.js?v=20260710_no_animais_snapshot_1"></script>
+</body>
+</html>
+

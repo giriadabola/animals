@@ -88,7 +88,9 @@ export function injectHeader() {
                     if (userData.nome) {
                         nome = userData.nome;
                     }
-                    if (userData.status === 'on' && (userData.rule === 'ruler' || userData.rule === 'estafeta')) {
+                    const status = String(userData.status || '').toLowerCase();
+                    const role = String(userData.rule || '').toLowerCase();
+                    if (status === 'on' && (role === 'ruler' || role === 'estafeta')) {
                         isAuthorized = true;
                     }
                 }

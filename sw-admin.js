@@ -1,108 +1,137 @@
-const CACHE_NAME = 'animals-admin-v1.0.5';
+const CACHE_NAME = 'animals-admin-v1.0.13-parental-save-fix';
+
 const ASSETS_TO_CACHE = [
+  './',
   './form.html',
-  './gestor-index.html',
-  './login.html',
-  './css/style.css',
-  './js/firebase-config.js',
-  './js/loader.js',
-  './js/countries.json',
-  './js/feeding-animal-options.js',
-  './js/feeding-strategies.js',
-  './js/feeding-visuals.js',
-  './js/mating-systems.js',
-  './assets/logos/admin/manifest.webmanifest',
-  './assets/logos/admin/favicon.ico',
-  './assets/logos/admin/apple-touch-icon.png',
-  './assets/logos/admin/logo-admin-512.png',
-  './assets/logos/admin/logo-admin-1024.png',
+  './form.css',
+  './form.js',
+  './form-auth.js',
+  './form-cache.js',
+  './sw-register.js',
+  './manifest-admin.webmanifest',
+
+  './modules/form-state-catalogs.js',
+  './modules/form-record-type.js',
+  './modules/form-quality-level.js',
+  './modules/form-profile-link.js',
+  './modules/form-dimensions.js',
+  './modules/form-general.js',
+  './modules/form-feeding.js',
+  './modules/form-ecology.js',
+  './modules/form-reproduction.js',
+  './modules/form-plumage-editing.js',
+  './modules/form-curiosities-categories.js',
+  './modules/form-statistics-counter.js',
+  './modules/form-distribution-submit.js',
+
+  '../gestor-index.html',
+  '../login.html',
+  '../myportefolio.html',
+  '../css/style.css',
+  '../js/runtime-guard.js',
+  '../js/components.js',
+  '../js/firebase-config.js',
+  '../js/loader.js',
+  '../js/countries.json',
+  '../js/feeding-animal-options.js',
+  '../js/feeding-strategies.js',
+  '../js/feeding-visuals.js',
+  '../js/mating-systems.js',
+  '../js/general-visual-catalog.js',
+  '../js/ecology-visuals.js',
+  '../js/feeding-visuals.js',
+  '../js/locomotion-visuals.js',
+  '../js/communication-catalog.js',
+  '../js/ecological-functions.js',
+
+  '../assets/logos/admin/favicon.ico',
+  '../assets/logos/admin/apple-touch-icon.png',
+  '../assets/logos/admin/logo-admin-512.png',
+  '../assets/logos/admin/logo-admin-1024.png',
+  '../assets/plumagem/remiges.png',
+
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css',
   'https://cdn.jsdelivr.net/npm/jsvectormap/dist/css/jsvectormap.min.css',
   'https://cdn.jsdelivr.net/npm/jsvectormap',
   'https://cdn.jsdelivr.net/npm/jsvectormap/dist/maps/world.js'
 ];
 
-// Instalar e armazenar em cache os recursos estáticos
-self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(ASSETS_TO_CACHE);
+function shouldIgnoreRequest(request) {
+  const url = new URL(request.url);
+  return (
+    request.method !== 'GET' ||
+    url.protocol === 'chrome-extension:' ||
+    url.href.includes('firestore.googleapis.com') ||
+    url.href.includes('firebase') ||
+    url.href.includes('googleapis.com/identitytoolkit') ||
+    url.href.includes('securetoken.googleapis.com')
+  );
+}
+
+async function cacheAssetsSafely() {
+  const cache = await caches.open(CACHE_NAME);
+  await Promise.allSettled(
+    ASSETS_TO_CACHE.map(async (asset) => {
+      try {
+        await cache.add(new Request(asset, { cache: 'reload' }));
+      } catch (error) {
+        console.warn('[Admin SW] Recurso ignorado no cache inicial:', asset, error);
+      }
     })
   );
+}
+
+self.addEventListener('install', (event) => {
+  event.waitUntil(cacheAssetsSafely());
   self.skipWaiting();
 });
 
-// Limpar caches antigos
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames.map((cache) => {
-          if (cache !== CACHE_NAME && cache.startsWith('animals-admin-')) {
-            return caches.delete(cache);
-          }
-        })
-      );
-    })
+    caches.keys().then((cacheNames) => Promise.all(
+      cacheNames.map((cache) => {
+        if (cache !== CACHE_NAME && cache.startsWith('animals-admin-')) {
+          return caches.delete(cache);
+        }
+        return Promise.resolve();
+      })
+    ))
   );
   self.clients.claim();
 });
 
-// Intercetar pedidos de rede
 self.addEventListener('fetch', (event) => {
-  // Ignorar pedidos que não sejam GET e requisições do Firebase/Firestore
-  if (
-    event.request.method !== 'GET' || 
-    event.request.url.includes('firestore.googleapis.com') || 
-    event.request.url.includes('firebase')
-  ) {
-    return;
-  }
-  
-  // Estratégia Network-First para navegação (HTML) para obter sempre o mais recente se online
+  if (shouldIgnoreRequest(event.request)) return;
+
   if (event.request.mode === 'navigate') {
     event.respondWith(
-      fetch(event.request).then((response) => {
-        if (response.status === 200) {
-          const responseToCache = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseToCache));
-        }
-        return response;
-      }).catch(() => {
-        return caches.match(event.request, { ignoreSearch: true }).then((cachedResponse) => {
-          if (cachedResponse) {
-            return cachedResponse;
+      fetch(event.request)
+        .then((response) => {
+          if (response && response.status === 200) {
+            const responseToCache = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseToCache));
           }
-          return caches.match('./form.html');
-        });
-      })
+          return response;
+        })
+        .catch(() => caches.match(event.request, { ignoreSearch: true })
+          .then((cachedResponse) => cachedResponse || caches.match('./form.html')))
     );
     return;
   }
-  
+
   event.respondWith(
     caches.match(event.request, { ignoreSearch: true }).then((cachedResponse) => {
-      if (cachedResponse) {
-        // Padrão Stale-While-Revalidate: serve do cache e atualiza em background
-        fetch(event.request).then((response) => {
-          if (response.status === 200) {
-            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, response));
+      const fetchPromise = fetch(event.request)
+        .then((response) => {
+          if (response && response.status === 200) {
+            const responseToCache = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseToCache));
           }
-        }).catch(() => {/* Ignorar erro de fetch em background */});
-        
-        return cachedResponse;
-      }
-      
-      return fetch(event.request).then((response) => {
-        if (!response || response.status !== 200 || response.type !== 'basic') {
           return response;
-        }
-        const responseToCache = response.clone();
-        caches.open(CACHE_NAME).then((cache) => {
-          cache.put(event.request, responseToCache);
-        });
-        return response;
-      });
+        })
+        .catch(() => cachedResponse);
+
+      return cachedResponse || fetchPromise;
     })
   );
 });

@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Grandes Projetos - Entrar / Registar</title>
     <!-- PWA Config -->
-    <link rel="manifest" href="manifest-admin.webmanifest">
+    <link rel="manifest" href="./form/manifest-admin.webmanifest">
     <link rel="icon" href="assets/logos/admin/favicon.ico">
     <link rel="apple-touch-icon" href="assets/logos/admin/apple-touch-icon.png">
     <meta name="theme-color" content="#0b2f22">
@@ -374,10 +374,12 @@
                 await setDoc(doc(db, "users", user.uid), {
                     nome: nome,
                     email: email,
-                    status: "off",
-                    rule: "comum",
+                    status: "on",
+                    rule: "user",
+                    colaborador: "off",
                     animaisCriados: [],
-                    animaisEditados: []
+                    animaisEditados: [],
+                    favorites: []
                 });
 
                 showToast("Registo efetuado com sucesso! Por favor, aguarde que a sua conta seja aceite pelo administrador.", true);
@@ -403,7 +405,7 @@
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw-admin.js', { scope: './login.html' })
+                navigator.serviceWorker.register('./form/sw-admin.js', { scope: './form/' })
                     .then(reg => console.log('Service Worker de Administração registrado:', reg.scope))
                     .catch(err => console.log('Erro ao registrar o Service Worker de Administração:', err));
             });

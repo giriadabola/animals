@@ -22,7 +22,7 @@ async function getUserProfile(uid) {
   if (cached) return cached;
   const snap = await getDoc(doc(db, 'users', uid));
   const data = snap.exists() ? snap.data() : {};
-  const profile = { favorites: Array.isArray(data.favorites) ? data.favorites : [], nome: data.nome || '', colaborador: data.colaborador || '' };
+  const profile = { favorites: Array.isArray(data.favorites) ? data.favorites : [], nome: data.nome || '', colaborador: data.colaborador || '', rule: data.rule || '', status: data.status || '' };
   writeCache(uid, profile);
   return profile;
 }
@@ -38,11 +38,17 @@ function injectStyles() {
     .animal-media-action.profile-media-action svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:2.2}
     .favorite-burst{position:fixed;z-index:99999;pointer-events:none;font-size:26px;animation:favoriteBurst .85s ease-out forwards}
     @keyframes favoriteBurst{0%{opacity:0;transform:translate(-50%,-20%) scale(.4)}35%{opacity:1}100%{opacity:0;transform:translate(calc(-50% + var(--dx)),calc(-90px + var(--dy))) scale(1.25) rotate(var(--rot))}}
-    .lists-modal-backdrop{position:fixed;inset:0;z-index:100000;background:rgba(3,5,16,.72);backdrop-filter:blur(9px);display:flex;align-items:center;justify-content:center;padding:20px}
-    .lists-modal{width:min(520px,100%);max-height:min(680px,90vh);overflow:auto;border:1px solid rgba(255,255,255,.12);border-radius:24px;background:#121528;color:#eef1fa;box-shadow:0 30px 80px rgba(0,0,0,.55);padding:24px}
-    .lists-modal-head{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:18px}.lists-modal-head h2{margin:0;font-size:1.35rem}.lists-close{border:0;border-radius:12px;width:38px;height:38px;background:rgba(255,255,255,.07);color:#fff;font-size:22px;cursor:pointer}
+    .lists-modal-backdrop{position:fixed;inset:0;z-index:100000;background:rgba(3,5,16,.78);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;padding:20px}
+    .lists-modal{box-sizing:border-box;width:min(540px,100%);max-height:min(700px,90vh);overflow:auto;border:1px solid rgba(255,255,255,.13);border-radius:26px;background:linear-gradient(180deg,#15182d 0%,#111426 100%);color:#eef1fa;box-shadow:0 32px 90px rgba(0,0,0,.62);padding:26px}
+    .lists-modal-head{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:20px}.lists-modal-head h2{margin:0;font-size:1.38rem;line-height:1.2}.lists-close{display:grid;place-items:center;flex:0 0 40px;border:1px solid transparent;border-radius:13px;width:40px;height:40px;background:rgba(255,255,255,.08);color:#fff;font-size:23px;line-height:1;cursor:pointer;transition:.2s ease}.lists-close:hover{background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.12);transform:scale(1.04)}
     .lists-options{display:grid;gap:10px}.list-option{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 14px;border-radius:14px;background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.08)}.list-option button{border:0;border-radius:10px;padding:8px 12px;font-weight:800;cursor:pointer;background:#8b5cf6;color:#fff}.list-option button.is-added{background:#205c48;color:#a7f3d0}
-    .create-list-row{display:flex;gap:10px;margin-top:16px;padding-top:16px;border-top:1px solid rgba(255,255,255,.09)}.create-list-row input{flex:1;min-width:0;border-radius:12px;border:1px solid rgba(255,255,255,.12);background:#0b0e1c;color:#fff;padding:12px}.create-list-row button{border:0;border-radius:12px;padding:0 16px;background:#ec4899;color:#fff;font-weight:900;cursor:pointer}.lists-empty{color:#aeb6cb;padding:14px 0}
+    .lists-empty{color:#aeb6cb;padding:10px 0 18px;font-size:.98rem}
+    .create-list-row{display:grid;grid-template-columns:1fr auto;gap:12px;margin-top:4px;padding-top:20px;border-top:1px solid rgba(255,255,255,.1)}
+    .create-list-label{grid-column:1/-1;margin:0 0 -2px;color:#dce2f2;font-size:.86rem;font-weight:800;letter-spacing:.02em}
+    .create-list-row input{box-sizing:border-box;display:block;width:100%;min-width:0;height:48px;margin:0;border:1px solid rgba(255,255,255,.2)!important;border-radius:13px;background:#080b18!important;color:#fff!important;padding:0 15px!important;font:inherit;line-height:48px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.025);outline:none;transition:border-color .2s ease,box-shadow .2s ease,background .2s ease}
+    .create-list-row input::placeholder{color:#7f89a2;opacity:1}.create-list-row input:hover{border-color:rgba(255,255,255,.32)!important}.create-list-row input:focus{border-color:#ec4899!important;background:#0b0e1c!important;box-shadow:0 0 0 4px rgba(236,72,153,.16)}
+    .create-list-row button{min-width:112px;height:48px;border:0;border-radius:13px;padding:0 20px;background:linear-gradient(135deg,#f04aa0,#dd3b91);color:#fff;font:inherit;font-weight:900;cursor:pointer;box-shadow:0 10px 22px rgba(236,72,153,.22);transition:transform .2s ease,filter .2s ease}.create-list-row button:hover{transform:translateY(-1px);filter:brightness(1.06)}.create-list-row button:disabled{opacity:.6;cursor:wait;transform:none}
+    @media(max-width:560px){.lists-modal-backdrop{padding:12px}.lists-modal{padding:20px;border-radius:22px}.create-list-row{grid-template-columns:1fr}.create-list-row button{width:100%}}
     .profile-action-message{position:fixed;left:50%;bottom:28px;z-index:100001;transform:translateX(-50%);background:#20243d;color:#fff;border:1px solid rgba(255,255,255,.12);border-radius:999px;padding:11px 18px;font-weight:800;box-shadow:0 14px 35px rgba(0,0,0,.4)}
   `;
   document.head.appendChild(style);
@@ -71,7 +77,7 @@ async function ensureUserDoc(user) {
 }
 async function openListsModal(user, animalId) {
   const backdrop = document.createElement('div'); backdrop.className = 'lists-modal-backdrop';
-  backdrop.innerHTML = `<section class="lists-modal" role="dialog" aria-modal="true"><div class="lists-modal-head"><h2>Adicionar a uma lista</h2><button class="lists-close" aria-label="Fechar">×</button></div><div class="lists-options"><div class="lists-empty">A carregar listas…</div></div><form class="create-list-row"><input maxlength="70" placeholder="Nome da nova lista" required><button type="submit">Criar</button></form></section>`;
+  backdrop.innerHTML = `<section class="lists-modal" role="dialog" aria-modal="true" aria-labelledby="lists-modal-title"><div class="lists-modal-head"><h2 id="lists-modal-title">Adicionar a uma lista</h2><button type="button" class="lists-close" aria-label="Fechar">×</button></div><div class="lists-options"><div class="lists-empty">A carregar listas…</div></div><form class="create-list-row"><label class="create-list-label" for="new-list-name">Criar uma nova lista</label><input id="new-list-name" name="listName" type="text" maxlength="70" autocomplete="off" placeholder="Escreve o nome da lista" aria-label="Nome da nova lista" required><button type="submit">Criar</button></form></section>`;
   document.body.appendChild(backdrop);
   const options = backdrop.querySelector('.lists-options');
   const close = () => backdrop.remove(); backdrop.querySelector('.lists-close').onclick = close; backdrop.onclick = e => { if (e.target === backdrop) close(); };
@@ -132,7 +138,9 @@ export function initAnimalProfileActions({ animalId }) {
     await ensureUserDoc(user);
     let profile = await getUserProfile(user.uid);
     edit.onclick = () => {
-      const approved = String(profile.colaborador || '').toLowerCase() === 'on';
+      const role = String(profile.rule || '').toLowerCase();
+      const status = String(profile.status || '').toLowerCase();
+      const approved = status === 'on' && (role === 'colaborador' || String(profile.colaborador || '').toLowerCase() === 'on');
       location.href = approved
         ? `form/form.html?edit=${encodeURIComponent(animalId)}&mode=suggestion`
         : `myperfil.html?tab=contribute`;

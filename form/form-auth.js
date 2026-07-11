@@ -1,5 +1,6 @@
-import { auth } from "../js/firebase-config.js?v=5";
+import { auth, db } from "../js/firebase-config.js?v=5";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
+import { doc, getDoc } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
 
 const overlay = document.getElementById('loading-overlay');
 const status = document.getElementById('loading-status');
@@ -19,6 +20,18 @@ function showFormChrome() {
     if (subtitle) subtitle.style.display = '';
 }
 
+function applyRoleUI(role) {
+    const gestorIndexBtn = document.getElementById('gestorIndexBtn');
+    const isAdmin = role === 'ruler' || role === 'estafeta';
+
+    if (gestorIndexBtn) {
+        gestorIndexBtn.style.display = isAdmin ? '' : 'none';
+    }
+
+    document.body.classList.toggle('form-role-admin', isAdmin);
+    document.body.classList.toggle('form-role-collaborator', role === 'colaborador');
+}
+
 function hideLoadingOverlay(reason = 'ready') {
     if (overlayClosed) return;
     overlayClosed = true;
@@ -35,55 +48,89 @@ function hideLoadingOverlay(reason = 'ready') {
         overlay.style.visibility = 'hidden';
         overlay.style.pointerEvents = 'none';
         overlay.style.display = 'none';
-
-        requestAnimationFrame(() => {
-            if (overlay && overlay.parentNode) overlay.remove();
-        });
+        requestAnimationFrame(() => overlay?.remove());
     }
 
     console.log(`Form Auth: overlay fechado (${reason}).`);
 }
 
-function goToLogin(reason = 'no-user') {
+function redirectTo(path, reason) {
     if (redirected) return;
     redirected = true;
-
-    // Mantém o formulário oculto até sair da página. Isto evita o “flash” de 1 segundo.
     document.body.classList.add('form-auth-pending');
     document.body.classList.remove('form-auth-ready', 'form-ui-ready');
 
+    const target = new URL(path, window.location.href);
+    if (reason) target.searchParams.set('reason', reason);
+    window.location.replace(target.href);
+}
+
+function goToLogin(reason = 'no-user') {
     const currentPath = `${window.location.pathname}${window.location.search}`;
     const target = new URL('../login.html', window.location.href);
     target.searchParams.set('redirect', currentPath);
     target.searchParams.set('reason', reason);
-
-    window.location.replace(target.href);
+    redirectTo(target.href);
 }
 
 setStatus('A verificar autorização...');
 
-onAuthStateChanged(auth, (user) => {
-    console.log('Form Auth: estado recebido:', user ? (user.email || user.uid) : 'sem utilizador');
-
+onAuthStateChanged(auth, async (user) => {
     if (!user) {
         setStatus('Sessão não encontrada. A redirecionar...');
         goToLogin('no-session');
         return;
     }
 
-    setStatus('Autorizado. A abrir formulário...');
-    requestAnimationFrame(() => hideLoadingOverlay('auth-ready'));
+    try {
+        const userSnap = await getDoc(doc(db, 'users', user.uid));
+        const userData = userSnap.exists() ? userSnap.data() : {};
+        const role = String(userData.rule || '').toLowerCase();
+        const accountStatus = String(userData.status || '').toLowerCase();
+        const params = new URLSearchParams(window.location.search);
+        const isSuggestionMode = params.get('mode') === 'suggestion';
+        const hasAnimalToEdit = Boolean(params.get('edit'));
+        const isAdmin = accountStatus === 'on' && (role === 'ruler' || role === 'estafeta');
+        const isCollaborator = accountStatus === 'on' && (
+            role === 'colaborador' ||
+            String(userData.colaborador || '').toLowerCase() === 'on'
+        );
+
+        if (isAdmin) {
+            applyRoleUI(role);
+            setStatus('Autorizado. A abrir formulário...');
+            requestAnimationFrame(() => hideLoadingOverlay('admin-ready'));
+            return;
+        }
+
+        if (isCollaborator && isSuggestionMode && hasAnimalToEdit) {
+            applyRoleUI('colaborador');
+            setStatus('Modo de sugestão autorizado. A abrir formulário...');
+            requestAnimationFrame(() => hideLoadingOverlay('collaborator-suggestion-ready'));
+            return;
+        }
+
+        if (isCollaborator) {
+            setStatus('Colaboradores apenas podem enviar sugestões de edição. A redirecionar...');
+            redirectTo('../myperfil.html?tab=collaboration', 'suggestion-mode-required');
+            return;
+        }
+
+        setStatus('Acesso recusado. Sem permissões para abrir o formulário.');
+        redirectTo('../myperfil.html?tab=contribute', 'not-authorized');
+    } catch (error) {
+        console.error('Form Auth: erro ao verificar permissões:', error);
+        setStatus('Não foi possível verificar as permissões. A redirecionar...');
+        setTimeout(() => goToLogin('auth-error'), 250);
+    }
 }, (error) => {
     console.error('Form Auth: erro ao verificar autenticação:', error);
     setStatus('Não foi possível verificar a sessão. A redirecionar...');
     setTimeout(() => goToLogin('auth-error'), 250);
 });
 
-// Segurança: se o Firebase não responder, não mostramos o form sem autorização.
-// Em vez de desbloquear a página, mantemos o form oculto e voltamos ao login.
 setTimeout(() => {
     if (!window.__FORM_AUTH_VERIFIED && !redirected) {
-        console.warn('Form Auth: timeout de verificação. A redirecionar para login.');
         setStatus('Sessão não confirmada. A redirecionar...');
         goToLogin('auth-timeout');
     }
