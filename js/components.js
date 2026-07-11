@@ -138,11 +138,12 @@ export function injectHeader() {
                 `;
             }
 
+            const profileHref = isForm ? '../myperfil.html' : 'myperfil.html';
             authSection.innerHTML = `
-                <span style="font-size: 0.85rem; color: var(--text-secondary); display: inline-flex; align-items: center; gap: 6px;">
+                <a href="${profileHref}" aria-label="Abrir o meu perfil" title="O meu perfil" style="font-size: 0.85rem; color: var(--text-secondary); display: inline-flex; align-items: center; gap: 6px; text-decoration: none; cursor: pointer;">
                     <i class="fa-solid fa-circle-user" style="color: var(--primary-color);"></i>
                     Olá, <strong id="header-user-name">${user.displayName || user.email.split('@')[0]}</strong>
-                </span>
+                </a>
                 <button id="logout-btn" class="nav-link" style="background: none; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; padding: 0;">
                     <i class="fa-solid fa-right-from-bracket"></i> Sair
                 </button>

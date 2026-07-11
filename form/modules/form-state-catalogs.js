@@ -18,6 +18,7 @@
 
         let isEditMode = false;
         let currentEditingId = null;
+        const isSuggestionMode = new URLSearchParams(window.location.search).get('mode') === 'suggestion';
 
         const animalForm = document.getElementById('animalForm');
         const saveButton = document.getElementById('saveButton');
@@ -593,7 +594,7 @@
         animalForm.addEventListener('submit', async (event) => {
             event.preventDefault();
             saveButton.disabled = true;
-            saveButton.textContent = isEditMode ? 'A atualizar...' : 'A gravar...';
+            saveButton.textContent = isSuggestionMode ? 'A enviar sugestão...' : (isEditMode ? 'A atualizar...' : 'A gravar...');
             
             try {
                 if (typeof window.syncCategoryFromScientificClass === 'function') {
@@ -752,6 +753,34 @@
                     xenoCantoAudioId: xenoCantoAudioId,
                     audioXenoCantoId: xenoCantoAudioId
                 };
+
+                if (isSuggestionMode) {
+                    const currentUser = auth.currentUser;
+                    if (!currentUser) throw new Error('Tens de iniciar sessão para enviar uma sugestão.');
+                    const userSnap = await getDoc(doc(db, 'users', currentUser.uid));
+                    const collaboratorEnabled = userSnap.exists() && String(userSnap.data().colaborador || '').toLowerCase() === 'on';
+                    if (!collaboratorEnabled) throw new Error('A tua conta ainda não foi aprovada como colaborador.');
+
+                    const suggestionId = `${currentUser.uid}_${docId}_${Date.now()}`;
+                    await setDoc(doc(db, 'animalSuggestions', suggestionId), {
+                        animalId: docId,
+                        animalName: animalData.nome || '',
+                        animalScientificName: animalData.nomeCientifico || '',
+                        proposedData: animalData,
+                        submittedBy: currentUser.uid,
+                        submittedByEmail: currentUser.email || '',
+                        status: 'pending',
+                        submittedAt: Date.now(),
+                        updatedAt: Date.now(),
+                        type: 'edit'
+                    });
+
+                    statusMessage.className = 'grid-span-3 success';
+                    statusMessage.textContent = 'Sugestão enviada. Um administrador terá de a aprovar antes de alterar o animal.';
+                    saveButton.disabled = false;
+                    saveButton.textContent = 'Enviar sugestão';
+                    return;
+                }
 
                 await setDoc(doc(db, "animais", docId), animalData);
                 await backfillEcologyManualRefsForAnimal(docId, animalData);
