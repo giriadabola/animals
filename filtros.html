@@ -17,6 +17,79 @@
     <!-- CSS Global -->
     <link rel="stylesheet" href="css/style.css?v=1.0.1">
     <script src="js/runtime-guard.js"></script>
+
+    <style>
+        .subfamily-filter-nav {
+            display: none;
+            position: relative;
+            margin: 18px 0 28px;
+            padding: 14px 4px 8px;
+            overflow-x: auto;
+            scrollbar-width: thin;
+        }
+        .subfamily-filter-nav.visible { display: block; }
+        .subfamily-filter-track {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            width: max-content;
+            min-width: max-content;
+            padding: 2px 2px 8px;
+        }
+        .subfamily-filter-track::before {
+            content: '';
+            position: absolute;
+            left: 24px;
+            right: 24px;
+            top: 25px;
+            height: 2px;
+            background: linear-gradient(90deg, rgba(110,231,183,.38), rgba(125,211,252,.22), rgba(110,231,183,.38));
+            border-radius: 999px;
+            z-index: 0;
+        }
+        .subfamily-filter-btn {
+            position: relative;
+            z-index: 1;
+            width: 48px;
+            height: 48px;
+            min-width: 48px;
+            border-radius: 50%;
+            border: 2px solid rgba(255,255,255,.18);
+            background: rgba(18, 20, 39, .96);
+            color: rgba(255,255,255,.62);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: .78rem;
+            letter-spacing: .02em;
+            cursor: pointer;
+            box-shadow: 0 5px 16px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.05);
+            transition: transform .2s ease, opacity .2s ease, border-color .2s ease, background .2s ease, color .2s ease, box-shadow .2s ease;
+            opacity: .58;
+        }
+        .subfamily-filter-btn:hover {
+            opacity: .9;
+            transform: translateY(-2px);
+            border-color: rgba(110,231,183,.42);
+        }
+        .subfamily-filter-btn.active {
+            opacity: 1;
+            color: #06130f;
+            border-color: rgba(255,255,255,.64);
+            background: linear-gradient(135deg, #f4c430, #d7a800);
+            box-shadow: 0 0 0 4px rgba(244,196,48,.12), 0 8px 20px rgba(0,0,0,.28);
+            transform: translateY(-2px) scale(1.04);
+        }
+        .subfamily-filter-btn:not(.active) { filter: saturate(.72); }
+        @media (max-width: 700px) {
+            .subfamily-filter-nav { margin: 12px 0 22px; }
+            .subfamily-filter-track { gap: 11px; }
+            .subfamily-filter-btn { width: 44px; height: 44px; min-width: 44px; font-size: .72rem; }
+            .subfamily-filter-track::before { top: 23px; left: 22px; right: 22px; }
+        }
+    </style>
 </head>
 <body>
 
@@ -28,6 +101,9 @@
                 <i class="fa-solid fa-xmark" id="clear-search" style="position: absolute; right: 16px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--text-secondary); font-size: 1.2rem; display: none;"></i>
             </div>
         </div>
+        <nav id="subfamily-filter-nav" class="subfamily-filter-nav" aria-label="Filtrar por subfamília">
+            <div id="subfamily-filter-track" class="subfamily-filter-track"></div>
+        </nav>
         <div id="animal-list-container"></div>
         <div class="pagination-container" id="pagination-container"></div>
         <p class="message" id="loading-message">A carregar animais...</p>
@@ -47,11 +123,16 @@
         const searchBarContainer = document.getElementById('search-bar-container');
         const searchInput = document.getElementById('search-input');
         const clearSearch = document.getElementById('clear-search');
+        const subfamilyFilterNav = document.getElementById('subfamily-filter-nav');
+        const subfamilyFilterTrack = document.getElementById('subfamily-filter-track');
 
         const itemsPerPage = 50;
         let currentPage = 1;
         let matchedAnimals = [];
         let filteredAnimals = [];
+        let familyAllAnimals = [];
+        let activeSubfamily = 'all';
+        let activeFamilyName = '';
         const taxonomyLabels = {
             reino: 'Reino: ',
             filo: 'Filo: ',
@@ -97,7 +178,7 @@
             return card;
         }
 
-        function renderPage(page) {
+        function renderPage(page, shouldScroll = true) {
             listContainer.innerHTML = '';
             const startIndex = (page - 1) * itemsPerPage;
             const endIndex = page * itemsPerPage;
@@ -109,8 +190,10 @@
                 listContainer.appendChild(listItem);
             });
 
-            // Scroll smoothly to top of list container
-            listContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            // Evita o salto automático ao abrir a página; mantém o scroll nas ações posteriores.
+            if (shouldScroll) {
+                listContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
         }
 
         function renderPagination() {
@@ -165,6 +248,92 @@
                 ...getAlsoKnownAsNames(animal)
             ].map(normalizeAnimalSearchText);
             return searchable.some(value => value.includes(normalizedQuery));
+        }
+
+        function getSubfamilyValue(animal = {}) {
+            return String(animal.subfamilia || animal.subFamilia || '').trim();
+        }
+
+        function getSubfamilyInitials(name = '') {
+            const words = String(name).trim().split(/\s+/).filter(Boolean);
+            if (words.length >= 2) return (words[0][0] + words[1][0]).toUpperCase();
+            return words[0] ? words[0].slice(0, 2).toUpperCase() : '--';
+        }
+
+        function updateFamilyCategoryTitle() {
+            if (!activeFamilyName) return;
+            const titleText = activeSubfamily === 'all'
+                ? `Família: ${activeFamilyName}`
+                : `Família: ${activeFamilyName} + ${activeSubfamily}`;
+
+            const titleSpan = categoryTitle.querySelector('.title-with-icon');
+            if (titleSpan) {
+                const icon = titleSpan.querySelector('i, svg');
+                titleSpan.replaceChildren();
+                if (icon) titleSpan.appendChild(icon);
+                titleSpan.appendChild(document.createTextNode(titleText));
+            } else {
+                categoryTitle.textContent = titleText;
+            }
+            document.title = `${titleText} - Grandes Projetos`;
+        }
+
+        function applySubfamilyFilter() {
+            if (activeSubfamily === 'all') {
+                matchedAnimals = [...familyAllAnimals];
+            } else {
+                const target = normalizeFilterText(activeSubfamily);
+                matchedAnimals = familyAllAnimals.filter(item =>
+                    normalizeFilterText(getSubfamilyValue(item.data)) === target
+                );
+            }
+            searchInput.value = '';
+            clearSearch.style.display = 'none';
+            filteredAnimals = [...matchedAnimals];
+            currentPage = 1;
+            renderPage(currentPage);
+            renderPagination();
+            updateFamilyCategoryTitle();
+        }
+
+        function renderSubfamilyFilter() {
+            const subfamilies = [...new Set(
+                familyAllAnimals.map(item => getSubfamilyValue(item.data)).filter(Boolean)
+            )].sort((a, b) => a.localeCompare(b, 'pt-PT'));
+
+            if (!subfamilies.length) {
+                subfamilyFilterNav.classList.remove('visible');
+                subfamilyFilterTrack.innerHTML = '';
+                return;
+            }
+
+            const options = [{ value: 'all', label: 'All', initials: 'All' }, ...subfamilies.map(name => ({
+                value: name,
+                label: name,
+                initials: getSubfamilyInitials(name)
+            }))];
+
+            subfamilyFilterTrack.innerHTML = options.map(option => `
+                <button type="button"
+                        class="subfamily-filter-btn ${activeSubfamily === option.value ? 'active' : ''}"
+                        data-subfamily="${String(option.value).replace(/&/g, '&amp;').replace(/"/g, '&quot;')}"
+                        title="${String(option.label).replace(/&/g, '&amp;').replace(/"/g, '&quot;')}"
+                        aria-label="${option.value === 'all' ? 'Mostrar todas as subfamílias' : `Filtrar pela subfamília ${option.label}`}"
+                        aria-pressed="${activeSubfamily === option.value}">${option.initials}</button>
+            `).join('');
+
+            subfamilyFilterNav.classList.add('visible');
+            subfamilyFilterTrack.querySelectorAll('.subfamily-filter-btn').forEach(button => {
+                button.addEventListener('click', () => {
+                    activeSubfamily = button.dataset.subfamily || 'all';
+                    subfamilyFilterTrack.querySelectorAll('.subfamily-filter-btn').forEach(item => {
+                        const isActive = item === button;
+                        item.classList.toggle('active', isActive);
+                        item.setAttribute('aria-pressed', String(isActive));
+                    });
+                    applySubfamilyFilter();
+                });
+            });
         }
 
         function handleSearch(queryText) {
@@ -323,6 +492,10 @@
                 }
             }
 
+            if (filterType === 'familia') {
+                activeFamilyName = filterValue;
+            }
+
             document.title = `${filterValue} - Grandes Projetos`;
             categoryTitle.innerHTML = `
                 <span class="title-with-icon" style="display: flex; align-items: center; gap: 12px;">
@@ -479,6 +652,16 @@
                     matchedAnimals.sort((a, b) => b.numericValue - a.numericValue);
                 }
 
+                if (filterType === 'familia') {
+                    familyAllAnimals = [...matchedAnimals];
+                    activeSubfamily = 'all';
+                    renderSubfamilyFilter();
+                    updateFamilyCategoryTitle();
+                } else {
+                    familyAllAnimals = [];
+                    subfamilyFilterNav.classList.remove('visible');
+                }
+
                 if (matchedAnimals.length === 0) {
                     loadingMessage.textContent = `Nenhum animal encontrado com "${filterValue}".`;
                     listContainer.style.display = 'none';
@@ -486,7 +669,7 @@
                     loadingMessage.style.display = 'none';
                     filteredAnimals = [...matchedAnimals];
                     currentPage = 1;
-                    renderPage(currentPage);
+                    renderPage(currentPage, false);
                     renderPagination();
                 }
                 hideLoadingOverlay();

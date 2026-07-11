@@ -93,10 +93,28 @@
                     </span>
                 </div>
                 
-                <div class="form-group autocomplete-container">
-                    <label for="familia">Família</label>
-                    <input type="text" id="familia" autocomplete="off" placeholder="Ex: Felidae">
-                    <div class="autocomplete-results" id="familiaResults"></div>
+                <div class="form-group" style="position: relative;">
+                    <label>Categorias</label>
+                    <input type="hidden" id="categoria" value="">
+                    <div class="custom-multiselect" id="categoria-multiselect">
+                        <div class="multiselect-selectBox" id="multiselect-toggle">
+                            <div class="selectBox-label" id="multiselect-label">Selecione Categorias</div>
+                        </div>
+                        <div class="multiselect-checkboxes" id="multiselect-options">
+                            <label><input type="checkbox" class="categoria-checkbox" value="Mamiferos" data-label="Mamíferos"> Mamíferos</label>
+                            <label><input type="checkbox" class="categoria-checkbox" value="Aves" data-label="Aves"> Aves</label>
+                            <label><input type="checkbox" class="categoria-checkbox" value="Peixes" data-label="Peixes"> Peixes</label>
+                            <label><input type="checkbox" class="categoria-checkbox" value="Moluscos" data-label="Moluscos"> Moluscos</label>
+                            <label><input type="checkbox" class="categoria-checkbox" value="Crustaceos" data-label="Crustáceos"> Crustáceos</label>
+                            <label><input type="checkbox" class="categoria-checkbox" value="Aracnideos" data-label="Aracnídeos"> Aracnídeos</label>
+                            <label><input type="checkbox" class="categoria-checkbox" value="Vermes" data-label="Vermes"> Vermes</label>
+                            <label><input type="checkbox" class="categoria-checkbox" value="Repteis" data-label="Répteis"> Répteis</label>
+                            <label><input type="checkbox" class="categoria-checkbox" value="Anfibios" data-label="Anfíbios"> Anfíbios</label>
+                            <label><input type="checkbox" class="categoria-checkbox" value="Insetos" data-label="Insetos"> Insetos</label>
+                            <label><input type="checkbox" class="categoria-checkbox" value="Microscopicos" data-label="Microscópicos"> Microscópicos</label>
+                            <label><input type="checkbox" class="categoria-checkbox" value="Extintos" data-label="Extintos"> Extintos</label>
+                        </div>
+                    </div>
                 </div>
                 
                 <div class="form-group grid-span-2 profile-main-image-field">
@@ -120,30 +138,6 @@
                         </div>
                     </div>
                     <input type="hidden" id="imagemObjectPosition" value="center center">
-                </div>
-                
-                <div class="form-group" style="position: relative;">
-                    <label>Categorias</label>
-                    <input type="hidden" id="categoria" value="">
-                    <div class="custom-multiselect" id="categoria-multiselect">
-                        <div class="multiselect-selectBox" id="multiselect-toggle">
-                            <div class="selectBox-label" id="multiselect-label">Selecione Categorias</div>
-                        </div>
-                        <div class="multiselect-checkboxes" id="multiselect-options">
-                            <label><input type="checkbox" class="categoria-checkbox" value="Mamiferos" data-label="Mamíferos"> Mamíferos</label>
-                            <label><input type="checkbox" class="categoria-checkbox" value="Aves" data-label="Aves"> Aves</label>
-                            <label><input type="checkbox" class="categoria-checkbox" value="Peixes" data-label="Peixes"> Peixes</label>
-                            <label><input type="checkbox" class="categoria-checkbox" value="Moluscos" data-label="Moluscos"> Moluscos</label>
-                            <label><input type="checkbox" class="categoria-checkbox" value="Crustaceos" data-label="Crustáceos"> Crustáceos</label>
-                            <label><input type="checkbox" class="categoria-checkbox" value="Aracnideos" data-label="Aracnídeos"> Aracnídeos</label>
-                            <label><input type="checkbox" class="categoria-checkbox" value="Vermes" data-label="Vermes"> Vermes</label>
-                            <label><input type="checkbox" class="categoria-checkbox" value="Repteis" data-label="Répteis"> Répteis</label>
-                            <label><input type="checkbox" class="categoria-checkbox" value="Anfibios" data-label="Anfíbios"> Anfíbios</label>
-                            <label><input type="checkbox" class="categoria-checkbox" value="Insetos" data-label="Insetos"> Insetos</label>
-                            <label><input type="checkbox" class="categoria-checkbox" value="Microscopicos" data-label="Microscópicos"> Microscópicos</label>
-                            <label><input type="checkbox" class="categoria-checkbox" value="Extintos" data-label="Extintos"> Extintos</label>
-                        </div>
-                    </div>
                 </div>
                 
                 <button type="button" class="btn-toggle-advanced" id="toggleAdvancedBtn">
@@ -204,6 +198,11 @@
                         <label for="infraordem">Infraordem</label>
                         <input type="text" id="infraordem" autocomplete="off" placeholder="Ex: Simiiformes">
                         <div class="autocomplete-results" id="infraordemResults"></div>
+                    </div>
+                    <div class="form-group autocomplete-container">
+                        <label for="familia">Família</label>
+                        <input type="text" id="familia" autocomplete="off" placeholder="Ex: Felidae">
+                        <div class="autocomplete-results" id="familiaResults"></div>
                     </div>
                     <div class="form-group autocomplete-container">
                         <label for="subfamilia">Subfamília</label>
@@ -860,7 +859,7 @@
     <div class="modal-overlay" id="perspectiveModalOverlay">
         <div class="modal perspective-modal">
             <h2>Ajustar Perspetiva da Imagem</h2>
-            <p class="perspective-modal-description">Arraste a imagem ou use os controlos para ajustar a miniatura que aparecerá no site, no telemóvel e na foto de perfil da página do animal.</p>
+            <p class="perspective-modal-description">Arraste a imagem ou use os controlos para ajustar as miniaturas que aparecerão no site, no telemóvel, na foto de perfil e na página da subfamília.</p>
             
             <div class="perspective-previews-grid">
                 <div class="perspective-preview-block">
@@ -896,6 +895,13 @@
                     <div class="animal-profile-preview-card perspective-preview-card">
                         <img id="perspectivePreviewImgProfile" src="" alt="Pré-visualização da foto de perfil" class="perspective-profile-preview-image">
                         <div class="perspective-profile-size-badge">600 × 950 px</div>
+                    </div>
+                </div>
+
+                <div class="perspective-preview-block perspective-family-preview-block">
+                    <span class="perspective-preview-label">Página da subfamília</span>
+                    <div class="family-tree-preview-card perspective-preview-card">
+                        <img id="perspectivePreviewImgFamily" src="" alt="Pré-visualização da miniatura na página da subfamília" class="perspective-family-preview-image">
                     </div>
                 </div>
             </div>
@@ -936,7 +942,7 @@
     <!-- Componentes e Lógica -->
     <script type="module" src="../js/components.js?v=20260710_no_animais_snapshot_1"></script>
     <script src="./modules/form-distribution-regions.js?v=20260710_1"></script>
-    <script type="module" src="./form.js?v=20260711_taxonomy_import_duplicate_1"></script>
+    <script type="module" src="./form.js?v=20260711_family_thumbnail_preview_1"></script>
     <!-- Service Worker PWA -->
     <script src="./sw-register.js?v=20260710_no_animais_snapshot_1"></script>
 </body>

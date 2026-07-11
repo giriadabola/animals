@@ -287,7 +287,11 @@ export async function populateSurvivalLists(allAnimals, db, searchResultsContain
                 const maxCards = (cardLimits && cardLimits[subKey] !== undefined) ? parseInt(cardLimits[subKey]) : 12;
                 let renderedCount = 0;
                 
-                for (const val of valuesForThisLevel) {
+                const sortedValuesForThisLevel = [...valuesForThisLevel].sort((a, b) =>
+                    a.localeCompare(b, 'pt-PT', { sensitivity: 'base', numeric: true })
+                );
+
+                for (const val of sortedValuesForThisLevel) {
                     if (renderedCount >= maxCards) break;
                     
                     activeClassificationCards.push({
@@ -354,7 +358,11 @@ export async function populateSurvivalLists(allAnimals, db, searchResultsContain
             const listContainer = section.querySelector('.lists-container');
 
             let renderedCount = 0;
-            for (const [val, data] of strategyMap.entries()) {
+            const sortedStrategyEntries = [...strategyMap.entries()].sort(([valueA], [valueB]) =>
+                valueA.localeCompare(valueB, 'pt-PT', { sensitivity: 'base', numeric: true })
+            );
+
+            for (const [val, data] of sortedStrategyEntries) {
                 if (renderedCount >= maxCards) break;
 
                 const card = document.createElement('a');

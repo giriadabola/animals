@@ -2700,7 +2700,7 @@ body.edit-theme #tabpanel-ecologia {
 
 .perspective-previews-grid {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, auto));
+    grid-template-columns: repeat(4, minmax(0, auto));
     gap: 18px;
     justify-content: center;
     align-items: end;
@@ -2819,6 +2819,25 @@ body.edit-theme #tabpanel-ecologia {
     pointer-events: none;
 }
 
+.family-tree-preview-card {
+    width: 82px;
+    height: 82px;
+    border-radius: 16px;
+    background: transparent;
+    border: 2px solid rgba(255, 255, 255, 0.08);
+    flex: 0 0 auto;
+}
+
+.perspective-family-preview-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center center;
+    display: block;
+    pointer-events: none;
+    border-radius: 14px;
+}
+
 .perspective-profile-size-badge {
     position: absolute;
     left: 10px;
@@ -2889,8 +2908,9 @@ body.edit-theme #tabpanel-ecologia {
         grid-template-columns: repeat(2, minmax(0, auto));
     }
 
-    .perspective-profile-preview-block {
-        grid-column: 1 / -1;
+    .perspective-profile-preview-block,
+    .perspective-family-preview-block {
+        grid-column: auto;
     }
 }
 
@@ -2902,7 +2922,8 @@ body.edit-theme #tabpanel-ecologia {
 
     .perspective-preview-grid-card,
     .perspective-preview-mobile-card,
-    .animal-profile-preview-card {
+    .animal-profile-preview-card,
+    .family-tree-preview-card {
         max-width: 100%;
     }
 

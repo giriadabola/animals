@@ -527,6 +527,9 @@
             document.getElementById('filo').value = animal.filo || '';
             document.getElementById('subfilo').value = animal.subfilo || '';
             document.getElementById('classe').value = animal.classe || '';
+            if (typeof window.syncCategoryFromScientificClass === 'function') {
+                window.syncCategoryFromScientificClass();
+            }
             if (document.getElementById('infraclasse')) document.getElementById('infraclasse').value = animal.infraclasse || '';
             document.getElementById('superordem').value = animal.superordem || '';
             document.getElementById('ordem').value = animal.ordem || '';

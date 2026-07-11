@@ -596,6 +596,20 @@
             saveButton.textContent = isEditMode ? 'A atualizar...' : 'A gravar...';
             
             try {
+                if (typeof window.syncCategoryFromScientificClass === 'function') {
+                    window.syncCategoryFromScientificClass();
+                }
+
+                const kingdomValue = String(document.getElementById('reino')?.value || '').trim();
+                if (kingdomValue.toLowerCase() !== 'animalia') {
+                    throw new Error('O campo Reino tem de ser Animalia para gravar este registo.');
+                }
+
+                const selectedCategories = Array.from(document.querySelectorAll('.categoria-checkbox:checked'));
+                if (!selectedCategories.length) {
+                    throw new Error('O campo Categorias é obrigatório. Seleciona uma categoria antes de gravar.');
+                }
+
                 const recordIdentity = getRecordIdentity();
                 const docId = isEditMode ? currentEditingId : recordIdentity.docId;
                 if (!recordIdentity.scientificNameKey) { throw new Error("Preenche o nome científico antes de gravar."); }

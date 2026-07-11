@@ -583,6 +583,45 @@
             cb.addEventListener('change', updateCategorySelectionUI);
         });
 
+        // Categorias principais preenchidas automaticamente através da classe científica.
+        // As categorias especiais (por exemplo, Microscópicos e Extintos) continuam manuais.
+        const automaticCategoryByClass = {
+            mammalia: 'Mamiferos',
+            aves: 'Aves',
+            reptilia: 'Repteis',
+            amphibia: 'Anfibios',
+            insecta: 'Insetos',
+            arachnida: 'Aracnideos'
+        };
+        const automaticallyManagedCategories = new Set(Object.values(automaticCategoryByClass));
+
+        function syncCategoryFromScientificClass() {
+            const classInput = document.getElementById('classe');
+            if (!classInput) return;
+
+            const normalizedClass = String(classInput.value || '').trim().toLowerCase();
+            const automaticCategory = automaticCategoryByClass[normalizedClass] || '';
+            let changed = false;
+
+            document.querySelectorAll('.categoria-checkbox').forEach(cb => {
+                if (!automaticallyManagedCategories.has(cb.value)) return;
+                const shouldBeChecked = cb.value === automaticCategory;
+                if (cb.checked !== shouldBeChecked) {
+                    cb.checked = shouldBeChecked;
+                    changed = true;
+                }
+            });
+
+            if (changed) updateCategorySelectionUI();
+        }
+
+        const scientificClassInput = document.getElementById('classe');
+        if (scientificClassInput) {
+            scientificClassInput.addEventListener('input', syncCategoryFromScientificClass);
+            scientificClassInput.addEventListener('change', syncCategoryFromScientificClass);
+        }
+        window.syncCategoryFromScientificClass = syncCategoryFromScientificClass;
+
         // --- INICIALIZAÇÃO ---
         const FORM_EDIT_LOG_PREFIX = '[FORM][EDIT-LIST]';
         const formEditLog = (...args) => console.log(FORM_EDIT_LOG_PREFIX, ...args);
@@ -652,6 +691,7 @@
         const perspectivePreviewImg = document.getElementById('perspectivePreviewImg');
         const perspectivePreviewImgMobile = document.getElementById('perspectivePreviewImgMobile');
         const perspectivePreviewImgProfile = document.getElementById('perspectivePreviewImgProfile');
+        const perspectivePreviewImgFamily = document.getElementById('perspectivePreviewImgFamily');
         const posXSlider = document.getElementById('posXSlider');
         const posYSlider = document.getElementById('posYSlider');
         const posXVal = document.getElementById('posXVal');
@@ -664,6 +704,7 @@
         const cardPreviewContainer = document.querySelector('.animal-list-item-preview-card');
         const cardPreviewContainerMobile = document.querySelector('.animal-list-item-preview-card-mobile');
         const cardPreviewContainerProfile = document.querySelector('.animal-profile-preview-card');
+        const cardPreviewContainerFamily = document.querySelector('.family-tree-preview-card');
 
         function getScientificNameGateControls() {
             return [...animalForm.querySelectorAll('input, textarea, select, button')]
@@ -699,6 +740,7 @@
             perspectivePreviewImg.src = imgUrl;
             perspectivePreviewImgMobile.src = imgUrl;
             if (perspectivePreviewImgProfile) perspectivePreviewImgProfile.src = imgUrl;
+            if (perspectivePreviewImgFamily) perspectivePreviewImgFamily.src = imgUrl;
             
             const animalName = document.getElementById('nomeAnimal').value.trim() || 'Nome do Animal';
             const scientificName = document.getElementById('nomeCientifico').value.trim() || 'Nome científico';
@@ -776,6 +818,7 @@
             perspectivePreviewImg.style.objectPosition = `${posXSlider.value}% ${posYSlider.value}%`;
             perspectivePreviewImgMobile.style.objectPosition = `${posXSlider.value}% ${posYSlider.value}%`;
             if (perspectivePreviewImgProfile) perspectivePreviewImgProfile.style.objectPosition = `${posXSlider.value}% ${posYSlider.value}%`;
+            if (perspectivePreviewImgFamily) perspectivePreviewImgFamily.style.objectPosition = `${posXSlider.value}% ${posYSlider.value}%`;
         }
 
         // Dragging implementation
@@ -797,6 +840,7 @@
         cardPreviewContainer.addEventListener('mousedown', (e) => onMouseDown(e, cardPreviewContainer));
         cardPreviewContainerMobile.addEventListener('mousedown', (e) => onMouseDown(e, cardPreviewContainerMobile));
         if (cardPreviewContainerProfile) cardPreviewContainerProfile.addEventListener('mousedown', (e) => onMouseDown(e, cardPreviewContainerProfile));
+        if (cardPreviewContainerFamily) cardPreviewContainerFamily.addEventListener('mousedown', (e) => onMouseDown(e, cardPreviewContainerFamily));
 
         window.addEventListener('mousemove', (e) => {
             if (!isDragging) return;
@@ -839,6 +883,7 @@
         cardPreviewContainer.addEventListener('touchstart', onTouchStart, { passive: true });
         cardPreviewContainerMobile.addEventListener('touchstart', onTouchStart, { passive: true });
         if (cardPreviewContainerProfile) cardPreviewContainerProfile.addEventListener('touchstart', onTouchStart, { passive: true });
+        if (cardPreviewContainerFamily) cardPreviewContainerFamily.addEventListener('touchstart', onTouchStart, { passive: true });
 
         window.addEventListener('touchmove', (e) => {
             if (!isDragging || e.touches.length !== 1) return;

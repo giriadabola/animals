@@ -174,6 +174,15 @@ async function fetchAllAnimals() {
         querySnapshot.forEach((doc) => {
             allAnimals.push({ id: doc.id, ...doc.data() });
         });
+
+        // Mantém todas as listas normais do index por ordem alfabética.
+        // A ordenação ignora acentos e diferenças entre maiúsculas/minúsculas.
+        allAnimals.sort((a, b) => String(a.nome || '').localeCompare(
+            String(b.nome || ''),
+            'pt-PT',
+            { sensitivity: 'base', numeric: true }
+        ));
+
         if (loadingMessage) loadingMessage.style.display = 'none';
         if (categoriesContainer) categoriesContainer.style.display = 'grid';
         

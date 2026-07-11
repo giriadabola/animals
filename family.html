@@ -4,7 +4,7 @@
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Subfamília de animais</title>
 <link rel="icon" href="data:,">
-<link rel="stylesheet" href="css/style.css?v=20260711_family_1">
+<link rel="stylesheet" href="css/style.css?v=20260711_family_thumbnail_position_1">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 <style>
 
@@ -32,33 +32,40 @@ body{background:#090a14;color:#fff;min-height:100vh}
 .family-connectors path{fill:none;stroke:rgba(110,231,183,.46);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .family-connectors circle{fill:#6ee7b7}
 .tree-unattached{margin-top:16px}
-.animal-details{display:none;margin-top:26px;padding:24px;border-radius:24px;border:1px solid var(--family-border);background:linear-gradient(180deg,rgba(24,27,53,.95),rgba(15,18,39,.97));box-shadow:0 18px 44px rgba(0,0,0,.24)}
+.animal-details{display:none;position:relative;margin-top:26px;padding:24px;border-radius:24px;border:1px solid var(--family-border);background:linear-gradient(180deg,rgba(24,27,53,.95),rgba(15,18,39,.97));box-shadow:0 18px 44px rgba(0,0,0,.24)}
 .animal-details.visible{display:block}
 .animal-details-head{display:flex;gap:18px;align-items:center;margin-bottom:16px}.animal-details-head img{width:130px;height:130px;border-radius:18px;object-fit:cover;border:1px solid rgba(255,255,255,.08)}
-.animal-details h2{margin:0 0 6px;font-size:1.6rem}.animal-details em{display:block;color:#a7b4c6;font-style:italic}.animal-details p{margin:0;color:var(--family-text-soft);line-height:1.75}.detail-link{display:inline-flex;margin-top:16px;color:#a7f3d0;font-weight:800;text-decoration:none}
+.animal-details h2{margin:0 0 6px;font-size:1.6rem}.animal-details em{display:block;color:#a7b4c6;font-style:italic}.animal-details p{margin:0;color:var(--family-text-soft);line-height:1.75}.detail-link{display:inline-flex;margin-top:16px;color:#a7f3d0;font-weight:800;text-decoration:none}.animal-details-close{position:absolute;top:16px;right:16px;width:38px;height:38px;border:1px solid rgba(255,255,255,.10);border-radius:11px;background:rgba(255,255,255,.07);color:#f8fafc;display:inline-flex;align-items:center;justify-content:center;font-size:1.05rem;cursor:pointer;transition:background .18s ease,transform .18s ease}.animal-details-close:hover{background:rgba(255,255,255,.13);transform:translateY(-1px)}.animal-details-close:focus-visible{outline:3px solid rgba(110,231,183,.45);outline-offset:3px}
 .table-panel{margin-top:28px;padding:24px;border-radius:24px;border:1px solid var(--family-border);background:linear-gradient(180deg,rgba(24,27,53,.92),rgba(14,17,33,.96));box-shadow:0 18px 44px rgba(0,0,0,.22)}
+.table-panel-head{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:18px}.table-panel-head .section-title{margin:0}.table-panel-actions{display:flex;align-items:center;gap:10px}.panel-action{width:44px;height:44px;border:0;border-radius:12px;background:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:1.35rem;cursor:pointer;box-shadow:0 8px 22px rgba(0,0,0,.25);transition:transform .18s ease,box-shadow .18s ease}.panel-action:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(0,0,0,.32)}.panel-action:focus-visible{outline:3px solid rgba(110,231,183,.55);outline-offset:3px}.panel-action:disabled{opacity:.55;cursor:wait;transform:none}.pdf-export{color:#d32f2f}.stats-chart-button{color:#2563eb}.stats-chart-button[hidden]{display:none}.chart-panel{display:none;margin-top:18px;padding:18px;border:1px solid rgba(139,92,246,.22);border-radius:18px;background:#111426;color:#f8fafc;box-shadow:0 18px 45px rgba(0,0,0,.28)}.chart-panel.visible{display:block}.chart-panel-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}.chart-panel h3{margin:0;font-size:1.05rem}.chart-close{border:1px solid rgba(255,255,255,.08);background:#20243a;color:#f8fafc;width:34px;height:34px;border-radius:10px;cursor:pointer}.chart-wrap{position:relative;width:100%;height:430px}.chart-empty{display:flex;align-items:center;justify-content:center;min-height:220px;color:#94a3b8;text-align:center;font-weight:700}.chart-empty[hidden]{display:none}
 .metric-filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}.metric-filter{border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04);color:#dbe3ef;border-radius:999px;padding:8px 12px;font-weight:700;cursor:pointer}.metric-filter.active{background:var(--family-accent-soft);border-color:rgba(110,231,183,.36);color:#dffdf2}
 .table-wrap{overflow:auto}.family-table{width:100%;border-collapse:collapse;min-width:780px}.family-table th,.family-table td{padding:11px 12px;border-bottom:1px solid rgba(255,255,255,.07);text-align:left;vertical-align:middle}.family-table th{font-size:.96rem;cursor:pointer;user-select:none;color:#eef2f7;background:rgba(255,255,255,.03);position:sticky;top:0}.family-table th.sorted{color:#a7f3d0}.family-table td{color:#d7dee8}.family-table tr:hover td{background:rgba(255,255,255,.02)}.sort-icon{margin-left:4px;font-size:.82em;opacity:.9}.table-animal{display:flex;align-items:center;gap:10px;font-weight:700}.table-animal img{width:42px;height:42px;border-radius:10px;object-fit:cover;border:1px solid rgba(255,255,255,.08)}
 .empty-state{text-align:center;color:#9ca3af;padding:46px 12px}
-@media(max-width:700px){.family-page{width:min(100% - 20px,1320px);padding-top:16px}.family-hero{min-height:220px;border-radius:21px}.family-hero-content{padding:25px 22px}.tree-card{width:66px;height:66px;border-radius:13px}.tree-card img{border-radius:11px}.tree-level,.species-row,.subspecies-row{gap:8px}.subspecies-divider{margin:18px 0 12px;font-size:.72rem}.animal-details{padding:18px}.animal-details-head{align-items:flex-start}.animal-details-head img{width:88px;height:88px}.family-intro{text-align:left}.table-panel{padding:18px}.metric-filter{padding:7px 10px;font-size:.9rem}}
+@media(max-width:700px){.table-panel-head{align-items:flex-start}.panel-action{width:40px;height:40px;flex:0 0 40px}.chart-wrap{height:360px}.family-page{width:min(100% - 20px,1320px);padding-top:16px}.family-hero{min-height:220px;border-radius:21px}.family-hero-content{padding:25px 22px}.tree-card{width:66px;height:66px;border-radius:13px}.tree-card img{border-radius:11px}.tree-level,.species-row,.subspecies-row{gap:8px}.subspecies-divider{margin:18px 0 12px;font-size:.72rem}.animal-details{padding:18px}.animal-details-head{align-items:flex-start}.animal-details-head img{width:88px;height:88px}.family-intro{text-align:left}.table-panel{padding:18px}.metric-filter{padding:7px 10px;font-size:.9rem}}
 
 </style>
 </head>
-<body><main class="family-page"><a class="family-back" href="javascript:history.back()"><i class="fa-solid fa-arrow-left"></i> Voltar</a><section id="hero" class="family-hero"><div class="family-hero-content"><span class="family-kicker">Bem-vindo à subfamília</span><h1 id="familyName">A carregar...</h1></div></section><p id="familyIntro" class="family-intro"></p><section><h2 class="section-title">Árvore da subfamília</h2><div id="familyTree" class="family-tree"><div class="empty-state">A carregar animais...</div></div></section><section id="animalDetails" class="animal-details"></section><section class="table-panel"><h2 class="section-title">Comparação da subfamília</h2><div id="metricFilters" class="metric-filters"></div><div class="table-wrap"><table class="family-table"><thead id="tableHead"></thead><tbody id="tableBody"></tbody></table></div></section></main>
+<body><main class="family-page"><a class="family-back" href="javascript:history.back()"><i class="fa-solid fa-arrow-left"></i> Voltar</a><section id="hero" class="family-hero"><div class="family-hero-content"><span class="family-kicker">Bem-vindo à subfamília</span><h1 id="familyName">A carregar...</h1></div></section><p id="familyIntro" class="family-intro"></p><section><h2 class="section-title">Árvore da subfamília</h2><div id="familyTree" class="family-tree"><div class="empty-state">A carregar animais...</div></div></section><section id="animalDetails" class="animal-details"></section><section class="table-panel"><div class="table-panel-head"><h2 class="section-title">Comparação da subfamília</h2><div class="table-panel-actions"><button id="showStatsChart" class="panel-action stats-chart-button" type="button" title="Ver gráfico de barras" aria-label="Ver gráfico de barras" hidden><i class="fa-solid fa-chart-column"></i></button><button id="exportPdf" class="panel-action pdf-export" type="button" title="Exportar tabela em PDF" aria-label="Exportar tabela em PDF"><i class="fa-solid fa-file-pdf"></i></button></div></div><div id="metricFilters" class="metric-filters"></div><div class="table-wrap"><table class="family-table"><thead id="tableHead"></thead><tbody id="tableBody"></tbody></table></div><section id="statsChartPanel" class="chart-panel" aria-live="polite"><div class="chart-panel-head"><h3 id="statsChartTitle">Gráfico de barras</h3><button id="closeStatsChart" class="chart-close" type="button" title="Fechar gráfico" aria-label="Fechar gráfico"><i class="fa-solid fa-xmark"></i></button></div><div id="statsChartWrap" class="chart-wrap"><canvas id="statsChart"></canvas></div><div id="statsChartEmpty" class="chart-empty" hidden>Não existem valores numéricos suficientes para criar o gráfico.</div></section></section></main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
 <script type="module" src="js/components.js?v=5"></script>
 <script type="module">
 import {db} from './js/firebase-config.js?v=5';
+import {hideLoadingOverlay,waitForPageImages} from './js/loader.js?v=2';
 import {collection,query,where,getDocs,doc,getDoc} from 'https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js';
 const esc=v=>String(v??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
 const family=new URLSearchParams(location.search).get('subfamilia')?.trim()||new URLSearchParams(location.search).get('familia')?.trim()||'';
 const familyName=document.querySelector('#familyName'),intro=document.querySelector('#familyIntro'),hero=document.querySelector('#hero'),tree=document.querySelector('#familyTree'),details=document.querySelector('#animalDetails');
-const metricDefs=[['Altura','Altura'],['Peso','Peso'],['Comprimento total','Comprimento Total'],['Vida útil','Vida útil'],['Velocidade máxima','Velocidade máxima'],['Atividade','Atividade'],['Vida Social','Vida Social']];let animals=[];let visibleMetrics=new Set(metricDefs.map(x=>x[0]));let sortState={key:'Animal',direction:'asc'};
+const metricDefs=[['Altura','Altura'],['Peso','Peso'],['Comprimento total','Comprimento Total'],['Vida útil','Vida útil'],['Velocidade máxima','Velocidade máxima'],['Atividade','Atividade'],['Vida Social','Vida Social']];let animals=[];let visibleMetrics=new Set(metricDefs.map(x=>x[0]));let sortState={key:'Animal',direction:'asc'};let statsChart=null;
 function slug(v){return v.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'')||'familia'}
 function getImage(a){return a.imagemUrl||a.profileImages?.[0]?.url||''}
-function fmtDimension(a,label){const arr=a.informacao?.dimensoesDetalhadas||[];const item=arr.find(x=>(x.tipo||'').toLowerCase()===label.toLowerCase());if(!item)return '-';const min=item.valorMin||item.valor||'',max=item.valorMax||'',unit=item.unidade||'';if(!min&&!max)return '-';return `${min}${max&&max!==min?'–'+max:''} ${unit}`.trim()}
-function fmtGeneral(a,label){const arr=a.informacao?.geralDetalhada||[];const item=arr.find(x=>(x.tipo||'').toLowerCase()===label.toLowerCase());if(!item)return '-';const val=item.valor||item.valorMin||item.opcao||item.descricao||'';const max=item.valorMax||'';return `${val}${max&&max!==val?'–'+max:''}${item.unidade?' '+item.unidade:''}`.trim()||'-'}
+function getObjectPosition(a){return a.imagemObjectPosition||'center center'}
+function fmtRange(min,max,unit=''){const a=String(min??'').trim(),b=String(max??'').trim(),u=String(unit??'').trim();let value='';if(a&&b)value=a===b?a:`${a}–${b}`;else value=a||b;if(!value)return '-';return `${value}${u?' '+u:''}`.trim()}
+function fmtDimension(a,label){const arr=a.informacao?.dimensoesDetalhadas||[];const item=arr.find(x=>(x.tipo||'').toLowerCase()===label.toLowerCase());if(!item)return '-';return fmtRange(item.valorMin||item.valor||'',item.valorMax||'',item.unidade||'')}
+function fmtGeneral(a,label){const arr=a.informacao?.geralDetalhada||[];const item=arr.find(x=>(x.tipo||'').toLowerCase()===label.toLowerCase());if(!item)return '-';return fmtRange(item.valor||item.valorMin||item.opcao||item.descricao||'',item.valorMax||'',item.unidade||'')}
 function metric(a,key){if(['Altura','Peso','Comprimento total'].includes(key))return fmtDimension(a,key);return fmtGeneral(a,key)}
-function card(a){const title=[a.nome||'Animal',a.nomeCientifico||''].filter(Boolean).join(' — ');return `<button class="tree-card" data-id="${esc(a.id)}" title="${esc(title)}" aria-label="${esc(title)}"><img src="${esc(getImage(a))}" alt="${esc(a.nome||'Animal')}"><span><strong>${esc(a.nome||'Animal')}</strong><em>${esc(a.nomeCientifico||'')}</em></span></button>`}
+function card(a){const title=[a.nome||'Animal',a.nomeCientifico||''].filter(Boolean).join(' — ');return `<button class="tree-card" data-id="${esc(a.id)}" title="${esc(title)}" aria-label="${esc(title)}"><img src="${esc(getImage(a))}" alt="${esc(a.nome||'Animal')}" style="object-position:${esc(getObjectPosition(a))}"><span><strong>${esc(a.nome||'Animal')}</strong><em>${esc(a.nomeCientifico||'')}</em></span></button>`}
 function renderTree(){
  const byId=new Map(animals.map(a=>[a.id,a]));
  const children=new Map();
@@ -104,27 +111,95 @@ function drawFamilyConnectors(){
  });
 }
 window.addEventListener('resize',()=>requestAnimationFrame(drawFamilyConnectors));
-function showDetails(id,btn){const a=animals.find(x=>x.id===id);if(!a)return;tree.querySelectorAll('.tree-card').forEach(x=>x.classList.toggle('active',x===btn));details.innerHTML=`<div class="animal-details-head"><img src="${esc(getImage(a))}" alt=""><div><h2>${esc(a.nome||'Animal')}</h2><em>${esc(a.nomeCientifico||'')}</em></div></div><p>${esc(a.informacao?.geral||'Não existe ainda uma descrição geral para este animal.')}</p><a class="detail-link" href="animal.html?id=${encodeURIComponent(a.id)}">Abrir página completa&nbsp; →</a>`;details.classList.add('visible');details.scrollIntoView({behavior:'smooth',block:'nearest'})}
+function closeAnimalDetails(){details.classList.remove('visible');details.innerHTML='';tree.querySelectorAll('.tree-card').forEach(x=>x.classList.remove('active'))}
+function showDetails(id,btn){const a=animals.find(x=>x.id===id);if(!a)return;tree.querySelectorAll('.tree-card').forEach(x=>x.classList.toggle('active',x===btn));details.innerHTML=`<button class="animal-details-close" type="button" title="Fechar cartão" aria-label="Fechar cartão"><i class="fa-solid fa-xmark"></i></button><div class="animal-details-head"><img src="${esc(getImage(a))}" alt="" style="object-position:${esc(getObjectPosition(a))}"><div><h2>${esc(a.nome||'Animal')}</h2><em>${esc(a.nomeCientifico||'')}</em><a class="detail-link" href="animal.html?id=${encodeURIComponent(a.id)}">Visitar Animal&nbsp; →</a></div></div>`;details.querySelector('.animal-details-close').onclick=closeAnimalDetails;details.classList.add('visible');details.scrollIntoView({behavior:'smooth',block:'nearest'})}
 function parseSortable(value){const raw=String(value??'').trim();if(!raw||raw==='-')return {empty:true,text:'',num:null};const n=raw.replace(',','.').match(/-?\d+(?:\.\d+)?/);return {empty:false,text:raw.toLocaleLowerCase('pt'),num:n?Number(n[0]):null}}
 function compareAnimals(a,b,key){const av=key==='Animal'?(a.nome||''):metric(a,key),bv=key==='Animal'?(b.nome||''):metric(b,key);const pa=parseSortable(av),pb=parseSortable(bv);if(pa.empty!==pb.empty)return pa.empty?1:-1;let result;if(pa.num!==null&&pb.num!==null)result=pa.num-pb.num;else result=pa.text.localeCompare(pb.text,'pt',{numeric:true,sensitivity:'base'});return sortState.direction==='asc'?result:-result}
-function renderTable(){document.querySelector('#metricFilters').innerHTML=metricDefs.map(([k,l])=>`<button class="metric-filter ${visibleMetrics.has(k)?'active':''}" data-key="${esc(k)}">${esc(l)}</button>`).join('');document.querySelectorAll('.metric-filter').forEach(b=>b.onclick=()=>{visibleMetrics.has(b.dataset.key)?visibleMetrics.delete(b.dataset.key):visibleMetrics.add(b.dataset.key);renderTable()});const defs=metricDefs.filter(([k])=>visibleMetrics.has(k));const columns=[['Animal','Animal'],...defs];document.querySelector('#tableHead').innerHTML=`<tr>${columns.map(([k,l])=>`<th data-sort="${esc(k)}" class="${sortState.key===k?'sorted':''}" title="Ordenar por ${esc(l)}">${esc(l)}<span class="sort-icon">${sortState.key===k?(sortState.direction==='asc'?'▲':'▼'):'↕'}</span></th>`).join('')}</tr>`;document.querySelectorAll('#tableHead th[data-sort]').forEach(th=>th.onclick=()=>{const key=th.dataset.sort;if(sortState.key===key)sortState.direction=sortState.direction==='asc'?'desc':'asc';else sortState={key,direction:'asc'};renderTable()});const sorted=[...animals].sort((a,b)=>compareAnimals(a,b,sortState.key));document.querySelector('#tableBody').innerHTML=sorted.map(a=>`<tr><td><span class="table-animal"><img src="${esc(getImage(a))}" alt="">${esc(a.nome||'Animal')}</span></td>${defs.map(([k])=>`<td>${esc(metric(a,k))}</td>`).join('')}</tr>`).join('')||`<tr><td colspan="${columns.length}">Sem dados</td></tr>`}
+
+function metricChartValue(value){
+ const raw=String(value??'').trim();
+ if(!raw||raw==='-')return null;
+ const matches=[...raw.replace(/,/g,'.').matchAll(/-?\d+(?:\.\d+)?/g)].map(m=>Number(m[0])).filter(Number.isFinite);
+ if(!matches.length)return null;
+ if(matches.length>=2&&/[–—-]/.test(raw.replace(/^-/,'')))return (matches[0]+matches[1])/2;
+ return Math.abs(matches[0]);
+}
+function metricUnit(value){
+ const raw=String(value??'').trim();
+ if(!raw||raw==='-')return '';
+ return raw.replace(/-?\d+(?:[.,]\d+)?(?:\s*[–—-]\s*-?\d+(?:[.,]\d+)?)?/g,'').trim();
+}
+function closeStatsChart(){
+ document.querySelector('#statsChartPanel').classList.remove('visible');
+}
+function renderStatsChart(){
+ const selected=metricDefs.filter(([key])=>visibleMetrics.has(key));
+ if(selected.length!==1)return;
+ const [key,label]=selected[0];
+ const rows=animals.map(a=>{const display=metric(a,key);return {name:a.nome||'Animal',value:metricChartValue(display),display,unit:metricUnit(display)}}).filter(row=>row.value!==null).sort((a,b)=>b.value-a.value||a.name.localeCompare(b.name,'pt',{sensitivity:'base'}));
+ const panel=document.querySelector('#statsChartPanel'),wrap=document.querySelector('#statsChartWrap'),empty=document.querySelector('#statsChartEmpty');
+ panel.classList.add('visible');
+ document.querySelector('#statsChartTitle').textContent=`${label} por animal`;
+ if(statsChart){statsChart.destroy();statsChart=null}
+ if(!rows.length||!window.Chart){wrap.hidden=true;empty.hidden=false;return}
+ wrap.hidden=false;empty.hidden=true;
+ const commonUnit=rows.map(r=>r.unit).find(Boolean)||'';
+ const valueLabelsPlugin={id:'valueLabels',afterDatasetsDraw(chart){const {ctx}=chart;ctx.save();ctx.font='700 12px sans-serif';ctx.fillStyle='#f8fafc';ctx.textAlign='center';ctx.textBaseline='bottom';chart.getDatasetMeta(0).data.forEach((bar,index)=>{const text=rows[index].display;ctx.fillText(text,bar.x,Math.max(bar.y-7,14))});ctx.restore()}};
+ statsChart=new Chart(document.querySelector('#statsChart'),{type:'bar',data:{labels:rows.map(r=>r.name),datasets:[{label,data:rows.map(r=>r.value),backgroundColor:'rgba(129,140,248,.72)',borderColor:'rgba(165,180,252,.95)',borderWidth:1,borderRadius:8,maxBarThickness:74}]},options:{responsive:true,maintainAspectRatio:false,layout:{padding:{top:24}},plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>rows[ctx.dataIndex].display}}},scales:{x:{title:{display:true,text:'Animal'},ticks:{color:'#cbd5e1',maxRotation:35,minRotation:0},grid:{display:false}},y:{beginAtZero:true,title:{display:true,text:commonUnit?`${label} (${commonUnit})`:label},ticks:{color:'#cbd5e1'},grid:{color:'rgba(148,163,184,.16)'}}}},plugins:[valueLabelsPlugin]});
+ panel.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+function exportTablePdf(){
+ const btn=document.querySelector('#exportPdf');
+ try{
+  if(!window.jspdf?.jsPDF)throw new Error('Biblioteca de PDF indisponível.');
+  btn.disabled=true;
+  const {jsPDF}=window.jspdf;
+  const defs=metricDefs.filter(([k])=>visibleMetrics.has(k));
+  const columns=[['Animal','Animal'],...defs];
+  const sorted=[...animals].sort((a,b)=>compareAnimals(a,b,sortState.key));
+  const docPdf=new jsPDF({orientation:'landscape',unit:'pt',format:'a4'});
+  docPdf.setFillColor(255,255,255);docPdf.rect(0,0,docPdf.internal.pageSize.getWidth(),docPdf.internal.pageSize.getHeight(),'F');
+  docPdf.setTextColor(20,24,47);docPdf.setFontSize(18);docPdf.text(`Comparação da subfamília ${family}`,40,42);
+  docPdf.autoTable({
+   startY:76,
+   head:[columns.map(([,label])=>label)],
+   body:sorted.map(a=>[a.nome||'Animal',...defs.map(([key])=>metric(a,key))]),
+   theme:'grid',
+   styles:{fontSize:8,cellPadding:6,textColor:[35,42,58],fillColor:[255,255,255],lineColor:[215,220,228],lineWidth:.5},
+   headStyles:{fillColor:[20,24,47],textColor:[255,255,255],fontStyle:'bold'},
+   alternateRowStyles:{fillColor:[246,248,251]},
+   margin:{left:40,right:40}
+  });
+  docPdf.save(`comparacao-${slug(family)}.pdf`);
+ }catch(error){console.error(error);alert('Não foi possível gerar o PDF. Tenta novamente.')}finally{btn.disabled=false}
+}
+function renderTable(){document.querySelector('#exportPdf').onclick=exportTablePdf;const chartBtn=document.querySelector('#showStatsChart');chartBtn.hidden=visibleMetrics.size!==1;chartBtn.onclick=renderStatsChart;document.querySelector('#closeStatsChart').onclick=closeStatsChart;if(visibleMetrics.size!==1)closeStatsChart();document.querySelector('#metricFilters').innerHTML=metricDefs.map(([k,l])=>`<button class="metric-filter ${visibleMetrics.has(k)?'active':''}" data-key="${esc(k)}">${esc(l)}</button>`).join('');document.querySelectorAll('.metric-filter').forEach(b=>b.onclick=()=>{visibleMetrics.has(b.dataset.key)?visibleMetrics.delete(b.dataset.key):visibleMetrics.add(b.dataset.key);renderTable()});const defs=metricDefs.filter(([k])=>visibleMetrics.has(k));const columns=[['Animal','Animal'],...defs];document.querySelector('#tableHead').innerHTML=`<tr>${columns.map(([k,l])=>`<th data-sort="${esc(k)}" class="${sortState.key===k?'sorted':''}" title="Ordenar por ${esc(l)}">${esc(l)}<span class="sort-icon">${sortState.key===k?(sortState.direction==='asc'?'▲':'▼'):'↕'}</span></th>`).join('')}</tr>`;document.querySelectorAll('#tableHead th[data-sort]').forEach(th=>th.onclick=()=>{const key=th.dataset.sort;if(sortState.key===key)sortState.direction=sortState.direction==='asc'?'desc':'asc';else sortState={key,direction:'asc'};renderTable()});const sorted=[...animals].sort((a,b)=>compareAnimals(a,b,sortState.key));document.querySelector('#tableBody').innerHTML=sorted.map(a=>`<tr><td><span class="table-animal"><img src="${esc(getImage(a))}" alt="" style="object-position:${esc(getObjectPosition(a))}">${esc(a.nome||'Animal')}</span></td>${defs.map(([k])=>`<td>${esc(metric(a,k))}</td>`).join('')}</tr>`).join('')||`<tr><td colspan="${columns.length}">Sem dados</td></tr>`}
 async function load(){
-if(!family){familyName.textContent='Família não indicada';tree.innerHTML='<div class="empty-state">Abre esta página através de um animal.</div>';return}
-familyName.textContent=family;document.title=`Subfamília ${family}`;
-intro.textContent='Conheça os animais que pertencem a esta subfamília e compare as suas principais características.';
-try{
-  const cfg=await getDoc(doc(db,'subfamilia',slug(family)));
-  if(cfg.exists()){
-    const d=cfg.data();
-    if(d.paragrafo)intro.textContent=d.paragrafo;
-    if(d.imagemUrl)hero.style.backgroundImage=`url("${String(d.imagemUrl).replace(/"/g,'%22')}")`;
+ try{
+  if(!family){
+   familyName.textContent='Família não indicada';
+   tree.innerHTML='<div class="empty-state">Abre esta página através de um animal.</div>';
+   return;
   }
-}catch(e){console.warn('Configuração pública da subfamília indisponível; a página continuará com o conteúdo padrão.',e)}
-try{
-  const snap=await getDocs(query(collection(db,'animais'),where('subfamilia','==',family)));
-  animals=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(a.nome||'').localeCompare(b.nome||'','pt'));
-  renderTree();renderTable();
-}catch(e){console.error(e);tree.innerHTML='<div class="empty-state">Não foi possível carregar os animais desta subfamília.</div>';renderTable()}
+  familyName.textContent=family;document.title=`Subfamília ${family}`;
+  intro.textContent='Conheça os animais que pertencem a esta subfamília e compare as suas principais características.';
+  try{
+    const cfg=await getDoc(doc(db,'subfamilia',slug(family)));
+    if(cfg.exists()){
+      const d=cfg.data();
+      if(d.paragrafo)intro.textContent=d.paragrafo;
+      if(d.imagemUrl)hero.style.backgroundImage=`url("${String(d.imagemUrl).replace(/"/g,'%22')}")`;
+    }
+  }catch(e){console.warn('Configuração pública da subfamília indisponível; a página continuará com o conteúdo padrão.',e)}
+  try{
+    const snap=await getDocs(query(collection(db,'animais'),where('subfamilia','==',family)));
+    animals=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(a.nome||'').localeCompare(b.nome||'','pt'));
+    renderTree();renderTable();
+  }catch(e){console.error(e);tree.innerHTML='<div class="empty-state">Não foi possível carregar os animais desta subfamília.</div>';renderTable()}
+ }finally{
+  await waitForPageImages({root:document,timeoutMs:12000});
+  hideLoadingOverlay();
+ }
 }
 load();
 </script></body></html>
