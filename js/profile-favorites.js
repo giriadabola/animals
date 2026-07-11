@@ -112,21 +112,25 @@ export function initAnimalProfileActions({ animalId }) {
   mediaActions.insertAdjacentHTML('beforeend', `
     <button type="button" class="animal-media-action profile-media-action favorite-action" aria-label="Favoritar" title="Favoritar">${icon('heart')}</button>
     <button type="button" class="animal-media-action profile-media-action lists-action" aria-label="Adicionar a listas" title="Adicionar a listas">${icon('list')}</button>
-    <button type="button" class="animal-media-action profile-media-action edit-suggestion-action" aria-label="Sugerir edição" title="Sugerir edição" hidden>${icon('edit')}</button>
   `);
 
   const fav = mediaActions.querySelector('.favorite-action');
   const lists = mediaActions.querySelector('.lists-action');
-  const edit = mediaActions.querySelector('.edit-suggestion-action');
   onAuthStateChanged(auth, async user => {
+    mediaActions.querySelector('.edit-suggestion-action')?.remove();
+
     if (!user) {
-      edit.hidden = true;
       fav.onclick = lists.onclick = () => { location.href = `login.html?redirect=${encodeURIComponent(location.href)}`; };
       return;
     }
+
+    mediaActions.insertAdjacentHTML('beforeend', `
+      <button type="button" class="animal-media-action profile-media-action edit-suggestion-action" aria-label="Sugerir edição" title="Sugerir edição">${icon('edit')}</button>
+    `);
+    const edit = mediaActions.querySelector('.edit-suggestion-action');
+
     await ensureUserDoc(user);
     let profile = await getUserProfile(user.uid);
-    edit.hidden = false;
     edit.onclick = () => {
       const approved = String(profile.colaborador || '').toLowerCase() === 'on';
       location.href = approved
