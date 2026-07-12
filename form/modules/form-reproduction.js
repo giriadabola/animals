@@ -102,6 +102,38 @@
             optTempoEclosao.value = 'tempo_eclosao';
             optTempoEclosao.textContent = 'Tempo até à eclosão';
 
+            const optEstro = document.createElement('option');
+            optEstro.value = 'duracao_estro';
+            optEstro.textContent = 'Duração do estro';
+
+            const optFrequenciaEstro = document.createElement('option');
+            optFrequenciaEstro.value = 'frequencia_acasalamento_estro';
+            optFrequenciaEstro.textContent = 'Frequência de acasalamento durante o estro';
+
+            const optSucessoReprodutivo = document.createElement('option');
+            optSucessoReprodutivo.value = 'taxa_sucesso_reprodutivo';
+            optSucessoReprodutivo.textContent = 'Taxa de sucesso reprodutivo';
+
+            const optIntervaloNascimentos = document.createElement('option');
+            optIntervaloNascimentos.value = 'intervalo_nascimentos';
+            optIntervaloNascimentos.textContent = 'Intervalo entre nascimentos';
+
+            const optIdadeMetamorfose = document.createElement('option');
+            optIdadeMetamorfose.value = 'idade_metamorfose';
+            optIdadeMetamorfose.textContent = 'Idade da metamorfose';
+
+            const optNumeroMudas = document.createElement('option');
+            optNumeroMudas.value = 'numero_mudas';
+            optNumeroMudas.textContent = 'Número de mudas';
+
+            const optNumeroEstadiosLarvais = document.createElement('option');
+            optNumeroEstadiosLarvais.value = 'numero_estadios_larvais';
+            optNumeroEstadiosLarvais.textContent = 'Número de estádios larvais';
+
+            const optSistemaSexual = document.createElement('option');
+            optSistemaSexual.value = 'sistema_sexual';
+            optSistemaSexual.textContent = 'Sistema sexual';
+
             const optGestacao = document.createElement('option');
             optGestacao.value = 'gestacao';
             optGestacao.textContent = 'Tempo de Gestação';
@@ -110,13 +142,25 @@
             optTipo.value = 'tipo';
             optTipo.textContent = 'Tipo de reprodução';
             
-            rowModeSelect.append(optPlaceholder, optAcasalamento, optEpocaReproducao, optParental, optMaturidade, optCrias, optNumeroOvos, optTempoEclosao, optGestacao, optTipo);
+            rowModeSelect.append(optPlaceholder, optAcasalamento, optEpocaReproducao, optParental, optMaturidade, optCrias, optNumeroOvos, optTempoEclosao, optEstro, optFrequenciaEstro, optSucessoReprodutivo, optIntervaloNascimentos, optIdadeMetamorfose, optNumeroMudas, optNumeroEstadiosLarvais, optSistemaSexual, optGestacao, optTipo);
 
             const typeSelect = document.createElement('select');
             typeSelect.className = 'reproduction-type';
 
             const matingSelect = document.createElement('select');
             matingSelect.className = 'reproduction-mating-type';
+
+            const sexualSystemSelect = document.createElement('select');
+            sexualSystemSelect.className = 'reproduction-sexual-system';
+            const sexualSystemOptions = ['Dióico', 'Monoico', 'Hermafrodita simultâneo', 'Hermafrodita sequencial', 'Protândrico', 'Protogínico'];
+            function fillSexualSystemSelect(selectedValue = '') {
+                const normalizedSelected = normalizeSearchText(selectedValue);
+                sexualSystemSelect.innerHTML = '<option value="">Escolhe o sistema sexual</option>' +
+                    sexualSystemOptions.map(option => `<option value="${option}">${option}</option>`).join('');
+                const match = sexualSystemOptions.find(option => normalizeSearchText(option) === normalizedSelected);
+                sexualSystemSelect.value = match || '';
+            }
+            fillSexualSystemSelect('');
 
             const feedingTypeSelect = document.createElement('select');
             feedingTypeSelect.className = 'reproduction-feeding-type';
@@ -193,8 +237,19 @@
             const isEpocaReproducao = normalizedReproductionType.includes('epoca de reproducao') || normalizedReproductionType.includes('época de reprodução');
             const isNumeroOvos = normalizedReproductionType.includes('numero de ovos') || normalizedReproductionType.includes('número de ovos');
             const isTempoEclosao = normalizedReproductionType.includes('tempo ate a eclosao') || normalizedReproductionType.includes('tempo até à eclosão') || normalizedReproductionType.includes('eclosao');
+            const isDuracaoEstro = normalizedReproductionType.includes('duracao do estro');
+            const isFrequenciaAcasalamentoEstro = normalizedReproductionType.includes('frequencia de acasalamento durante o estro');
+            const isTaxaSucessoReprodutivo = normalizedReproductionType.includes('taxa de sucesso reprodutivo');
+            const isIntervaloNascimentos = normalizedReproductionType.includes('intervalo entre nascimentos');
+            const isIdadeMetamorfose = normalizedReproductionType.includes('idade da metamorfose');
+            const isNumeroMudas = normalizedReproductionType.includes('numero de mudas');
+            const isNumeroEstadiosLarvais = normalizedReproductionType.includes('numero de estadios larvais');
+            const isSistemaSexual = normalizedReproductionType.includes('sistema sexual');
 
-            if (isParental) {
+            if (isSistemaSexual) {
+                rowModeSelect.value = 'sistema_sexual';
+                fillSexualSystemSelect(detailStr);
+            } else             if (isParental) {
                 rowModeSelect.value = 'parental_investment';
                 if (detailStr) {
                     const parentalParts = detailStr.split(/\s*(?:•|\||;|,)\s*/).map(part => part.trim()).filter(Boolean);
@@ -289,6 +344,81 @@
                 minInput.value = minVal;
                 maxInput.value = maxVal;
                 unitSelect.dataset.maturidadeUnit = unitVal;
+                unitSelect.value = unitVal;
+            } else if (isDuracaoEstro) {
+                rowModeSelect.value = 'duracao_estro';
+                let unitVal = 'dias';
+                if (detailStr) {
+                    const match = detailStr.match(/(\d+(?:[.,]\d+)?)(?:\s*[-–]\s*(\d+(?:[.,]\d+)?))?\s*(horas|hora|dias|dia|semanas|semana)/i);
+                    if (match) {
+                        minInput.value = match[1] || '';
+                        maxInput.value = match[2] || '';
+                        const matchedUnit = match[3].toLowerCase();
+                        if (matchedUnit.includes('hora')) unitVal = 'horas';
+                        else if (matchedUnit.includes('semana')) unitVal = 'semanas';
+                    }
+                }
+                unitSelect.dataset.estroUnit = unitVal;
+                unitSelect.value = unitVal;
+            } else if (isFrequenciaAcasalamentoEstro) {
+                rowModeSelect.value = 'frequencia_acasalamento_estro';
+                const numbers = detailStr.match(/\d+(?:[.,]\d+)?/g) || [];
+                minInput.value = numbers[0] || '';
+                maxInput.value = numbers[1] || '';
+            } else if (isTaxaSucessoReprodutivo) {
+                rowModeSelect.value = 'taxa_sucesso_reprodutivo';
+                const numbers = detailStr.match(/\d+(?:[.,]\d+)?/g) || [];
+                minInput.value = numbers[0] || '';
+                maxInput.value = numbers[1] || '';
+            } else if (isIntervaloNascimentos) {
+                rowModeSelect.value = 'intervalo_nascimentos';
+                let unitVal = 'meses';
+                const numbers = detailStr.match(/\d+(?:[.,]\d+)?/g) || [];
+                minInput.value = numbers[0] || '';
+                maxInput.value = numbers[1] || '';
+                const normalizedDetail = normalizeSearchText(detailStr);
+                if (normalizedDetail.includes('minuto')) unitVal = 'minutos';
+                else if (normalizedDetail.includes('hora')) unitVal = 'horas';
+                else if (normalizedDetail.includes('dia')) unitVal = 'dias';
+                else if (normalizedDetail.includes('semana')) unitVal = 'semanas';
+                else if (normalizedDetail.includes('ano')) unitVal = 'anos';
+                unitSelect.dataset.intervaloNascimentosUnit = unitVal;
+                unitSelect.value = unitVal;
+            } else if (isIdadeMetamorfose) {
+                rowModeSelect.value = 'idade_metamorfose';
+                let unitVal = 'meses';
+                const numbers = detailStr.match(/\d+(?:[.,]\d+)?/g) || [];
+                minInput.value = numbers[0] || '';
+                maxInput.value = numbers[1] || '';
+                const normalizedDetail = normalizeSearchText(detailStr);
+                if (normalizedDetail.includes('dia')) unitVal = 'dias';
+                else if (normalizedDetail.includes('semana')) unitVal = 'semanas';
+                else if (normalizedDetail.includes('ano')) unitVal = 'anos';
+                unitSelect.dataset.idadeMetamorfoseUnit = unitVal;
+                unitSelect.value = unitVal;
+            } else if (isNumeroMudas) {
+                rowModeSelect.value = 'numero_mudas';
+                const numbers = detailStr.match(/\d+(?:[.,]\d+)?/g) || [];
+                minInput.value = numbers[0] || '';
+                maxInput.value = numbers[1] || '';
+                const normalizedDetail = normalizeSearchText(detailStr);
+                let unitVal = 'centenas';
+                if (normalizedDetail.includes('unidade')) unitVal = 'unidade';
+                else if (normalizedDetail.includes('milhar')) unitVal = 'milhares';
+                else if (normalizedDetail.includes('milhao')) unitVal = 'milhões';
+                unitSelect.dataset.numeroMudasUnit = unitVal;
+                unitSelect.value = unitVal;
+            } else if (isNumeroEstadiosLarvais) {
+                rowModeSelect.value = 'numero_estadios_larvais';
+                const numbers = detailStr.match(/\d+(?:[.,]\d+)?/g) || [];
+                minInput.value = numbers[0] || '';
+                maxInput.value = numbers[1] || '';
+                const normalizedDetail = normalizeSearchText(detailStr);
+                let unitVal = 'unidade';
+                if (normalizedDetail.includes('centena')) unitVal = 'centenas';
+                else if (normalizedDetail.includes('milhar')) unitVal = 'milhares';
+                else if (normalizedDetail.includes('milhao')) unitVal = 'milhões';
+                unitSelect.dataset.numeroEstadiosLarvaisUnit = unitVal;
                 unitSelect.value = unitVal;
             } else if (isMating) {
                 rowModeSelect.value = 'acasalamento';
@@ -399,6 +529,9 @@
 
             function updateRowVisibility() {
                 row.innerHTML = '';
+                unitSelect.disabled = false;
+                minInput.removeAttribute('max');
+                maxInput.removeAttribute('max');
                 row.append(rowModeSelect);
                 if (rowModeSelect.value === '') {
                     const spacer = document.createElement('div');
@@ -407,11 +540,15 @@
                 } else if (rowModeSelect.value === 'parental_investment') {
                     row.append(minInput, maxInput, unitSelect, genderBtn, faseBtn, removeBtn);
                 } else if (rowModeSelect.value === 'tipo') {
-                    fillReproductionTypeSelect(typeSelect, typeSelect.value || (!isGestation && !isCrias && !isMaturidade && !isMating && !isAlimentacaoTipo && !isAlimentoMedio && !isAguaMedia && !isEpocaReproducao && !isNumeroOvos && !isTempoEclosao && !isParental ? typeStr : ''));
+                    fillReproductionTypeSelect(typeSelect, typeSelect.value || (!isGestation && !isCrias && !isMaturidade && !isMating && !isAlimentacaoTipo && !isAlimentoMedio && !isAguaMedia && !isEpocaReproducao && !isNumeroOvos && !isTempoEclosao && !isDuracaoEstro && !isFrequenciaAcasalamentoEstro && !isTaxaSucessoReprodutivo && !isIntervaloNascimentos && !isIdadeMetamorfose && !isNumeroMudas && !isNumeroEstadiosLarvais && !isSistemaSexual && !isParental ? typeStr : ''));
                     row.append(typeSelect, genderBtn, faseBtn, removeBtn);
                 } else if (rowModeSelect.value === 'acasalamento') {
                     fillMatingTypeSelect(matingSelect, matingSelect.value || initialMatingValue);
                     row.append(matingSelect, genderBtn, faseBtn, removeBtn);
+                } else if (rowModeSelect.value === 'sistema_sexual') {
+                    fillSexualSystemSelect(sexualSystemSelect.value || detailStr);
+                    sexualSystemSelect.style.gridColumn = 'span 3';
+                    row.append(sexualSystemSelect, genderBtn, faseBtn, removeBtn);
                 } else if (rowModeSelect.value === 'alimentacao_tipo') {
                     row.append(feedingTypeSelect, feedingDetailInput, genderBtn, faseBtn, removeBtn);
                 } else if (rowModeSelect.value === 'maturidade_sexual') {
@@ -448,6 +585,107 @@
                     maxInput.placeholder = 'Máx: 5';
                     const spacer = document.createElement('div');
                     row.append(minInput, maxInput, spacer, genderBtn, faseBtn, removeBtn);
+                } else if (rowModeSelect.value === 'intervalo_nascimentos') {
+                    minInput.className = 'reproduction-gestation-min reproduction-birth-interval-min';
+                    maxInput.className = 'reproduction-gestation-max reproduction-birth-interval-max';
+                    minInput.placeholder = 'Mín: 1';
+                    maxInput.placeholder = 'Máx: 3';
+                    const previousUnit = unitSelect.dataset.intervaloNascimentosUnit || unitSelect.value;
+                    const birthIntervalUnits = ['minutos', 'horas', 'dias', 'semanas', 'meses', 'anos'];
+                    unitSelect.innerHTML = '';
+                    birthIntervalUnits.forEach(u => {
+                        const opt = document.createElement('option');
+                        opt.value = u;
+                        opt.textContent = u;
+                        unitSelect.append(opt);
+                    });
+                    unitSelect.value = birthIntervalUnits.includes(previousUnit) ? previousUnit : 'meses';
+                    row.append(minInput, maxInput, unitSelect, genderBtn, faseBtn, removeBtn);
+                } else if (rowModeSelect.value === 'idade_metamorfose') {
+                    minInput.className = 'reproduction-gestation-min reproduction-metamorphosis-age-min';
+                    maxInput.className = 'reproduction-gestation-max reproduction-metamorphosis-age-max';
+                    minInput.placeholder = 'Mín: 1';
+                    maxInput.placeholder = 'Máx: 6';
+                    const previousUnit = unitSelect.dataset.idadeMetamorfoseUnit || unitSelect.value;
+                    const metamorphosisUnits = ['dias', 'semanas', 'meses', 'anos'];
+                    unitSelect.innerHTML = '';
+                    metamorphosisUnits.forEach(u => {
+                        const opt = document.createElement('option');
+                        opt.value = u;
+                        opt.textContent = u;
+                        unitSelect.append(opt);
+                    });
+                    unitSelect.value = metamorphosisUnits.includes(previousUnit) ? previousUnit : 'meses';
+                    row.append(minInput, maxInput, unitSelect, genderBtn, faseBtn, removeBtn);
+                } else if (rowModeSelect.value === 'numero_mudas') {
+                    minInput.className = 'reproduction-gestation-min reproduction-moults-min';
+                    maxInput.className = 'reproduction-gestation-max reproduction-moults-max';
+                    minInput.placeholder = 'Mín: 1';
+                    maxInput.placeholder = 'Máx: 5';
+                    const previousUnit = unitSelect.dataset.numeroMudasUnit || unitSelect.value;
+                    const moultUnits = ['unidade', 'centenas', 'milhares', 'milhões'];
+                    unitSelect.innerHTML = '';
+                    moultUnits.forEach(u => {
+                        const opt = document.createElement('option');
+                        opt.value = u;
+                        opt.textContent = u;
+                        unitSelect.append(opt);
+                    });
+                    unitSelect.value = moultUnits.includes(previousUnit) ? previousUnit : 'centenas';
+                    row.append(minInput, maxInput, unitSelect, genderBtn, faseBtn, removeBtn);
+                } else if (rowModeSelect.value === 'numero_estadios_larvais') {
+                    minInput.className = 'reproduction-gestation-min reproduction-larval-stages-min';
+                    maxInput.className = 'reproduction-gestation-max reproduction-larval-stages-max';
+                    minInput.placeholder = 'Mín: 1';
+                    maxInput.placeholder = 'Máx: 5';
+                    const previousUnit = unitSelect.dataset.numeroEstadiosLarvaisUnit || unitSelect.value;
+                    const larvalStageUnits = ['unidade', 'centenas', 'milhares', 'milhões'];
+                    unitSelect.innerHTML = '';
+                    larvalStageUnits.forEach(u => {
+                        const opt = document.createElement('option');
+                        opt.value = u;
+                        opt.textContent = u;
+                        unitSelect.append(opt);
+                    });
+                    unitSelect.value = larvalStageUnits.includes(previousUnit) ? previousUnit : 'unidade';
+                    row.append(minInput, maxInput, unitSelect, genderBtn, faseBtn, removeBtn);
+                } else if (rowModeSelect.value === 'duracao_estro') {
+                    minInput.className = 'reproduction-gestation-min reproduction-estrus-min';
+                    maxInput.className = 'reproduction-gestation-max reproduction-estrus-max';
+                    minInput.placeholder = 'Mín: 1';
+                    maxInput.placeholder = 'Máx: 5';
+                    const previousUnit = unitSelect.dataset.estroUnit || unitSelect.value;
+                    const estrusUnits = ['horas', 'dias', 'semanas'];
+                    unitSelect.innerHTML = '';
+                    estrusUnits.forEach(u => {
+                        const opt = document.createElement('option');
+                        opt.value = u;
+                        opt.textContent = u;
+                        unitSelect.append(opt);
+                    });
+                    unitSelect.value = estrusUnits.includes(previousUnit) ? previousUnit : 'dias';
+                    row.append(minInput, maxInput, unitSelect, genderBtn, faseBtn, removeBtn);
+                } else if (rowModeSelect.value === 'frequencia_acasalamento_estro') {
+                    minInput.className = 'reproduction-gestation-min reproduction-mating-frequency-min';
+                    maxInput.className = 'reproduction-gestation-max reproduction-mating-frequency-max';
+                    minInput.placeholder = 'Mín: 1';
+                    maxInput.placeholder = 'Máx: 5';
+                    const spacer = document.createElement('div');
+                    spacer.className = 'reproduction-unit-spacer';
+                    row.append(minInput, maxInput, spacer, genderBtn, faseBtn, removeBtn);
+                } else if (rowModeSelect.value === 'taxa_sucesso_reprodutivo') {
+                    minInput.className = 'reproduction-gestation-min reproduction-success-rate-min';
+                    maxInput.className = 'reproduction-gestation-max reproduction-success-rate-max';
+                    minInput.placeholder = 'Mín: 0';
+                    maxInput.placeholder = 'Máx: 100';
+                    minInput.min = '0';
+                    maxInput.min = '0';
+                    minInput.max = '100';
+                    maxInput.max = '100';
+                    unitSelect.innerHTML = '<option value="%">%</option>';
+                    unitSelect.value = '%';
+                    unitSelect.disabled = true;
+                    row.append(minInput, maxInput, unitSelect, genderBtn, faseBtn, removeBtn);
                 } else if (rowModeSelect.value === 'tempo_eclosao') {
                     minInput.className = 'reproduction-gestation-min';
                     maxInput.className = 'reproduction-gestation-max';
@@ -514,6 +752,7 @@
             typeSelect.addEventListener('change', updateReproductionPreview);
             matingSelect.addEventListener('change', updateReproductionPreview);
             feedingTypeSelect.addEventListener('change', updateReproductionPreview);
+            sexualSystemSelect.addEventListener('change', updateReproductionPreview);
             feedingDetailInput.addEventListener('input', updateReproductionPreview);
             minInput.addEventListener('input', updateReproductionPreview);
             maxInput.addEventListener('input', updateReproductionPreview);
@@ -525,6 +764,21 @@
                 }
                 if (rowModeSelect.value === 'tempo_eclosao') {
                     unitSelect.dataset.eclosaoUnit = unitSelect.value;
+                }
+                if (rowModeSelect.value === 'duracao_estro') {
+                    unitSelect.dataset.estroUnit = unitSelect.value;
+                }
+                if (rowModeSelect.value === 'intervalo_nascimentos') {
+                    unitSelect.dataset.intervaloNascimentosUnit = unitSelect.value;
+                }
+                if (rowModeSelect.value === 'idade_metamorfose') {
+                    unitSelect.dataset.idadeMetamorfoseUnit = unitSelect.value;
+                }
+                if (rowModeSelect.value === 'numero_mudas') {
+                    unitSelect.dataset.numeroMudasUnit = unitSelect.value;
+                }
+                if (rowModeSelect.value === 'numero_estadios_larvais') {
+                    unitSelect.dataset.numeroEstadiosLarvaisUnit = unitSelect.value;
                 }
                 updateReproductionPreview();
             });
@@ -671,6 +925,13 @@
                             tipo: 'Acasalamento',
                             detalhe: matingVal
                         };
+                    } else if (rowModeSelect.value === 'sistema_sexual') {
+                        const detail = row.querySelector('.reproduction-sexual-system')?.value || '';
+                        return detail ? {
+                            ...rowMeta,
+                            tipo: 'Sistema sexual',
+                            detalhe: detail
+                        } : null;
                     } else if (rowModeSelect.value === 'alimentacao_tipo') {
                         const feedingTypeVal = row.querySelector('.reproduction-feeding-type')?.value || '';
                         const feedingDetailVal = row.querySelector('.reproduction-feeding-detail')?.value.trim() || '';
@@ -765,7 +1026,85 @@
                             tipo: 'Número de ovos',
                             detalhe: detail
                         };
-                    } else if (rowModeSelect.value === 'tempo_eclosao') {
+                    } else if (rowModeSelect.value === 'frequencia_acasalamento_estro') {
+                        const min = row.querySelector('.reproduction-gestation-min')?.value || '';
+                        const max = row.querySelector('.reproduction-gestation-max')?.value || '';
+                        const detalhe = min && max ? `${min}-${max}` : (min || max);
+                        return {
+                            ...rowMeta,
+                            tipo: 'Frequência de acasalamento durante o estro',
+                            detalhe
+                        };
+                    } else if (rowModeSelect.value === 'taxa_sucesso_reprodutivo') {
+                        const min = row.querySelector('.reproduction-gestation-min')?.value || '';
+                        const max = row.querySelector('.reproduction-gestation-max')?.value || '';
+                        const detalhe = min && max ? `${min}-${max} %` : ((min || max) ? `${min || max} %` : '');
+                        return {
+                            ...rowMeta,
+                            tipo: 'Taxa de sucesso reprodutivo',
+                            detalhe
+                        };
+                    } else if (rowModeSelect.value === 'intervalo_nascimentos') {
+                        const detail = buildRangeDetail(
+                            row.querySelector('.reproduction-gestation-min')?.value || '',
+                            row.querySelector('.reproduction-gestation-max')?.value || '',
+                            row.querySelector('.reproduction-gestation-unit')?.value || 'meses'
+                        );
+                        return {
+                            ...rowMeta,
+                            tipo: 'Intervalo entre nascimentos',
+                            detalhe: detail
+                        };
+                    } else if (rowModeSelect.value === 'idade_metamorfose') {
+                        const detail = buildRangeDetail(
+                            row.querySelector('.reproduction-gestation-min')?.value || '',
+                            row.querySelector('.reproduction-gestation-max')?.value || '',
+                            row.querySelector('.reproduction-gestation-unit')?.value || 'meses'
+                        );
+                        return {
+                            ...rowMeta,
+                            tipo: 'Idade da metamorfose',
+                            detalhe: detail
+                        };
+                    } else if (rowModeSelect.value === 'numero_mudas') {
+                        const detail = buildRangeDetail(
+                            row.querySelector('.reproduction-gestation-min')?.value || '',
+                            row.querySelector('.reproduction-gestation-max')?.value || '',
+                            row.querySelector('.reproduction-gestation-unit')?.value || 'centenas'
+                        );
+                        return {
+                            ...rowMeta,
+                            tipo: 'Número de mudas',
+                            detalhe: detail
+                        };
+                    } else if (rowModeSelect.value === 'numero_estadios_larvais') {
+                        const detail = buildRangeDetail(
+                            row.querySelector('.reproduction-gestation-min')?.value || '',
+                            row.querySelector('.reproduction-gestation-max')?.value || '',
+                            row.querySelector('.reproduction-gestation-unit')?.value || 'unidade'
+                        );
+                        return {
+                            ...rowMeta,
+                            tipo: 'Número de estádios larvais',
+                            detalhe: detail
+                        };
+                    } else if (rowModeSelect.value === 'duracao_estro') {
+                    minInput.className = 'reproduction-gestation-min reproduction-estrus-min';
+                    maxInput.className = 'reproduction-gestation-max reproduction-estrus-max';
+                    minInput.placeholder = 'Mín: 1';
+                    maxInput.placeholder = 'Máx: 5';
+                    const previousUnit = unitSelect.dataset.estroUnit || unitSelect.value;
+                    const estrusUnits = ['horas', 'dias', 'semanas'];
+                    unitSelect.innerHTML = '';
+                    estrusUnits.forEach(u => {
+                        const opt = document.createElement('option');
+                        opt.value = u;
+                        opt.textContent = u;
+                        unitSelect.append(opt);
+                    });
+                    unitSelect.value = estrusUnits.includes(previousUnit) ? previousUnit : 'dias';
+                    row.append(minInput, maxInput, unitSelect, genderBtn, faseBtn, removeBtn);
+                } else if (rowModeSelect.value === 'tempo_eclosao') {
                         const detail = buildRangeDetail(
                             row.querySelector('.reproduction-gestation-min')?.value || '',
                             row.querySelector('.reproduction-gestation-max')?.value || '',
@@ -841,6 +1180,14 @@
             if (normalized.includes('epoca de reproducao') || normalized.includes('época de reprodução')) return { key: 'epocaReproducao', title: type || 'Época de reprodução', accent: 'accent-season' };
             if (normalized.includes('numero de ovos') || normalized.includes('número de ovos')) return { key: 'numeroOvos', title: type || 'Número de ovos', accent: 'accent-egg' };
             if (normalized.includes('tempo ate a eclosao') || normalized.includes('tempo até à eclosão') || normalized.includes('eclosao')) return { key: 'tempoEclosao', title: type || 'Tempo até à eclosão', accent: 'accent-hatching' };
+            if (normalized.includes('duracao do estro')) return { key: 'duracaoEstro', title: type || 'Duração do estro', accent: 'accent-mating-polygamy' };
+            if (normalized.includes('sistema sexual')) return { key: 'sistemaSexual', title: type || 'Sistema sexual', accent: 'accent-width' };
+            if (normalized.includes('idade da metamorfose')) return { key: 'idadeMetamorfose', title: type || 'Idade da metamorfose', accent: 'accent-wing' };
+            if (normalized.includes('numero de mudas')) return { key: 'numeroMudas', title: type || 'Número de mudas', accent: 'accent-tail' };
+            if (normalized.includes('numero de estadios larvais')) return { key: 'numeroEstadiosLarvais', title: type || 'Número de estádios larvais', accent: 'accent-egg' };
+            if (normalized.includes('frequencia de acasalamento durante o estro')) return { key: 'frequenciaAcasalamentoEstro', title: type || 'Frequência de acasalamento durante o estro', accent: 'accent-speed-average' };
+            if (normalized.includes('taxa de sucesso reprodutivo')) return { key: 'taxaSucessoReprodutivo', title: type || 'Taxa de sucesso reprodutivo', accent: 'accent-life' };
+            if (normalized.includes('intervalo entre nascimentos')) return { key: 'intervaloNascimentos', title: type || 'Intervalo entre nascimentos', accent: 'accent-maturity' };
             if (normalized.includes('maturidade sexual') || normalized.includes('maturidade')) return { key: 'maturidade', title: type || 'Maturidade Sexual', accent: 'accent-maturity' };
             if (normalized.includes('gestacao') || normalized.includes('gestação') || normalized.includes('gravidez') || normalized.includes('tempo')) {
                 return { key: 'gestacao', title: type || 'Gestação', accent: 'accent-weight' };
@@ -871,6 +1218,14 @@
 
         function getReproductionModelSvg(key = 'reproducao') {
             const icons = {
+                idadeMetamorfose: `<svg class="metric-model-svg reproduction-icon-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><circle cx="22" cy="25" r="8"/><path d="M17 51c9-17 24-24 42-17"/><path d="M53 27l9 8l-10 5"/><path d="M43 55c6 9 16 11 24 4"/><path d="M50 64l-8 5"/></svg>`,
+                numeroMudas: `<svg class="metric-model-svg reproduction-icon-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M19 40c0-13 9-23 21-23s21 10 21 23s-9 23-21 23S19 53 19 40Z"/><path d="M28 30c8 7 16 7 24 0"/><path d="M28 50c8-7 16-7 24 0"/><path d="M40 17v46"/></svg>`,
+                numeroEstadiosLarvais: `<svg class="metric-model-svg reproduction-icon-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><circle cx="18" cy="40" r="6"/><circle cx="34" cy="40" r="8"/><circle cx="54" cy="40" r="10"/><path d="M24 40h2M42 40h2"/><path d="M62 32l8 8l-8 8"/></svg>`,
+                sistemaSexual: `<svg class="metric-model-svg reproduction-model-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><circle cx="27" cy="28" r="12"/><path d="M27 40v23M18 52h18"/><circle cx="54" cy="50" r="12"/><path d="M62 42l10-10M64 32h8v8"/></svg>`,
+                duracaoEstro: `<svg class="metric-model-svg reproduction-icon-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M24 18h32v44H24V18Z"/><path d="M24 30h32"/><path d="M32 12v12M48 12v12"/><path d="M33 46c0-5 3-9 7-9s7 4 7 9s-3 10-7 15c-4-5-7-10-7-15Z"/><path d="M17 67h46"/></svg>`,
+                frequenciaAcasalamentoEstro: `<svg class="metric-model-svg reproduction-icon-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M18 42c8-14 18-21 30-21c8 0 14 3 19 9"/><path d="M18 55c8-10 17-15 28-15c9 0 16 4 21 11"/><path d="M18 29h9M14 35h13M22 22h8"/><circle cx="57" cy="27" r="8"/><path d="M57 19v16M49 27h16"/></svg>`,
+                taxaSucessoReprodutivo: `<svg class="metric-model-svg reproduction-icon-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><circle cx="40" cy="40" r="27"/><path d="M25 55l30-30"/><circle cx="29" cy="29" r="5"/><circle cx="51" cy="51" r="5"/><path d="M31 42l7 7l13-16"/></svg>`,
+                intervaloNascimentos: `<svg class="metric-model-svg reproduction-icon-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M18 20h44v42H18V20Z"/><path d="M18 32h44"/><path d="M29 13v14M51 13v14"/><circle cx="31" cy="46" r="6"/><circle cx="51" cy="46" r="6"/><path d="M37 46h8"/><path d="M41 42l4 4l-4 4"/></svg>`,
                 gestacao: `<svg class="metric-model-svg reproduction-icon-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M22 26h36v36H22V26Z"/><path d="M22 38h36"/><path d="M31 16v10"/><path d="M49 16v10"/><circle cx="40" cy="50" r="7"/><path d="M40 46v4h4"/></svg>`,
                 ovo: `<svg class="metric-model-svg reproduction-icon-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M40 10c13 0 23 17 23 33c0 15-9 27-23 27S17 58 17 43C17 27 27 10 40 10Z"/><path d="M29 47c7 5 15 5 22 0"/></svg>`,
                 viviparo: `<svg class="metric-model-svg reproduction-icon-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M40 12c15 12 24 24 24 38c0 13-10 22-24 22S16 63 16 50c0-14 9-26 24-38Z"/><circle cx="40" cy="48" r="12"/><path d="M40 36v-9"/></svg>`,

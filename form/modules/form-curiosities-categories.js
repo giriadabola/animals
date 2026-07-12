@@ -1,6 +1,15 @@
 // Curiosidades, categorias, arranque e imagem
 
         function renderRecordVisualSvg(kind = 'weight') {
+            if (kind === 'length') {
+                return `<svg class="record-custom-svg" viewBox="0 0 64 64" role="img" aria-label="Maior comprimento registado" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M10 20h44v24H10z"/><path d="M16 20v9M23 20v6M30 20v9M37 20v6M44 20v9M51 20v6"/><path d="M8 50h48"/><path d="m8 50 6-5M8 50l6 5M56 50l-6-5M56 50l-6 5"/></svg>`;
+            }
+            if (kind === 'height') {
+                return `<svg class="record-custom-svg" viewBox="0 0 64 64" role="img" aria-label="Maior altura registada" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10h20v44H22z"/><path d="M22 16h8M22 23h5M22 30h8M22 37h5M22 44h8"/><path d="M14 10v44"/><path d="m14 10-5 6M14 10l5 6M14 54l-5-6M14 54l5-6"/></svg>`;
+            }
+            if (kind === 'wingspan') {
+                return `<svg class="record-custom-svg" viewBox="0 0 64 64" role="img" aria-label="Maior envergadura registada" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M32 32c-7-9-15-14-25-15c4 10 11 17 21 21"/><path d="M32 32c7-9 15-14 25-15c-4 10-11 17-21 21"/><path d="M32 26v22"/><path d="M8 52h48"/><path d="m8 52 6-5M8 52l6 5M56 52l-6-5M56 52l-6 5"/></svg>`;
+            }
             if (kind === 'age') {
                 return `<svg class="record-custom-svg" viewBox="0 0 64 64" role="img" aria-label="Maior idade registada" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M20 9h24M20 55h24"/><path d="M23 12c0 11 4 16 9 20-5 4-9 9-9 20h18c0-11-4-16-9-20 5-4 9-9 9-20Z"/><path d="M27 18h10M27 46h10"/><path d="m46 8 2 4 5 1-4 3 1 5-4-3-4 3 1-5-4-3 5-1Z"/>
@@ -19,6 +28,8 @@
             if (type === 'Tipo de Comunicação') return Object.keys(curiosidadesCommunicationDescriptions).sort((a, b) => a.localeCompare(b));
             if (type === 'Relação com Humanos') return curiosidadesHumanRelationOptions;
             if (type === 'Importância económica para os humanos') return ['Negativo', 'Positivo', 'Negativo/Positivo', 'Neutro'];
+            if (type === 'Tendência populacional') return ['A aumentar', 'Estável', 'A diminuir', 'Desconhecida'];
+            if (type === 'Dependência de áreas protegidas') return ['Elevada', 'Moderada', 'Reduzida', 'Desconhecida'];
             return [];
         }
 
@@ -91,11 +102,17 @@
             return normalizeSearchText(type) === 'maior idade registada';
         }
 
+        function isRecordDimensionCuriosidade(type = '') {
+            const normalized = normalizeSearchText(type);
+            return ['maior comprimento registado', 'maior altura registada', 'maior envergadura registada'].includes(normalized);
+        }
+
         function getCuriosidadeMetricUnits(type = '') {
             if (isSleepHoursCuriosidade(type)) return ['horas/dia', 'horas/semana', 'horas/mes', 'horas/ano'];
             if (isDistanceCuriosidade(type)) return ['m/dia', 'm/semana', 'm/mes', 'm/ano', 'km/dia', 'km/semana', 'km/mes', 'km/ano'];
             if (isMaiorPesoRegistadoCuriosidade(type)) return ['g', 'kg', 't', 'lb'];
             if (isMaiorIdadeRegistadaCuriosidade(type)) return ['dias', 'semanas', 'meses', 'anos'];
+            if (isRecordDimensionCuriosidade(type)) return ['mm', 'cm', 'm'];
             return [];
         }
 
@@ -104,6 +121,7 @@
             if (isDistanceCuriosidade(type)) return 'km/dia';
             if (isMaiorPesoRegistadoCuriosidade(type)) return 'kg';
             if (isMaiorIdadeRegistadaCuriosidade(type)) return 'anos';
+            if (isRecordDimensionCuriosidade(type)) return 'cm';
             return '';
         }
 
@@ -181,7 +199,7 @@
                 minInput.addEventListener('input', updateCuriosidadesPreview);
                 maxInput.addEventListener('input', updateCuriosidadesPreview);
                 wrapper.append(minInput, maxInput, unitBadge);
-            } else if (isSleepHoursCuriosidade(type) || isDistanceCuriosidade(type) || isMaiorPesoRegistadoCuriosidade(type) || isMaiorIdadeRegistadaCuriosidade(type)) {
+            } else if (isSleepHoursCuriosidade(type) || isDistanceCuriosidade(type) || isMaiorPesoRegistadoCuriosidade(type) || isMaiorIdadeRegistadaCuriosidade(type) || isRecordDimensionCuriosidade(type)) {
                 wrapper.classList.add('temperature-controls', 'metric-controls');
                 const parsed = parseCuriosidadeMetric(data, type);
                 const minInput = document.createElement('input');
@@ -189,7 +207,7 @@
                 minInput.step = '0.01';
                 minInput.min = '0';
                 minInput.className = 'curiosidade-metric-min';
-                minInput.placeholder = (isDistanceCuriosidade(type) || isMaiorPesoRegistadoCuriosidade(type) || isMaiorIdadeRegistadaCuriosidade(type)) ? 'Mín.' : 'Valor';
+                minInput.placeholder = (isDistanceCuriosidade(type) || isMaiorPesoRegistadoCuriosidade(type) || isMaiorIdadeRegistadaCuriosidade(type) || isRecordDimensionCuriosidade(type)) ? 'Mín.' : 'Valor';
                 minInput.value = parsed.min;
                 const maxInput = document.createElement('input');
                 maxInput.type = 'number';
@@ -527,6 +545,16 @@
                     </div>`;
             }
 
+            if (item.tipo === 'Maior comprimento registado') {
+                return `<div class="curiosidades-preview-item record-length-preview-item"><div class="communication-preview-icon record-model-icon">${renderRecordVisualSvg('length')}</div><div class="curiosidades-preview-info"><span class="preview-label">Maior comprimento registado</span><strong style="font-size:1.05rem;font-weight:800;color:#38bdf8;">${item.valor}</strong><div class="communication-preview-desc">Recorde de comprimento documentado para este sexo e fase de vida.</div>${renderCuriosidadeMeta(item)}</div></div>`;
+            }
+            if (item.tipo === 'Maior altura registada') {
+                return `<div class="curiosidades-preview-item record-height-preview-item"><div class="communication-preview-icon record-model-icon">${renderRecordVisualSvg('height')}</div><div class="curiosidades-preview-info"><span class="preview-label">Maior altura registada</span><strong style="font-size:1.05rem;font-weight:800;color:#34d399;">${item.valor}</strong><div class="communication-preview-desc">Recorde de altura documentado para este sexo e fase de vida.</div>${renderCuriosidadeMeta(item)}</div></div>`;
+            }
+            if (item.tipo === 'Maior envergadura registada') {
+                return `<div class="curiosidades-preview-item record-wingspan-preview-item"><div class="communication-preview-icon record-model-icon">${renderRecordVisualSvg('wingspan')}</div><div class="curiosidades-preview-info"><span class="preview-label">Maior envergadura registada</span><strong style="font-size:1.05rem;font-weight:800;color:#fb7185;">${item.valor}</strong><div class="communication-preview-desc">Recorde de envergadura documentado para este sexo e fase de vida.</div>${renderCuriosidadeMeta(item)}</div></div>`;
+            }
+
             if (item.tipo === 'Horas de Sono') {
                 return `
                     <div class="curiosidades-preview-item sleep-preview-item">
@@ -548,6 +576,33 @@
                             <span class="preview-label">Distância Percorrida</span>
                             <strong style="font-size: 1.05rem; font-weight: 700; color: var(--text-primary);">${item.valor}</strong>
                             <div class="communication-preview-desc">Modelo visual próprio de deslocação e movimento.</div>
+                            ${renderCuriosidadeMeta(item)}
+                        </div>
+                    </div>`;
+            }
+
+            if (item.tipo === 'Tendência populacional') {
+                const icon = item.valor === 'A aumentar' ? 'fa-arrow-trend-up' : item.valor === 'A diminuir' ? 'fa-arrow-trend-down' : item.valor === 'Estável' ? 'fa-minus' : 'fa-question';
+                return `
+                    <div class="curiosidades-preview-item population-trend-preview-item">
+                        <div class="communication-preview-icon"><i class="fa-solid ${icon}"></i></div>
+                        <div class="curiosidades-preview-info">
+                            <span class="preview-label">Tendência populacional</span>
+                            <strong style="font-size: 1.05rem; font-weight: 700; color: var(--text-primary);">${item.valor}</strong>
+                            <div class="communication-preview-desc">Evolução atual estimada da população.</div>
+                            ${renderCuriosidadeMeta(item)}
+                        </div>
+                    </div>`;
+            }
+
+            if (item.tipo === 'Dependência de áreas protegidas') {
+                return `
+                    <div class="curiosidades-preview-item protected-area-preview-item">
+                        <div class="communication-preview-icon"><i class="fa-solid fa-shield-halved"></i></div>
+                        <div class="curiosidades-preview-info">
+                            <span class="preview-label">Dependência de áreas protegidas</span>
+                            <strong style="font-size: 1.05rem; font-weight: 700; color: var(--text-primary);">${item.valor}</strong>
+                            <div class="communication-preview-desc">Importância das áreas protegidas para a sobrevivência da espécie.</div>
                             ${renderCuriosidadeMeta(item)}
                         </div>
                     </div>`;

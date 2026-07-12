@@ -22,6 +22,31 @@
             { tipo: 'Taxa Metabólica Basal média', unidade: 'W' },
             { tipo: 'Profundidade máxima', unidade: 'm' },
             { tipo: 'Profundidade média', unidade: 'm' },
+            { tipo: 'Início do voo', unidade: 'meses' },
+            { tipo: 'Primeira alimentação sólida', unidade: 'meses' },
+            { tipo: 'Saída do ninho', unidade: 'meses' },
+            { tipo: 'Saída da toca', unidade: 'meses' },
+            { tipo: 'Desmame', unidade: 'meses' },
+            { tipo: 'Primeira vocalização', unidade: 'meses' },
+            { tipo: 'Maturidade física', unidade: 'meses' },
+            { tipo: 'Tamanho do grupo social', unidade: 'centenas' },
+            { tipo: 'Composição do grupo social', unidade: 'machos adultos' },
+            { tipo: 'Tamanho do território', unidade: 'km²' },
+            { tipo: 'Taxa de sucesso da caça', unidade: 'caça individual' },
+            { tipo: 'Taxa de mortalidade', unidade: 'mortalidade adulta' },
+            { tipo: 'Taxa de mortalidade (cativeiro)', unidade: 'mortalidade adulta' },
+            { tipo: 'Altitude mínima', unidade: 'm' },
+            { tipo: 'Altitude máxima', unidade: 'm' },
+            { tipo: 'Transformações do desenvolvimento', unidade: '' },
+            { tipo: 'Número de segmentos', unidade: 'centenas' },
+            { tipo: 'Número de patas', unidade: 'centenas' },
+            { tipo: 'Número de poros', unidade: 'centenas' },
+            { tipo: 'Número de brânquias', unidade: 'centenas' },
+            { tipo: 'Número de barbatanas', unidade: 'centenas' },
+            { tipo: 'Número de vértebras', unidade: 'centenas' },
+            { tipo: 'Número de escamas', unidade: 'centenas' },
+            { tipo: 'Número de miômeros', unidade: 'centenas' },
+            { tipo: 'Tipo de esqueleto', unidade: '' },
             { tipo: 'Comportamento sazonal', unidade: '' }
         ].forEach(option => {
             if (!generalVisualOptions.some(existing => normalizeSearchText(existing.tipo) === normalizeSearchText(option.tipo))) {
@@ -30,16 +55,143 @@
         });
         generalVisualUnits.length = 0;
         generalVisualUnits.push(...generalVisualCatalogUnits);
-        ['segundos', 'minutos', 'horas', 'dias', 'semanas', 'meses', 'anos', 'milénios', 'm', 'cm', 'mm', 'km', 'kcal/dia', 'kJ/dia', 'W', 'J/s', 'ml O₂/h', 'L O₂/dia', 'kcal/kg/dia', 'W/kg', 'ml O₂/g/h'].forEach(unit => {
+        ['segundos', 'minutos', 'horas', 'dias', 'semanas', 'meses', 'anos', 'milénios', 'm', 'cm', 'mm', 'km', 'kcal/dia', 'kJ/dia', 'W', 'J/s', 'ml O₂/h', 'L O₂/dia', 'kcal/kg/dia', 'W/kg', 'ml O₂/g/h', 'unidade', 'centenas', 'milhares', 'milhões'].forEach(unit => {
             if (!generalVisualUnits.includes(unit)) generalVisualUnits.push(unit);
         });
         if (!generalVisualOptions.some(option => option.tipo === 'Tempo de Amamentação')) {
             generalVisualOptions.splice(5, 0, { tipo: 'Tempo de Amamentação', unidade: 'meses' });
         }
 
-        function fillGeneralVisualTypeSelect(select, selectedValue = '') {
-            const options = generalVisualOptions.map(option => option.tipo).sort((a, b) => a.localeCompare(b));
-            const hasSelected = selectedValue && options.includes(selectedValue);
+
+
+        const GENERAL_VISUAL_SECTIONS = [
+            {
+                key: 'geral',
+                title: 'Geral',
+                icon: 'fa-circle-info',
+                models: [
+                    'Expetativa média de vida',
+                    'Expetativa média de vida (cativeiro)',
+                    'Profundidade máxima',
+                    'Profundidade média',
+                    'Tamanho da População',
+                    'Taxa Metabólica Basal média',
+                    'Velocidade máxima',
+                    'Velocidade média',
+                    'Vida útil',
+                    'Vida útil (cativeiro)',
+                    'Tamanho do grupo social',
+                    'Tamanho do território',
+                    'Taxa de sucesso da caça',
+                    'Taxa de mortalidade',
+                    'Taxa de mortalidade (cativeiro)',
+                    'Altitude mínima',
+                    'Altitude máxima'
+                ]
+            },
+            {
+                key: 'habitat',
+                title: 'Habitat',
+                icon: 'fa-mountain-sun',
+                models: ['Bioma', 'Zona Climática']
+            },
+            {
+                key: 'habitos',
+                title: 'Hábitos',
+                icon: 'fa-arrows-spin',
+                models: ['Atividade', 'Comportamento sazonal', 'Locomoção', 'Vida Social', 'Composição do grupo social']
+            },
+            {
+                key: 'fisiologia',
+                title: 'Fisiologia',
+                icon: 'fa-heart-pulse',
+                models: ['Força da mordida', 'Número de dentes', 'Número de mamas', 'Simetria corporal', 'Termorregulação', 'Transformações do desenvolvimento', 'Número de segmentos', 'Número de patas', 'Número de poros', 'Número de brânquias', 'Número de barbatanas', 'Número de vértebras', 'Número de escamas', 'Número de miômeros', 'Tipo de esqueleto']
+            },
+            {
+                key: 'crias',
+                title: 'Crias',
+                icon: 'fa-baby',
+                models: ['Tempo de Amamentação', 'Abertura dos olhos', 'Início da marcha', 'Início da corrida', 'Saída do esconderijo', 'Independência', 'Início do voo', 'Primeira alimentação sólida', 'Saída do ninho', 'Saída da toca', 'Desmame', 'Primeira vocalização', 'Maturidade física']
+            }
+        ];
+
+        const generalVisualSectionRows = new Map();
+
+        function getGeneralVisualSectionForType(type = '') {
+            const normalized = normalizeSearchText(type);
+            return GENERAL_VISUAL_SECTIONS.find(section =>
+                section.models.some(model => normalizeSearchText(model) === normalized)
+            ) || GENERAL_VISUAL_SECTIONS[0];
+        }
+
+        function getGeneralVisualSectionByKey(key = '') {
+            return GENERAL_VISUAL_SECTIONS.find(section => section.key === key) || GENERAL_VISUAL_SECTIONS[0];
+        }
+
+        function buildGeneralVisualSections() {
+            generalVisualRowsContainer.innerHTML = '';
+            generalVisualRowsContainer.classList.add('general-visual-sections');
+            generalVisualSectionRows.clear();
+
+            GENERAL_VISUAL_SECTIONS.forEach(section => {
+                const wrapper = document.createElement('section');
+                wrapper.className = 'general-visual-section';
+                wrapper.dataset.section = section.key;
+
+                const heading = document.createElement('div');
+                heading.className = 'general-visual-section-heading';
+                heading.innerHTML = `
+                    <div class="general-visual-section-title">
+                        <i class="fa-solid ${section.icon}" aria-hidden="true"></i>
+                        <span>${section.title}</span>
+                    </div>
+                    <span class="general-visual-section-count">0 parâmetros</span>`;
+
+                const header = document.createElement('div');
+                header.className = 'general-visual-row-header general-visual-section-row-header';
+                header.innerHTML = `
+                    <span>Modelo</span>
+                    <span>Mín.</span>
+                    <span>Máx.</span>
+                    <span>Unidade</span>
+                    <span>Género</span>
+                    <span>Fase</span>`;
+
+                const rows = document.createElement('div');
+                rows.className = 'general-visual-section-rows';
+                rows.dataset.sectionRows = section.key;
+
+                const addButton = document.createElement('button');
+                addButton.type = 'button';
+                addButton.className = 'secondary-action-btn general-visual-section-add';
+                addButton.innerHTML = `<i class="fa-solid fa-plus" aria-hidden="true"></i> Adicionar em ${section.title}`;
+                addButton.addEventListener('click', () => createGeneralVisualRow('', '', '', '', GENDER_BOTH, 'Adulto', '', section.key));
+
+                wrapper.append(heading, header, rows, addButton);
+                generalVisualRowsContainer.appendChild(wrapper);
+                generalVisualSectionRows.set(section.key, rows);
+            });
+
+            if (addGeneralVisualBtn) addGeneralVisualBtn.style.display = 'none';
+            const oldHeader = generalVisualRowsContainer.previousElementSibling;
+            if (oldHeader?.classList.contains('general-visual-row-header')) oldHeader.style.display = 'none';
+        }
+
+        function updateGeneralVisualSectionCounts() {
+            GENERAL_VISUAL_SECTIONS.forEach(section => {
+                const rows = generalVisualSectionRows.get(section.key);
+                const count = rows?.querySelectorAll('.general-visual-row').length || 0;
+                const label = generalVisualRowsContainer.querySelector(`[data-section="${section.key}"] .general-visual-section-count`);
+                if (label) label.textContent = `${count} ${count === 1 ? 'parâmetro' : 'parâmetros'}`;
+            });
+        }
+
+        function fillGeneralVisualTypeSelect(select, selectedValue = '', sectionKey = '') {
+            const section = getGeneralVisualSectionByKey(sectionKey || getGeneralVisualSectionForType(selectedValue).key);
+            const options = section.models.filter(model =>
+                generalVisualOptions.some(option => normalizeSearchText(option.tipo) === normalizeSearchText(model))
+            );
+            const hasSelected = selectedValue && options.some(option => normalizeSearchText(option) === normalizeSearchText(selectedValue));
             select.innerHTML = `<option value="">Escolhe um modelo</option>` +
                 options.map(option => `<option value="${option}">${option}</option>`).join('') +
                 (selectedValue && !hasSelected ? `<option value="${selectedValue}">${selectedValue}</option>` : '');
@@ -48,6 +200,15 @@
 
         function isDropdownOnlyGeneralModel(type = '') {
             return isSeasonalBehaviorGeneralModel(type) || isGeneralVisualCatalogDropdownOnly(type);
+        }
+
+        function isMixedDropdownRangeGeneralModel(type = '') {
+            return false;
+        }
+
+        function isUnitlessGeneralModel(type = '') {
+            const normalized = normalizeSearchText(type);
+            return normalized.includes('numero de mamas');
         }
 
         function isPopulationGeneralModel(type = '') {
@@ -132,12 +293,79 @@
             return ['m', 'cm', 'mm', 'km'];
         }
 
+        function isDevelopmentMilestoneGeneralModel(type = '') {
+            const normalized = normalizeSearchText(type);
+            return normalized.includes('abertura dos olhos')
+                || normalized.includes('inicio da marcha')
+                || normalized.includes('inicio da corrida')
+                || normalized.includes('saida do esconderijo')
+                || normalized === 'independencia'
+                || normalized.includes('inicio do voo')
+                || normalized.includes('primeira alimentacao solida')
+                || normalized.includes('saida do ninho')
+                || normalized.includes('saida da toca')
+                || normalized === 'desmame'
+                || normalized.includes('primeira vocalizacao')
+                || normalized.includes('maturidade fisica');
+        }
+
+        function isSocialGroupSizeGeneralModel(type = '') {
+            return normalizeSearchText(type).includes('tamanho do grupo social');
+        }
+
+        function isSocialGroupCompositionGeneralModel(type = '') {
+            return normalizeSearchText(type).includes('composicao do grupo social');
+        }
+
+        function isTerritorySizeGeneralModel(type = '') {
+            return normalizeSearchText(type).includes('tamanho do territorio');
+        }
+
+        function isHuntingSuccessGeneralModel(type = '') {
+            return normalizeSearchText(type).includes('taxa de sucesso da caca');
+        }
+
+        function isMortalityRateGeneralModel(type = '') {
+            return normalizeSearchText(type).includes('taxa de mortalidade');
+        }
+
+        function isPercentageContextGeneralModel(type = '') {
+            return isHuntingSuccessGeneralModel(type) || isMortalityRateGeneralModel(type);
+        }
+
+        function isAltitudeGeneralModel(type = '') {
+            const normalized = normalizeSearchText(type);
+            return normalized.includes('altitude minima') || normalized.includes('altitude maxima');
+        }
+
+        function isAnatomicalCountGeneralModel(type = '') {
+            const normalized = normalizeSearchText(type);
+            return [
+                'numero de segmentos',
+                'numero de patas',
+                'numero de poros',
+                'numero de branquias',
+                'numero de barbatanas',
+                'numero de vertebras',
+                'numero de escamas',
+                'numero de miomeros'
+            ].some(label => normalized.includes(label));
+        }
+
         function getGeneralUnitOptions(type = '') {
             if (isBasalMetabolicRateGeneralModel(type)) return getBasalMetabolicRateUnits();
             if (isDepthGeneralModel(type)) return getDepthUnits();
             if (isCaptivityMovementGeneralModel(type)) return getCaptivityMovementUnits();
             if (isLifeExpectancyGeneralModel(type)) return getLifeExpectancyUnits();
             if (isNursingGeneralModel(type)) return ['dias', 'meses', 'anos'];
+            if (isDevelopmentMilestoneGeneralModel(type)) return ['minutos', 'horas', 'dias', 'semanas', 'meses', 'anos'];
+            if (isSocialGroupSizeGeneralModel(type)) return ['indivíduos', 'dezenas', 'centenas', 'milhares', 'milhões'];
+            if (isSocialGroupCompositionGeneralModel(type)) return ['machos adultos', 'fêmeas adultas', 'subadultos', 'juvenis', 'crias'];
+            if (isTerritorySizeGeneralModel(type)) return ['m²', 'hectares', 'km²'];
+            if (isHuntingSuccessGeneralModel(type)) return ['caça individual', 'caça em grupo'];
+            if (isMortalityRateGeneralModel(type)) return ['mortalidade adulta', 'mortalidade das crias'];
+            if (isAltitudeGeneralModel(type)) return ['cm', 'm', 'km'];
+            if (isAnatomicalCountGeneralModel(type)) return ['unidade', 'centenas', 'milhares', 'milhões'];
             if (isPopulationGeneralModel(type)) return ['dezenas', 'centenas', 'milhares', 'milhões'];
             return [...generalVisualUnits];
         }
@@ -148,6 +376,14 @@
             if (isCaptivityMovementGeneralModel(type)) return 'km/dia';
             if (isLifeExpectancyGeneralModel(type)) return 'anos';
             if (isNursingGeneralModel(type)) return 'meses';
+            if (isDevelopmentMilestoneGeneralModel(type)) return 'meses';
+            if (isSocialGroupSizeGeneralModel(type)) return 'centenas';
+            if (isSocialGroupCompositionGeneralModel(type)) return 'machos adultos';
+            if (isTerritorySizeGeneralModel(type)) return 'km²';
+            if (isHuntingSuccessGeneralModel(type)) return 'caça individual';
+            if (isMortalityRateGeneralModel(type)) return 'mortalidade adulta';
+            if (isAltitudeGeneralModel(type)) return 'm';
+            if (isAnatomicalCountGeneralModel(type)) return 'centenas';
             if (isPopulationGeneralModel(type)) return 'milhares';
             return getGeneralVisualOption(type)?.unidade || 'anos';
         }
@@ -168,6 +404,12 @@
             if (isPopulationGeneralModel(type)) return 'Ex: 1200';
             if (isNursingGeneralModel(type)) return 'Ex: 2';
             if (isLifeExpectancyGeneralModel(type)) return 'Ex: 8';
+            if (isDevelopmentMilestoneGeneralModel(type)) return 'Ex: 1';
+            if (isSocialGroupSizeGeneralModel(type)) return 'Ex: 1';
+            if (isSocialGroupCompositionGeneralModel(type)) return 'Ex: 1';
+            if (isTerritorySizeGeneralModel(type)) return 'Ex: 1';
+            if (isPercentageContextGeneralModel(type)) return 'Ex: 10';
+            if (isAltitudeGeneralModel(type)) return 'Ex: 0';
             return type && type.includes('Velocidade') ? 'Ex: 40' : 'Ex: 10';
         }
 
@@ -178,11 +420,18 @@
             if (isPopulationGeneralModel(type)) return 'Ex: 3500';
             if (isNursingGeneralModel(type)) return 'Ex: 8';
             if (isLifeExpectancyGeneralModel(type)) return 'Ex: 15';
+            if (isDevelopmentMilestoneGeneralModel(type)) return 'Ex: 3';
+            if (isSocialGroupSizeGeneralModel(type)) return 'Ex: 5';
+            if (isSocialGroupCompositionGeneralModel(type)) return 'Ex: 10';
+            if (isTerritorySizeGeneralModel(type)) return 'Ex: 10';
+            if (isPercentageContextGeneralModel(type)) return 'Ex: 80';
+            if (isAltitudeGeneralModel(type)) return 'Ex: 2500';
             return type && type.includes('Velocidade') ? 'Ex: 80' : 'Ex: 15';
         }
 
         function configureGeneralVisualRowControls(type, minInput, maxInput, unitSelect, strategySelect) {
             const isStrategy = isDropdownOnlyGeneralModel(type);
+            const isUnitless = isUnitlessGeneralModel(type);
             
             if (isStrategy) {
                 minInput.style.display = 'none';
@@ -198,24 +447,30 @@
                 minInput.style.display = '';
                 maxInput.style.display = '';
                 unitSelect.style.display = '';
+                unitSelect.style.visibility = isUnitless ? 'hidden' : 'visible';
+                unitSelect.style.pointerEvents = isUnitless ? 'none' : '';
+                unitSelect.tabIndex = isUnitless ? -1 : 0;
                 if (strategySelect) {
                     strategySelect.style.display = 'none';
                     strategySelect.style.gridColumn = '';
                 }
                 minInput.step = '0.01';
                 minInput.min = '0';
+                if (isUnitless) unitSelect.value = '';
             }
             minInput.placeholder = getGeneralMinPlaceholder(type);
             maxInput.placeholder = getGeneralMaxPlaceholder(type);
         }
 
-        function createGeneralVisualRow(type = '', minValue = '', unit = '', maxValue = '', gender = GENDER_BOTH, fase = 'Adulto') {
+        function createGeneralVisualRow(type = '', minValue = '', unit = '', maxValue = '', gender = GENDER_BOTH, fase = 'Adulto', optionValue = '', sectionKey = '') {
             const row = document.createElement('div');
             row.className = 'general-visual-row';
+            const section = getGeneralVisualSectionByKey(sectionKey || getGeneralVisualSectionForType(type).key);
+            row.dataset.section = section.key;
 
             const typeSelect = document.createElement('select');
             typeSelect.className = 'general-visual-type';
-            fillGeneralVisualTypeSelect(typeSelect, type);
+            fillGeneralVisualTypeSelect(typeSelect, type, section.key);
 
             const minInput = document.createElement('input');
             minInput.className = 'general-visual-min';
@@ -239,7 +494,7 @@
             }
             populateDropdownSelect(type);
             if (isDropdownOnlyGeneralModel(type)) {
-                strategySelect.value = minValue;
+                strategySelect.value = minValue || optionValue;
             }
 
             const maxInput = document.createElement('input');
@@ -315,12 +570,14 @@
             });
             removeBtn.addEventListener('click', () => {
                 row.remove();
-                if (generalVisualRowsContainer.children.length === 0) setGeneralVisualData();
+                updateGeneralVisualSectionCounts();
                 updateGeneralVisualPreview();
             });
 
             row.append(typeSelect, minInput, strategySelect, maxInput, unitSelect, genderBtn, faseBtn, removeBtn);
-            generalVisualRowsContainer.appendChild(row);
+            const sectionRows = generalVisualSectionRows.get(section.key) || generalVisualRowsContainer;
+            sectionRows.appendChild(row);
+            updateGeneralVisualSectionCounts();
             updateGeneralVisualPreview();
         }
 
@@ -329,8 +586,9 @@
                 .map(row => {
                     const type = row.querySelector('.general-visual-type')?.value || '';
                     const isStrategy = isDropdownOnlyGeneralModel(type);
-                    const min = isStrategy 
-                        ? (row.querySelector('.general-visual-strategy')?.value || '')
+                    const optionValue = row.querySelector('.general-visual-strategy')?.value || '';
+                    const min = isStrategy
+                        ? optionValue
                         : (row.querySelector('.general-visual-min')?.value || '');
                     const max = isStrategy ? '' : (row.querySelector('.general-visual-max')?.value || '');
                     return {
@@ -338,7 +596,8 @@
                         valor: min,
                         valorMin: min,
                         valorMax: max,
-                        unidade: isStrategy ? '' : (row.querySelector('.general-visual-unit')?.value || ''),
+                        opcao: '',
+                        unidade: (isStrategy || isUnitlessGeneralModel(type)) ? '' : (row.querySelector('.general-visual-unit')?.value || ''),
                         genero: normalizeGenderValue(row.querySelector('.general-visual-gender-toggle')?.dataset.value, GENDER_BOTH),
                         fase: row.querySelector('.general-visual-fase-toggle')?.dataset.value || 'Adulto'
                     };
@@ -359,6 +618,14 @@
                 'Profundidade máxima',
                 'Profundidade média',
                 'Número de dentes',
+                'Número de mamas',
+                'Termorregulação',
+                'Simetria corporal',
+                'Abertura dos olhos',
+                'Início da marcha',
+                'Início da corrida',
+                'Saída do esconderijo',
+                'Independência',
                 'Comportamento sazonal'
             ]);
             const normalizedHidden = new Set([...hiddenByDefault].map(item => normalizeSearchText(item)));
@@ -395,13 +662,16 @@
         }
 
         function setGeneralVisualData(items = []) {
-            generalVisualRowsContainer.innerHTML = '';
+            buildGeneralVisualSections();
             const normalizedItems = collapseCombinedGenderItems(filterLegacyGeneralMatingItems(items));
             if (!Array.isArray(normalizedItems) || normalizedItems.length === 0) {
-                getDefaultGeneralVisualOptions().forEach(option => {
-                    if (option.tipo !== 'Velocidade média' && option.tipo !== 'Força da mordida') {
-                        createGeneralVisualRow(option.tipo, '', option.unidade, '', option.genero || GENDER_BOTH, option.fase || 'Adulto');
-                    }
+                GENERAL_VISUAL_SECTIONS.forEach(section => {
+                    section.models.forEach(type => {
+                        const option = getGeneralVisualOption(type) || { tipo: type, unidade: getGeneralDefaultUnit(type) };
+                        if (type !== 'Velocidade média' && type !== 'Força da mordida') {
+                            createGeneralVisualRow(type, '', option.unidade, '', option.genero || GENDER_BOTH, option.fase || 'Adulto', '', section.key);
+                        }
+                    });
                 });
                 updateGeneralVisualPreview();
                 return;
@@ -412,7 +682,9 @@
                 item.unidade || getGeneralVisualOption(item.tipo)?.unidade || '',
                 item.valorMax ?? '',
                 item.genero || GENDER_BOTH,
-                item.fase || 'Adulto'
+                item.fase || 'Adulto',
+                item.opcao || '',
+                getGeneralVisualSectionForType(item.tipo || '').key
             ));
             updateGeneralVisualPreview();
         }
@@ -423,7 +695,10 @@
             const max = item.valorMax ?? '';
             const unit = item.unidade || '';
             const value = min && max ? `${min}-${max}` : `${min || max}`;
-            return `${value}${unit ? ` ${unit}` : ''}`.trim() || fallback;
+            const rangeText = isPercentageContextGeneralModel(item.tipo)
+                ? `${value}${value ? ' %' : ''}${unit ? ` • ${unit}` : ''}`.trim()
+                : `${value}${unit ? ` ${unit}` : ''}`.trim();
+            return [item.opcao || '', rangeText].filter(Boolean).join(' • ') || fallback;
         }
 
         function getGeneralVisualMeta(type = '') {
@@ -587,7 +862,7 @@
             previewGeneralVisualModels.innerHTML = getDefaultGeneralVisualOptions().map(option => renderGeneralVisualCard(option, true)).join('');
         }
 
-        addGeneralVisualBtn.addEventListener('click', () => createGeneralVisualRow());
+        if (addGeneralVisualBtn) addGeneralVisualBtn.addEventListener('click', () => createGeneralVisualRow());
         setGeneralVisualData();
 
         addDimensionBtn.addEventListener('click', () => createDimensionRow());

@@ -344,7 +344,27 @@
                 const params = new URLSearchParams(window.location.search);
                 const redirect = params.get('redirect');
                 setTimeout(() => {
-                    let target = redirect ? decodeURIComponent(redirect) : 'index.html';
+                    // URLSearchParams já descodifica o valor. Não devemos chamar
+                    // decodeURIComponent novamente, pois valores incompletos como
+                    // "%2" provocam "URI malformed".
+                    let target = (redirect || '').trim() || 'index.html';
+
+                    // Rejeita sequências percentuais inválidas e redirecionamentos
+                    // externos/perigosos. Em qualquer erro, regressa ao index.
+                    if (/%(?![0-9a-fA-F]{2})/.test(target)) {
+                        target = 'index.html';
+                    } else {
+                        try {
+                            const resolvedTarget = new URL(target, window.location.href);
+                            if (resolvedTarget.origin !== window.location.origin) {
+                                target = 'index.html';
+                            }
+                        } catch (error) {
+                            console.warn('Redirect inválido:', redirect, error);
+                            target = 'index.html';
+                        }
+                    }
+
                     if (target === 'form.html' || target === './form.html') {
                         target = 'form/form.html';
                     }

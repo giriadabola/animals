@@ -8,6 +8,39 @@ export const generalVisualOptions = [
     { tipo: 'Velocidade média', unidade: 'km/h' },
     { tipo: 'Força da mordida', unidade: 'PSI' },
     { tipo: 'Número de dentes', unidade: '' },
+    { tipo: 'Número de mamas', unidade: '' },
+    { tipo: 'Termorregulação', unidade: '' },
+    { tipo: 'Simetria corporal', unidade: '' },
+    { tipo: 'Abertura dos olhos', unidade: 'meses' },
+    { tipo: 'Início da marcha', unidade: 'meses' },
+    { tipo: 'Início da corrida', unidade: 'meses' },
+    { tipo: 'Saída do esconderijo', unidade: 'meses' },
+    { tipo: 'Independência', unidade: 'meses' },
+    { tipo: 'Início do voo', unidade: 'meses' },
+    { tipo: 'Primeira alimentação sólida', unidade: 'meses' },
+    { tipo: 'Saída do ninho', unidade: 'meses' },
+    { tipo: 'Saída da toca', unidade: 'meses' },
+    { tipo: 'Desmame', unidade: 'meses' },
+    { tipo: 'Primeira vocalização', unidade: 'meses' },
+    { tipo: 'Maturidade física', unidade: 'meses' },
+    { tipo: 'Tamanho do grupo social', unidade: 'centenas' },
+    { tipo: 'Composição do grupo social', unidade: 'machos adultos' },
+    { tipo: 'Tamanho do território', unidade: 'km²' },
+    { tipo: 'Taxa de sucesso da caça', unidade: 'caça individual' },
+    { tipo: 'Taxa de mortalidade', unidade: 'mortalidade adulta' },
+    { tipo: 'Taxa de mortalidade (cativeiro)', unidade: 'mortalidade adulta' },
+    { tipo: 'Altitude mínima', unidade: 'm' },
+    { tipo: 'Altitude máxima', unidade: 'm' },
+    { tipo: 'Transformações do desenvolvimento', unidade: '' },
+    { tipo: 'Número de segmentos', unidade: 'centenas' },
+    { tipo: 'Número de patas', unidade: 'centenas' },
+    { tipo: 'Número de poros', unidade: 'centenas' },
+    { tipo: 'Número de brânquias', unidade: 'centenas' },
+    { tipo: 'Número de barbatanas', unidade: 'centenas' },
+    { tipo: 'Número de vértebras', unidade: 'centenas' },
+    { tipo: 'Número de escamas', unidade: 'centenas' },
+    { tipo: 'Número de miômeros', unidade: 'centenas' },
+    { tipo: 'Tipo de esqueleto', unidade: '' },
     { tipo: 'Tamanho da População', unidade: 'milhares' },
     { tipo: 'Estratégia para obter alimento', unidade: '' },
     { tipo: 'Atividade', unidade: '' },
@@ -18,7 +51,7 @@ export const generalVisualOptions = [
     { tipo: 'Bioma', unidade: '' }
 ];
 
-export const generalVisualUnits = ['', 'segundos', 'minutos', 'horas', 'dias', 'semanas', 'meses', 'anos', 'milénios', 'km/h', 'm/s', 'PSI', 'indivíduos', 'dezenas', 'centenas', 'milhares', 'milhões'];
+export const generalVisualUnits = ['', 'segundos', 'minutos', 'horas', 'dias', 'semanas', 'meses', 'anos', 'milénios', 'km/h', 'm/s', 'PSI', 'indivíduos', 'dezenas', 'centenas', 'milhares', 'milhões', 'machos adultos', 'fêmeas adultas', 'subadultos', 'juvenis', 'crias', 'm²', 'hectares', 'km²', 'caça individual', 'caça em grupo', 'mortalidade adulta', 'mortalidade das crias', 'cm', 'm', 'km', 'unidade'];
 
 const feedingStrategyOptions = [
     'Caça',
@@ -131,6 +164,11 @@ const biomaOptions = [
     'Savana'
 ];
 
+const thermoregulationOptions = ['Endotérmico', 'Ectotérmico', 'Heterotérmico', 'Homeotérmico', 'Poiquilotérmico', 'Regionalmente endotérmico'];
+const bodySymmetryOptions = ['Bilateral', 'Radial', 'Birradial', 'Assimétrica', 'Pentarradial'];
+const developmentTransformationOptions = ['Muda', 'Metamorfose', 'Neotenia', 'Hermafroditismo sequencial', 'Troca de plumagem', 'Troca de pelagem'];
+const skeletonTypeOptions = ['Ósseo', 'Cartilagíneo', 'Exoesqueleto', 'Hidroesqueleto', 'Ausente'];
+
 const selectGroups = {
     feedingStrategy: feedingStrategyOptions,
     activity: activityCatalog.map(item => item.label),
@@ -138,7 +176,11 @@ const selectGroups = {
     ecologicalFunction: ecologicalFunctionCatalog.map(item => item.label),
     locomotion: locomotionCatalog.map(item => item.label),
     climateZone: climateZoneOptions,
-    bioma: biomaOptions
+    bioma: biomaOptions,
+    thermoregulation: thermoregulationOptions,
+    bodySymmetry: bodySymmetryOptions,
+    developmentTransformation: developmentTransformationOptions,
+    skeletonType: skeletonTypeOptions
 };
 
 const activityMap = new Map(activityCatalog.map(item => [normalizeGeneralVisualKey(item.label), item]));
@@ -167,6 +209,10 @@ export function getGeneralVisualSelectConfig(type = '') {
     if (normalized.includes('locomocao')) return { group: 'locomotion', placeholder: 'Escolhe um tipo de locomoção' };
     if (normalized.includes('zona climatica')) return { group: 'climateZone', placeholder: 'Escolhe uma zona climática' };
     if (normalized.includes('bioma')) return { group: 'bioma', placeholder: 'Escolhe um bioma' };
+    if (normalized.includes('termorregulacao')) return { group: 'thermoregulation', placeholder: 'Escolhe a termorregulação' };
+    if (normalized.includes('simetria corporal')) return { group: 'bodySymmetry', placeholder: 'Escolhe a simetria corporal' };
+    if (normalized.includes('transformacoes do desenvolvimento')) return { group: 'developmentTransformation', placeholder: 'Escolhe a transformação do desenvolvimento' };
+    if (normalized.includes('tipo de esqueleto')) return { group: 'skeletonType', placeholder: 'Escolhe o tipo de esqueleto' };
     return null;
 }
 
@@ -190,6 +236,39 @@ export function getGeneralVisualMeta(type = '') {
     if (normalized.includes('media')) return { key: 'velocidade-media', title: type || 'Velocidade média', accent: 'accent-speed-average' };
     if (normalized.includes('mordida')) return { key: 'forca-mordida', title: type || 'Força da mordida', accent: 'accent-generic' };
     if (normalized.includes('dentes')) return { key: 'numero-dentes', title: type || 'Número de dentes', accent: 'accent-generic' };
+    if (normalized.includes('mamas')) return { key: 'numero-mamas', title: type || 'Número de mamas', accent: 'accent-life' };
+    if (normalized.includes('termorregulacao')) return { key: 'termorregulacao', title: type || 'Termorregulação', accent: 'accent-metabolic-rate' };
+    if (normalized.includes('simetria corporal')) return { key: 'simetria-corporal', title: type || 'Simetria corporal', accent: 'accent-width' };
+    if (normalized.includes('transformacoes do desenvolvimento')) return { key: 'transformacoes-desenvolvimento', title: type || 'Transformações do desenvolvimento', accent: 'accent-wing' };
+    if (normalized.includes('numero de segmentos')) return { key: 'numero-segmentos', title: type || 'Número de segmentos', accent: 'accent-tail' };
+    if (normalized.includes('numero de patas')) return { key: 'numero-patas', title: type || 'Número de patas', accent: 'accent-leg' };
+    if (normalized.includes('numero de poros')) return { key: 'numero-poros', title: type || 'Número de poros', accent: 'accent-generic' };
+    if (normalized.includes('numero de branquias')) return { key: 'numero-branquias', title: type || 'Número de brânquias', accent: 'accent-water' };
+    if (normalized.includes('numero de barbatanas')) return { key: 'numero-barbatanas', title: type || 'Número de barbatanas', accent: 'accent-wing' };
+    if (normalized.includes('numero de vertebras')) return { key: 'numero-vertebras', title: type || 'Número de vértebras', accent: 'accent-length' };
+    if (normalized.includes('numero de escamas')) return { key: 'numero-escamas', title: type || 'Número de escamas', accent: 'accent-width' };
+    if (normalized.includes('numero de miomeros')) return { key: 'numero-miomeros', title: type || 'Número de miômeros', accent: 'accent-speed-average' };
+    if (normalized.includes('tipo de esqueleto')) return { key: 'tipo-esqueleto', title: type || 'Tipo de esqueleto', accent: 'accent-generic' };
+    if (normalized.includes('altitude minima')) return { key: 'altitude-minima', title: type || 'Altitude mínima', accent: 'accent-depth-average' };
+    if (normalized.includes('altitude maxima')) return { key: 'altitude-maxima', title: type || 'Altitude máxima', accent: 'accent-depth-max' };
+    if (normalized.includes('abertura dos olhos')) return { key: 'abertura-olhos', title: type || 'Abertura dos olhos', accent: 'accent-eye' };
+    if (normalized.includes('inicio da marcha')) return { key: 'inicio-marcha', title: type || 'Início da marcha', accent: 'accent-leg' };
+    if (normalized.includes('inicio da corrida')) return { key: 'inicio-corrida', title: type || 'Início da corrida', accent: 'accent-speed-average' };
+    if (normalized.includes('saida do esconderijo')) return { key: 'saida-esconderijo', title: type || 'Saída do esconderijo', accent: 'accent-depth-average' };
+    if (normalized.includes('independencia')) return { key: 'independencia', title: type || 'Independência', accent: 'accent-life' };
+    if (normalized.includes('inicio do voo')) return { key: 'inicio-voo', title: type || 'Início do voo', accent: 'accent-speed-max' };
+    if (normalized.includes('primeira alimentacao solida')) return { key: 'primeira-alimentacao-solida', title: type || 'Primeira alimentação sólida', accent: 'accent-bioma' };
+    if (normalized.includes('saida do ninho')) return { key: 'saida-ninho', title: type || 'Saída do ninho', accent: 'accent-width' };
+    if (normalized.includes('saida da toca')) return { key: 'saida-toca', title: type || 'Saída da toca', accent: 'accent-depth-average' };
+    if (normalized.includes('desmame')) return { key: 'desmame', title: type || 'Desmame', accent: 'accent-life' };
+    if (normalized.includes('primeira vocalizacao')) return { key: 'primeira-vocalizacao', title: type || 'Primeira vocalização', accent: 'accent-climate' };
+    if (normalized.includes('maturidade fisica')) return { key: 'maturidade-fisica', title: type || 'Maturidade física', accent: 'accent-maturity' };
+    if (normalized.includes('composicao do grupo social')) return { key: 'composicao-grupo-social', title: type || 'Composição do grupo social', accent: 'accent-mating-polygamy' };
+    if (normalized.includes('tamanho do grupo social')) return { key: 'tamanho-grupo-social', title: type || 'Tamanho do grupo social', accent: 'accent-mating-polygamy' };
+    if (normalized.includes('taxa de sucesso da caca')) return { key: 'sucesso-caca', title: type || 'Taxa de sucesso da caça', accent: 'accent-speed-max' };
+    if (normalized.includes('taxa de mortalidade') && normalized.includes('cativeiro')) return { key: 'mortalidade-cativeiro', title: type || 'Taxa de mortalidade (cativeiro)', accent: 'accent-life' };
+    if (normalized.includes('taxa de mortalidade')) return { key: 'mortalidade', title: type || 'Taxa de mortalidade', accent: 'accent-generic' };
+    if (normalized.includes('tamanho do territorio')) return { key: 'tamanho-territorio', title: type || 'Tamanho do território', accent: 'accent-bioma' };
     if (normalized.includes('tamanho') && normalized.includes('popul')) return { key: 'populacao', title: type || 'Tamanho da População', accent: 'accent-generic' };
     if (normalized.includes('estrategia')) return { key: 'estrategia', title: type || 'Estratégia para obter alimento', accent: 'accent-generic' };
     if (normalized.includes('atividade')) return { key: 'atividade', title: type || 'Atividade', accent: 'accent-climate' };
@@ -207,12 +286,45 @@ function makeSvg(body, className = 'general-model-svg') {
 
 export function getGeneralModelSvg(key = 'geral') {
     const icons = {
+        'altitude-minima': makeSvg('<path d="M10 62h60"/><path d="M18 58l17-27l10 15l8-12l15 24"/><path d="M18 69h24"/><path d="M30 65v8"/><path d="M15 69l6-4v8Z"/>'),
+        'altitude-maxima': makeSvg('<path d="M10 62h60"/><path d="M18 58l17-27l10 15l8-12l15 24"/><path d="M48 16v22"/><path d="M44 20l4-6l4 6"/>'),
+        'transformacoes-desenvolvimento': makeSvg('<path d="M18 48c8-15 20-22 36-19"/><path d="M49 22l8 7l-9 5"/><circle cx="23" cy="25" r="7"/><path d="M43 52c6 9 16 11 24 4"/><path d="M50 61l-8 5"/><path d="M31 43c4 4 8 7 13 8"/>'),
+        'numero-segmentos': makeSvg('<path d="M14 40h52"/><path d="M20 28v24M30 25v30M40 23v34M50 25v30M60 28v24"/><path d="M14 34c8-10 44-10 52 0M14 46c8 10 44 10 52 0"/>'),
+        'numero-patas': makeSvg('<path d="M30 22h20l7 18l-7 18H30l-7-18Z"/><path d="M28 30L14 18M25 40H10M28 50L14 62M52 30l14-12M55 40h15M52 50l14 12"/>'),
+        'numero-poros': makeSvg('<circle cx="40" cy="40" r="25"/><circle cx="29" cy="29" r="3"/><circle cx="45" cy="27" r="3"/><circle cx="54" cy="40" r="3"/><circle cx="42" cy="48" r="3"/><circle cx="27" cy="49" r="3"/>'),
+        'numero-branquias': makeSvg('<path d="M18 40c9-14 24-20 40-12c-8 4-12 12-12 24c-12 4-22 0-28-12Z"/><path d="M46 31c7 3 12 8 16 15M42 36c7 3 12 8 15 14M40 43c6 2 10 6 13 11"/>'),
+        'numero-barbatanas': makeSvg('<path d="M13 40c14-16 33-20 48-7l7-10v34l-7-10c-15 13-34 9-48-7Z"/><path d="M35 31l5-13l8 15M36 49l5 13l8-15"/>'),
+        'numero-vertebras': makeSvg('<path d="M16 40h48"/><rect x="18" y="32" width="8" height="16" rx="3"/><rect x="29" y="31" width="8" height="18" rx="3"/><rect x="40" y="31" width="8" height="18" rx="3"/><rect x="51" y="32" width="8" height="16" rx="3"/>'),
+        'numero-escamas': makeSvg('<path d="M13 40c14-16 33-20 48-7l7-10v34l-7-10c-15 13-34 9-48-7Z"/><path d="M25 34c3 4 3 8 0 12M35 31c4 6 4 12 0 18M46 31c4 6 4 12 0 18M56 34c3 4 3 8 0 12"/>'),
+        'numero-miomeros': makeSvg('<path d="M12 40c14-17 35-20 52-8l6-9v34l-6-9c-17 12-38 9-52-8Z"/><path d="M24 30l7 10l-7 10M34 27l8 13l-8 13M45 27l8 13l-8 13M56 31l6 9l-6 9"/>'),
+        'tipo-esqueleto': makeSvg('<circle cx="29" cy="26" r="8"/><circle cx="51" cy="26" r="8"/><path d="M35 31l10 18M45 31L35 49M29 34v30M51 34v30M24 47h32M24 64h32"/>'),
         vida: makeSvg('<path d="M28 10h24"/><path d="M28 70h24"/><path d="M31 10c0 15 18 16 18 30S31 55 31 70"/><path d="M49 10c0 15-18 16-18 30s18 15 18 30"/><path d="M34 53h12"/><path d="M37 59h6"/>'),
         'espetativa-vida': makeSvg('<path d="M40 16c-13 0-24 11-24 24s11 24 24 24s24-11 24-24S53 16 40 16Z"/><path d="M40 26v15l10 6"/><path d="M24 14l-6-6"/><path d="M56 14l6-6"/><path d="M18 66l8-8"/><path d="M62 58l-8-8"/>'),
         'velocidade-maxima': makeSvg('<path d="M14 58a26 26 0 0 1 52 0"/><path d="M24 58h32"/><path d="M40 58l18-24"/><path d="M28 30l-5-6"/><path d="M52 30l5-6"/><path d="M40 24v-9"/><path d="M61 58h7"/>'),
         'velocidade-media': makeSvg('<path d="M13 58a27 27 0 0 1 54 0"/><path d="M22 58h36"/><path d="M40 58l8-18"/><path d="M23 43h8"/><path d="M49 43h8"/><path d="M30 28l-4-7"/><path d="M50 28l4-7"/>'),
         'forca-mordida': makeSvg('<path d="M20 30c0-6 10-10 20-10s20 4 20 10v6H20v-6z"/><path d="M20 50c0 6 10 10 20 10s20-4 20-10v-6H20v6z"/><path d="M28 30l2 6M36 30l1 6M44 30l-1 6M52 30l-2 6"/><path d="M28 50l2-6M36 50l1-6M44 50l-1-6M52 50l-2-6"/>'),
         'numero-dentes': makeSvg('<path d="M18 30c0-7 10-12 22-12s22 5 22 12v7H18v-7Z"/><path d="M18 49c0 7 10 13 22 13s22-6 22-13v-7H18v7Z"/><path d="M24 37v8"/><path d="M32 37v10"/><path d="M40 37v10"/><path d="M48 37v10"/><path d="M56 37v8"/>'),
+        'numero-mamas': makeSvg('<path d="M24 18c9 0 16 7 16 16v12c0 9-7 16-16 16S8 55 8 46V34c0-9 7-16 16-16Z"/><path d="M56 18c9 0 16 7 16 16v12c0 9-7 16-16 16S40 55 40 46V34c0-9 7-16 16-16Z"/><circle cx="24" cy="43" r="4"/><circle cx="56" cy="43" r="4"/><path d="M32 18c4-5 12-5 16 0"/>'),
+        termorregulacao: makeSvg('<path d="M35 16a7 7 0 0 1 14 0v28a16 16 0 1 1-14 0V16Z"/><path d="M42 24v27"/><circle cx="42" cy="57" r="7"/><path d="M56 21h10M56 31h7M56 41h10"/>'),
+        'simetria-corporal': makeSvg('<path d="M40 10v60"/><path d="M40 18c-13 4-22 15-22 28s9 22 22 26"/><path d="M40 18c13 4 22 15 22 28s-9 22-22 26"/><path d="M27 34l13 6l13-6"/><path d="M27 55l13-6l13 6"/>'),
+        'abertura-olhos': makeSvg('<path d="M12 40c8-13 18-20 28-20s20 7 28 20c-8 13-18 20-28 20S20 53 12 40Z"/><circle cx="40" cy="40" r="9"/><path d="M40 31v18"/>'),
+        'inicio-marcha': makeSvg('<path d="M18 61h44"/><circle cx="30" cy="24" r="8"/><path d="M30 32l8 12l-7 17"/><path d="M38 44l13-7"/><path d="M38 44l12 13"/>'),
+        'inicio-corrida': makeSvg('<path d="M12 61h56"/><circle cx="35" cy="21" r="7"/><path d="M35 28l8 13l-12 8"/><path d="M43 41l16-6"/><path d="M31 49l-13 11"/><path d="M43 42l10 18"/><path d="M16 29h12M10 38h15"/>'),
+        'saida-esconderijo': makeSvg('<path d="M12 62h56"/><path d="M20 62V26h40v36"/><path d="M28 62V38h24v24"/><circle cx="40" cy="49" r="6"/><path d="M52 30l12-8M56 38h12"/>'),
+        independencia: makeSvg('<circle cx="27" cy="28" r="8"/><circle cx="53" cy="28" r="8"/><path d="M18 59c2-10 8-16 17-16"/><path d="M62 59c-2-10-8-16-17-16"/><path d="M34 40l12 0"/><path d="M40 34v12"/>'),
+        'inicio-voo': makeSvg('<path d="M12 46c10-2 18-8 28-20c10 12 18 18 28 20"/><path d="M40 26v34"/><path d="M28 40l12 8l12-8"/><path d="M18 58h44"/>'),
+        'primeira-alimentacao-solida': makeSvg('<path d="M16 54h48"/><path d="M22 54c2-14 10-24 18-24s16 10 18 24"/><path d="M40 30V18"/><path d="M34 22h12"/><circle cx="31" cy="45" r="3"/><circle cx="40" cy="40" r="3"/><circle cx="49" cy="45" r="3"/>'),
+        'saida-ninho': makeSvg('<path d="M14 58c8-16 18-24 26-24s18 8 26 24"/><path d="M20 58h40"/><path d="M40 34V18"/><path d="M40 18l10 8"/><path d="M40 18l-10 8"/>'),
+        'saida-toca': makeSvg('<path d="M10 62h60"/><path d="M18 62c2-20 12-32 22-32s20 12 22 32"/><circle cx="40" cy="48" r="7"/><path d="M50 24l10-8"/>'),
+        desmame: makeSvg('<path d="M20 22c10 0 20 8 20 20s-10 20-20 20"/><path d="M60 22c-10 0-20 8-20 20s10 20 20 20"/><path d="M40 18v44"/><path d="M31 35l18 10"/><path d="M49 35L31 45"/>'),
+        'primeira-vocalizacao': makeSvg('<path d="M18 32h12l12-10v36L30 48H18z"/><path d="M50 30c6 5 6 15 0 20"/><path d="M58 24c10 9 10 23 0 32"/>'),
+        'maturidade-fisica': makeSvg('<circle cx="40" cy="20" r="8"/><path d="M40 28v18"/><path d="M24 38h32"/><path d="M40 46l-14 18"/><path d="M40 46l14 18"/><path d="M18 16h10M52 16h10"/>'),
+        'tamanho-grupo-social': makeSvg('<circle cx="24" cy="30" r="6"/><circle cx="40" cy="22" r="7"/><circle cx="56" cy="30" r="6"/><path d="M12 60c2-10 8-16 16-16"/><path d="M68 60c-2-10-8-16-16-16"/><path d="M24 60c2-12 8-20 16-20s14 8 16 20"/><path d="M12 68h56"/>'),
+        'composicao-grupo-social': makeSvg('<circle cx="20" cy="28" r="5"/><circle cx="34" cy="22" r="6"/><circle cx="48" cy="28" r="5"/><circle cx="60" cy="34" r="4"/><path d="M10 58c2-9 7-14 14-14"/><path d="M22 60c2-11 8-18 16-18"/><path d="M38 60c2-9 7-14 14-14"/><path d="M52 60c1-7 5-11 10-11"/>'),
+        'sucesso-caca': makeSvg('<path d="M40 12v10M40 58v10M12 40h10M58 40h10"/><circle cx="40" cy="40" r="21"/><circle cx="40" cy="40" r="11"/><path d="M40 40l18-18"/><path d="M51 22h7v7"/>'),
+        mortalidade: makeSvg('<path d="M18 18l44 44M62 18L18 62"/><circle cx="40" cy="40" r="25"/><path d="M28 32h24M28 48h24"/>'),
+        'mortalidade-cativeiro': makeSvg('<path d="M18 14v52M30 14v52M42 14v52M54 14v52"/><path d="M12 22h48M12 58h48"/><path d="M22 30l36 28M58 30L22 58"/>'),
+        'tamanho-territorio': makeSvg('<path d="M14 22l20-8l18 8l14-6v42l-14 6l-18-8l-20 8z"/><path d="M34 14v42"/><path d="M52 22v42"/><path d="M22 48l10-10l8 6l12-14l8 8"/>'),
         populacao: makeSvg('<circle cx="24" cy="33" r="7"/><circle cx="40" cy="24" r="8"/><circle cx="56" cy="33" r="7"/><path d="M18 58c2-7 8-12 14-12s12 5 14 12"/><path d="M34 61c2-9 10-15 18-15s16 6 18 15"/><path d="M10 61c2-9 10-15 18-15"/>'),
         atividade: makeSvg('<circle cx="28" cy="29" r="9"/><path d="M52 24c8 0 14 6 14 14c0 7-5 13-12 14"/><path d="M20 57h40"/><path d="M40 14v8"/><path d="M14 29h8"/>', 'general-model-svg activity-model-svg'),
         'vida-social': makeSvg('<circle cx="24" cy="32" r="7"/><circle cx="40" cy="24" r="7"/><circle cx="56" cy="32" r="7"/><path d="M18 58c2-8 8-13 14-13s12 5 14 13"/><path d="M34 58c2-8 8-13 14-13s12 5 14 13"/><path d="M31 29l9-5l9 5"/>', 'general-model-svg social-model-svg'),

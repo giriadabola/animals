@@ -116,6 +116,7 @@
             { label: 'Altura', unit: 'cm' },
             { label: 'Altura ao ombro', unit: 'm' },
             { label: 'Comprimento total', unit: 'm' },
+            { label: 'Comprimento furcal', unit: 'cm' },
             { label: 'Comprimento do corpo', unit: 'cm' },
             { label: 'Comprimento da língua', unit: 'cm' },
             { label: 'Peso', unit: 'kg' },

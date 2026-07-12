@@ -1074,6 +1074,7 @@
             if (normalized.includes('envergadura')) return { key: 'envergadura', title: metric || 'Envergadura', accent: 'accent-wing' };
             if (normalized.includes('asa')) return { key: 'asa', title: metric || 'Comprimento da asa', accent: 'accent-wing' };
             if (normalized.includes('bico')) return { key: 'bico', title: metric || 'Comprimento do bico', accent: 'accent-beak' };
+            if (normalized.includes('furcal')) return { key: 'furcal', title: metric || 'Comprimento furcal', accent: 'accent-tail' };
             if (normalized.includes('cauda')) return { key: 'cauda', title: metric || 'Comprimento da cauda', accent: 'accent-tail' };
             if (normalized.includes('pata')) return { key: 'patas', title: metric || 'Comprimento das patas', accent: 'accent-leg' };
             if (normalized.includes('ovo')) return { key: 'ovo', title: metric || 'Tamanho do ovo', accent: 'accent-egg' };
@@ -1092,6 +1093,7 @@
                 largura: `<svg class="metric-model-svg metric-width" viewBox="0 0 80 80" fill="none" aria-hidden="true"><ellipse cx="40" cy="41" rx="21" ry="27"/><path d="M18 41h44"/><path d="M18 41l7-7"/><path d="M18 41l7 7"/><path d="M62 41l-7-7"/><path d="M62 41l-7 7"/></svg>`,
                 diametro: `<svg class="metric-model-svg metric-diameter" viewBox="0 0 80 80" fill="none" aria-hidden="true"><circle cx="40" cy="40" r="25"/><path d="M15 40h50"/><path d="M15 40l7-7"/><path d="M15 40l7 7"/><path d="M65 40l-7-7"/><path d="M65 40l-7 7"/></svg>`,
                 bico: `<svg class="metric-model-svg metric-beak" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M13 44c8-15 22-24 37-22c8 1 13 5 16 11h8L61 44H42l-9 9H18l5-9H13Z"/><path d="M57 33h17"/><path d="M57 44h17"/><circle cx="35" cy="31" r="3"/></svg>`,
+                furcal: `<svg class="metric-model-svg metric-furcal" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M10 42h44"/><path d="M54 42l17-15"/><path d="M54 42l17 15"/><path d="M12 32v20"/><path d="M54 25v34"/><path d="M12 62h42"/><path d="M12 62l7-7M12 62l7 7M54 62l-7-7M54 62l-7 7"/></svg>`,
                 cauda: `<svg class="metric-model-svg metric-tail" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M16 44h19"/><path d="M35 44L66 22"/><path d="M35 44L70 44"/><path d="M35 44L66 66"/><path d="M15 33v22"/><path d="M54 22v44"/></svg>`,
                 'peso-cauda': `<svg class="metric-model-svg metric-tail-weight" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M12 44h17"/><path d="M29 44L58 23"/><path d="M29 44L62 44"/><path d="M29 44L58 65"/><path d="M56 13v12"/><path d="M48 19h16"/><path d="M51 26h10"/></svg>`,
                 asa: `<svg class="metric-model-svg metric-wing" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M14 55C27 30 44 16 67 13C63 34 51 52 30 66H14V55Z"/><path d="M31 28C38 36 42 46 43 59"/><path d="M45 21C51 30 53 40 53 50"/></svg>`,
@@ -1327,7 +1329,11 @@
             const unit = item.unidade || '';
             const value = min && max ? `${min}-${max}` : `${min || max}`;
             if (!value) return fallback;
-            return `${escapeHtml(value)}${unit ? ` ${escapeHtml(unit)}` : ''}`.trim();
+            const normalizedType = normalizeDimensionKey(item.tipo || '');
+            const isPercentageContext = normalizedType.includes('taxa de sucesso da caca') || normalizedType.includes('taxa de mortalidade');
+            return isPercentageContext
+                ? `${escapeHtml(value)} %${unit ? ` • ${escapeHtml(unit)}` : ''}`.trim()
+                : `${escapeHtml(value)}${unit ? ` ${escapeHtml(unit)}` : ''}`.trim();
         }
 
         function getGeneralVisualMeta(type = '') {
@@ -1424,6 +1430,7 @@
             const isClimateZone = normalizedType.includes('zona');
             const isBioma = normalizedType.includes('bioma');
             const value = item.valorMin || item.valor || '';
+            const mixedOption = item.opcao || '';
             const strategyMeta = isStrategy ? getFeedingStrategyMeta(value) : null;
             const activityMeta = isActivity ? getActivityMeta(value) : null;
             const socialMeta = isSocial ? getSocialMeta(value) : null;
@@ -1451,7 +1458,7 @@
                     <div class="dimension-model-icon ${climateMeta || biomaMeta ? 'climate-zone-model-icon' : ''}">${icon}</div>
                     <div class="dimension-model-copy">
                         <div class="dimension-model-label${inlineGenderSymbol ? ' with-gender' : ''}">${escapeHtml(meta.title)}${inlineGenderSymbol}</div>
-                        <div class="dimension-model-value">${formatGeneralVisualValue(item)}</div>
+                        <div class="dimension-model-value">${mixedOption ? `${escapeHtml(mixedOption)} • ` : ''}${formatGeneralVisualValue(item)}</div>
                     </div>
                 </article>`;
         }
@@ -2070,6 +2077,14 @@
             if (normalized.includes('investimento parental')) return { key: 'investimentoParental', title: type || 'Investimento Parental', accent: 'accent-parental-investment' };
             if (normalized.includes('acasalamento')) return { key: 'acasalamento', title: type || 'Acasalamento', accent: 'accent-generic' };
             if (normalized.includes('cria') || normalized.includes('filhote')) return { key: 'cuidado', title: type || 'Número de Crias', accent: 'accent-tail' };
+            if (normalized.includes('duracao do estro')) return { key: 'duracaoEstro', title: type || 'Duração do estro', accent: 'accent-mating-polygamy' };
+            if (normalized.includes('sistema sexual')) return { key: 'sistemaSexual', title: type || 'Sistema sexual', accent: 'accent-width' };
+            if (normalized.includes('frequencia de acasalamento durante o estro')) return { key: 'frequenciaAcasalamentoEstro', title: type || 'Frequência de acasalamento durante o estro', accent: 'accent-speed-average' };
+            if (normalized.includes('taxa de sucesso reprodutivo')) return { key: 'taxaSucessoReprodutivo', title: type || 'Taxa de sucesso reprodutivo', accent: 'accent-life' };
+            if (normalized.includes('intervalo entre nascimentos')) return { key: 'intervaloNascimentos', title: type || 'Intervalo entre nascimentos', accent: 'accent-maturity' };
+            if (normalized.includes('idade da metamorfose')) return { key: 'idadeMetamorfose', title: type || 'Idade da metamorfose', accent: 'accent-wing' };
+            if (normalized.includes('numero de mudas')) return { key: 'numeroMudas', title: type || 'Número de mudas', accent: 'accent-tail' };
+            if (normalized.includes('numero de estadios larvais')) return { key: 'numeroEstadiosLarvais', title: type || 'Número de estádios larvais', accent: 'accent-egg' };
             if (normalized.includes('gestacao') || normalized.includes('gestação') || normalized.includes('gravidez') || normalized.includes('tempo')) return { key: 'gestacao', title: type || 'Gestação', accent: 'accent-weight' };
             if (normalized.includes('oviparo') || normalized.includes('ovo')) return { key: 'ovo', title: type || 'Ovíparo', accent: 'accent-egg' };
             if (normalized.includes('viviparo') || normalized.includes('placental')) return { key: 'viviparo', title: type || 'Vivíparo', accent: 'accent-weight' };
@@ -2085,6 +2100,14 @@
 
         function getReproductionModelSvg(key = 'reproducao') {
             const icons = {
+                idadeMetamorfose: `<svg class="metric-model-svg reproduction-icon-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><circle cx="22" cy="25" r="8"/><path d="M17 51c9-17 24-24 42-17"/><path d="M53 27l9 8l-10 5"/><path d="M43 55c6 9 16 11 24 4"/><path d="M50 64l-8 5"/></svg>`,
+                numeroMudas: `<svg class="metric-model-svg reproduction-icon-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M19 40c0-13 9-23 21-23s21 10 21 23s-9 23-21 23S19 53 19 40Z"/><path d="M28 30c8 7 16 7 24 0"/><path d="M28 50c8-7 16-7 24 0"/><path d="M40 17v46"/></svg>`,
+                numeroEstadiosLarvais: `<svg class="metric-model-svg reproduction-icon-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><circle cx="18" cy="40" r="6"/><circle cx="34" cy="40" r="8"/><circle cx="54" cy="40" r="10"/><path d="M24 40h2M42 40h2"/><path d="M62 32l8 8l-8 8"/></svg>`,
+                sistemaSexual: `<svg class="metric-model-svg reproduction-icon-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><circle cx="27" cy="28" r="12"/><path d="M27 40v23M18 52h18"/><circle cx="54" cy="50" r="12"/><path d="M62 42l10-10M64 32h8v8"/></svg>`,
+                duracaoEstro: `<svg class="metric-model-svg reproduction-icon-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M24 18h32v44H24V18Z"/><path d="M24 30h32"/><path d="M32 12v12M48 12v12"/><path d="M33 46c0-5 3-9 7-9s7 4 7 9s-3 10-7 15c-4-5-7-10-7-15Z"/><path d="M17 67h46"/></svg>`,
+                frequenciaAcasalamentoEstro: `<svg class="metric-model-svg reproduction-icon-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M18 42c8-14 18-21 30-21c8 0 14 3 19 9"/><path d="M18 55c8-10 17-15 28-15c9 0 16 4 21 11"/><path d="M18 29h9M14 35h13M22 22h8"/><circle cx="57" cy="27" r="8"/><path d="M57 19v16M49 27h16"/></svg>`,
+                taxaSucessoReprodutivo: `<svg class="metric-model-svg reproduction-icon-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><circle cx="40" cy="40" r="27"/><path d="M25 55l30-30"/><circle cx="29" cy="29" r="5"/><circle cx="51" cy="51" r="5"/><path d="M31 42l7 7l13-16"/></svg>`,
+                intervaloNascimentos: `<svg class="metric-model-svg reproduction-icon-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M18 20h44v42H18V20Z"/><path d="M18 32h44"/><path d="M29 13v14M51 13v14"/><circle cx="31" cy="46" r="6"/><circle cx="51" cy="46" r="6"/><path d="M37 46h8"/><path d="M41 42l4 4l-4 4"/></svg>`,
                 gestacao: `<svg class="metric-model-svg reproduction-icon-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M22 26h36v36H22V26Z"/><path d="M22 38h36"/><path d="M31 16v10"/><path d="M49 16v10"/><circle cx="40" cy="50" r="7"/><path d="M40 46v4h4"/></svg>`,
                 ovo: `<svg class="metric-model-svg reproduction-icon-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M40 10c13 0 23 17 23 33c0 15-9 27-23 27S17 58 17 43C17 27 27 10 40 10Z"/><path d="M29 47c7 5 15 5 22 0"/></svg>`,
                 viviparo: `<svg class="metric-model-svg reproduction-icon-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M40 12c15 12 24 24 24 38c0 13-10 22-24 22S16 63 16 50c0-14 9-26 24-38Z"/><circle cx="40" cy="48" r="12"/><path d="M40 36v-9"/></svg>`,
@@ -2418,6 +2441,9 @@
                     curiosidades.horasSono ? { tipo: 'Horas de Sono', valor: curiosidades.horasSono, genero: 'MF', fase: 'Adulto' } : null,
                     curiosidades.maiorPesoRegistado ? { tipo: 'Maior peso registado', valor: curiosidades.maiorPesoRegistado, genero: 'MF', fase: 'Adulto' } : null,
                     curiosidades.maiorIdadeRegistada ? { tipo: 'Maior idade registada', valor: curiosidades.maiorIdadeRegistada, genero: 'MF', fase: 'Adulto' } : null,
+                    curiosidades.maiorComprimentoRegistado ? { tipo: 'Maior comprimento registado', valor: curiosidades.maiorComprimentoRegistado, genero: 'MF', fase: 'Adulto' } : null,
+                    curiosidades.maiorAlturaRegistada ? { tipo: 'Maior altura registada', valor: curiosidades.maiorAlturaRegistada, genero: 'MF', fase: 'Adulto' } : null,
+                    curiosidades.maiorEnvergaduraRegistada ? { tipo: 'Maior envergadura registada', valor: curiosidades.maiorEnvergaduraRegistada, genero: 'MF', fase: 'Adulto' } : null,
                     Array.isArray(curiosidades.tambemConhecidoComo) && curiosidades.tambemConhecidoComo.length ? { tipo: 'Também conhecido como', valor: curiosidades.tambemConhecidoComo.join(', '), genero: 'MF', fase: 'Adulto' } : null,
                     curiosidades.temperaturaAmbiente ? { tipo: 'Temperatura do Ambiente', valor: curiosidades.temperaturaAmbiente, genero: 'MF', fase: 'Adulto' } : null
                 ].filter(Boolean);
@@ -2617,6 +2643,16 @@
                     `;
                 }
 
+                if (item.tipo === 'Maior comprimento registado') {
+                    return `<article class="dimension-model-card curiosidades-model-card" style="width:100%;box-sizing:border-box;display:flex;align-items:center;"><div class="dimension-model-icon" style="flex-shrink:0;color:#38bdf8;background:rgba(56,189,248,.16);"><svg class="record-custom-svg" viewBox="0 0 64 64" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M10 20h44v24H10z"/><path d="M16 20v9M23 20v6M30 20v9M37 20v6M44 20v9M51 20v6"/><path d="M8 50h48"/><path d="m8 50 6-5M8 50l6 5M56 50l-6-5M56 50l-6 5"/></svg></div><div class="dimension-model-copy"><div class="curiosidades-card-head"><span class="dimension-model-label" style="color:#7dd3fc;font-weight:800;">${valuesHtml}</span>${renderMetaSymbols(item)}</div><strong class="dimension-model-value" style="color:#38bdf8;">Maior comprimento registado</strong></div></article>`;
+                }
+                if (item.tipo === 'Maior altura registada') {
+                    return `<article class="dimension-model-card curiosidades-model-card" style="width:100%;box-sizing:border-box;display:flex;align-items:center;"><div class="dimension-model-icon" style="flex-shrink:0;color:#34d399;background:rgba(52,211,153,.16);"><svg class="record-custom-svg" viewBox="0 0 64 64" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10h20v44H22z"/><path d="M22 16h8M22 23h5M22 30h8M22 37h5M22 44h8"/><path d="M14 10v44"/><path d="m14 10-5 6M14 10l5 6M14 54l-5-6M14 54l5-6"/></svg></div><div class="dimension-model-copy"><div class="curiosidades-card-head"><span class="dimension-model-label" style="color:#6ee7b7;font-weight:800;">${valuesHtml}</span>${renderMetaSymbols(item)}</div><strong class="dimension-model-value" style="color:#34d399;">Maior altura registada</strong></div></article>`;
+                }
+                if (item.tipo === 'Maior envergadura registada') {
+                    return `<article class="dimension-model-card curiosidades-model-card" style="width:100%;box-sizing:border-box;display:flex;align-items:center;"><div class="dimension-model-icon" style="flex-shrink:0;color:#fb7185;background:rgba(251,113,133,.16);"><svg class="record-custom-svg" viewBox="0 0 64 64" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M32 32c-7-9-15-14-25-15c4 10 11 17 21 21"/><path d="M32 32c7-9 15-14 25-15c-4 10-11 17-21 21"/><path d="M32 26v22"/><path d="M8 52h48"/><path d="m8 52 6-5M8 52l6 5M56 52l-6-5M56 52l-6 5"/></svg></div><div class="dimension-model-copy"><div class="curiosidades-card-head"><span class="dimension-model-label" style="color:#fda4af;font-weight:800;">${valuesHtml}</span>${renderMetaSymbols(item)}</div><strong class="dimension-model-value" style="color:#fb7185;">Maior envergadura registada</strong></div></article>`;
+                }
+
                 if (item.tipo === 'Distância Percorrida') {
                     return `
                         <article class="dimension-model-card curiosidades-model-card" style="width: 100%; box-sizing: border-box; display: flex; align-items: center;">
@@ -2672,6 +2708,22 @@
                             </div>
                         </article>
                     `;
+                }
+
+                if (item.tipo === 'Tendência populacional') {
+                    const trendIcon = item.valor === 'A aumentar' ? 'fa-arrow-trend-up' : item.valor === 'A diminuir' ? 'fa-arrow-trend-down' : item.valor === 'Estável' ? 'fa-minus' : 'fa-question';
+                    return `
+                        <article class="dimension-model-card curiosidades-model-card" style="width:100%;box-sizing:border-box;display:flex;align-items:center;">
+                            <div class="dimension-model-icon" style="flex-shrink:0;background:rgba(34,197,94,.18);color:#86efac;display:flex;align-items:center;justify-content:center;"><i class="fa-solid ${trendIcon}"></i></div>
+                            <div class="dimension-model-copy"><div class="curiosidades-card-head"><span class="dimension-model-label">${valuesHtml}</span>${renderMetaSymbols(item)}</div><strong class="dimension-model-value">Tendência populacional</strong></div>
+                        </article>`;
+                }
+                if (item.tipo === 'Dependência de áreas protegidas') {
+                    return `
+                        <article class="dimension-model-card curiosidades-model-card" style="width:100%;box-sizing:border-box;display:flex;align-items:center;">
+                            <div class="dimension-model-icon" style="flex-shrink:0;background:rgba(16,185,129,.18);color:#6ee7b7;display:flex;align-items:center;justify-content:center;"><i class="fa-solid fa-shield-halved"></i></div>
+                            <div class="dimension-model-copy"><div class="curiosidades-card-head"><span class="dimension-model-label">${valuesHtml}</span>${renderMetaSymbols(item)}</div><strong class="dimension-model-value">Dependência de áreas protegidas</strong></div>
+                        </article>`;
                 }
 
                 const sColor = statusColors[item.valor] || { bg: '#666', text: '#fff', name: item.valor };
