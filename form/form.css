@@ -3197,3 +3197,157 @@ body.form-ui-ready > :not(#loading-overlay) {
     font-size: 0.82rem;
     color: var(--text-secondary, #8a94a6);
 }
+
+
+/* Modelos visuais únicos do revestimento corporal */
+.body-covering-icon {
+    position: relative;
+    display: grid;
+    place-items: center;
+    min-width: 76px;
+    min-height: 76px;
+    border-radius: 22px;
+    background: linear-gradient(145deg, rgba(255,255,255,.98), rgba(241,245,249,.92));
+    border: 1px solid rgba(148,163,184,.3);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.85), 0 8px 20px rgba(15,23,42,.1);
+    overflow: hidden;
+}
+.body-covering-icon::after {
+    content: '';
+    position: absolute;
+    width: 34px;
+    height: 34px;
+    right: -9px;
+    bottom: -9px;
+    border-radius: 50%;
+    background: currentColor;
+    opacity: .12;
+}
+.body-covering-icon i { font-size: 2rem; color: #0f766e; filter: drop-shadow(0 3px 4px rgba(15,118,110,.18)); }
+.plumage-model-card:nth-child(4n+2) .body-covering-icon i { color: #7c3aed; }
+.plumage-model-card:nth-child(4n+3) .body-covering-icon i { color: #c2410c; }
+.plumage-model-card:nth-child(4n+4) .body-covering-icon i { color: #0369a1; }
+.body-covering-hero-icon { font-size: clamp(3.2rem, 6vw, 5.4rem); color: #0f766e; filter: drop-shadow(0 10px 16px rgba(15,118,110,.22)); }
+#tabpanel-plumagem[data-covering-category="Mamiferos"] .body-covering-hero-icon { color: #9a3412; }
+#tabpanel-plumagem[data-covering-category="Peixes"] .body-covering-hero-icon { color: #0284c7; }
+#tabpanel-plumagem[data-covering-category="Repteis"] .body-covering-hero-icon { color: #4d7c0f; }
+#tabpanel-plumagem[data-covering-category="Anfibios"] .body-covering-hero-icon { color: #16a34a; }
+#tabpanel-plumagem[data-covering-category="Insetos"] .body-covering-hero-icon,
+#tabpanel-plumagem[data-covering-category="Aracnideos"] .body-covering-hero-icon { color: #7e22ce; }
+
+/* Modelos desenhados no próprio projeto: sem ícones externos */
+.body-covering-custom-svg {
+    position: relative;
+    z-index: 1;
+    width: 64px;
+    height: 64px;
+    display: block;
+    overflow: visible;
+    filter: drop-shadow(0 4px 6px rgba(15, 23, 42, .16));
+}
+.plumage-model-figure .body-covering-custom-svg {
+    width: 66px;
+    height: 66px;
+}
+.plumage-hero-figure .body-covering-custom-svg,
+.body-covering-custom-svg.body-covering-hero-icon {
+    width: clamp(92px, 12vw, 142px);
+    height: clamp(92px, 12vw, 142px);
+    filter: drop-shadow(0 12px 20px rgba(15, 23, 42, .22));
+}
+.body-covering-icon:has(.body-covering-custom-svg)::after {
+    display: none;
+}
+
+/* Modelos visuais originais: revestimentos e recordes */
+.body-covering-custom-svg,.record-custom-svg{width:100%;height:100%;display:block;overflow:visible}.record-weight-preview-item .communication-preview-icon,.record-age-preview-item .communication-preview-icon{padding:7px}.record-custom-svg{max-width:58px;max-height:58px}.body-covering-icon i,.plumage-model-figure i{display:none!important}
+
+
+/* Correção final: modelos visuais no mesmo estilo do site (sem fundo branco) */
+.body-covering-icon,
+.plumage-model-figure,
+.communication-preview-icon:has(.record-custom-svg) {
+    background: linear-gradient(145deg, rgba(52, 61, 78, .72), rgba(31, 37, 52, .84)) !important;
+    border: 1px solid rgba(148, 163, 184, .22) !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.05), 0 8px 18px rgba(0,0,0,.18) !important;
+    color: var(--model-accent, #b8a7ff) !important;
+}
+.body-covering-custom-svg,
+.record-custom-svg {
+    width: 46px !important;
+    height: 46px !important;
+    max-width: 46px !important;
+    max-height: 46px !important;
+    color: inherit !important;
+    filter: drop-shadow(0 4px 8px color-mix(in srgb, currentColor 28%, transparent)) !important;
+}
+.plumage-model-card:nth-child(7n+1) { --model-accent:#20b8d6; }
+.plumage-model-card:nth-child(7n+2) { --model-accent:#42c77a; }
+.plumage-model-card:nth-child(7n+3) { --model-accent:#b69cff; }
+.plumage-model-card:nth-child(7n+4) { --model-accent:#f59a45; }
+.plumage-model-card:nth-child(7n+5) { --model-accent:#ea6f91; }
+.plumage-model-card:nth-child(7n+6) { --model-accent:#65a8ff; }
+.plumage-model-card:nth-child(7n)   { --model-accent:#d1b56b; }
+.body-covering-icon::after { display:none !important; }
+
+/* Revestimento corporal: linhas dinâmicas, manchas e cores */
+#plumageRowsContainer .plumage-row {
+    display: grid;
+    grid-template-columns: minmax(170px,.85fr) minmax(190px,1fr) minmax(190px,1.15fr) 44px;
+    gap: 12px;
+    align-items: center;
+    width: 100%;
+}
+#plumageRowsContainer .plumage-detail-control { min-width: 0; }
+#plumageRowsContainer .plumage-detail-control > input,
+#plumageRowsContainer .plumage-detail-control > select {
+    width: 100%;
+    min-width: 0;
+    height: 46px;
+}
+#plumageRowsContainer .plumage-spot-color { cursor: pointer; }
+@media (max-width: 820px) {
+    #plumageRowsContainer .plumage-row {
+        grid-template-columns: 1fr 44px;
+    }
+    #plumageRowsContainer .plumage-row > .plumage-group,
+    #plumageRowsContainer .plumage-row > .plumage-type,
+    #plumageRowsContainer .plumage-row > .plumage-detail-control {
+        grid-column: 1;
+    }
+    #plumageRowsContainer .plumage-row > .remove-dimension-btn {
+        grid-column: 2;
+        grid-row: 1;
+    }
+}
+
+
+/* Ajustes finais: pré-visualização sem branco e recordes no estilo do site */
+#tabpanel-plumagem .plumage-hero-figure,
+#tabpanel-plumagem [class*="hero-figure"],
+#tabpanel-plumagem img[id*="plumage"] + *,
+#tabpanel-plumagem .body-covering-hero-holder {
+    background: linear-gradient(145deg, rgba(52, 61, 78, .72), rgba(31, 37, 52, .86)) !important;
+    border: 1px solid rgba(148, 163, 184, .22) !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.05), 0 8px 18px rgba(0,0,0,.18) !important;
+}
+#tabpanel-plumagem .plumage-hero-figure > div,
+#tabpanel-plumagem .plumage-hero-figure > span {
+    background: transparent !important;
+}
+.record-weight-preview-item,
+.record-age-preview-item {
+    background: linear-gradient(145deg, rgba(38, 45, 61, .82), rgba(27, 32, 45, .92)) !important;
+    border: 1px solid rgba(148, 163, 184, .22) !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.05), 0 8px 18px rgba(0,0,0,.18) !important;
+}
+.record-model-icon,
+.record-weight-preview-item .communication-preview-icon,
+.record-age-preview-item .communication-preview-icon {
+    position: relative !important;
+    background: linear-gradient(145deg, rgba(52, 61, 78, .72), rgba(31, 37, 52, .86)) !important;
+    border: 1px solid rgba(148, 163, 184, .22) !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.05), 0 8px 18px rgba(0,0,0,.18) !important;
+}
+.record-weight-preview-item .communication-preview-icon { color:#f59e0b !important; }
+.record-age-preview-item .communication-preview-icon { color:#a78bfa !important; }

@@ -1,4 +1,16 @@
 // Curiosidades, categorias, arranque e imagem
+
+        function renderRecordVisualSvg(kind = 'weight') {
+            if (kind === 'age') {
+                return `<svg class="record-custom-svg" viewBox="0 0 64 64" role="img" aria-label="Maior idade registada" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20 9h24M20 55h24"/><path d="M23 12c0 11 4 16 9 20-5 4-9 9-9 20h18c0-11-4-16-9-20 5-4 9-9 9-20Z"/><path d="M27 18h10M27 46h10"/><path d="m46 8 2 4 5 1-4 3 1 5-4-3-4 3 1-5-4-3 5-1Z"/>
+                </svg>`;
+            }
+            return `<svg class="record-custom-svg" viewBox="0 0 64 64" role="img" aria-label="Maior peso registado" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 12h28v7c0 13-6 21-14 21s-14-8-14-21Z"/><path d="M18 16H9v5c0 9 5 14 13 14M46 16h9v5c0 9-5 14-13 14"/><path d="M32 40v7M22 56h20M25 47h14l3 9H22Z"/><path d="m32 18 3 6h7l-5 4 2 7-7-4-7 4 2-7-5-4h7Z"/>
+            </svg>`;
+        }
+
         function getCuriosidadeValueOptions(type = '') {
             if (type === 'Cor do animal') return Object.keys(curiosidadesColorMap);
             if (type === 'Estado de Conservação') {
@@ -75,10 +87,15 @@
             return normalizeSearchText(type) === 'maior peso registado';
         }
 
+        function isMaiorIdadeRegistadaCuriosidade(type = '') {
+            return normalizeSearchText(type) === 'maior idade registada';
+        }
+
         function getCuriosidadeMetricUnits(type = '') {
             if (isSleepHoursCuriosidade(type)) return ['horas/dia', 'horas/semana', 'horas/mes', 'horas/ano'];
             if (isDistanceCuriosidade(type)) return ['m/dia', 'm/semana', 'm/mes', 'm/ano', 'km/dia', 'km/semana', 'km/mes', 'km/ano'];
             if (isMaiorPesoRegistadoCuriosidade(type)) return ['g', 'kg', 't', 'lb'];
+            if (isMaiorIdadeRegistadaCuriosidade(type)) return ['dias', 'semanas', 'meses', 'anos'];
             return [];
         }
 
@@ -86,6 +103,7 @@
             if (isSleepHoursCuriosidade(type)) return 'horas/dia';
             if (isDistanceCuriosidade(type)) return 'km/dia';
             if (isMaiorPesoRegistadoCuriosidade(type)) return 'kg';
+            if (isMaiorIdadeRegistadaCuriosidade(type)) return 'anos';
             return '';
         }
 
@@ -163,7 +181,7 @@
                 minInput.addEventListener('input', updateCuriosidadesPreview);
                 maxInput.addEventListener('input', updateCuriosidadesPreview);
                 wrapper.append(minInput, maxInput, unitBadge);
-            } else if (isSleepHoursCuriosidade(type) || isDistanceCuriosidade(type) || isMaiorPesoRegistadoCuriosidade(type)) {
+            } else if (isSleepHoursCuriosidade(type) || isDistanceCuriosidade(type) || isMaiorPesoRegistadoCuriosidade(type) || isMaiorIdadeRegistadaCuriosidade(type)) {
                 wrapper.classList.add('temperature-controls', 'metric-controls');
                 const parsed = parseCuriosidadeMetric(data, type);
                 const minInput = document.createElement('input');
@@ -171,7 +189,7 @@
                 minInput.step = '0.01';
                 minInput.min = '0';
                 minInput.className = 'curiosidade-metric-min';
-                minInput.placeholder = (isDistanceCuriosidade(type) || isMaiorPesoRegistadoCuriosidade(type)) ? 'Mín.' : 'Valor';
+                minInput.placeholder = (isDistanceCuriosidade(type) || isMaiorPesoRegistadoCuriosidade(type) || isMaiorIdadeRegistadaCuriosidade(type)) ? 'Mín.' : 'Valor';
                 minInput.value = parsed.min;
                 const maxInput = document.createElement('input');
                 maxInput.type = 'number';
@@ -283,7 +301,7 @@
                         item.valorMax = max;
                         item.unidade = '°C';
                     }
-                    if (isSleepHoursCuriosidade(tipo) || isDistanceCuriosidade(tipo) || isMaiorPesoRegistadoCuriosidade(tipo)) {
+                    if (isSleepHoursCuriosidade(tipo) || isDistanceCuriosidade(tipo) || isMaiorPesoRegistadoCuriosidade(tipo) || isMaiorIdadeRegistadaCuriosidade(tipo)) {
                         const min = row.querySelector('.curiosidade-metric-min')?.value || '';
                         const max = row.querySelector('.curiosidade-metric-max')?.value || '';
                         const unit = row.querySelector('.curiosidade-metric-unit')?.value || getCuriosidadeDefaultMetricUnit(tipo);
@@ -300,7 +318,6 @@
 
         function getDefaultCuriosidadesRows() {
             return [
-                { tipo: 'Cor do animal', valor: '', genero: GENDER_BOTH, fase: 'Adulto' },
                 { tipo: 'Estado de Conservação', valor: '', genero: GENDER_BOTH, fase: 'Adulto' },
                 { tipo: 'Temperatura do Ambiente', valor: '', valorMin: '', valorMax: '', unidade: '°C', genero: GENDER_BOTH, fase: 'Adulto' },
                 { tipo: 'Relação com Humanos', valor: '', genero: GENDER_BOTH, fase: 'Adulto' }
@@ -309,16 +326,18 @@
 
         function normalizeCuriosidadesData(curiosidades = {}) {
             if (Array.isArray(curiosidades?.detalhes) && curiosidades.detalhes.length) {
-                return collapseCombinedGenderItems(curiosidades.detalhes).map(item => ({
-                    tipo: item.tipo || '',
-                    valor: item.valor || '',
-                    valorMin: item.valorMin || '',
-                    valorMax: item.valorMax || '',
-                    unidade: item.unidade || (item.tipo === 'Temperatura do Ambiente' ? '°C' : getCuriosidadeDefaultMetricUnit(item.tipo || '')),
-                    descricao: item.descricao || (item.tipo === 'Tipo de Comunicação' ? (curiosidadesCommunicationDescriptions[item.valor] || '') : ''),
-                    genero: item.genero || GENDER_BOTH,
-                    fase: item.fase || 'Adulto'
-                }));
+                return collapseCombinedGenderItems(curiosidades.detalhes)
+                    .filter(item => normalizeSearchText(item?.tipo || '') !== 'cor do animal')
+                    .map(item => ({
+                        tipo: item.tipo || '',
+                        valor: item.valor || '',
+                        valorMin: item.valorMin || '',
+                        valorMax: item.valorMax || '',
+                        unidade: item.unidade || (item.tipo === 'Temperatura do Ambiente' ? '°C' : getCuriosidadeDefaultMetricUnit(item.tipo || '')),
+                        descricao: item.descricao || (item.tipo === 'Tipo de Comunicação' ? (curiosidadesCommunicationDescriptions[item.valor] || '') : ''),
+                        genero: item.genero || GENDER_BOTH,
+                        fase: item.fase || 'Adulto'
+                    }));
             }
             const legacyItems = [];
             if (Array.isArray(curiosidades?.tambemConhecidoComo)) {
@@ -327,7 +346,6 @@
                     .filter(Boolean)
                     .forEach(value => legacyItems.push({ tipo: 'Também conhecido como', valor: value, genero: GENDER_BOTH, fase: 'Adulto' }));
             }
-            if (curiosidades?.cor) legacyItems.push({ tipo: 'Cor do animal', valor: curiosidades.cor, genero: GENDER_BOTH, fase: 'Adulto' });
             if (curiosidades?.estadoConservacao) legacyItems.push({ tipo: 'Estado de Conservação', valor: curiosidades.estadoConservacao, genero: GENDER_BOTH, fase: 'Adulto' });
             if (curiosidades?.tipoComunicacao) legacyItems.push({
                 tipo: 'Tipo de Comunicação',
@@ -353,6 +371,10 @@
             if (curiosidades?.maiorPesoRegistado) {
                 const parsed = parseCuriosidadeMetric({ valor: curiosidades.maiorPesoRegistado }, 'Maior peso registado');
                 legacyItems.push({ tipo: 'Maior peso registado', valor: curiosidades.maiorPesoRegistado, valorMin: parsed.min, valorMax: parsed.max, unidade: parsed.unit, genero: GENDER_BOTH, fase: 'Adulto' });
+            }
+            if (curiosidades?.maiorIdadeRegistada) {
+                const parsed = parseCuriosidadeMetric({ valor: curiosidades.maiorIdadeRegistada }, 'Maior idade registada');
+                legacyItems.push({ tipo: 'Maior idade registada', valor: curiosidades.maiorIdadeRegistada, valorMin: parsed.min, valorMax: parsed.max, unidade: parsed.unit, genero: GENDER_BOTH, fase: 'Adulto' });
             }
             return legacyItems;
         }
@@ -477,15 +499,29 @@
 
             if (item.tipo === 'Maior peso registado') {
                 return `
-                    <div class="curiosidades-preview-item record-weight-preview-item" style="border-color: rgba(250, 204, 21, 0.35); background: linear-gradient(135deg, rgba(120, 53, 15, 0.18), rgba(234, 179, 8, 0.08));">
-                        <div class="communication-preview-icon" style="position: relative; background: linear-gradient(145deg, #fde68a, #d97706); color: #422006; box-shadow: 0 8px 20px rgba(217, 119, 6, 0.28);">
-                            <i class="fa-solid fa-trophy"></i>
-                            <i class="fa-solid fa-weight-hanging" style="position: absolute; right: -5px; bottom: -5px; width: 18px; height: 18px; display: grid; place-items: center; border-radius: 50%; background: #451a03; color: #fef3c7; font-size: 0.58rem; border: 2px solid #fbbf24;"></i>
+                    <div class="curiosidades-preview-item record-weight-preview-item">
+                        <div class="communication-preview-icon record-model-icon">
+                            ${renderRecordVisualSvg('weight')}
                         </div>
                         <div class="curiosidades-preview-info">
                             <span class="preview-label">Maior peso registado</span>
                             <strong style="font-size: 1.05rem; font-weight: 800; color: #facc15;">${item.valor}</strong>
                             <div class="communication-preview-desc">Recorde de peso documentado para este sexo e fase de vida.</div>
+                            ${renderCuriosidadeMeta(item)}
+                        </div>
+                    </div>`;
+            }
+
+            if (item.tipo === 'Maior idade registada') {
+                return `
+                    <div class="curiosidades-preview-item record-age-preview-item">
+                        <div class="communication-preview-icon record-model-icon">
+                            ${renderRecordVisualSvg('age')}
+                        </div>
+                        <div class="curiosidades-preview-info">
+                            <span class="preview-label">Maior idade registada</span>
+                            <strong style="font-size: 1.05rem; font-weight: 800; color: #c4b5fd;">${item.valor}</strong>
+                            <div class="communication-preview-desc">Recorde de longevidade documentado para este sexo e fase de vida.</div>
                             ${renderCuriosidadeMeta(item)}
                         </div>
                     </div>`;

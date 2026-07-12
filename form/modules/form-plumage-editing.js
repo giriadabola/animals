@@ -1,78 +1,240 @@
-// Plumagem, autocomplete, edição e importação taxonómica
-        function getPlumageOptions(group = 'plumagem') {
-            return plumageOptionsByGroup[group] || [];
+// Revestimento corporal dinâmico por categoria
+        function normalizeBodyCoveringCategory(value = '') {
+            const normalized = String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim().toLowerCase();
+            const aliases = {
+                aves: 'Aves', mamiferos: 'Mamiferos', peixes: 'Peixes', moluscos: 'Moluscos',
+                crustaceos: 'Crustaceos', aracnideos: 'Aracnideos', vermes: 'Vermes',
+                repteis: 'Repteis', anfibios: 'Anfibios', insetos: 'Insetos', microscopicos: 'Microscopicos'
+            };
+            return aliases[normalized] || 'Microscopicos';
         }
 
-        function fillPlumageTypeSelect(select, group = 'plumagem', selectedValue = '') {
+        function getSelectedBodyCoveringCategoryValue() {
+            return (typeof getSelectedCategory === 'function' ? getSelectedCategory() : '')
+                || document.querySelector('.categoria-checkbox:checked')?.value
+                || document.getElementById('categoria')?.value
+                || '';
+        }
+
+        function hasSelectedBodyCoveringCategory() {
+            return String(getSelectedBodyCoveringCategoryValue() || '').trim() !== '';
+        }
+
+        function getActiveBodyCoveringCategory() {
+            const selected = getSelectedBodyCoveringCategoryValue();
+            return normalizeBodyCoveringCategory(selected || 'Aves');
+        }
+
+        function getActiveBodyCoveringConfig() {
+            return getBodyCoveringConfig(getActiveBodyCoveringCategory());
+        }
+
+        function getPlumageOptions(group = '') {
+            const config = getActiveBodyCoveringConfig();
+            return config.options[group] || [];
+        }
+
+        function fillBodyCoveringGroupSelect(select, selectedValue = '') {
+            const config = getActiveBodyCoveringConfig();
+            const entries = Object.entries(config.groups);
+            select.innerHTML = entries.map(([value, label]) => `<option value="${value}">${label}</option>`).join('');
+            select.value = entries.some(([value]) => value === selectedValue) ? selectedValue : (entries[0]?.[0] || 'revestimento');
+        }
+
+        function fillPlumageTypeSelect(select, group = '', selectedValue = '') {
             const options = [...getPlumageOptions(group)].sort((a, b) => a.localeCompare(b));
             const hasSelected = selectedValue && options.includes(selectedValue);
-            select.innerHTML = `<option value="">Escolhe um tipo</option>` +
+            select.innerHTML = `<option value="">Escolhe uma opção</option>` +
                 options.map(option => `<option value="${option}">${option}</option>`).join('') +
                 (selectedValue && !hasSelected ? `<option value="${selectedValue}">${selectedValue} — personalizado</option>` : '');
             select.value = selectedValue;
         }
 
-        function getPlumageVisualMeta(type = '', group = 'plumagem') {
-            const asset = plumageVisualAssets[type] || plumageVisualAssets['Rémiges'];
+        function getPlumageVisualMeta(type = '', group = '') {
+            const config = getActiveBodyCoveringConfig();
             return {
                 label: type || 'Modelo visual',
-                groupLabel: plumageVisualGroups[group] || 'Plumagem',
-                image: asset.image,
-                description: plumageTypeDescriptions[type] || 'Representação visual desta característica.'
+                groupLabel: config.groups[group] || config.title,
+                icon: bodyCoveringIconMap[type] || (group === 'cor' ? 'fa-palette' : config.icon),
+                description: bodyCoveringDescriptions[type] || `Característica de ${config.title.toLowerCase()}.`
             };
         }
 
-        function createPlumageRow(group = 'plumagem', type = '', detail = '') {
+
+        function escapeBodyCoveringSvgText(value = '') {
+            return String(value || '').replace(/[&<>"']/g, char => ({
+                '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+            }[char]));
+        }
+
+        function getBodyCoveringModelColors(type = '', group = '') {
+            const normalized = String(type || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+            const namedColors = {
+                preto: '#20242d', branco: '#f4f2ea', cinzento: '#8a9099', castanho: '#8a5a3b', bege: '#d8c3a5',
+                amarelo: '#f4c542', laranja: '#e8792e', vermelho: '#d94b4b', rosa: '#dd7fa5', verde: '#4f9d69',
+                azul: '#3978c5', roxo: '#7554a8', dourado: '#d8aa34', translucida: '#9fd8dc', translucido: '#9fd8dc',
+                incolor: '#dfe8ea', multicolor: '#9a6bd2', metalica: '#84919f', iridescente: '#7a8fe8'
+            };
+            const direct = namedColors[normalized];
+            if (direct) return { primary: direct, secondary: normalized === 'branco' ? '#b9bec7' : '#ffffff', accent: '#6d4aff' };
+            let hash = 0;
+            for (const char of `${group}:${type}`) hash = ((hash << 5) - hash + char.charCodeAt(0)) | 0;
+            const hue = Math.abs(hash) % 360;
+            return {
+                primary: `hsl(${hue} 64% 43%)`,
+                secondary: `hsl(${(hue + 42) % 360} 70% 63%)`,
+                accent: `hsl(${(hue + 205) % 360} 72% 48%)`
+            };
+        }
+
+        function renderBodyCoveringSvg(type = '', group = '', extraClass = '', selectedColor = '') {
+            const label = escapeBodyCoveringSvgText(type || 'Revestimento corporal');
+            const n = String(type || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+            const g = String(group || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+            const colorSource = selectedColor || (g === 'cor' ? type : '');
+            const modelColors = getBodyCoveringModelColors(colorSource || type, group);
+            const start = `<svg class="body-covering-custom-svg ${extraClass}" style="color:${modelColors.primary} !important" viewBox="0 0 64 64" role="img" aria-label="${label}" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round">`;
+            let art = '';
+            if (group === 'cor') {
+                const category = getActiveBodyCoveringCategory();
+                if (category === 'Aves') {
+                    art = `<path d="M15 49c5-20 15-33 34-38 1 18-9 32-34 38Z"/><path d="m19 45 25-29M27 36l-8-1m16-9-7-4"/><circle cx="49" cy="47" r="6" fill="currentColor" stroke="none"/>`;
+                } else if (category === 'Mamiferos') {
+                    art = `<path d="M15 51c4-24 11-39 17-39s13 15 17 39"/><path d="M20 50c7-13-4-24 5-37M31 50c7-14-4-25 5-38M42 50c6-12-3-22 4-34"/><circle cx="50" cy="47" r="6" fill="currentColor" stroke="none"/>`;
+                } else if (category === 'Peixes' || category === 'Repteis') {
+                    art = `<path d="M12 19h38v27H12Z"/><path d="M12 26c4-6 8-6 12 0 4-6 8-6 12 0 4-6 8-6 14 0M12 35c4-6 8-6 12 0 4-6 8-6 12 0 4-6 8-6 14 0M12 44c4-6 8-6 12 0 4-6 8-6 12 0 4-6 8-6 14 0"/><circle cx="51" cy="49" r="6" fill="currentColor" stroke="none"/>`;
+                } else if (category === 'Moluscos') {
+                    art = `<path d="M10 46c2-22 14-34 30-32 13 2 18 13 12 24-6 10-18 14-42 8Z"/><path d="M38 21c8 0 13 6 10 13-3 6-11 9-17 5-5-3-5-10-1-14 4-3 9-2 12 2"/><circle cx="51" cy="49" r="6" fill="currentColor" stroke="none"/>`;
+                } else {
+                    art = `<path d="M12 23c10-12 30-12 40 0v18c-10 11-30 11-40 0Z"/><path d="M16 30c8-5 24-5 32 0M16 39c8-5 24-5 32 0"/><circle cx="51" cy="49" r="6" fill="currentColor" stroke="none"/>`;
+                }
+            } else if (n === 'penugem') {
+                art = `<path d="M18 43c-5-2-7-8-4-12 2-4 6-5 10-3-1-6 3-11 9-11 5 0 9 3 10 8 5-1 10 3 10 9 0 6-5 10-11 10H20"/>`;
+            } else if (n.includes('juvenil')) {
+                art = `<path d="M32 10c10 8 15 17 15 27 0 9-6 16-15 16s-15-7-15-16c0-10 5-19 15-27Z"/><path d="M23 29h18M21 38h22M26 47h12"/>`;
+            } else if (n.includes('adulta')) {
+                art = `<path d="M16 51c4-19 13-34 32-40 2 18-8 34-32 40Z"/><path d="m19 47 25-30M27 37l-8-1m16-9-7-4m14-1-5-6"/>`;
+            } else if (n.includes('nupcial')) {
+                art = `<path d="M32 52C14 39 13 26 21 22c5-3 9 0 11 5 2-5 6-8 11-5 8 4 7 17-11 30Z"/><path d="M32 27v17M25 35h14"/>`;
+            } else if (n.includes('eclipse')) {
+                art = `<circle cx="29" cy="30" r="15"/><path d="M39 19a15 15 0 1 0 0 22M17 50c9-4 20-4 30 0"/>`;
+            } else if (n.includes('inverno')) {
+                art = `<path d="M32 10v44M13 21l38 22M51 21 13 43M21 13l22 38M43 13 21 51"/><circle cx="32" cy="32" r="5"/>`;
+            } else if (n.includes('verao')) {
+                art = `<circle cx="32" cy="32" r="10"/><path d="M32 8v8M32 48v8M8 32h8M48 32h8M15 15l6 6M43 43l6 6M49 15l-6 6M21 43l-6 6"/>`;
+            } else if (n.includes('remiges')) {
+                art = `<path d="M13 48c8-22 20-34 39-37-3 18-12 33-30 41Z"/><path d="m18 48 28-31M25 38l-9-1m17-8-9-4m17-1-6-7"/>`;
+            } else if (n.includes('retrizes')) {
+                art = `<path d="M31 52 15 15c10 4 16 12 18 25M32 52 27 11c9 7 12 17 9 29M33 52 43 14c7 9 7 19 1 30M34 52l17-30c3 10 0 19-9 27"/><circle cx="33" cy="53" r="3"/>`;
+            } else if (n.includes('tectrizes')) {
+                art = `<path d="M11 27c5-9 12-14 20-14 0 9-4 16-11 22Z"/><path d="M28 26c5-9 12-14 20-14 0 9-4 16-11 22Z"/><path d="M19 44c5-9 12-14 20-14 0 9-4 16-11 22Z"/><path d="M36 43c5-9 12-14 20-14 0 9-4 16-11 22Z"/>`;
+            } else if (n.includes('semiplumas')) {
+                art = `<path d="M17 51c4-19 12-34 30-40 3 17-5 33-30 40Z"/><path d="m20 48 24-32M27 37c-6 3-9 6-10 10M34 28c-5 1-9 4-12 8M39 21c4 1 8 3 11 6"/>`;
+            } else if (n.includes('filoplumas')) {
+                art = `<path d="M32 53c0-19 2-31 7-42M24 53c1-14 0-23-3-31M42 53c-1-13 1-22 4-29"/><circle cx="39" cy="11" r="3"/><circle cx="36" cy="19" r="2"/>`;
+            } else if (n.includes('cerdas')) {
+                art = `<path d="m16 52 9-38M28 53l5-42M40 53V15M52 51l-5-33"/><circle cx="25" cy="14" r="2"/><circle cx="33" cy="11" r="2"/><circle cx="40" cy="15" r="2"/><circle cx="47" cy="18" r="2"/>`;
+            } else if (g === 'manchas') {
+                const pattern = n;
+                const base = `<path d="M10 19c8-7 36-7 44 0v26c-8 7-36 7-44 0Z"/>`;
+                if (pattern.includes('tigrado')) art = `${base}<path d="M17 19l5 26M28 18l3 28M40 18l-2 28M49 20l-5 24"/>`;
+                else if (pattern.includes('reticulado')) art = `${base}<path d="M14 24h36M14 33h36M14 42h36M20 19v26M32 18v28M44 19v26"/>`;
+                else if (pattern.includes('anel') || pattern.includes('ocelo')) art = `${base}<circle cx="22" cy="29" r="6"/><circle cx="22" cy="29" r="2"/><circle cx="41" cy="37" r="7"/><circle cx="41" cy="37" r="2.5"/>`;
+                else if (pattern.includes('roseta')) art = `${base}<path d="M18 30c3-6 9-6 12 0-3 6-9 6-12 0ZM35 38c3-7 10-7 13 0-3 7-10 7-13 0Z"/><circle cx="24" cy="30" r="1.5" fill="currentColor" stroke="none"/><circle cx="41.5" cy="38" r="1.5" fill="currentColor" stroke="none"/>`;
+                else if (pattern.includes('marmoreado') || pattern.includes('mesclado') || pattern.includes('merle')) art = `${base}<path d="M14 28c8-8 12 8 20 0s12 8 17 0M13 39c7-7 12 7 19 0s13 7 20 0"/>`;
+                else if (pattern.includes('sela')) art = `${base}<path d="M18 20c3 8 3 16 0 24M46 20c-3 8-3 16 0 24M18 31h28"/>`;
+                else if (pattern.includes('tricolor') || pattern.includes('arlequim') || pattern.includes('tartaruga')) art = `${base}<path d="M10 31h44M31 19v26M19 31l12-12M33 45l11-14"/>`;
+                else art = `${base}<circle cx="20" cy="28" r="3" fill="currentColor" stroke="none"/><circle cx="33" cy="23" r="2.5" fill="currentColor" stroke="none"/><circle cx="43" cy="35" r="4" fill="currentColor" stroke="none"/><circle cx="27" cy="41" r="2" fill="currentColor" stroke="none"/>`;
+            } else if (g.includes('escama')) {
+                art = `<path d="M13 18h38v28H13Z"/><path d="M13 25c4-6 8-6 12 0 4-6 8-6 12 0 4-6 8-6 14 0M13 34c4-6 8-6 12 0 4-6 8-6 12 0 4-6 8-6 14 0M13 43c4-6 8-6 12 0 4-6 8-6 12 0 4-6 8-6 14 0"/>`;
+            } else if (g.includes('pelo') || g.includes('pelagem')) {
+                art = `<path d="M15 52c4-25 12-40 17-40s13 15 17 40"/><path d="M20 51c8-13-5-24 5-38M31 51c8-14-5-25 5-39M42 51c7-12-4-22 4-35"/>`;
+            } else if (g.includes('pele') || g.includes('revestimento')) {
+                art = `<path d="M11 23c10-12 32-12 42 0v18c-10 12-32 12-42 0Z"/><path d="M15 29c9-6 25-6 34 0M15 38c9-6 25-6 34 0"/><circle cx="22" cy="33" r="2"/><circle cx="39" cy="42" r="2"/>`;
+            } else if (g.includes('concha')) {
+                art = `<path d="M10 47c2-23 14-36 31-34 14 2 19 14 13 26-6 11-19 15-44 8Z"/><path d="M39 21c9 0 14 7 11 14-3 7-12 10-19 6-6-4-6-12-1-16 4-4 10-3 13 1 2 4 0 8-4 9-3 1-6-1-6-4"/><path d="M10 48h43"/>`;
+            } else if (g.includes('carapaca') || g.includes('exoesqueleto')) {
+                art = `<path d="M11 33c0-14 9-22 21-22s21 8 21 22v17H11Z"/><path d="M11 33h42M18 17c4 6 8 9 14 9s10-3 14-9M22 20v30M32 26v24M42 20v30"/><circle cx="19" cy="31" r="2"/><circle cx="45" cy="31" r="2"/>`;
+            } else if (g.includes('estrutura') || g.includes('extern')) {
+                art = `<circle cx="32" cy="32" r="9"/><path d="M32 23V8M32 56V41M23 32H8M56 32H41M26 26 15 15M49 49 38 38M49 15 38 26M26 38 15 49"/>`;
+            } else {
+                art = `<path d="M14 45c6-20 16-31 36-34-1 18-11 31-36 34Z"/><path d="m18 42 27-27"/>`;
+            }
+            return `${start}${art}</svg>`;
+        }
+
+        function createPlumageRow(group = '', type = '', detail = '', extra = {}) {
+            const config = getActiveBodyCoveringConfig();
+            const defaultGroup = config.groups[group] ? group : (Object.keys(config.groups)[0] || 'revestimento');
             const row = document.createElement('div');
             row.className = 'plumage-row';
 
             const groupSelect = document.createElement('select');
             groupSelect.className = 'plumage-group';
-            groupSelect.innerHTML = `
-                <option value="plumagem">Tipo de plumagem</option>
-                <option value="pena">Tipo de pena</option>
-            `;
-            groupSelect.value = group;
+            fillBodyCoveringGroupSelect(groupSelect, defaultGroup);
 
             const typeSelect = document.createElement('select');
             typeSelect.className = 'plumage-type';
-            fillPlumageTypeSelect(typeSelect, group, type);
+            fillPlumageTypeSelect(typeSelect, groupSelect.value, type);
 
-            const detailInput = document.createElement('input');
-            detailInput.type = 'text';
-            detailInput.className = 'plumage-detail';
-            detailInput.placeholder = 'Ex: isolante, ornamental, voo...';
-            detailInput.value = detail;
+            const detailControl = document.createElement('div');
+            detailControl.className = 'plumage-detail-control';
 
             const removeBtn = document.createElement('button');
             removeBtn.type = 'button';
             removeBtn.className = 'remove-dimension-btn';
             removeBtn.innerHTML = '&times;';
-            removeBtn.setAttribute('aria-label', 'Remover tipo de plumagem');
+            removeBtn.setAttribute('aria-label', 'Remover característica');
+
+            function rebuildDetailControl() {
+                detailControl.innerHTML = '';
+                const isSpots = groupSelect.value === 'manchas';
+                if (isSpots) {
+                    const colorSelect = document.createElement('select');
+                    colorSelect.className = 'plumage-detail plumage-spot-color';
+                    colorSelect.innerHTML = `<option value="">Cor das manchas</option>` + bodyCoveringColorOptions.map(color => `<option value="${color}">${color}</option>`).join('');
+                    colorSelect.value = extra.cor || detail || '';
+                    colorSelect.addEventListener('change', updatePlumagePreview);
+                    detailControl.appendChild(colorSelect);
+                } else {
+                    const detailInput = document.createElement('input');
+                    detailInput.type = 'text';
+                    detailInput.className = 'plumage-detail';
+                    detailInput.placeholder = 'Detalhe curto ou padrão observado...';
+                    detailInput.value = detail || '';
+                    detailInput.addEventListener('input', updatePlumagePreview);
+                    detailControl.appendChild(detailInput);
+                }
+            }
 
             groupSelect.addEventListener('change', () => {
                 fillPlumageTypeSelect(typeSelect, groupSelect.value);
+                rebuildDetailControl();
                 updatePlumagePreview();
             });
             typeSelect.addEventListener('change', updatePlumagePreview);
-            detailInput.addEventListener('input', updatePlumagePreview);
             removeBtn.addEventListener('click', () => {
                 row.remove();
                 if (plumageRowsContainer.children.length === 0) createPlumageRow();
                 updatePlumagePreview();
             });
 
-            row.append(groupSelect, typeSelect, detailInput, removeBtn);
+            row.append(groupSelect, typeSelect, detailControl, removeBtn);
             plumageRowsContainer.appendChild(row);
+            rebuildDetailControl();
             updatePlumagePreview();
         }
 
         function getPlumageData() {
-            return [...plumageRowsContainer.querySelectorAll('.plumage-row')].map(row => ({
-                grupo: row.querySelector('.plumage-group')?.value || 'plumagem',
-                tipo: row.querySelector('.plumage-type')?.value || '',
-                detalhe: row.querySelector('.plumage-detail')?.value.trim() || ''
-            })).filter(item => item.tipo || item.detalhe);
+            return [...plumageRowsContainer.querySelectorAll('.plumage-row')].map(row => {
+                const grupo = row.querySelector('.plumage-group')?.value || '';
+                const tipo = row.querySelector('.plumage-type')?.value || '';
+                const detailEl = row.querySelector('.plumage-detail');
+                const detalhe = String(detailEl?.value || '').trim();
+                return grupo === 'manchas'
+                    ? { grupo, tipo, detalhe: detalhe ? `Cor: ${detalhe}` : '', cor: detalhe }
+                    : { grupo, tipo, detalhe };
+            }).filter(item => item.tipo || item.detalhe);
         }
 
         function setPlumageData(items = []) {
@@ -81,19 +243,22 @@
                 createPlumageRow();
                 return;
             }
-            items.forEach(item => createPlumageRow(item.grupo || 'plumagem', item.tipo || '', item.detalhe || ''));
+            items.forEach(item => {
+                const inferredColor = item.cor || (item.grupo === 'manchas' ? String(item.detalhe || '').replace(/^Cor:\s*/i, '') : '');
+                createPlumageRow(item.grupo || '', item.tipo || '', item.grupo === 'manchas' ? '' : (item.detalhe || ''), { cor: inferredColor });
+            });
             updatePlumagePreview();
         }
 
         function renderPlumageModelCard(item, isSuggestion = false) {
-            const group = item.grupo || item.group || 'plumagem';
+            const group = item.grupo || item.group || '';
             const type = item.tipo || item;
             const meta = getPlumageVisualMeta(type, group);
-            const detail = item.detalhe || meta.description;
+            const detail = item.grupo === 'manchas' ? [item.tipo, item.cor ? `Cor: ${item.cor}` : ''].filter(Boolean).join(' · ') : (item.detalhe || meta.description);
             return `
                 <article class="plumage-model-card${isSuggestion ? ' is-suggestion' : ''}">
-                    <div class="plumage-model-figure">
-                        <img src="${meta.image}" alt="${meta.label}">
+                    <div class="plumage-model-figure body-covering-icon body-covering-${String(type).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-')}">
+                        ${renderBodyCoveringSvg(type, group, '', item.cor || '')}
                     </div>
                     <div class="plumage-model-copy">
                         <div class="plumage-model-label">${meta.label}</div>
@@ -103,37 +268,77 @@
                 </article>`;
         }
 
-        function updatePlumagePreview() {
-            const selected = getPlumageData();
-            const isBird = getSelectedCategory() === 'Aves';
-            const hero = selected[0] || { grupo: 'pena', tipo: 'Rémiges' };
-            const heroMeta = getPlumageVisualMeta(hero.tipo || 'Rémiges', hero.grupo || 'pena');
-            plumageHeroImage.src = heroMeta.image;
-            plumageHeroImage.alt = heroMeta.label;
-            plumageHeroTitle.textContent = heroMeta.label;
-            plumageHeroText.textContent = selected[0]?.detalhe || heroMeta.description;
+        function updateBodyCoveringInterface(resetRows = false) {
+            const config = getActiveBodyCoveringConfig();
+            const tab = document.getElementById('tab-btn-plumagem');
+            const panel = document.getElementById('tabpanel-plumagem');
+            const hasCategory = hasSelectedBodyCoveringCategory();
 
-            if (!isBird) {
-                previewPlumageModels.innerHTML = '<div class="dimension-model-empty">A secção de plumagem só fica ativa quando a categoria é <strong>Aves</strong>.</div>';
+            if (!hasCategory) {
+                if (tab) tab.style.display = 'none';
+                if (panel) panel.style.display = 'none';
                 return;
             }
+
+            if (panel) panel.style.display = '';
+            if (tab) {
+                tab.style.display = 'inline-block';
+                tab.title = config.title;
+                tab.setAttribute('aria-label', config.title);
+                tab.innerHTML = `<i class="fa-solid ${config.icon}"></i>`;
+            }
+            panel?.setAttribute('data-covering-category', getActiveBodyCoveringCategory());
+            document.querySelectorAll('[data-body-covering-title]').forEach(el => el.textContent = config.title);
+            const summaryLabel = document.querySelector('label[for="infoPlumagem"]');
+            if (summaryLabel) summaryLabel.textContent = `${config.title} — resumo textual`;
+            const summary = document.getElementById('infoPlumagem');
+            if (summary) summary.placeholder = `Descreve a ${config.title.toLowerCase()}, cores, padrões, textura e alterações sazonais...`;
+            const hint = document.getElementById('bodyCoveringHint');
+            if (hint) hint.innerHTML = `Adiciona características próprias de <strong>${config.title}</strong>. Cada opção tem um modelo visual exclusivo.`;
+            const add = document.getElementById('addPlumageBtn');
+            if (add) add.innerHTML = `+ Adicionar característica de ${config.title.toLowerCase()}`;
+            if (resetRows) {
+                const old = getPlumageData();
+                const compatible = old.filter(item => config.groups[item.grupo]);
+                setPlumageData(compatible);
+            } else {
+                [...plumageRowsContainer.querySelectorAll('.plumage-row')].forEach(row => {
+                    const group = row.querySelector('.plumage-group');
+                    const type = row.querySelector('.plumage-type');
+                    const oldGroup = group?.value || '';
+                    const oldType = type?.value || '';
+                    fillBodyCoveringGroupSelect(group, oldGroup);
+                    fillPlumageTypeSelect(type, group.value, oldType);
+                });
+            }
+            updatePlumagePreview();
+        }
+
+        function updatePlumagePreview() {
+            const selected = getPlumageData();
+            const config = getActiveBodyCoveringConfig();
+            const firstGroup = Object.keys(config.groups)[0];
+            const firstType = config.options[firstGroup]?.[0] || '';
+            const hero = selected[0] || { grupo: firstGroup, tipo: firstType };
+            const heroMeta = getPlumageVisualMeta(hero.tipo, hero.grupo);
+            if (plumageHeroImage) {
+                plumageHeroImage.style.display = 'none';
+                const holder = plumageHeroImage.parentElement;
+                if (holder) holder.innerHTML = renderBodyCoveringSvg(hero.tipo, hero.grupo, 'body-covering-hero-icon', hero.cor || '');
+            }
+            plumageHeroTitle.textContent = heroMeta.label || config.title;
+            plumageHeroText.textContent = hero.grupo === 'manchas' ? [hero.tipo, hero.cor ? `Cor: ${hero.cor}` : ''].filter(Boolean).join(' · ') : (selected[0]?.detalhe || heroMeta.description);
+            const eyebrow = document.querySelector('.plumage-hero-copy > span');
+            if (eyebrow) eyebrow.textContent = `Modelo visual de ${config.title.toLowerCase()}`;
 
             if (selected.length) {
                 previewPlumageModels.innerHTML = selected.map(item => renderPlumageModelCard(item)).join('');
                 return;
             }
 
-            const suggestions = [
-                { grupo: 'pena', tipo: 'Rémiges' },
-                { grupo: 'pena', tipo: 'Retrizes' },
-                { grupo: 'pena', tipo: 'Tectrizes' },
-                { grupo: 'pena', tipo: 'Penugem' },
-                { grupo: 'pena', tipo: 'Filoplumas' },
-                { grupo: 'plumagem', tipo: 'Plumagem nupcial' },
-                { grupo: 'plumagem', tipo: 'Plumagem de camuflagem' },
-                { grupo: 'plumagem', tipo: 'Plumagem ornamental' }
-            ];
-            previewPlumageModels.innerHTML = suggestions.map(item => renderPlumageModelCard(item, true)).join('');
+            const suggestions = [];
+            Object.entries(config.options).forEach(([group, options]) => options.slice(0, 3).forEach(tipo => suggestions.push({ grupo: group, tipo })));
+            previewPlumageModels.innerHTML = suggestions.slice(0, 8).map(item => renderPlumageModelCard(item, true)).join('');
         }
 
         addPlumageBtn.addEventListener('click', () => createPlumageRow());
@@ -564,7 +769,12 @@
             document.getElementById('infoReproducao').value = animal.informacao.reproducao || '';
             document.getElementById('infoPlumagem').value = animal.informacao.plumagem || '';
             setReproductionData(mergeUniqueReproductionItems([...cleanedReproducaoDetalhada, ...legacyMatingItems]));
-            setPlumageData(animal.informacao.plumagemDetalhada || []);
+            const coveringItems = Array.isArray(animal.informacao.plumagemDetalhada) ? [...animal.informacao.plumagemDetalhada] : [];
+            const legacyColor = animal.informacao?.curiosidades?.cor || '';
+            if (legacyColor && !coveringItems.some(item => item.grupo === 'cor' || item.tipo === legacyColor)) {
+                coveringItems.push({ grupo: 'cor', tipo: legacyColor, detalhe: '' });
+            }
+            setPlumageData(coveringItems);
             
             const distData = animal.informacao.distribuicao || { paises: [], paisesDetalhes: {}, descricao: '', regioesBiogeograficas: [] };
             selectedCountries = distData.paises || [];
@@ -1036,27 +1246,30 @@
         }
         document.getElementById('videosLegend').addEventListener('click', () => toggleVideosFieldset());
 
-        // --- VISIBILIDADE DA ABA PLUMAGEM PARA AVES ---
+        // --- ABA DE REVESTIMENTO CORPORAL DINÂMICA ---
         const categorySelect = document.getElementById('categoria');
         const tabBtnPlumagem = document.getElementById('tab-btn-plumagem');
 
         function updatePlumagemTabVisibility() {
-            if (categorySelect.value === 'Aves') {
-                tabBtnPlumagem.style.display = 'inline-block';
-            } else {
-                tabBtnPlumagem.style.display = 'none';
-                if (tabBtnPlumagem.classList.contains('active')) {
-                    const dimensoesBtn = document.querySelector('[data-tab="dimensoes"]');
-                    if (dimensoesBtn) dimensoesBtn.click();
-                }
-            }
+            updateBodyCoveringInterface(true);
         }
 
-        categorySelect.addEventListener('change', updatePlumagemTabVisibility);
         categorySelect.addEventListener('change', () => {
+            updatePlumagemTabVisibility();
             updateReproductionPreview();
-            updatePlumagePreview();
         });
+        document.querySelectorAll('.categoria-checkbox').forEach(cb => cb.addEventListener('change', () => {
+            window.setTimeout(() => updateBodyCoveringInterface(true), 0);
+        }));
+
+        // Atualiza também quando a categoria é preenchida automaticamente (edição/autocomplete).
+        window.setTimeout(() => updateBodyCoveringInterface(false), 0);
+        if (categorySelect) {
+            new MutationObserver(() => updateBodyCoveringInterface(false)).observe(categorySelect, {
+                attributes: true,
+                attributeFilter: ['value']
+            });
+        }
 
         // --- CURIOSIDADES E MODELO VISUAL ---
         const curiosidadesTypeOptions = [
@@ -1066,6 +1279,7 @@
             'Horas de Sono',
             'Importância económica para os humanos',
             'Maior peso registado',
+            'Maior idade registada',
             'Relação com Humanos',
             'Também conhecido como',
             'Temperatura do Ambiente',

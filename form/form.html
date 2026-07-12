@@ -1,10 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-PT">
 <head>
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
-    <script src="../js/cache-reset.js?v=20260711-cache-reset-1"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
@@ -53,11 +49,11 @@
         <div class="spinner"></div>
         <div id="loading-status" style="font-size: 1.1rem; font-weight: 600; letter-spacing: 0.5px;">A verificar autorização...</div>
     </div>
-    <script type="module" src="./form-auth.js?v=20260711_roles_1"></script>
+    <script type="module" src="./form-auth.js?v=20260710_auth_flash_fix_1"></script>
     <script src="./form-startup-guard.js?v=20260710_auth_flash_fix_1"></script>
 
     <div class="top-menu">
-        <a href="../gestor-index.html" id="gestorIndexBtn" class="menu-button" style="display:none;"><i class="fa-solid fa-list-check" style="margin-right: 8px;"></i> Gestor do Index</a>
+        <a href="../gestor-index.html" class="menu-button"><i class="fa-solid fa-list-check" style="margin-right: 8px;"></i> Gestor do Index</a>
         <button id="openEditModalBtn" class="menu-button" disabled><i class="fa-solid fa-spinner fa-spin" style="margin-right: 8px;"></i> A carregar...</button>
     </div>
 
@@ -256,7 +252,7 @@
                     <button type="button" class="form-tab-nav-btn" data-tab="reproducao" role="tab" aria-selected="false" aria-controls="tabpanel-reproducao" title="Reprodução"><i class="fa-solid fa-heart"></i></button>
                     <button type="button" class="form-tab-nav-btn" data-tab="distribuicao" role="tab" aria-selected="false" aria-controls="tabpanel-distribuicao" title="Distribuição"><i class="fa-solid fa-map-location-dot"></i></button>
                     <button type="button" class="form-tab-nav-btn" data-tab="curiosidades" role="tab" aria-selected="false" aria-controls="tabpanel-curiosidades" title="Curiosidades"><i class="fa-solid fa-lightbulb"></i></button>
-                    <button type="button" class="form-tab-nav-btn" data-tab="plumagem" id="tab-btn-plumagem" role="tab" aria-selected="false" aria-controls="tabpanel-plumagem" style="display: none;" title="Plumagem"><i class="fa-solid fa-feather"></i></button>
+                    <button type="button" class="form-tab-nav-btn" data-tab="plumagem" id="tab-btn-plumagem" role="tab" aria-selected="false" aria-controls="tabpanel-plumagem" style="display: none;" title="Revestimento corporal" aria-label="Revestimento corporal"><i class="fa-solid fa-feather-pointed"></i></button>
                 </div>
 
                 <div class="form-tabs-content">
@@ -599,7 +595,7 @@
                         </div>
                     </div>
 
-                    <!-- Aba: Plumagem -->
+                    <!-- Aba dinâmica: Plumagem / Pelagem / Pele / Escamas / Exoesqueleto -->
                     <div class="form-tab-panel" id="tabpanel-plumagem" role="tabpanel">
                         <div class="sub-tabs-navigation" role="tablist">
                             <button type="button" class="form-subtab-nav-btn active" data-subtab="plumagem-modelo-visual" role="tab" aria-selected="true" aria-controls="subtabpanel-plumagem-modelo-visual">Modelo Visual</button>
@@ -617,19 +613,19 @@
                                         </div>
                                         <div id="plumageRows" class="plumage-rows"></div>
                                         <button type="button" id="addPlumageBtn" class="secondary-action-btn">+ Adicionar tipo</button>
-                                        <p class="form-hint">Podes escolher um <strong>tipo de plumagem</strong> (ex: nupcial, camuflagem, ornamental) ou um <strong>tipo de pena</strong> (ex: rémiges, retrizes, tectrizes, penugem). O modelo visual mostra a peça correspondente com fundo realmente transparente.</p>
+                                        <p class="form-hint" id="bodyCoveringHint">As opções mudam automaticamente conforme a categoria do animal. Cada opção tem um modelo visual exclusivo.</p>
                                     </div>
 
                                     <div class="plumage-visual-preview" aria-live="polite">
-                                        <div class="preview-card-title">Modelo visual da plumagem</div>
+                                        <div class="preview-card-title">Modelo visual de <span data-body-covering-title>revestimento corporal</span></div>
                                         <div class="plumage-preview-stage">
                                             <div class="plumage-hero-figure">
                                                 <img id="plumageHeroImage" src="../assets/plumagem/remiges.png" alt="Modelo visual de plumagem">
                                             </div>
                                             <div class="plumage-hero-copy">
-                                                <span>Secção exclusiva de aves</span>
-                                                <strong id="plumageHeroTitle">Plumagem e tipos de pena</strong>
-                                                <p id="plumageHeroText">Seleciona tipos de plumagem ou de pena para gerar um modelo visual coerente.</p>
+                                                <span>Modelo visual dinâmico</span>
+                                                <strong id="plumageHeroTitle">Revestimento corporal</strong>
+                                                <p id="plumageHeroText">Seleciona as características do revestimento corporal para gerar um modelo visual coerente.</p>
                                             </div>
                                         </div>
                                         <div class="plumage-model-grid" id="previewPlumageModels"></div>
@@ -639,8 +635,8 @@
 
                             <div class="form-subtab-panel" id="subtabpanel-plumagem-resumo-textual" role="tabpanel">
                                 <div class="form-group">
-                                    <label for="infoPlumagem">Plumagem (Apenas para Aves)</label>
-                                    <textarea id="infoPlumagem" rows="10" placeholder="Ex: Plumagem colorida, com tons de azul e verde brilhantes..."></textarea>
+                                    <label for="infoPlumagem">Revestimento corporal — resumo textual</label>
+                                    <textarea id="infoPlumagem" rows="10" placeholder="Descreve o revestimento corporal, cores, padrões e textura..."></textarea>
                                 </div>
                             </div>
                         </div>

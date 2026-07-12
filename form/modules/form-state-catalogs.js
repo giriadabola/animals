@@ -513,79 +513,93 @@
             return !!getBirdEggVisualByLabel(item.tipo || item);
         }
 
-        const plumageVisualGroups = {
-            plumagem: 'Tipo de plumagem',
-            pena: 'Tipo de pena'
+        const bodyCoveringCategoryConfig = {
+            Aves: {
+                title: 'Plumagem', icon: 'fa-feather-pointed',
+                groups: { plumagem: 'Tipo de plumagem', pena: 'Tipo de pena', cor: 'Cor da plumagem', manchas: 'Manchas' },
+                options: {
+                    plumagem: ['Penugem','Plumagem juvenil','Plumagem adulta','Plumagem nupcial','Plumagem de eclipse','Plumagem de inverno','Plumagem de verão','Plumagem de camuflagem','Plumagem ornamental','Plumagem impermeável','Plumagem sexualmente dimórfica'],
+                    pena: ['Rémiges','Retrizes','Tectrizes','Penugem','Semiplumas','Filoplumas','Cerdas'], cor: ['Preto', 'Branco', 'Cinzento', 'Castanho', 'Bege', 'Creme', 'Amarelo', 'Dourado', 'Laranja', 'Vermelho', 'Rosa', 'Verde', 'Azul', 'Roxo', 'Prateado', 'Multicolor', 'Iridescente'], manchas: ['Pintas', 'Máculas', 'Rosetas', 'Ocelos', 'Anéis', 'Salpicado', 'Mosqueado', 'Malhado', 'Marmoreado', 'Mesclado', 'Reticulado', 'Tigrado', 'Arlequim', 'Merle', 'Ruão', 'Tartaruga', 'Tricolor', 'Manchas em sela', 'Manchas irregulares']
+                }
+            },
+            Mamiferos: {
+                title: 'Pelagem', icon: 'fa-paw',
+                groups: { pelagem: 'Tipo de pelagem', pelo: 'Características do pelo', cor: 'Cor da pelagem', manchas: 'Manchas' },
+                options: {
+                    pelagem: ['Pelagem curta','Pelagem longa','Pelagem densa','Pelagem lanosa','Pelagem impermeável','Pelagem sazonal','Pelagem de camuflagem','Pelagem com riscas','Pelagem com manchas','Pelagem sexualmente dimórfica'],
+                    pelo: ['Pelo liso','Pelo ondulado','Pelo encaracolado','Pelo áspero','Subpelo isolante','Vibrissas','Espinhos modificados','Sem pelo aparente'], cor: ['Preto', 'Branco', 'Cinzento', 'Castanho', 'Bege', 'Creme', 'Amarelo', 'Dourado', 'Laranja', 'Vermelho', 'Rosa', 'Verde', 'Azul', 'Roxo', 'Prateado', 'Multicolor', 'Iridescente'], manchas: ['Pintas', 'Máculas', 'Rosetas', 'Ocelos', 'Anéis', 'Salpicado', 'Mosqueado', 'Malhado', 'Marmoreado', 'Mesclado', 'Reticulado', 'Tigrado', 'Arlequim', 'Merle', 'Ruão', 'Tartaruga', 'Tricolor', 'Manchas em sela', 'Manchas irregulares']
+                }
+            },
+            Peixes: {
+                title: 'Escamas e coloração', icon: 'fa-fish-fins',
+                groups: { escama: 'Tipo de escama', pele: 'Revestimento corporal', cor: 'Cor das escamas', manchas: 'Manchas' },
+                options: {
+                    escama: ['Escamas placoides','Escamas ganoides','Escamas cicloides','Escamas ctenoides','Escamas reduzidas','Sem escamas'],
+                    pele: ['Pele lisa','Pele mucosa','Placas dérmicas','Dentículos dérmicos','Bioluminescência','Coloração iridescente','Mudança de cor'], cor: ['Preto', 'Branco', 'Cinzento', 'Castanho', 'Bege', 'Creme', 'Amarelo', 'Dourado', 'Laranja', 'Vermelho', 'Rosa', 'Verde', 'Azul', 'Roxo', 'Prateado', 'Multicolor', 'Iridescente'], manchas: ['Pintas', 'Máculas', 'Rosetas', 'Ocelos', 'Anéis', 'Salpicado', 'Mosqueado', 'Malhado', 'Marmoreado', 'Mesclado', 'Reticulado', 'Tigrado', 'Arlequim', 'Merle', 'Ruão', 'Tartaruga', 'Tricolor', 'Manchas em sela', 'Manchas irregulares']
+                }
+            },
+            Repteis: {
+                title: 'Escamas e coloração', icon: 'fa-dragon',
+                groups: { escama: 'Tipo de escama', pele: 'Revestimento corporal', cor: 'Cor das escamas', manchas: 'Manchas' },
+                options: {
+                    escama: ['Escamas lisas','Escamas quilhadas','Escamas sobrepostas','Escudos córneos','Placas ósseas','Carapaça','Plastrão'],
+                    pele: ['Pele seca','Muda completa','Muda em fragmentos','Cristas cutâneas','Osteodermes'], cor: ['Preto', 'Branco', 'Cinzento', 'Castanho', 'Bege', 'Creme', 'Amarelo', 'Dourado', 'Laranja', 'Vermelho', 'Rosa', 'Verde', 'Azul', 'Roxo', 'Prateado', 'Multicolor', 'Iridescente'], manchas: ['Pintas', 'Máculas', 'Rosetas', 'Ocelos', 'Anéis', 'Salpicado', 'Mosqueado', 'Malhado', 'Marmoreado', 'Mesclado', 'Reticulado', 'Tigrado', 'Arlequim', 'Merle', 'Ruão', 'Tartaruga', 'Tricolor', 'Manchas em sela', 'Manchas irregulares']
+                }
+            },
+            Anfibios: {
+                title: 'Pele e coloração', icon: 'fa-frog',
+                groups: { pele: 'Tipo de pele', estrutura: 'Estruturas cutâneas', cor: 'Cor da pele', manchas: 'Manchas' },
+                options: {
+                    pele: ['Pele lisa','Pele rugosa','Pele granulosa','Pele húmida','Pele verrugosa','Pele translúcida'],
+                    estrutura: ['Glândulas mucosas','Glândulas de veneno','Dobras cutâneas','Tubérculos','Coloração aposemática','Mudança de cor'], cor: ['Preto', 'Branco', 'Cinzento', 'Castanho', 'Bege', 'Creme', 'Amarelo', 'Dourado', 'Laranja', 'Vermelho', 'Rosa', 'Verde', 'Azul', 'Roxo', 'Prateado', 'Multicolor', 'Iridescente'], manchas: ['Pintas', 'Máculas', 'Rosetas', 'Ocelos', 'Anéis', 'Salpicado', 'Mosqueado', 'Malhado', 'Marmoreado', 'Mesclado', 'Reticulado', 'Tigrado', 'Arlequim', 'Merle', 'Ruão', 'Tartaruga', 'Tricolor', 'Manchas em sela', 'Manchas irregulares']
+                }
+            },
+            Insetos: {
+                title: 'Exoesqueleto e coloração', icon: 'fa-bug',
+                groups: { exoesqueleto: 'Tipo de exoesqueleto', estrutura: 'Estruturas externas', cor: 'Cor do exoesqueleto', manchas: 'Manchas' },
+                options: {
+                    exoesqueleto: ['Exoesqueleto rígido','Exoesqueleto flexível','Exoesqueleto quitinoso','Élitros','Cutícula cerosa','Muda do exoesqueleto'],
+                    estrutura: ['Cerdas','Escamas microscópicas','Espinhos','Placas','Brilho metálico','Bioluminescência'], cor: ['Preto', 'Branco', 'Cinzento', 'Castanho', 'Bege', 'Creme', 'Amarelo', 'Dourado', 'Laranja', 'Vermelho', 'Rosa', 'Verde', 'Azul', 'Roxo', 'Prateado', 'Multicolor', 'Iridescente'], manchas: ['Pintas', 'Máculas', 'Rosetas', 'Ocelos', 'Anéis', 'Salpicado', 'Mosqueado', 'Malhado', 'Marmoreado', 'Mesclado', 'Reticulado', 'Tigrado', 'Arlequim', 'Merle', 'Ruão', 'Tartaruga', 'Tricolor', 'Manchas em sela', 'Manchas irregulares']
+                }
+            },
+            Aracnideos: { title: 'Exoesqueleto e coloração', icon: 'fa-spider', groups: { exoesqueleto: 'Tipo de exoesqueleto', estrutura: 'Estruturas externas', cor: 'Cor do exoesqueleto', manchas: 'Manchas' }, options: { exoesqueleto: ['Exoesqueleto quitinoso','Exoesqueleto rígido','Exoesqueleto flexível','Muda do exoesqueleto'], estrutura: ['Cerdas sensoriais','Espinhos','Placas','Pelos urticantes'], cor: ['Preto', 'Branco', 'Cinzento', 'Castanho', 'Bege', 'Creme', 'Amarelo', 'Dourado', 'Laranja', 'Vermelho', 'Rosa', 'Verde', 'Azul', 'Roxo', 'Prateado', 'Multicolor', 'Iridescente'], manchas: ['Pintas', 'Máculas', 'Rosetas', 'Ocelos', 'Anéis', 'Salpicado', 'Mosqueado', 'Malhado', 'Marmoreado', 'Mesclado', 'Reticulado', 'Tigrado', 'Arlequim', 'Merle', 'Ruão', 'Tartaruga', 'Tricolor', 'Manchas em sela', 'Manchas irregulares'] } },
+            Crustaceos: { title: 'Carapaça e coloração', icon: 'fa-shrimp', groups: { carapaca: 'Tipo de carapaça', estrutura: 'Estruturas externas', cor: 'Cor da carapaça', manchas: 'Manchas' }, options: { carapaca: ['Carapaça calcificada','Carapaça rígida','Carapaça flexível','Exoesqueleto segmentado','Muda da carapaça'], estrutura: ['Espinhos','Placas','Cerdas','Pinças especializadas'], cor: ['Preto', 'Branco', 'Cinzento', 'Castanho', 'Bege', 'Creme', 'Amarelo', 'Dourado', 'Laranja', 'Vermelho', 'Rosa', 'Verde', 'Azul', 'Roxo', 'Prateado', 'Multicolor', 'Iridescente'], manchas: ['Pintas', 'Máculas', 'Rosetas', 'Ocelos', 'Anéis', 'Salpicado', 'Mosqueado', 'Malhado', 'Marmoreado', 'Mesclado', 'Reticulado', 'Tigrado', 'Arlequim', 'Merle', 'Ruão', 'Tartaruga', 'Tricolor', 'Manchas em sela', 'Manchas irregulares'] } },
+            Moluscos: { title: 'Concha, pele e coloração', icon: 'fa-shell', groups: { concha: 'Tipo de concha', pele: 'Revestimento corporal', cor: 'Cor do revestimento', manchas: 'Manchas' }, options: { concha: ['Concha univalve','Concha bivalve','Concha espiral','Concha interna','Sem concha externa'], pele: ['Pele lisa','Pele rugosa','Manto','Cromatóforos','Bioluminescência','Mudança de cor'], cor: ['Preto', 'Branco', 'Cinzento', 'Castanho', 'Bege', 'Creme', 'Amarelo', 'Dourado', 'Laranja', 'Vermelho', 'Rosa', 'Verde', 'Azul', 'Roxo', 'Prateado', 'Multicolor', 'Iridescente'], manchas: ['Pintas', 'Máculas', 'Rosetas', 'Ocelos', 'Anéis', 'Salpicado', 'Mosqueado', 'Malhado', 'Marmoreado', 'Mesclado', 'Reticulado', 'Tigrado', 'Arlequim', 'Merle', 'Ruão', 'Tartaruga', 'Tricolor', 'Manchas em sela', 'Manchas irregulares'] } },
+            Vermes: { title: 'Pele e revestimento', icon: 'fa-wave-square', groups: { pele: 'Tipo de pele', estrutura: 'Revestimento corporal', cor: 'Cor do revestimento', manchas: 'Manchas' }, options: { pele: ['Pele lisa','Pele segmentada','Cutícula','Pele mucosa','Pele ciliada'], estrutura: ['Cerdas','Anéis corporais','Placas','Tubérculos'], cor: ['Preto', 'Branco', 'Cinzento', 'Castanho', 'Bege', 'Creme', 'Amarelo', 'Dourado', 'Laranja', 'Vermelho', 'Rosa', 'Verde', 'Azul', 'Roxo', 'Prateado', 'Multicolor', 'Iridescente'], manchas: ['Pintas', 'Máculas', 'Rosetas', 'Ocelos', 'Anéis', 'Salpicado', 'Mosqueado', 'Malhado', 'Marmoreado', 'Mesclado', 'Reticulado', 'Tigrado', 'Arlequim', 'Merle', 'Ruão', 'Tartaruga', 'Tricolor', 'Manchas em sela', 'Manchas irregulares'] } },
+            Microscopicos: { title: 'Revestimento corporal', icon: 'fa-microscope', groups: { revestimento: 'Tipo de revestimento', estrutura: 'Estruturas externas', cor: 'Cor do revestimento', manchas: 'Manchas' }, options: { revestimento: ['Membrana celular','Película','Parede externa','Cápsula','Carapaça microscópica'], estrutura: ['Cílios','Flagelos','Pseudópodes','Espículas'], cor: ['Preto', 'Branco', 'Cinzento', 'Castanho', 'Bege', 'Creme', 'Amarelo', 'Dourado', 'Laranja', 'Vermelho', 'Rosa', 'Verde', 'Azul', 'Roxo', 'Prateado', 'Multicolor', 'Iridescente'], manchas: ['Pintas', 'Máculas', 'Rosetas', 'Ocelos', 'Anéis', 'Salpicado', 'Mosqueado', 'Malhado', 'Marmoreado', 'Mesclado', 'Reticulado', 'Tigrado', 'Arlequim', 'Merle', 'Ruão', 'Tartaruga', 'Tricolor', 'Manchas em sela', 'Manchas irregulares'] } }
         };
 
-        const plumageTypes = [
-            'Penugem',
-            'Plumagem juvenil',
-            'Plumagem adulta',
-            'Plumagem nupcial',
-            'Plumagem de eclipse',
-            'Plumagem de inverno',
-            'Plumagem de verão',
-            'Plumagem de camuflagem',
-            'Plumagem ornamental',
-            'Plumagem impermeável',
-            'Plumagem sexualmente dimórfica'
-        ];
 
-        const featherTypes = [
-            'Rémiges',
-            'Retrizes',
-            'Tectrizes',
-            'Penugem',
-            'Semiplumas',
-            'Filoplumas',
-            'Cerdas'
-        ];
+        const bodyCoveringSpotPatterns = ['Pintas', 'Máculas', 'Rosetas', 'Ocelos', 'Anéis', 'Salpicado', 'Mosqueado', 'Malhado', 'Marmoreado', 'Mesclado', 'Reticulado', 'Tigrado', 'Arlequim', 'Merle', 'Ruão', 'Tartaruga', 'Tricolor', 'Manchas em sela', 'Manchas irregulares'];
+        const bodyCoveringColorOptions = ['Preto', 'Branco', 'Cinzento', 'Castanho', 'Bege', 'Creme', 'Amarelo', 'Dourado', 'Laranja', 'Vermelho', 'Rosa', 'Verde', 'Azul', 'Roxo', 'Prateado', 'Multicolor', 'Iridescente'];
 
-        const plumageOptionsByGroup = {
-            plumagem: plumageTypes,
-            pena: featherTypes
+        const bodyCoveringDescriptions = {
+            'Manchas': 'Padrão de manchas visível no revestimento corporal', 'Cor da plumagem': 'Cores predominantes das penas', 'Cor da pelagem': 'Cores predominantes do pelo', 'Coloração': 'Cores e padrões visíveis do corpo',
+            'Pelagem curta': 'Pelo curto e rente ao corpo', 'Pelagem longa': 'Pelo longo e protetor', 'Pelagem densa': 'Grande densidade de pelo', 'Pelagem lanosa': 'Pelo espesso e encaracolado',
+            'Escamas placoides': 'Escamas semelhantes a pequenos dentes', 'Escamas ganoides': 'Escamas duras e brilhantes', 'Escamas cicloides': 'Escamas finas de margem lisa', 'Escamas ctenoides': 'Escamas com margem serrilhada',
+            'Pele lisa': 'Superfície corporal lisa', 'Pele rugosa': 'Superfície corporal irregular', 'Pele húmida': 'Pele mantida húmida por secreções', 'Pele granulosa': 'Textura com pequenos grânulos',
+            'Exoesqueleto rígido': 'Estrutura externa protetora e rígida', 'Carapaça calcificada': 'Carapaça endurecida por minerais', 'Mudança de cor': 'Capacidade de alterar a coloração',
+            'Penugem': 'Penas muito macias e isolantes','Plumagem juvenil': 'Primeira plumagem após a penugem','Plumagem adulta': 'Aspeto típico do adulto','Plumagem nupcial': 'Mais vistosa durante a reprodução','Plumagem de eclipse': 'Fase mais discreta após a reprodução','Plumagem de inverno': 'Mais isolante e discreta','Plumagem de verão': 'Mais leve e sazonal','Plumagem de camuflagem': 'Mistura-se com o ambiente','Plumagem ornamental': 'Usada em exibição','Plumagem impermeável': 'Adaptada a repelir água','Plumagem sexualmente dimórfica': 'Macho e fêmea com aspeto distinto','Rémiges': 'Penas de voo das asas','Retrizes': 'Penas da cauda','Tectrizes': 'Penas de cobertura','Semiplumas': 'Penas intermédias e macias','Filoplumas': 'Penas finas sensoriais','Cerdas': 'Estruturas rígidas junto ao bico e olhos'
         };
 
-        const plumageTypeDescriptions = {
-            'Penugem': 'Penas muito macias e isolantes',
-            'Plumagem juvenil': 'Primeira plumagem após a penugem',
-            'Plumagem adulta': 'Aspeto típico da ave madura',
-            'Plumagem nupcial': 'Mais vistosa durante a reprodução',
-            'Plumagem de eclipse': 'Fase mais discreta após reprodução',
-            'Plumagem de inverno': 'Mais isolante e discreta',
-            'Plumagem de verão': 'Mais leve, definida e sazonal',
-            'Plumagem de camuflagem': 'Mistura-se com o bioma',
-            'Plumagem ornamental': 'Usada em exibição e atração',
-            'Plumagem impermeável': 'Adaptada Ã  repelência da água',
-            'Plumagem sexualmente dimórfica': 'Macho e fêmea com visuais distintos',
-            'Rémiges': 'Penas de voo das asas',
-            'Retrizes': 'Penas da cauda, direção e travagem',
-            'Tectrizes': 'Penas de cobertura do corpo e asas',
-            'Semiplumas': 'Misturam estrutura com suavidade',
-            'Filoplumas': 'Penas finas de função sensorial',
-            'Cerdas': 'Estruturas rígidas perto do bico e olhos'
+        const bodyCoveringIconMap = {
+            'Manchas':'fa-circle-dot','Penugem':'fa-cloud','Plumagem juvenil':'fa-egg','Plumagem adulta':'fa-feather','Plumagem nupcial':'fa-heart','Plumagem de eclipse':'fa-moon','Plumagem de inverno':'fa-snowflake','Plumagem de verão':'fa-sun','Plumagem de camuflagem':'fa-leaf','Plumagem ornamental':'fa-gem','Plumagem impermeável':'fa-droplet','Plumagem sexualmente dimórfica':'fa-venus-mars','Rémiges':'fa-plane','Retrizes':'fa-arrows-left-right','Tectrizes':'fa-shield-halved','Semiplumas':'fa-wind','Filoplumas':'fa-lines-leaning','Cerdas':'fa-grip-lines',
+            'Pelagem curta':'fa-scissors','Pelagem longa':'fa-wave-square','Pelagem densa':'fa-layer-group','Pelagem lanosa':'fa-cloud','Pelagem impermeável':'fa-umbrella','Pelagem sazonal':'fa-arrows-rotate','Pelagem de camuflagem':'fa-leaf','Pelagem com riscas':'fa-bars','Pelagem com manchas':'fa-circle-dot','Pelagem sexualmente dimórfica':'fa-venus-mars','Pelo liso':'fa-minus','Pelo ondulado':'fa-water','Pelo encaracolado':'fa-hurricane','Pelo áspero':'fa-grip-lines','Subpelo isolante':'fa-temperature-half','Vibrissas':'fa-lines-leaning','Espinhos modificados':'fa-burst','Sem pelo aparente':'fa-circle',
+            'Escamas placoides':'fa-tooth','Escamas ganoides':'fa-gem','Escamas cicloides':'fa-circle-notch','Escamas ctenoides':'fa-fan','Escamas reduzidas':'fa-compress','Sem escamas':'fa-ban','Pele mucosa':'fa-droplet','Placas dérmicas':'fa-shield','Dentículos dérmicos':'fa-teeth','Bioluminescência':'fa-lightbulb','Coloração iridescente':'fa-wand-magic-sparkles','Mudança de cor':'fa-palette',
+            'Escamas lisas':'fa-diamond','Escamas quilhadas':'fa-chevron-up','Escamas sobrepostas':'fa-layer-group','Escudos córneos':'fa-shield-halved','Placas ósseas':'fa-table-cells-large','Carapaça':'fa-shield','Plastrão':'fa-square','Pele seca':'fa-sun','Muda completa':'fa-arrows-rotate','Muda em fragmentos':'fa-puzzle-piece','Cristas cutâneas':'fa-mountain','Osteodermes':'fa-shield-virus',
+            'Pele lisa':'fa-circle','Pele rugosa':'fa-braille','Pele granulosa':'fa-grip','Pele húmida':'fa-droplet','Pele verrugosa':'fa-circle-nodes','Pele translúcida':'fa-eye','Glândulas mucosas':'fa-water','Glândulas de veneno':'fa-flask','Dobras cutâneas':'fa-wave-square','Tubérculos':'fa-circle-dot','Coloração aposemática':'fa-triangle-exclamation',
+            'Exoesqueleto rígido':'fa-shield-halved','Exoesqueleto flexível':'fa-link','Exoesqueleto quitinoso':'fa-shield','Élitros':'fa-door-closed','Cutícula cerosa':'fa-droplet','Muda do exoesqueleto':'fa-arrows-rotate','Cerdas sensoriais':'fa-satellite-dish','Espinhos':'fa-burst','Placas':'fa-table-cells','Brilho metálico':'fa-bolt','Pelos urticantes':'fa-fire','Carapaça calcificada':'fa-gem','Carapaça rígida':'fa-shield','Carapaça flexível':'fa-link','Exoesqueleto segmentado':'fa-layer-group','Muda da carapaça':'fa-arrows-rotate','Pinças especializadas':'fa-scissors',
+            'Concha univalve':'fa-circle-notch','Concha bivalve':'fa-book-open','Concha espiral':'fa-hurricane','Concha interna':'fa-circle-half-stroke','Sem concha externa':'fa-ban','Manto':'fa-sheet-plastic','Cromatóforos':'fa-palette','Pele segmentada':'fa-grip-lines','Cutícula':'fa-layer-group','Pele ciliada':'fa-lines-leaning','Anéis corporais':'fa-ring','Membrana celular':'fa-circle','Película':'fa-circle-notch','Parede externa':'fa-border-all','Cápsula':'fa-capsules','Carapaça microscópica':'fa-shield','Cílios':'fa-lines-leaning','Flagelos':'fa-wave-square','Pseudópodes':'fa-hand','Espículas':'fa-burst'
         };
 
-        const plumageVisualAssets = {
-            'Penugem': { image: '../assets/plumagem/penugem.png', group: 'plumagem' },
-            'Plumagem juvenil': { image: '../assets/plumagem/semiplumas.png', group: 'plumagem' },
-            'Plumagem adulta': { image: '../assets/plumagem/remiges.png', group: 'plumagem' },
-            'Plumagem nupcial': { image: '../assets/plumagem/retrizes.png', group: 'plumagem' },
-            'Plumagem de eclipse': { image: '../assets/plumagem/tectrizes.png', group: 'plumagem' },
-            'Plumagem de inverno': { image: '../assets/plumagem/semiplumas.png', group: 'plumagem' },
-            'Plumagem de verão': { image: '../assets/plumagem/remiges.png', group: 'plumagem' },
-            'Plumagem de camuflagem': { image: '../assets/plumagem/tectrizes.png', group: 'plumagem' },
-            'Plumagem ornamental': { image: '../assets/plumagem/retrizes.png', group: 'plumagem' },
-            'Plumagem impermeável': { image: '../assets/plumagem/remiges.png', group: 'plumagem' },
-            'Plumagem sexualmente dimórfica': { image: '../assets/plumagem/retrizes.png', group: 'plumagem' },
-            'Rémiges': { image: '../assets/plumagem/remiges.png', group: 'pena' },
-            'Retrizes': { image: '../assets/plumagem/retrizes.png', group: 'pena' },
-            'Tectrizes': { image: '../assets/plumagem/tectrizes.png', group: 'pena' },
-            'Semiplumas': { image: '../assets/plumagem/semiplumas.png', group: 'pena' },
-            'Filoplumas': { image: '../assets/plumagem/filoplumas.png', group: 'pena' },
-            'Cerdas': { image: '../assets/plumagem/cerdas.png', group: 'pena' }
-        };
+        function getBodyCoveringConfig(category = '') {
+            return bodyCoveringCategoryConfig[category] || bodyCoveringCategoryConfig.Microscopicos;
+        }
+
+        const plumageVisualGroups = bodyCoveringCategoryConfig.Aves.groups;
+        const plumageOptionsByGroup = bodyCoveringCategoryConfig.Aves.options;
+        const plumageTypeDescriptions = bodyCoveringDescriptions;
+        const plumageVisualAssets = {};
 
         const dimensionUnits = ['nm', 'µm', 'mm', 'cm', 'm', 'km', 'pg', 'ng', 'µg', 'mg', 'g', 'kg', 't', 'unid.', 'mm²', 'cm²', 'µm²', 'mm³', 'cm³', 'µm³'];
 
@@ -730,7 +744,7 @@
                                 .flatMap(item => typeof parseAlsoKnownAsValues === 'function' ? parseAlsoKnownAsValues(item.valor) : [item.valor])
                                 .map(value => String(value || '').trim())
                                 .filter(Boolean))],
-                            cor: getPreferredCuriosidadeValue(curiosidadesDetalhadas, 'Cor do animal'),
+                            cor: (getPlumageData().find(item => item.grupo === 'cor')?.tipo || ''),
                             estadoConservacao: getPreferredCuriosidadeValue(curiosidadesDetalhadas, 'Estado de Conservação'),
                             tipoComunicacao: getPreferredCuriosidadeValue(curiosidadesDetalhadas, 'Tipo de Comunicação'),
                             tipoComunicacaoDescricao: getPreferredCuriosidadeDescription(curiosidadesDetalhadas, 'Tipo de Comunicação'),
