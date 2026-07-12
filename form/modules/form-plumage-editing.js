@@ -55,7 +55,7 @@
             return {
                 label: type || 'Modelo visual',
                 groupLabel: config.groups[group] || config.title,
-                icon: bodyCoveringIconMap[type] || (group === 'cor' ? 'fa-palette' : config.icon),
+                icon: bodyCoveringIconMap[type] || (String(group).startsWith('cor_') || group === 'cor' ? 'fa-palette' : config.icon),
                 description: bodyCoveringDescriptions[type] || `Característica de ${config.title.toLowerCase()}.`
             };
         }
@@ -91,22 +91,45 @@
             const label = escapeBodyCoveringSvgText(type || 'Revestimento corporal');
             const n = String(type || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
             const g = String(group || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
-            const colorSource = selectedColor || (g === 'cor' ? type : '');
+            const colorSource = selectedColor || (g === 'cor' || g.startsWith('cor_') ? type : '');
             const modelColors = getBodyCoveringModelColors(colorSource || type, group);
             const start = `<svg class="body-covering-custom-svg ${extraClass}" style="color:${modelColors.primary} !important" viewBox="0 0 64 64" role="img" aria-label="${label}" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round">`;
             let art = '';
-            if (group === 'cor') {
-                const category = getActiveBodyCoveringCategory();
-                if (category === 'Aves') {
+            if (g === 'cor' || g.startsWith('cor_')) {
+                if (g.includes('penas_ornamentais')) {
+                    art = `<path d="M12 50c8-22 20-35 39-38-2 19-12 34-31 40Z"/><path d="m17 47 29-30M24 39l-8-2m17-8-8-5"/><path d="M45 10l2 5 5 2-5 2-2 5-2-5-5-2 5-2Z" fill="currentColor" stroke="none"/>`;
+                } else if (g.includes('plumagem')) {
                     art = `<path d="M15 49c5-20 15-33 34-38 1 18-9 32-34 38Z"/><path d="m19 45 25-29M27 36l-8-1m16-9-7-4"/><circle cx="49" cy="47" r="6" fill="currentColor" stroke="none"/>`;
-                } else if (category === 'Mamiferos') {
+                } else if (g.includes('pelagem')) {
                     art = `<path d="M15 51c4-24 11-39 17-39s13 15 17 39"/><path d="M20 50c7-13-4-24 5-37M31 50c7-14-4-25 5-38M42 50c6-12-3-22 4-34"/><circle cx="50" cy="47" r="6" fill="currentColor" stroke="none"/>`;
-                } else if (category === 'Peixes' || category === 'Repteis') {
-                    art = `<path d="M12 19h38v27H12Z"/><path d="M12 26c4-6 8-6 12 0 4-6 8-6 12 0 4-6 8-6 14 0M12 35c4-6 8-6 12 0 4-6 8-6 12 0 4-6 8-6 14 0M12 44c4-6 8-6 12 0 4-6 8-6 12 0 4-6 8-6 14 0"/><circle cx="51" cy="49" r="6" fill="currentColor" stroke="none"/>`;
-                } else if (category === 'Moluscos') {
-                    art = `<path d="M10 46c2-22 14-34 30-32 13 2 18 13 12 24-6 10-18 14-42 8Z"/><path d="M38 21c8 0 13 6 10 13-3 6-11 9-17 5-5-3-5-10-1-14 4-3 9-2 12 2"/><circle cx="51" cy="49" r="6" fill="currentColor" stroke="none"/>`;
+                } else if (g.includes('escamas')) {
+                    art = `<path d="M11 19h39v27H11Z"/><path d="M11 26c4-6 8-6 12 0 4-6 8-6 12 0 4-6 8-6 15 0M11 35c4-6 8-6 12 0 4-6 8-6 12 0 4-6 8-6 15 0M11 44c4-6 8-6 12 0 4-6 8-6 12 0 4-6 8-6 15 0"/><circle cx="52" cy="49" r="5" fill="currentColor" stroke="none"/>`;
+                } else if (g.includes('pele')) {
+                    art = `<path d="M10 24c9-12 35-12 44 0v17c-9 12-35 12-44 0Z"/><path d="M16 29c8-4 24-4 32 0M16 38c8-4 24-4 32 0"/><circle cx="50" cy="48" r="5" fill="currentColor" stroke="none"/>`;
+                } else if (g.includes('carapaca')) {
+                    art = `<path d="M10 42c2-18 10-28 22-28s20 10 22 28Z"/><path d="M15 35h34M22 19v23M32 14v28M42 19v23"/><circle cx="51" cy="49" r="5" fill="currentColor" stroke="none"/>`;
+                } else if (g.includes('exoesqueleto')) {
+                    art = `<path d="M19 18c7-8 19-8 26 0l6 15-7 18H20l-7-18Z"/><path d="M32 13v38M17 29h30M19 42h26"/><circle cx="52" cy="49" r="5" fill="currentColor" stroke="none"/>`;
+                } else if (g.includes('concha')) {
+                    art = `<path d="M10 46c2-22 14-34 30-32 13 2 18 13 12 24-6 10-18 14-42 8Z"/><path d="M38 21c8 0 13 6 10 13-3 6-11 9-17 5-5-3-5-10-1-14 4-3 9-2 12 2"/><circle cx="51" cy="49" r="5" fill="currentColor" stroke="none"/>`;
+                } else if (g.includes('manto')) {
+                    art = `<path d="M18 48c-3-17 2-31 14-38 12 7 17 21 14 38-8 5-20 5-28 0Z"/><path d="M23 49l-5 7M30 50l-2 7M37 50l2 7M44 49l5 7"/><circle cx="51" cy="18" r="5" fill="currentColor" stroke="none"/>`;
+                } else if (g.includes('barbatanas')) {
+                    art = `<path d="M12 35c9-13 24-17 39-8-8 3-13 9-15 18-7-8-15-11-24-10Z"/><path d="M37 24 32 10c8 2 13 7 16 14M37 44l-3 11c7-2 12-6 15-12"/><circle cx="52" cy="50" r="5" fill="currentColor" stroke="none"/>`;
+                } else if (g.includes('asas')) {
+                    art = `<path d="M31 48C15 44 8 33 12 17c10 4 17 12 20 23M33 48c16-4 23-15 19-31-10 4-17 12-20 23"/><path d="M18 25l12 17M46 25 34 42"/><circle cx="52" cy="51" r="5" fill="currentColor" stroke="none"/>`;
+                } else if (g.includes('ventre')) {
+                    art = `<path d="M20 13c-7 12-8 28-2 39h28c6-11 5-27-2-39-7 5-17 5-24 0Z"/><path d="M23 27c6 4 12 4 18 0M21 39c7 4 15 4 22 0"/><circle cx="52" cy="49" r="5" fill="currentColor" stroke="none"/>`;
+                } else if (g.includes('dorso')) {
+                    art = `<path d="M10 43c8-20 18-30 22-30s14 10 22 30"/><path d="M16 39c10-8 22-8 32 0M22 29c7-5 13-5 20 0"/><circle cx="52" cy="49" r="5" fill="currentColor" stroke="none"/>`;
+                } else if (g.includes('cabeca')) {
+                    art = `<circle cx="31" cy="31" r="18"/><path d="M19 21 14 12l12 5M43 21l5-9-12 5M24 34h1M38 34h1M26 43c4 3 8 3 12 0"/><circle cx="52" cy="49" r="5" fill="currentColor" stroke="none"/>`;
+                } else if (g.includes('membros')) {
+                    art = `<path d="M20 12v25c0 8-4 12-9 15M44 12v25c0 8 4 12 9 15M20 29h24M25 52h-14M39 52h14"/><circle cx="52" cy="17" r="5" fill="currentColor" stroke="none"/>`;
+                } else if (g.includes('cauda')) {
+                    art = `<path d="M14 18c18 1 30 9 34 23 2 8-4 14-12 11-7-3-9-11-5-17 3-5 9-6 14-3"/><path d="M14 18c7 5 12 11 15 18"/><circle cx="52" cy="49" r="5" fill="currentColor" stroke="none"/>`;
                 } else {
-                    art = `<path d="M12 23c10-12 30-12 40 0v18c-10 11-30 11-40 0Z"/><path d="M16 30c8-5 24-5 32 0M16 39c8-5 24-5 32 0"/><circle cx="51" cy="49" r="6" fill="currentColor" stroke="none"/>`;
+                    art = `<path d="M12 23c10-12 30-12 40 0v18c-10 11-30 11-40 0Z"/><circle cx="51" cy="49" r="6" fill="currentColor" stroke="none"/>`;
                 }
             } else if (n === 'penugem') {
                 art = `<path d="M18 43c-5-2-7-8-4-12 2-4 6-5 10-3-1-6 3-11 9-11 5 0 9 3 10 8 5-1 10 3 10 9 0 6-5 10-11 10H20"/>`;
@@ -180,11 +203,51 @@
             const detailControl = document.createElement('div');
             detailControl.className = 'plumage-detail-control';
 
+            const metaControls = document.createElement('div');
+            metaControls.className = 'plumage-meta-controls';
+            metaControls.innerHTML = `
+                <div class="plumage-icon-toggle-group plumage-gender-toggle" aria-label="Sexo">
+                    <button type="button" class="plumage-icon-toggle" data-gender="M" title="Macho" aria-label="Macho"><span aria-hidden="true">♂</span></button>
+                    <button type="button" class="plumage-icon-toggle" data-gender="F" title="Fêmea" aria-label="Fêmea"><span aria-hidden="true">♀</span></button>
+                </div>
+                <div class="plumage-icon-toggle-group plumage-phase-toggle" aria-label="Fase de vida">
+                    <button type="button" class="plumage-icon-toggle" data-phase="Adulto" title="Adulto" aria-label="Adulto"><i class="fa-solid fa-paw" aria-hidden="true"></i></button>
+                    <button type="button" class="plumage-icon-toggle" data-phase="Cria" title="Cria" aria-label="Cria"><i class="fa-solid fa-baby" aria-hidden="true"></i></button>
+                </div>`;
+
+            const genderButtons = [...metaControls.querySelectorAll('[data-gender]')];
+            const phaseButtons = [...metaControls.querySelectorAll('[data-phase]')];
+            const initialGender = String(extra.genero || 'MF').toUpperCase();
+            genderButtons.forEach(button => {
+                const value = button.dataset.gender;
+                button.classList.toggle('is-active', initialGender === 'MF' || initialGender === value);
+                button.setAttribute('aria-pressed', button.classList.contains('is-active') ? 'true' : 'false');
+                button.addEventListener('click', () => {
+                    button.classList.toggle('is-active');
+                    if (!genderButtons.some(item => item.classList.contains('is-active'))) button.classList.add('is-active');
+                    genderButtons.forEach(item => item.setAttribute('aria-pressed', item.classList.contains('is-active') ? 'true' : 'false'));
+                    updatePlumagePreview();
+                });
+            });
+            const initialPhase = extra.fase === 'Cria' ? 'Cria' : 'Adulto';
+            phaseButtons.forEach(button => {
+                button.classList.toggle('is-active', button.dataset.phase === initialPhase);
+                button.setAttribute('aria-pressed', button.classList.contains('is-active') ? 'true' : 'false');
+                button.addEventListener('click', () => {
+                    phaseButtons.forEach(item => {
+                        item.classList.toggle('is-active', item === button);
+                        item.setAttribute('aria-pressed', item === button ? 'true' : 'false');
+                    });
+                    updatePlumagePreview();
+                });
+            });
+
             const removeBtn = document.createElement('button');
             removeBtn.type = 'button';
-            removeBtn.className = 'remove-dimension-btn';
+            removeBtn.className = 'remove-dimension-btn plumage-remove-btn';
             removeBtn.innerHTML = '&times;';
-            removeBtn.setAttribute('aria-label', 'Remover característica');
+            removeBtn.setAttribute('aria-label', 'Remover modelo');
+            removeBtn.title = 'Apagar modelo';
 
             function rebuildDetailControl() {
                 detailControl.innerHTML = '';
@@ -219,7 +282,7 @@
                 updatePlumagePreview();
             });
 
-            row.append(groupSelect, typeSelect, detailControl, removeBtn);
+            row.append(groupSelect, typeSelect, detailControl, metaControls, removeBtn);
             plumageRowsContainer.appendChild(row);
             rebuildDetailControl();
             updatePlumagePreview();
@@ -231,9 +294,12 @@
                 const tipo = row.querySelector('.plumage-type')?.value || '';
                 const detailEl = row.querySelector('.plumage-detail');
                 const detalhe = String(detailEl?.value || '').trim();
+                const genderButtons = [...row.querySelectorAll('[data-gender].is-active')].map(button => button.dataset.gender);
+                const genero = genderButtons.length === 2 ? 'MF' : (genderButtons[0] || 'MF');
+                const fase = row.querySelector('[data-phase].is-active')?.dataset.phase || 'Adulto';
                 return grupo === 'manchas'
-                    ? { grupo, tipo, detalhe: detalhe ? `Cor: ${detalhe}` : '', cor: detalhe }
-                    : { grupo, tipo, detalhe };
+                    ? { grupo, tipo, detalhe: detalhe ? `Cor: ${detalhe}` : '', cor: detalhe, genero, fase }
+                    : { grupo, tipo, detalhe, genero, fase };
             }).filter(item => item.tipo || item.detalhe);
         }
 
@@ -244,8 +310,12 @@
                 return;
             }
             items.forEach(item => {
+                if (item.grupo === 'cor') {
+                    const config = getActiveBodyCoveringConfig();
+                    item = { ...item, grupo: Object.keys(config.groups).find(key => key.startsWith('cor_')) || 'cor' };
+                }
                 const inferredColor = item.cor || (item.grupo === 'manchas' ? String(item.detalhe || '').replace(/^Cor:\s*/i, '') : '');
-                createPlumageRow(item.grupo || '', item.tipo || '', item.grupo === 'manchas' ? '' : (item.detalhe || ''), { cor: inferredColor });
+                createPlumageRow(item.grupo || '', item.tipo || '', item.grupo === 'manchas' ? '' : (item.detalhe || ''), { cor: inferredColor, genero: item.genero || 'MF', fase: item.fase || 'Adulto' });
             });
             updatePlumagePreview();
         }
@@ -263,7 +333,7 @@
                     <div class="plumage-model-copy">
                         <div class="plumage-model-label">${meta.label}</div>
                         <div class="plumage-model-value">${detail}</div>
-                        <div class="plumage-model-meta">${meta.groupLabel}</div>
+                        <div class="plumage-model-meta">${meta.groupLabel}<span class="plumage-model-symbols">${item.genero === 'M' ? '♂' : item.genero === 'F' ? '♀' : '♂♀'} <i class="fa-solid ${item.fase === 'Cria' ? 'fa-baby' : 'fa-paw'}" aria-hidden="true"></i></span></div>
                     </div>
                 </article>`;
         }
@@ -296,7 +366,7 @@
             const hint = document.getElementById('bodyCoveringHint');
             if (hint) hint.innerHTML = `Adiciona características próprias de <strong>${config.title}</strong>. Cada opção tem um modelo visual exclusivo.`;
             const add = document.getElementById('addPlumageBtn');
-            if (add) add.innerHTML = `+ Adicionar característica de ${config.title.toLowerCase()}`;
+            if (add) add.innerHTML = '+ Adicionar modelo';
             if (resetRows) {
                 const old = getPlumageData();
                 const compatible = old.filter(item => config.groups[item.grupo]);

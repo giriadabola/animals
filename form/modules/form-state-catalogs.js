@@ -516,7 +516,7 @@
         const bodyCoveringCategoryConfig = {
             Aves: {
                 title: 'Plumagem', icon: 'fa-feather-pointed',
-                groups: { plumagem: 'Tipo de plumagem', pena: 'Tipo de pena', cor: 'Cor da plumagem', manchas: 'Manchas' },
+                groups: { plumagem: 'Tipo de plumagem', pena: 'Tipo de pena', cor_plumagem: 'Cor da plumagem', cor_penas_ornamentais: 'Cor das penas ornamentais', cor_asas: 'Cor das asas', cor_ventre: 'Cor do ventre', cor_dorso: 'Cor do dorso', cor_cabeca: 'Cor da cabeça', cor_membros: 'Cor dos membros', cor_cauda: 'Cor da cauda', manchas: 'Manchas' },
                 options: {
                     plumagem: ['Penugem','Plumagem juvenil','Plumagem adulta','Plumagem nupcial','Plumagem de eclipse','Plumagem de inverno','Plumagem de verão','Plumagem de camuflagem','Plumagem ornamental','Plumagem impermeável','Plumagem sexualmente dimórfica'],
                     pena: ['Rémiges','Retrizes','Tectrizes','Penugem','Semiplumas','Filoplumas','Cerdas'], cor: ['Preto', 'Branco', 'Cinzento', 'Castanho', 'Bege', 'Creme', 'Amarelo', 'Dourado', 'Laranja', 'Vermelho', 'Rosa', 'Verde', 'Azul', 'Roxo', 'Prateado', 'Multicolor', 'Iridescente'], manchas: ['Pintas', 'Máculas', 'Rosetas', 'Ocelos', 'Anéis', 'Salpicado', 'Mosqueado', 'Malhado', 'Marmoreado', 'Mesclado', 'Reticulado', 'Tigrado', 'Arlequim', 'Merle', 'Ruão', 'Tartaruga', 'Tricolor', 'Manchas em sela', 'Manchas irregulares']
@@ -524,7 +524,7 @@
             },
             Mamiferos: {
                 title: 'Pelagem', icon: 'fa-paw',
-                groups: { pelagem: 'Tipo de pelagem', pelo: 'Características do pelo', cor: 'Cor da pelagem', manchas: 'Manchas' },
+                groups: { pelagem: 'Tipo de pelagem', pelo: 'Características do pelo', cor_pelagem: 'Cor da pelagem', cor_pele: 'Cor da pele', cor_ventre: 'Cor do ventre', cor_dorso: 'Cor do dorso', cor_cabeca: 'Cor da cabeça', cor_membros: 'Cor dos membros', cor_cauda: 'Cor da cauda', manchas: 'Manchas' },
                 options: {
                     pelagem: ['Pelagem curta','Pelagem longa','Pelagem densa','Pelagem lanosa','Pelagem impermeável','Pelagem sazonal','Pelagem de camuflagem','Pelagem com riscas','Pelagem com manchas','Pelagem sexualmente dimórfica'],
                     pelo: ['Pelo liso','Pelo ondulado','Pelo encaracolado','Pelo áspero','Subpelo isolante','Vibrissas','Espinhos modificados','Sem pelo aparente'], cor: ['Preto', 'Branco', 'Cinzento', 'Castanho', 'Bege', 'Creme', 'Amarelo', 'Dourado', 'Laranja', 'Vermelho', 'Rosa', 'Verde', 'Azul', 'Roxo', 'Prateado', 'Multicolor', 'Iridescente'], manchas: ['Pintas', 'Máculas', 'Rosetas', 'Ocelos', 'Anéis', 'Salpicado', 'Mosqueado', 'Malhado', 'Marmoreado', 'Mesclado', 'Reticulado', 'Tigrado', 'Arlequim', 'Merle', 'Ruão', 'Tartaruga', 'Tricolor', 'Manchas em sela', 'Manchas irregulares']
@@ -532,7 +532,7 @@
             },
             Peixes: {
                 title: 'Escamas e coloração', icon: 'fa-fish-fins',
-                groups: { escama: 'Tipo de escama', pele: 'Revestimento corporal', cor: 'Cor das escamas', manchas: 'Manchas' },
+                groups: { escama: 'Tipo de escama', pele: 'Revestimento corporal', cor_escamas: 'Cor das escamas', cor_pele: 'Cor da pele', cor_barbatanas: 'Cor das barbatanas', cor_ventre: 'Cor do ventre', cor_dorso: 'Cor do dorso', cor_cabeca: 'Cor da cabeça', cor_cauda: 'Cor da cauda', manchas: 'Manchas' },
                 options: {
                     escama: ['Escamas placoides','Escamas ganoides','Escamas cicloides','Escamas ctenoides','Escamas reduzidas','Sem escamas'],
                     pele: ['Pele lisa','Pele mucosa','Placas dérmicas','Dentículos dérmicos','Bioluminescência','Coloração iridescente','Mudança de cor'], cor: ['Preto', 'Branco', 'Cinzento', 'Castanho', 'Bege', 'Creme', 'Amarelo', 'Dourado', 'Laranja', 'Vermelho', 'Rosa', 'Verde', 'Azul', 'Roxo', 'Prateado', 'Multicolor', 'Iridescente'], manchas: ['Pintas', 'Máculas', 'Rosetas', 'Ocelos', 'Anéis', 'Salpicado', 'Mosqueado', 'Malhado', 'Marmoreado', 'Mesclado', 'Reticulado', 'Tigrado', 'Arlequim', 'Merle', 'Ruão', 'Tartaruga', 'Tricolor', 'Manchas em sela', 'Manchas irregulares']
@@ -540,7 +540,7 @@
             },
             Repteis: {
                 title: 'Escamas e coloração', icon: 'fa-dragon',
-                groups: { escama: 'Tipo de escama', pele: 'Revestimento corporal', cor: 'Cor das escamas', manchas: 'Manchas' },
+                groups: { escama: 'Tipo de escama', pele: 'Revestimento corporal', cor_escamas: 'Cor das escamas', cor_pele: 'Cor da pele', cor_ventre: 'Cor do ventre', cor_dorso: 'Cor do dorso', cor_cabeca: 'Cor da cabeça', cor_cauda: 'Cor da cauda', manchas: 'Manchas' },
                 options: {
                     escama: ['Escamas lisas','Escamas quilhadas','Escamas sobrepostas','Escudos córneos','Placas ósseas','Carapaça','Plastrão'],
                     pele: ['Pele seca','Muda completa','Muda em fragmentos','Cristas cutâneas','Osteodermes'], cor: ['Preto', 'Branco', 'Cinzento', 'Castanho', 'Bege', 'Creme', 'Amarelo', 'Dourado', 'Laranja', 'Vermelho', 'Rosa', 'Verde', 'Azul', 'Roxo', 'Prateado', 'Multicolor', 'Iridescente'], manchas: ['Pintas', 'Máculas', 'Rosetas', 'Ocelos', 'Anéis', 'Salpicado', 'Mosqueado', 'Malhado', 'Marmoreado', 'Mesclado', 'Reticulado', 'Tigrado', 'Arlequim', 'Merle', 'Ruão', 'Tartaruga', 'Tricolor', 'Manchas em sela', 'Manchas irregulares']
@@ -548,7 +548,7 @@
             },
             Anfibios: {
                 title: 'Pele e coloração', icon: 'fa-frog',
-                groups: { pele: 'Tipo de pele', estrutura: 'Estruturas cutâneas', cor: 'Cor da pele', manchas: 'Manchas' },
+                groups: { pele: 'Tipo de pele', estrutura: 'Estruturas cutâneas', cor_pele: 'Cor da pele', cor_ventre: 'Cor do ventre', cor_dorso: 'Cor do dorso', cor_cabeca: 'Cor da cabeça', cor_membros: 'Cor dos membros', cor_cauda: 'Cor da cauda', manchas: 'Manchas' },
                 options: {
                     pele: ['Pele lisa','Pele rugosa','Pele granulosa','Pele húmida','Pele verrugosa','Pele translúcida'],
                     estrutura: ['Glândulas mucosas','Glândulas de veneno','Dobras cutâneas','Tubérculos','Coloração aposemática','Mudança de cor'], cor: ['Preto', 'Branco', 'Cinzento', 'Castanho', 'Bege', 'Creme', 'Amarelo', 'Dourado', 'Laranja', 'Vermelho', 'Rosa', 'Verde', 'Azul', 'Roxo', 'Prateado', 'Multicolor', 'Iridescente'], manchas: ['Pintas', 'Máculas', 'Rosetas', 'Ocelos', 'Anéis', 'Salpicado', 'Mosqueado', 'Malhado', 'Marmoreado', 'Mesclado', 'Reticulado', 'Tigrado', 'Arlequim', 'Merle', 'Ruão', 'Tartaruga', 'Tricolor', 'Manchas em sela', 'Manchas irregulares']
@@ -556,24 +556,49 @@
             },
             Insetos: {
                 title: 'Exoesqueleto e coloração', icon: 'fa-bug',
-                groups: { exoesqueleto: 'Tipo de exoesqueleto', estrutura: 'Estruturas externas', cor: 'Cor do exoesqueleto', manchas: 'Manchas' },
+                groups: { exoesqueleto: 'Tipo de exoesqueleto', estrutura: 'Estruturas externas', cor_exoesqueleto: 'Cor do exoesqueleto', cor_asas: 'Cor das asas', cor_ventre: 'Cor do ventre', cor_dorso: 'Cor do dorso', cor_cabeca: 'Cor da cabeça', cor_membros: 'Cor dos membros', manchas: 'Manchas' },
                 options: {
                     exoesqueleto: ['Exoesqueleto rígido','Exoesqueleto flexível','Exoesqueleto quitinoso','Élitros','Cutícula cerosa','Muda do exoesqueleto'],
                     estrutura: ['Cerdas','Escamas microscópicas','Espinhos','Placas','Brilho metálico','Bioluminescência'], cor: ['Preto', 'Branco', 'Cinzento', 'Castanho', 'Bege', 'Creme', 'Amarelo', 'Dourado', 'Laranja', 'Vermelho', 'Rosa', 'Verde', 'Azul', 'Roxo', 'Prateado', 'Multicolor', 'Iridescente'], manchas: ['Pintas', 'Máculas', 'Rosetas', 'Ocelos', 'Anéis', 'Salpicado', 'Mosqueado', 'Malhado', 'Marmoreado', 'Mesclado', 'Reticulado', 'Tigrado', 'Arlequim', 'Merle', 'Ruão', 'Tartaruga', 'Tricolor', 'Manchas em sela', 'Manchas irregulares']
                 }
             },
-            Aracnideos: { title: 'Exoesqueleto e coloração', icon: 'fa-spider', groups: { exoesqueleto: 'Tipo de exoesqueleto', estrutura: 'Estruturas externas', cor: 'Cor do exoesqueleto', manchas: 'Manchas' }, options: { exoesqueleto: ['Exoesqueleto quitinoso','Exoesqueleto rígido','Exoesqueleto flexível','Muda do exoesqueleto'], estrutura: ['Cerdas sensoriais','Espinhos','Placas','Pelos urticantes'], cor: ['Preto', 'Branco', 'Cinzento', 'Castanho', 'Bege', 'Creme', 'Amarelo', 'Dourado', 'Laranja', 'Vermelho', 'Rosa', 'Verde', 'Azul', 'Roxo', 'Prateado', 'Multicolor', 'Iridescente'], manchas: ['Pintas', 'Máculas', 'Rosetas', 'Ocelos', 'Anéis', 'Salpicado', 'Mosqueado', 'Malhado', 'Marmoreado', 'Mesclado', 'Reticulado', 'Tigrado', 'Arlequim', 'Merle', 'Ruão', 'Tartaruga', 'Tricolor', 'Manchas em sela', 'Manchas irregulares'] } },
-            Crustaceos: { title: 'Carapaça e coloração', icon: 'fa-shrimp', groups: { carapaca: 'Tipo de carapaça', estrutura: 'Estruturas externas', cor: 'Cor da carapaça', manchas: 'Manchas' }, options: { carapaca: ['Carapaça calcificada','Carapaça rígida','Carapaça flexível','Exoesqueleto segmentado','Muda da carapaça'], estrutura: ['Espinhos','Placas','Cerdas','Pinças especializadas'], cor: ['Preto', 'Branco', 'Cinzento', 'Castanho', 'Bege', 'Creme', 'Amarelo', 'Dourado', 'Laranja', 'Vermelho', 'Rosa', 'Verde', 'Azul', 'Roxo', 'Prateado', 'Multicolor', 'Iridescente'], manchas: ['Pintas', 'Máculas', 'Rosetas', 'Ocelos', 'Anéis', 'Salpicado', 'Mosqueado', 'Malhado', 'Marmoreado', 'Mesclado', 'Reticulado', 'Tigrado', 'Arlequim', 'Merle', 'Ruão', 'Tartaruga', 'Tricolor', 'Manchas em sela', 'Manchas irregulares'] } },
-            Moluscos: { title: 'Concha, pele e coloração', icon: 'fa-shell', groups: { concha: 'Tipo de concha', pele: 'Revestimento corporal', cor: 'Cor do revestimento', manchas: 'Manchas' }, options: { concha: ['Concha univalve','Concha bivalve','Concha espiral','Concha interna','Sem concha externa'], pele: ['Pele lisa','Pele rugosa','Manto','Cromatóforos','Bioluminescência','Mudança de cor'], cor: ['Preto', 'Branco', 'Cinzento', 'Castanho', 'Bege', 'Creme', 'Amarelo', 'Dourado', 'Laranja', 'Vermelho', 'Rosa', 'Verde', 'Azul', 'Roxo', 'Prateado', 'Multicolor', 'Iridescente'], manchas: ['Pintas', 'Máculas', 'Rosetas', 'Ocelos', 'Anéis', 'Salpicado', 'Mosqueado', 'Malhado', 'Marmoreado', 'Mesclado', 'Reticulado', 'Tigrado', 'Arlequim', 'Merle', 'Ruão', 'Tartaruga', 'Tricolor', 'Manchas em sela', 'Manchas irregulares'] } },
+            Aracnideos: { title: 'Exoesqueleto e coloração', icon: 'fa-spider', groups: { exoesqueleto: 'Tipo de exoesqueleto', estrutura: 'Estruturas externas', cor_exoesqueleto: 'Cor do exoesqueleto', cor_ventre: 'Cor do ventre', cor_dorso: 'Cor do dorso', cor_cabeca: 'Cor da cabeça', cor_membros: 'Cor dos membros', manchas: 'Manchas' }, options: { exoesqueleto: ['Exoesqueleto quitinoso','Exoesqueleto rígido','Exoesqueleto flexível','Muda do exoesqueleto'], estrutura: ['Cerdas sensoriais','Espinhos','Placas','Pelos urticantes'], cor: ['Preto', 'Branco', 'Cinzento', 'Castanho', 'Bege', 'Creme', 'Amarelo', 'Dourado', 'Laranja', 'Vermelho', 'Rosa', 'Verde', 'Azul', 'Roxo', 'Prateado', 'Multicolor', 'Iridescente'], manchas: ['Pintas', 'Máculas', 'Rosetas', 'Ocelos', 'Anéis', 'Salpicado', 'Mosqueado', 'Malhado', 'Marmoreado', 'Mesclado', 'Reticulado', 'Tigrado', 'Arlequim', 'Merle', 'Ruão', 'Tartaruga', 'Tricolor', 'Manchas em sela', 'Manchas irregulares'] } },
+            Crustaceos: { title: 'Carapaça e coloração', icon: 'fa-shrimp', groups: { carapaca: 'Tipo de carapaça', estrutura: 'Estruturas externas', cor_carapaca: 'Cor da carapaça', cor_exoesqueleto: 'Cor do exoesqueleto', cor_ventre: 'Cor do ventre', cor_dorso: 'Cor do dorso', cor_membros: 'Cor dos membros', manchas: 'Manchas' }, options: { carapaca: ['Carapaça calcificada','Carapaça rígida','Carapaça flexível','Exoesqueleto segmentado','Muda da carapaça'], estrutura: ['Espinhos','Placas','Cerdas','Pinças especializadas'], cor: ['Preto', 'Branco', 'Cinzento', 'Castanho', 'Bege', 'Creme', 'Amarelo', 'Dourado', 'Laranja', 'Vermelho', 'Rosa', 'Verde', 'Azul', 'Roxo', 'Prateado', 'Multicolor', 'Iridescente'], manchas: ['Pintas', 'Máculas', 'Rosetas', 'Ocelos', 'Anéis', 'Salpicado', 'Mosqueado', 'Malhado', 'Marmoreado', 'Mesclado', 'Reticulado', 'Tigrado', 'Arlequim', 'Merle', 'Ruão', 'Tartaruga', 'Tricolor', 'Manchas em sela', 'Manchas irregulares'] } },
+            Moluscos: { title: 'Concha, pele e coloração', icon: 'fa-shell', groups: { concha: 'Tipo de concha', pele: 'Revestimento corporal', cor_concha: 'Cor da concha', cor_manto: 'Cor do manto', cor_pele: 'Cor da pele', cor_ventre: 'Cor do ventre', cor_dorso: 'Cor do dorso', cor_cabeca: 'Cor da cabeça', cor_membros: 'Cor dos membros', manchas: 'Manchas' }, options: { concha: ['Concha univalve','Concha bivalve','Concha espiral','Concha interna','Sem concha externa'], pele: ['Pele lisa','Pele rugosa','Manto','Cromatóforos','Bioluminescência','Mudança de cor'], cor: ['Preto', 'Branco', 'Cinzento', 'Castanho', 'Bege', 'Creme', 'Amarelo', 'Dourado', 'Laranja', 'Vermelho', 'Rosa', 'Verde', 'Azul', 'Roxo', 'Prateado', 'Multicolor', 'Iridescente'], manchas: ['Pintas', 'Máculas', 'Rosetas', 'Ocelos', 'Anéis', 'Salpicado', 'Mosqueado', 'Malhado', 'Marmoreado', 'Mesclado', 'Reticulado', 'Tigrado', 'Arlequim', 'Merle', 'Ruão', 'Tartaruga', 'Tricolor', 'Manchas em sela', 'Manchas irregulares'] } },
             Vermes: { title: 'Pele e revestimento', icon: 'fa-wave-square', groups: { pele: 'Tipo de pele', estrutura: 'Revestimento corporal', cor: 'Cor do revestimento', manchas: 'Manchas' }, options: { pele: ['Pele lisa','Pele segmentada','Cutícula','Pele mucosa','Pele ciliada'], estrutura: ['Cerdas','Anéis corporais','Placas','Tubérculos'], cor: ['Preto', 'Branco', 'Cinzento', 'Castanho', 'Bege', 'Creme', 'Amarelo', 'Dourado', 'Laranja', 'Vermelho', 'Rosa', 'Verde', 'Azul', 'Roxo', 'Prateado', 'Multicolor', 'Iridescente'], manchas: ['Pintas', 'Máculas', 'Rosetas', 'Ocelos', 'Anéis', 'Salpicado', 'Mosqueado', 'Malhado', 'Marmoreado', 'Mesclado', 'Reticulado', 'Tigrado', 'Arlequim', 'Merle', 'Ruão', 'Tartaruga', 'Tricolor', 'Manchas em sela', 'Manchas irregulares'] } },
             Microscopicos: { title: 'Revestimento corporal', icon: 'fa-microscope', groups: { revestimento: 'Tipo de revestimento', estrutura: 'Estruturas externas', cor: 'Cor do revestimento', manchas: 'Manchas' }, options: { revestimento: ['Membrana celular','Película','Parede externa','Cápsula','Carapaça microscópica'], estrutura: ['Cílios','Flagelos','Pseudópodes','Espículas'], cor: ['Preto', 'Branco', 'Cinzento', 'Castanho', 'Bege', 'Creme', 'Amarelo', 'Dourado', 'Laranja', 'Vermelho', 'Rosa', 'Verde', 'Azul', 'Roxo', 'Prateado', 'Multicolor', 'Iridescente'], manchas: ['Pintas', 'Máculas', 'Rosetas', 'Ocelos', 'Anéis', 'Salpicado', 'Mosqueado', 'Malhado', 'Marmoreado', 'Mesclado', 'Reticulado', 'Tigrado', 'Arlequim', 'Merle', 'Ruão', 'Tartaruga', 'Tricolor', 'Manchas em sela', 'Manchas irregulares'] } }
         };
+
+
+        // Todos os campos cromáticos usam o mesmo catálogo de cores, mas conservam
+        // um grupo próprio para que cada região/revestimento tenha modelo visual único.
+        const bodyCoveringDynamicColorGroups = {
+            Aves: ['cor_plumagem','cor_penas_ornamentais','cor_asas','cor_ventre','cor_dorso','cor_cabeca','cor_membros','cor_cauda'],
+            Mamiferos: ['cor_pelagem','cor_pele','cor_ventre','cor_dorso','cor_cabeca','cor_membros','cor_cauda'],
+            Peixes: ['cor_escamas','cor_pele','cor_barbatanas','cor_ventre','cor_dorso','cor_cabeca','cor_cauda'],
+            Repteis: ['cor_escamas','cor_pele','cor_ventre','cor_dorso','cor_cabeca','cor_membros','cor_cauda'],
+            Anfibios: ['cor_pele','cor_ventre','cor_dorso','cor_cabeca','cor_membros','cor_cauda'],
+            Insetos: ['cor_exoesqueleto','cor_asas','cor_ventre','cor_dorso','cor_cabeca','cor_membros'],
+            Aracnideos: ['cor_exoesqueleto','cor_ventre','cor_dorso','cor_cabeca','cor_membros'],
+            Crustaceos: ['cor_carapaca','cor_exoesqueleto','cor_ventre','cor_dorso','cor_membros'],
+            Moluscos: ['cor_concha','cor_manto','cor_pele','cor_ventre','cor_dorso','cor_cabeca','cor_membros']
+        };
+        const bodyCoveringColorValues = ['Preto','Branco','Cinzento','Castanho','Bege','Creme','Amarelo','Dourado','Laranja','Vermelho','Rosa','Verde','Azul','Roxo','Prateado','Multicolor','Iridescente'];
+        Object.entries(bodyCoveringDynamicColorGroups).forEach(([category, groups]) => {
+            groups.forEach(group => { bodyCoveringCategoryConfig[category].options[group] = [...bodyCoveringColorValues]; });
+        });
 
 
         const bodyCoveringSpotPatterns = ['Pintas', 'Máculas', 'Rosetas', 'Ocelos', 'Anéis', 'Salpicado', 'Mosqueado', 'Malhado', 'Marmoreado', 'Mesclado', 'Reticulado', 'Tigrado', 'Arlequim', 'Merle', 'Ruão', 'Tartaruga', 'Tricolor', 'Manchas em sela', 'Manchas irregulares'];
         const bodyCoveringColorOptions = ['Preto', 'Branco', 'Cinzento', 'Castanho', 'Bege', 'Creme', 'Amarelo', 'Dourado', 'Laranja', 'Vermelho', 'Rosa', 'Verde', 'Azul', 'Roxo', 'Prateado', 'Multicolor', 'Iridescente'];
 
         const bodyCoveringDescriptions = {
+
+            'Cor da pele': 'Cor predominante da pele exposta', 'Cor da carapaça': 'Cor predominante da carapaça',
+            'Cor do exoesqueleto': 'Cor predominante do exoesqueleto', 'Cor da concha': 'Cor predominante da concha',
+            'Cor do manto': 'Cor predominante do manto', 'Cor das penas ornamentais': 'Cor das penas ornamentais',
+            'Cor das barbatanas': 'Cor das barbatanas', 'Cor das asas': 'Cor das asas', 'Cor do ventre': 'Cor da região ventral',
+            'Cor do dorso': 'Cor da região dorsal', 'Cor da cabeça': 'Cor da cabeça', 'Cor dos membros': 'Cor dos membros', 'Cor da cauda': 'Cor da cauda',
             'Manchas': 'Padrão de manchas visível no revestimento corporal', 'Cor da plumagem': 'Cores predominantes das penas', 'Cor da pelagem': 'Cores predominantes do pelo', 'Coloração': 'Cores e padrões visíveis do corpo',
             'Pelagem curta': 'Pelo curto e rente ao corpo', 'Pelagem longa': 'Pelo longo e protetor', 'Pelagem densa': 'Grande densidade de pelo', 'Pelagem lanosa': 'Pelo espesso e encaracolado',
             'Escamas placoides': 'Escamas semelhantes a pequenos dentes', 'Escamas ganoides': 'Escamas duras e brilhantes', 'Escamas cicloides': 'Escamas finas de margem lisa', 'Escamas ctenoides': 'Escamas com margem serrilhada',

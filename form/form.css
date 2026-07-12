@@ -3351,3 +3351,94 @@ body.form-ui-ready > :not(#loading-overlay) {
 }
 .record-weight-preview-item .communication-preview-icon { color:#f59e0b !important; }
 .record-age-preview-item .communication-preview-icon { color:#a78bfa !important; }
+
+/* Revestimento corporal: botão e metadados por modelo */
+#addPlumageBtn {
+    white-space: nowrap;
+}
+#plumageRowsContainer .plumage-row {
+    grid-template-columns: minmax(170px,.82fr) minmax(190px,.95fr) minmax(190px,1.1fr) auto 44px;
+}
+#plumageRowsContainer .plumage-meta-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: max-content;
+}
+#plumageRowsContainer .plumage-icon-toggle-group {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    padding: 3px;
+    min-height: 42px;
+    border: 1px solid rgba(148,163,184,.20);
+    border-radius: 12px;
+    background: rgba(14,18,30,.48);
+}
+#plumageRowsContainer .plumage-icon-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    border: 1px solid transparent;
+    border-radius: 9px;
+    background: transparent;
+    color: rgba(226,232,240,.50);
+    font-size: 18px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: background .18s ease, border-color .18s ease, color .18s ease, transform .18s ease;
+}
+#plumageRowsContainer .plumage-icon-toggle i { font-size: 15px; }
+#plumageRowsContainer .plumage-gender-toggle .plumage-icon-toggle[data-gender="M"].is-active {
+    color: #6eb7ff;
+    border-color: rgba(110,183,255,.38);
+    background: rgba(54,126,196,.18);
+}
+#plumageRowsContainer .plumage-gender-toggle .plumage-icon-toggle[data-gender="F"].is-active {
+    color: #ed8bc1;
+    border-color: rgba(237,139,193,.38);
+    background: rgba(180,69,132,.18);
+}
+#plumageRowsContainer .plumage-phase-toggle .plumage-icon-toggle.is-active {
+    color: #52d6a0;
+    border-color: rgba(82,214,160,.36);
+    background: rgba(38,154,111,.18);
+}
+#plumageRowsContainer .plumage-icon-toggle:hover { transform: translateY(-1px); }
+#plumageRowsContainer .plumage-remove-btn { align-self: center; }
+.plumage-model-symbols {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    margin-left: 8px;
+    color: rgba(226,232,240,.66);
+}
+.plumage-model-symbols i { font-size: .78rem; }
+@media (max-width: 1100px) {
+    #plumageRowsContainer .plumage-row {
+        grid-template-columns: minmax(150px,1fr) minmax(170px,1fr) minmax(180px,1fr) 44px;
+    }
+    #plumageRowsContainer .plumage-meta-controls {
+        grid-column: 1 / 4;
+    }
+    #plumageRowsContainer .plumage-remove-btn {
+        grid-column: 4;
+        grid-row: 1;
+    }
+}
+@media (max-width: 820px) {
+    #plumageRowsContainer .plumage-row {
+        grid-template-columns: 1fr 44px;
+    }
+    #plumageRowsContainer .plumage-meta-controls {
+        grid-column: 1;
+        flex-wrap: wrap;
+    }
+    #plumageRowsContainer .plumage-remove-btn {
+        grid-column: 2;
+        grid-row: 1;
+    }
+}
