@@ -81,7 +81,7 @@
             'Alimento Ingerido em Média',
             'Estratégia para obter alimentos',
             'Tipo de Alimentação'
-        ];
+        ].sort((a, b) => a.localeCompare(b, 'pt', { sensitivity: 'base' }));
 
         const feedingFoodUnits = ['g/dia', 'g/semana', 'g/mes', 'g/ano', 'kg/dia', 'kg/semana', 'kg/mes', 'kg/ano'];
         const feedingWaterUnits = ['l/dia', 'l/semana', 'l/mes', 'l/ano'];
@@ -263,7 +263,7 @@
         function setFeedingData(items = []) {
             feedingRowsContainer.innerHTML = '';
             if (!Array.isArray(items) || items.length === 0) {
-                createFeedingRow();
+                feedingModelOptions.forEach(type => createFeedingRow(type));
                 updateFeedingPreview();
                 return;
             }

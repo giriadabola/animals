@@ -143,6 +143,7 @@
             optTipo.textContent = 'Tipo de reprodução';
             
             rowModeSelect.append(optPlaceholder, optAcasalamento, optEpocaReproducao, optParental, optMaturidade, optCrias, optNumeroOvos, optTempoEclosao, optEstro, optFrequenciaEstro, optSucessoReprodutivo, optIntervaloNascimentos, optIdadeMetamorfose, optNumeroMudas, optNumeroEstadiosLarvais, optSistemaSexual, optGestacao, optTipo);
+            window.formDropdownPolish?.sortSelectOptionsAlphabetically?.(rowModeSelect);
 
             const typeSelect = document.createElement('select');
             typeSelect.className = 'reproduction-type';
@@ -1089,22 +1090,17 @@
                             detalhe: detail
                         };
                     } else if (rowModeSelect.value === 'duracao_estro') {
-                    minInput.className = 'reproduction-gestation-min reproduction-estrus-min';
-                    maxInput.className = 'reproduction-gestation-max reproduction-estrus-max';
-                    minInput.placeholder = 'Mín: 1';
-                    maxInput.placeholder = 'Máx: 5';
-                    const previousUnit = unitSelect.dataset.estroUnit || unitSelect.value;
-                    const estrusUnits = ['horas', 'dias', 'semanas'];
-                    unitSelect.innerHTML = '';
-                    estrusUnits.forEach(u => {
-                        const opt = document.createElement('option');
-                        opt.value = u;
-                        opt.textContent = u;
-                        unitSelect.append(opt);
-                    });
-                    unitSelect.value = estrusUnits.includes(previousUnit) ? previousUnit : 'dias';
-                    row.append(minInput, maxInput, unitSelect, genderBtn, faseBtn, removeBtn);
-                } else if (rowModeSelect.value === 'tempo_eclosao') {
+                        const detail = buildRangeDetail(
+                            row.querySelector('.reproduction-gestation-min')?.value || '',
+                            row.querySelector('.reproduction-gestation-max')?.value || '',
+                            row.querySelector('.reproduction-gestation-unit')?.value || 'dias'
+                        );
+                        return {
+                            ...rowMeta,
+                            tipo: 'Duração do estro',
+                            detalhe: detail
+                        };
+                    } else if (rowModeSelect.value === 'tempo_eclosao') {
                         const detail = buildRangeDetail(
                             row.querySelector('.reproduction-gestation-min')?.value || '',
                             row.querySelector('.reproduction-gestation-max')?.value || '',
@@ -1138,10 +1134,34 @@
             return dynamicItems;
         }
 
+        const reproductionDefaultModels = [
+            'Acasalamento',
+            'Duração do estro',
+            'Época de reprodução',
+            'Frequência de acasalamento durante o estro',
+            'Idade da metamorfose',
+            'Investimento Parental',
+            'Intervalo entre nascimentos',
+            'Maturidade Sexual',
+            'Número de Crias',
+            'Número de estádios larvais',
+            'Número de mudas',
+            'Número de ovos',
+            'Sistema sexual',
+            'Taxa de sucesso reprodutivo',
+            'Tempo até à eclosão',
+            'Tempo de Gestação',
+            'Tipo de reprodução'
+        ].sort((a, b) => a.localeCompare(b, 'pt', { sensitivity: 'base' }));
+
+        function createAllReproductionRows() {
+            reproductionDefaultModels.forEach(type => createReproductionRow(type));
+        }
+
         function setReproductionData(reproduction = []) {
             reproductionRowsContainer.innerHTML = '';
             if (!Array.isArray(reproduction) || reproduction.length === 0) {
-                createReproductionRow();
+                createAllReproductionRows();
                 updateReproductionPreview();
                 return;
             }
@@ -1339,4 +1359,3 @@
         const plumageHeroImage = document.getElementById('plumageHeroImage');
         const plumageHeroTitle = document.getElementById('plumageHeroTitle');
         const plumageHeroText = document.getElementById('plumageHeroText');
-

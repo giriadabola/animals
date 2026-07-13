@@ -48,7 +48,8 @@ export const generalVisualOptions = [
     { tipo: 'Função ecológica', unidade: '' },
     { tipo: 'Locomoção', unidade: '' },
     { tipo: 'Zona Climática', unidade: '' },
-    { tipo: 'Bioma', unidade: '' }
+    { tipo: 'Bioma', unidade: '' },
+    { tipo: 'Estrato ecológico', unidade: '' }
 ];
 
 export const generalVisualUnits = ['', 'segundos', 'minutos', 'horas', 'dias', 'semanas', 'meses', 'anos', 'milénios', 'km/h', 'm/s', 'PSI', 'indivíduos', 'dezenas', 'centenas', 'milhares', 'milhões', 'machos adultos', 'fêmeas adultas', 'subadultos', 'juvenis', 'crias', 'm²', 'hectares', 'km²', 'caça individual', 'caça em grupo', 'mortalidade adulta', 'mortalidade das crias', 'cm', 'm', 'km', 'unidade'];
@@ -169,6 +170,18 @@ const bodySymmetryOptions = ['Bilateral', 'Radial', 'Birradial', 'Assimétrica',
 const developmentTransformationOptions = ['Muda', 'Metamorfose', 'Neotenia', 'Hermafroditismo sequencial', 'Troca de plumagem', 'Troca de pelagem'];
 const skeletonTypeOptions = ['Ósseo', 'Cartilagíneo', 'Exoesqueleto', 'Hidroesqueleto', 'Ausente'];
 
+const ecologicalStratumOptions = [
+    'Arbustivo',
+    'Bentónico',
+    'Copa',
+    'Litoral',
+    'Nerítico',
+    'Oceânico',
+    'Pelágico',
+    'Solo',
+    'Subterrâneo'
+];
+
 const selectGroups = {
     feedingStrategy: feedingStrategyOptions,
     activity: activityCatalog.map(item => item.label),
@@ -180,7 +193,42 @@ const selectGroups = {
     thermoregulation: thermoregulationOptions,
     bodySymmetry: bodySymmetryOptions,
     developmentTransformation: developmentTransformationOptions,
-    skeletonType: skeletonTypeOptions
+    skeletonType: skeletonTypeOptions,
+    ecologicalStratum: ecologicalStratumOptions
+};
+
+const anatomicalCategoryMeta = {
+    'estruturas gerais do corpo': { key: 'anatomia-corpo-geral', accent: 'accent-length' },
+    'estruturas da cabeca e face': { key: 'anatomia-cabeca-face', accent: 'accent-generic' },
+    'estruturas bucais e alimentares': { key: 'anatomia-bucal-alimentar', accent: 'accent-generic' },
+    'dentes e estruturas semelhantes': { key: 'anatomia-dentes', accent: 'accent-generic' },
+    'cornos hastes e protuberancias': { key: 'anatomia-cornos', accent: 'accent-maturity' },
+    'cristas pregas bolsas e expansoes': { key: 'anatomia-cristas-pregas', accent: 'accent-wing' },
+    'apendices locomotores': { key: 'anatomia-apendices', accent: 'accent-leg' },
+    'estruturas de fixacao e aderencia': { key: 'anatomia-fixacao', accent: 'accent-width' },
+    'estruturas das patas e extremidades': { key: 'anatomia-patas-extremidades', accent: 'accent-leg' },
+    'estruturas da cauda': { key: 'anatomia-cauda', accent: 'accent-tail' },
+    'estruturas respiratorias': { key: 'anatomia-respiratoria', accent: 'accent-water' },
+    'estruturas aquaticas especiais': { key: 'anatomia-aquatica', accent: 'accent-water' },
+    'estruturas sensoriais': { key: 'anatomia-sensorial', accent: 'accent-eye' },
+    'estruturas oculares': { key: 'anatomia-ocular', accent: 'accent-eye' },
+    'estruturas auditivas e de equilibrio': { key: 'anatomia-auditiva', accent: 'accent-climate' },
+    'estruturas de defesa e ataque': { key: 'anatomia-defesa-ataque', accent: 'accent-speed-max' },
+    'estruturas produtoras ou inoculadoras de veneno': { key: 'anatomia-veneno', accent: 'accent-generic' },
+    'estruturas glandulares': { key: 'anatomia-glandular', accent: 'accent-life' },
+    'estruturas produtoras de seda muco ou secrecoes': { key: 'anatomia-secrecoes', accent: 'accent-bioma' },
+    'estruturas eletricas luminosas e termicas': { key: 'anatomia-eletrica-luminosa', accent: 'accent-climate' },
+    'estruturas de reproducao': { key: 'anatomia-reproducao', accent: 'accent-mating-polygamy' },
+    'estruturas de incubacao e cuidado parental': { key: 'anatomia-incubacao', accent: 'accent-life' },
+    'estruturas das aves': { key: 'anatomia-aves', accent: 'accent-wing' },
+    'estruturas dos mamiferos': { key: 'anatomia-mamiferos', accent: 'accent-life' },
+    'estruturas dos repteis e anfibios': { key: 'anatomia-repteis-anfibios', accent: 'accent-width' },
+    'estruturas dos artropodes': { key: 'anatomia-artropodes', accent: 'accent-leg' },
+    'estruturas dos moluscos': { key: 'anatomia-moluscos', accent: 'accent-bioma' },
+    'estruturas dos anelideos': { key: 'anatomia-anelideos', accent: 'accent-tail' },
+    'estruturas dos equinodermes': { key: 'anatomia-equinodermes', accent: 'accent-water' },
+    'estruturas dos cnidarios': { key: 'anatomia-cnidarios', accent: 'accent-climate' },
+    'estruturas dos poriferos': { key: 'anatomia-poriferos', accent: 'accent-bioma' }
 };
 
 const activityMap = new Map(activityCatalog.map(item => [normalizeGeneralVisualKey(item.label), item]));
@@ -213,6 +261,7 @@ export function getGeneralVisualSelectConfig(type = '') {
     if (normalized.includes('simetria corporal')) return { group: 'bodySymmetry', placeholder: 'Escolhe a simetria corporal' };
     if (normalized.includes('transformacoes do desenvolvimento')) return { group: 'developmentTransformation', placeholder: 'Escolhe a transformação do desenvolvimento' };
     if (normalized.includes('tipo de esqueleto')) return { group: 'skeletonType', placeholder: 'Escolhe o tipo de esqueleto' };
+    if (normalized.includes('estrato ecologico')) return { group: 'ecologicalStratum', placeholder: 'Escolhe um estrato ecológico' };
     return null;
 }
 
@@ -228,6 +277,10 @@ export function isDropdownOnlyGeneralModel(type = '') {
 
 export function getGeneralVisualMeta(type = '') {
     const normalized = normalizeGeneralVisualKey(type);
+    const anatomicalMeta = anatomicalCategoryMeta[normalized];
+    if (anatomicalMeta) {
+        return { key: anatomicalMeta.key, title: type || 'Estrutura anatómica', accent: anatomicalMeta.accent };
+    }
     if (normalized.includes('espetativa media de vida') || normalized.includes('expectativa media de vida')) {
         return { key: 'espetativa-vida', title: type || 'Espetativa média de vida', accent: 'accent-life' };
     }
@@ -249,6 +302,7 @@ export function getGeneralVisualMeta(type = '') {
     if (normalized.includes('numero de escamas')) return { key: 'numero-escamas', title: type || 'Número de escamas', accent: 'accent-width' };
     if (normalized.includes('numero de miomeros')) return { key: 'numero-miomeros', title: type || 'Número de miômeros', accent: 'accent-speed-average' };
     if (normalized.includes('tipo de esqueleto')) return { key: 'tipo-esqueleto', title: type || 'Tipo de esqueleto', accent: 'accent-generic' };
+    if (normalized.includes('estrato ecologico')) return { key: 'estrato-ecologico', title: type || 'Estrato ecológico', accent: 'accent-bioma' };
     if (normalized.includes('altitude minima')) return { key: 'altitude-minima', title: type || 'Altitude mínima', accent: 'accent-depth-average' };
     if (normalized.includes('altitude maxima')) return { key: 'altitude-maxima', title: type || 'Altitude máxima', accent: 'accent-depth-max' };
     if (normalized.includes('abertura dos olhos')) return { key: 'abertura-olhos', title: type || 'Abertura dos olhos', accent: 'accent-eye' };
@@ -286,6 +340,37 @@ function makeSvg(body, className = 'general-model-svg') {
 
 export function getGeneralModelSvg(key = 'geral') {
     const icons = {
+        'anatomia-corpo-geral': makeSvg('<path d="M20 20h40v40H20Z"/><path d="M30 12v16M50 12v16M30 52v16M50 52v16"/><path d="M20 40h40"/>'),
+        'anatomia-cabeca-face': makeSvg('<circle cx="40" cy="32" r="18"/><path d="M32 30h4M44 30h4"/><path d="M34 42c4 3 8 3 12 0"/><path d="M24 56c4-7 10-11 16-11s12 4 16 11"/>'),
+        'anatomia-bucal-alimentar': makeSvg('<path d="M18 34c0-8 10-14 22-14s22 6 22 14v6H18Z"/><path d="M22 40h36"/><path d="M26 46l6 10M54 46l-6 10"/><path d="M40 20v12"/>'),
+        'anatomia-dentes': makeSvg('<path d="M18 30c0-7 10-12 22-12s22 5 22 12v7H18v-7Z"/><path d="M18 49c0 7 10 13 22 13s22-6 22-13v-7H18v7Z"/><path d="M24 37v8M32 37v10M40 37v10M48 37v10M56 37v8"/>'),
+        'anatomia-cornos': makeSvg('<path d="M24 56c2-18 8-28 16-28s14 10 16 28"/><path d="M26 28c-6-5-8-11-8-18"/><path d="M54 28c6-5 8-11 8-18"/><path d="M18 10c6 2 10 7 12 14"/><path d="M62 10c-6 2-10 7-12 14"/>'),
+        'anatomia-cristas-pregas': makeSvg('<path d="M18 58h44"/><path d="M24 58c2-18 8-30 16-36c8 6 14 18 16 36"/><path d="M28 28l6-10l6 10l6-10l6 10"/><path d="M40 22V12"/>'),
+        'anatomia-apendices': makeSvg('<path d="M40 18v44"/><path d="M40 30L20 20"/><path d="M40 30l20-10"/><path d="M40 46L22 58"/><path d="M40 46l18 12"/>'),
+        'anatomia-fixacao': makeSvg('<circle cx="40" cy="40" r="18"/><path d="M40 22v36"/><path d="M22 40h36"/><path d="M28 28l24 24"/><path d="M52 28L28 52"/>'),
+        'anatomia-patas-extremidades': makeSvg('<path d="M18 58h44"/><path d="M28 24v20M40 18v26M52 24v20"/><path d="M24 58l4-10l4 10"/><path d="M36 58l4-12l4 12"/><path d="M48 58l4-10l4 10"/>'),
+        'anatomia-cauda': makeSvg('<path d="M16 40c12-12 24-16 36-14"/><path d="M52 26c8 4 12 10 12 18s-4 14-12 18"/><path d="M20 52c12 2 24-2 36-14"/><path d="M56 30l8-8M56 50l8 8"/>'),
+        'anatomia-respiratoria': makeSvg('<path d="M28 18v22c0 10 5 18 12 22"/><path d="M52 18v22c0 10-5 18-12 22"/><path d="M28 24c-8 3-12 10-12 18s4 15 12 18"/><path d="M52 24c8 3 12 10 12 18s-4 15-12 18"/>'),
+        'anatomia-aquatica': makeSvg('<path d="M14 40c14-16 33-20 48-7l7-10v34l-7-10c-15 13-34 9-48-7Z"/><circle cx="33" cy="35" r="3"/><path d="M20 60c5-4 10-4 15 0c5-4 10-4 15 0c5-4 10-4 15 0"/>'),
+        'anatomia-sensorial': makeSvg('<path d="M14 40c8-13 18-20 26-20s18 7 26 20c-8 13-18 20-26 20S22 53 14 40Z"/><circle cx="40" cy="40" r="8"/><path d="M40 10v10M10 40h10M60 40h10"/>'),
+        'anatomia-ocular': makeSvg('<path d="M12 40c8-13 18-20 28-20s20 7 28 20c-8 13-18 20-28 20S20 53 12 40Z"/><circle cx="40" cy="40" r="10"/><circle cx="40" cy="40" r="4"/>'),
+        'anatomia-auditiva': makeSvg('<path d="M28 22c-6 2-10 8-10 16v8c0 8 4 14 10 16"/><path d="M52 22c6 2 10 8 10 16v8c0 8-4 14-10 16"/><path d="M28 40h10"/><path d="M52 40H42"/><circle cx="40" cy="40" r="6"/>'),
+        'anatomia-defesa-ataque': makeSvg('<path d="M18 58l20-40l6 14l18-10l-14 28l-10-4l-6 12Z"/><path d="M18 58h18"/><path d="M50 18l12 4"/>'),
+        'anatomia-veneno': makeSvg('<path d="M40 14c10 10 16 20 16 31c0 13-7 21-16 21s-16-8-16-21c0-11 6-21 16-31Z"/><path d="M40 26v20"/><path d="M32 38h16"/><path d="M48 14l8-8"/>'),
+        'anatomia-glandular': makeSvg('<path d="M24 24c8 0 14 6 14 14s-6 14-14 14s-14-6-14-14s6-14 14-14Z"/><path d="M56 28c6 0 10 5 10 10s-4 10-10 10"/><path d="M24 52v12"/><path d="M56 48v16"/><path d="M34 38h18"/>'),
+        'anatomia-secrecoes': makeSvg('<path d="M24 18c8 0 14 6 14 14c0 10-14 24-14 24S10 42 10 32c0-8 6-14 14-14Z"/><path d="M54 24c6 0 10 5 10 10c0 8-10 18-10 18S44 42 44 34c0-5 4-10 10-10Z"/><path d="M24 58v8M54 54v12"/>'),
+        'anatomia-eletrica-luminosa': makeSvg('<path d="M36 12L20 42h12l-4 26l20-34H36Z"/><circle cx="58" cy="24" r="6"/><path d="M58 12v4M58 32v4M46 24h4M66 24h4"/>'),
+        'anatomia-reproducao': makeSvg('<circle cx="30" cy="30" r="8"/><circle cx="50" cy="30" r="8"/><path d="M30 38v12"/><path d="M50 38v12"/><path d="M24 56c3-5 7-8 12-8"/><path d="M56 56c-3-5-7-8-12-8"/><path d="M38 30h4"/>'),
+        'anatomia-incubacao': makeSvg('<path d="M18 54c8-14 16-20 22-20s14 6 22 20"/><path d="M22 54h36"/><ellipse cx="40" cy="42" rx="8" ry="10"/><path d="M40 18v8"/>'),
+        'anatomia-aves': makeSvg('<path d="M14 50c14-24 30-34 52-36c-4 22-16 37-38 48H14Z"/><path d="M30 28c6 8 10 18 12 28"/><path d="M46 22c5 7 7 14 8 24"/>'),
+        'anatomia-mamiferos': makeSvg('<path d="M18 54c2-16 10-26 22-26s20 10 22 26"/><circle cx="28" cy="24" r="6"/><circle cx="52" cy="24" r="6"/><path d="M24 58l4-10l4 10"/><path d="M48 58l4-10l4 10"/>'),
+        'anatomia-repteis-anfibios': makeSvg('<path d="M14 44c10-12 24-18 40-14c6 2 10 6 12 10c-2 4-6 8-12 10c-16 4-30-2-40-14Z"/><path d="M26 34l-6-8M26 46l-6 8"/><path d="M54 38l10-4"/>'),
+        'anatomia-artropodes': makeSvg('<path d="M26 22h28l8 18l-8 18H26l-8-18Z"/><path d="M24 30L12 20M22 40H8M24 50L12 60M56 30l12-10M58 40h14M56 50l12 10"/>'),
+        'anatomia-moluscos': makeSvg('<path d="M24 58c0-22 8-36 24-36c10 0 18 8 18 18c0 12-10 18-18 18Z"/><path d="M30 52c4-8 12-14 24-14"/><path d="M26 40c6-10 14-16 24-16"/>'),
+        'anatomia-anelideos': makeSvg('<path d="M16 42c8-12 16-18 24-18s16 6 24 18c-8 12-16 18-24 18S24 54 16 42Z"/><path d="M24 32v20M34 28v24M46 28v24M56 32v20"/>'),
+        'anatomia-equinodermes': makeSvg('<path d="M40 14l7 16l17 2l-13 11l4 17l-15-9l-15 9l4-17l-13-11l17-2Z"/>'),
+        'anatomia-cnidarios': makeSvg('<path d="M28 20c8 0 14 6 14 14v8c0 8-6 14-14 14"/><path d="M52 20c-8 0-14 6-14 14v8c0 8 6 14 14 14"/><path d="M28 56c0 6-3 10-6 14M36 56c0 6-1 10-1 14M44 56c0 6 1 10 1 14M52 56c0 6 3 10 6 14"/>'),
+        'anatomia-poriferos': makeSvg('<path d="M26 18h28l6 14v18l-6 14H26l-6-14V32Z"/><circle cx="40" cy="24" r="3"/><circle cx="32" cy="36" r="3"/><circle cx="48" cy="36" r="3"/><circle cx="40" cy="50" r="4"/>'),
         'altitude-minima': makeSvg('<path d="M10 62h60"/><path d="M18 58l17-27l10 15l8-12l15 24"/><path d="M18 69h24"/><path d="M30 65v8"/><path d="M15 69l6-4v8Z"/>'),
         'altitude-maxima': makeSvg('<path d="M10 62h60"/><path d="M18 58l17-27l10 15l8-12l15 24"/><path d="M48 16v22"/><path d="M44 20l4-6l4 6"/>'),
         'transformacoes-desenvolvimento': makeSvg('<path d="M18 48c8-15 20-22 36-19"/><path d="M49 22l8 7l-9 5"/><circle cx="23" cy="25" r="7"/><path d="M43 52c6 9 16 11 24 4"/><path d="M50 61l-8 5"/><path d="M31 43c4 4 8 7 13 8"/>'),
@@ -305,6 +390,7 @@ export function getGeneralModelSvg(key = 'geral') {
         'forca-mordida': makeSvg('<path d="M20 30c0-6 10-10 20-10s20 4 20 10v6H20v-6z"/><path d="M20 50c0 6 10 10 20 10s20-4 20-10v-6H20v6z"/><path d="M28 30l2 6M36 30l1 6M44 30l-1 6M52 30l-2 6"/><path d="M28 50l2-6M36 50l1-6M44 50l-1-6M52 50l-2-6"/>'),
         'numero-dentes': makeSvg('<path d="M18 30c0-7 10-12 22-12s22 5 22 12v7H18v-7Z"/><path d="M18 49c0 7 10 13 22 13s22-6 22-13v-7H18v7Z"/><path d="M24 37v8"/><path d="M32 37v10"/><path d="M40 37v10"/><path d="M48 37v10"/><path d="M56 37v8"/>'),
         'numero-mamas': makeSvg('<path d="M24 18c9 0 16 7 16 16v12c0 9-7 16-16 16S8 55 8 46V34c0-9 7-16 16-16Z"/><path d="M56 18c9 0 16 7 16 16v12c0 9-7 16-16 16S40 55 40 46V34c0-9 7-16 16-16Z"/><circle cx="24" cy="43" r="4"/><circle cx="56" cy="43" r="4"/><path d="M32 18c4-5 12-5 16 0"/>'),
+        'estrato-ecologico': makeSvg('<path d="M14 64h52"/><path d="M20 64V48l9-8l9 8v16"/><path d="M42 64V31l10-9l10 9v33"/><path d="M25 39V23"/><path d="M18 30c2-9 8-14 16-14s14 5 16 14"/><path d="M46 22c1-8 6-13 14-13s13 5 14 13"/>'),
         termorregulacao: makeSvg('<path d="M35 16a7 7 0 0 1 14 0v28a16 16 0 1 1-14 0V16Z"/><path d="M42 24v27"/><circle cx="42" cy="57" r="7"/><path d="M56 21h10M56 31h7M56 41h10"/>'),
         'simetria-corporal': makeSvg('<path d="M40 10v60"/><path d="M40 18c-13 4-22 15-22 28s9 22 22 26"/><path d="M40 18c13 4 22 15 22 28s-9 22-22 26"/><path d="M27 34l13 6l13-6"/><path d="M27 55l13-6l13 6"/>'),
         'abertura-olhos': makeSvg('<path d="M12 40c8-13 18-20 28-20s20 7 28 20c-8 13-18 20-28 20S20 53 12 40Z"/><circle cx="40" cy="40" r="9"/><path d="M40 31v18"/>'),

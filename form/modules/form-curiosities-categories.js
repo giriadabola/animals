@@ -36,7 +36,7 @@
         function fillCuriosidadeTypeSelect(select, selectedValue = '') {
             const hasSelected = selectedValue && curiosidadesTypeOptions.includes(selectedValue);
             select.innerHTML = '<option value="">Escolhe uma propriedade</option>' +
-                curiosidadesTypeOptions.map(option => `<option value="${option}">${option}</option>`).join('') +
+                [...curiosidadesTypeOptions].sort((a, b) => a.localeCompare(b, 'pt', { sensitivity: 'base' })).map(option => `<option value="${option}">${option}</option>`).join('') +
                 (selectedValue && !hasSelected ? `<option value="${selectedValue}">${selectedValue}</option>` : '');
             select.value = selectedValue;
         }
@@ -335,11 +335,17 @@
         }
 
         function getDefaultCuriosidadesRows() {
-            return [
-                { tipo: 'Estado de Conservação', valor: '', genero: GENDER_BOTH, fase: 'Adulto' },
-                { tipo: 'Temperatura do Ambiente', valor: '', valorMin: '', valorMax: '', unidade: '°C', genero: GENDER_BOTH, fase: 'Adulto' },
-                { tipo: 'Relação com Humanos', valor: '', genero: GENDER_BOTH, fase: 'Adulto' }
-            ];
+            return [...curiosidadesTypeOptions]
+                .sort((a, b) => a.localeCompare(b, 'pt', { sensitivity: 'base' }))
+                .map(tipo => ({
+                    tipo,
+                    valor: '',
+                    valorMin: '',
+                    valorMax: '',
+                    unidade: tipo === 'Temperatura do Ambiente' ? '°C' : getCuriosidadeDefaultMetricUnit(tipo),
+                    genero: GENDER_BOTH,
+                    fase: 'Adulto'
+                }));
         }
 
         function normalizeCuriosidadesData(curiosidades = {}) {

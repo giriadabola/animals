@@ -36,7 +36,6 @@ function hideLoadingOverlay(reason = 'ready') {
     if (overlayClosed) return;
     overlayClosed = true;
 
-    window.__FORM_AUTH_VERIFIED = true;
     document.body.classList.remove('form-auth-pending');
     document.body.classList.add('form-auth-ready');
     showFormChrome();
@@ -99,14 +98,18 @@ onAuthStateChanged(auth, async (user) => {
         if (isAdmin) {
             applyRoleUI(role);
             setStatus('Autorizado. A abrir formulário...');
-            requestAnimationFrame(() => hideLoadingOverlay('admin-ready'));
+            window.__FORM_AUTH_VERIFIED = true;
+            showFormChrome();
+            document.dispatchEvent(new CustomEvent('form:auth-ready', { detail: { role } }));
             return;
         }
 
         if (isCollaborator && isSuggestionMode && hasAnimalToEdit) {
             applyRoleUI('colaborador');
             setStatus('Modo de sugestão autorizado. A abrir formulário...');
-            requestAnimationFrame(() => hideLoadingOverlay('collaborator-suggestion-ready'));
+            window.__FORM_AUTH_VERIFIED = true;
+            showFormChrome();
+            document.dispatchEvent(new CustomEvent('form:auth-ready', { detail: { role: 'colaborador' } }));
             return;
         }
 

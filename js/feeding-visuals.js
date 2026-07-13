@@ -19,7 +19,9 @@ export const feedingTypes = [
     'Filtrador',
     'Hematófago',
     'Planctívoro',
-    'Mirmecófago'
+    'Mirmecófago',
+    'Parasita',
+    'Predador'
 ];
 
 export const feedingTypeDescriptions = {
@@ -43,7 +45,9 @@ export const feedingTypeDescriptions = {
     'Filtrador': 'Filtra alimento suspenso na água',
     'Hematófago': 'Alimenta-se de sangue',
     'Planctívoro': 'Alimenta-se de plâncton',
-    'Mirmecófago': 'Especializado em formigas e térmitas'
+    'Mirmecófago': 'Especializado em formigas e térmitas',
+    'Parasita': 'Obtém recursos de um hospedeiro, geralmente causando-lhe prejuízo',
+    'Predador': 'Caça e consome outros organismos vivos'
 };
 
 function normalizeFeedingKey(label = '') {
@@ -73,6 +77,8 @@ export function getFeedingVisualMeta(type = '') {
     if (normalized.includes('hematofago')) return { key: 'hematofago', title: type || 'Hematófago', accent: 'accent-tail' };
     if (normalized.includes('planctivoro')) return { key: 'planctivoro', title: type || 'Planctívoro', accent: 'accent-width' };
     if (normalized.includes('mirmecofago')) return { key: 'mirmecofago', title: type || 'Mirmecófago', accent: 'accent-leg' };
+    if (normalized.includes('parasita')) return { key: 'parasita', title: type || 'Parasita', accent: 'accent-tail' };
+    if (normalized.includes('predador')) return { key: 'predador', title: type || 'Predador', accent: 'accent-speed-max' };
     return { key: 'alimentacao', title: type || 'Alimentação', accent: 'accent-generic' };
 }
 
@@ -99,6 +105,8 @@ export function getFeedingModelSvg(key = 'alimentacao') {
         hematofago: `<svg class="metric-model-svg feeding-icon-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M40 10c14 17 22 30 22 42c0 12-9 20-22 20s-22-8-22-20c0-12 8-25 22-42Z"/><path d="M32 52c4 5 11 6 17 1"/></svg>`,
         planctivoro: `<svg class="metric-model-svg feeding-icon-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><circle cx="23" cy="30" r="6"/><circle cx="50" cy="24" r="4"/><circle cx="58" cy="53" r="7"/><circle cx="31" cy="58" r="4"/><path d="M23 36v13"/><path d="M50 28l7 18"/><path d="M31 62l-8 8"/></svg>`,
         mirmecofago: `<svg class="metric-model-svg feeding-icon-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><circle cx="25" cy="42" r="8"/><circle cx="40" cy="42" r="10"/><circle cx="57" cy="42" r="8"/><path d="M20 35l-8-8"/><path d="M60 35l8-8"/><path d="M25 50l-7 11"/><path d="M40 52v14"/><path d="M55 50l7 11"/></svg>`,
+        parasita: `<svg class="metric-model-svg feeding-icon-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><ellipse cx="42" cy="42" rx="17" ry="23"/><path d="M42 19V10"/><path d="M28 29L17 20"/><path d="M56 29l11-9"/><path d="M25 43H12"/><path d="M59 43h13"/><path d="M30 58L20 69"/><path d="M54 58l10 11"/><path d="M35 35h14"/></svg>`,
+        predador: `<svg class="metric-model-svg feeding-icon-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M13 42c9-15 22-23 39-23c8 0 15 3 21 8c-4 19-17 31-37 31c-10 0-18-5-23-16Z"/><circle cx="49" cy="34" r="4"/><path d="M17 42l-8-8"/><path d="M17 42l-8 8"/><path d="M58 50l10 10"/></svg>`,
         alimentacao: `<svg class="metric-model-svg feeding-icon-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M18 64h44"/><path d="M25 18v23c0 9 7 16 15 16s15-7 15-16V18"/><path d="M32 18v22"/><path d="M48 18v22"/></svg>`
     };
     return icons[key] || icons.alimentacao;

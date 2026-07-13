@@ -27,7 +27,7 @@
     <script src="https://cdn.jsdelivr.net/npm/jsvectormap"></script>
     <script src="https://cdn.jsdelivr.net/npm/jsvectormap/dist/maps/world.js"></script>
     <script src="./form-cache.js?v=20260709_portfolio_1"></script>
-    <link rel="stylesheet" href="./form.css?v=20260710_audio_1">
+    <link rel="stylesheet" href="./form.css?v=20260713_parameter_search_1">
 
     <style id="form-auth-critical-css">
         /* Evita flash do formulário antes de confirmar login. */
@@ -39,6 +39,37 @@
             display: flex !important;
             visibility: visible !important;
             opacity: 1 !important;
+            pointer-events: none !important;
+        }
+
+        /* O nome científico fica utilizável enquanto os restantes módulos carregam. */
+        body.form-auth-pending > .container {
+            visibility: visible !important;
+            pointer-events: none !important;
+            position: relative;
+            z-index: 1;
+        }
+        body.form-auth-pending .container > * {
+            visibility: hidden !important;
+        }
+        body.form-auth-pending #animalForm,
+        body.form-auth-pending #animalForm > .form-header-fields,
+        body.form-auth-pending #animalForm .scientific-name-priority {
+            visibility: visible !important;
+        }
+        body.form-auth-pending #animalForm > .form-header-fields {
+            border-color: transparent !important;
+            background: transparent !important;
+            box-shadow: none !important;
+        }
+        body.form-auth-pending #animalForm .form-header-fields > .form-group:not(.scientific-name-priority) {
+            visibility: hidden !important;
+        }
+        body.form-auth-pending #animalForm .scientific-name-priority {
+            pointer-events: auto !important;
+        }
+        body.form-auth-pending #animalForm .scientific-name-priority input,
+        body.form-auth-pending #animalForm .scientific-name-priority label {
             pointer-events: auto !important;
         }
     </style>
@@ -61,7 +92,7 @@
         <h1 class="form-title" id="formTitle" style="display: none;">Gerir Grandes Projetos</h1>
         <p class="subtitle" id="formSubtitle" style="display: none;">Formulário de Criação de Animais</p>
         
-        <form id="animalForm">
+        <form id="animalForm" class="scientific-gate-active">
             <div class="form-header-fields">
                 <div class="form-group">
                     <label for="nomeAnimal">Nome Comum</label>
@@ -70,7 +101,7 @@
                 
                 <div class="form-group scientific-name-priority">
                     <label for="nomeCientifico">Nome Científico</label>
-                    <input type="text" id="nomeCientifico" required placeholder="Ex: Panthera leo">
+                    <input type="text" id="nomeCientifico" required autofocus autocomplete="off" placeholder="Ex: Panthera leo">
                     <label for="personalizarTipoRegisto" class="record-type-toggle" style="display: inline-flex; align-items: center; gap: 8px; margin-top: 10px; font-size: 0.9rem; font-weight: 600; cursor: pointer;">
                         <input type="checkbox" id="personalizarTipoRegisto" style="width: auto; margin: 0;">
                         Personalizar
@@ -253,6 +284,16 @@
                     <button type="button" class="form-tab-nav-btn" data-tab="distribuicao" role="tab" aria-selected="false" aria-controls="tabpanel-distribuicao" title="Distribuição"><i class="fa-solid fa-map-location-dot"></i></button>
                     <button type="button" class="form-tab-nav-btn" data-tab="curiosidades" role="tab" aria-selected="false" aria-controls="tabpanel-curiosidades" title="Curiosidades"><i class="fa-solid fa-lightbulb"></i></button>
                     <button type="button" class="form-tab-nav-btn" data-tab="plumagem" id="tab-btn-plumagem" role="tab" aria-selected="false" aria-controls="tabpanel-plumagem" style="display: none;" title="Revestimento corporal" aria-label="Revestimento corporal"><i class="fa-solid fa-feather-pointed"></i></button>
+                </div>
+
+                <div class="form-parameter-search" id="formParameterSearch">
+                    <div class="form-parameter-search-box">
+                        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                        <input type="search" id="formParameterSearchInput" autocomplete="off" placeholder="Pesquisar parâmetros e opções…" aria-label="Pesquisar parâmetros e opções do formulário" aria-controls="formParameterSearchResults" aria-expanded="false">
+                        <button type="button" id="formParameterSearchClear" class="form-parameter-search-clear" aria-label="Limpar pesquisa" title="Limpar">&times;</button>
+                    </div>
+                    <div id="formParameterSearchResults" class="form-parameter-search-results" role="listbox" hidden></div>
+                    <small class="form-parameter-search-note">Pesquisa parâmetros e subparâmetros. As unidades de medida não são incluídas.</small>
                 </div>
 
                 <div class="form-tabs-content">
@@ -777,15 +818,18 @@
                         <span>Básico</span>
                     </button>
                 </div>
-                <div class="form-statistics-summary" id="formStatisticsSummary" aria-live="polite" title="Resumo dos parâmetros estatísticos preenchidos">
-                    <span class="form-stat-pill form-stat-pill-params">
-                        <i class="fa-solid fa-list-check" aria-hidden="true"></i>
-                        <strong id="formParamsCount">0/58</strong> parâmetros
-                    </span>
-                    <span class="form-stat-pill form-stat-pill-dots">
-                        <i class="fa-solid fa-circle-dot" aria-hidden="true"></i>
-                        <strong id="formDotsCount">0</strong> dots
-                    </span>
+                <div class="form-statistics-block">
+                    <div class="form-statistics-summary" id="formStatisticsSummary" aria-live="polite" title="Resumo dos parâmetros estatísticos preenchidos">
+                        <span class="form-stat-pill form-stat-pill-params">
+                            <i class="fa-solid fa-list-check" aria-hidden="true"></i>
+                            <strong id="formParamsCount">0/309</strong> parâmetros
+                        </span>
+                        <span class="form-stat-pill form-stat-pill-dots">
+                            <i class="fa-solid fa-circle-dot" aria-hidden="true"></i>
+                            <strong id="formDotsCount">0</strong> dots
+                        </span>
+                    </div>
+                    <small class="form-statistics-note">Total calculado automaticamente pelos catálogos; novas opções serão incluídas na recontagem.</small>
                 </div>
                 <button type="submit" id="saveButton">Gravar Novo Animal</button>
             </div>
@@ -942,9 +986,8 @@
     <!-- Componentes e Lógica -->
     <script type="module" src="../js/components.js?v=20260710_no_animais_snapshot_1"></script>
     <script src="./modules/form-distribution-regions.js?v=20260710_1"></script>
-    <script type="module" src="./form.js?v=20260711_family_thumbnail_preview_1"></script>
+    <script type="module" src="./form.js?v=20260713_parameter_search_1"></script>
     <!-- Service Worker PWA -->
     <script src="./sw-register.js?v=20260710_no_animais_snapshot_1"></script>
 </body>
 </html>
-

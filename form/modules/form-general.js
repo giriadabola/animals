@@ -1,4 +1,4 @@
-// Modelo visual de informações gerais
+﻿// Modelo visual de informações gerais
         function getGeneralVisualOption(type = '') {
             return getGeneralVisualCatalogOption(type);
         }
@@ -45,8 +45,9 @@
             { tipo: 'Número de barbatanas', unidade: 'centenas' },
             { tipo: 'Número de vértebras', unidade: 'centenas' },
             { tipo: 'Número de escamas', unidade: 'centenas' },
-            { tipo: 'Número de miômeros', unidade: 'centenas' },
+            { tipo: 'Número de miómeros', unidade: 'centenas' },
             { tipo: 'Tipo de esqueleto', unidade: '' },
+            { tipo: 'Estrato ecológico', unidade: '' },
             { tipo: 'Comportamento sazonal', unidade: '' }
         ].forEach(option => {
             if (!generalVisualOptions.some(existing => normalizeSearchText(existing.tipo) === normalizeSearchText(option.tipo))) {
@@ -62,9 +63,50 @@
             generalVisualOptions.splice(5, 0, { tipo: 'Tempo de Amamentação', unidade: 'meses' });
         }
 
+        const ANATOMICAL_STRUCTURE_DEFINITIONS = {
+            'Estruturas gerais do corpo': ['Abd\u00f3men', 'Cefalot\u00f3rax', 'Cabe\u00e7a', 'Carapa\u00e7a', 'Cauda', 'Cintura escapular', 'Cintura p\u00e9lvica', 'Colar', 'Concha', 'Disco corporal', 'Escudo corporal', 'Exoesqueleto', 'Manto', 'Mesossoma', 'Metassoma', 'Opistossoma', 'Ped\u00fanculo', 'Plastr\u00e3o', 'Prosoma', 'Rostro', 'T\u00f3rax', 'Tronco', 'Urossoma'],
+            'Estruturas da cabe\u00e7a e face': ['Barbilh\u00e3o', 'Bico', 'Capacete craniano', 'Car\u00fancula', 'Casco c\u00f3rneo do bico', 'Cera do bico', 'Chifre nasal', 'Crista craniana', 'Disco facial', 'Escudo cef\u00e1lico', 'Focinho', 'Fosseta loreal', 'Fronte', 'Mand\u00edbula', 'Maxila', 'Melena', 'Narina tubular', 'Op\u00e9rculo nasal', 'Papo gular', 'Placa cef\u00e1lica', 'Prob\u00f3scide', 'Tromba', 'Tub\u00e9rculo cef\u00e1lico'],
+            'Estruturas bucais e alimentares': ['Aparelho bucal sugador', 'Bico c\u00f3rneo', 'Bico perfurante', 'Bico sugador', 'Bulbo bucal', 'Cerata bucal', 'Disco oral', 'Estilete bucal', 'Faringe protr\u00e1til', 'F\u00f3rceps bucais', 'Forc\u00edpulas', 'Forc\u00edpulas venenosas', 'L\u00e1bio', 'L\u00e1bio inferior', 'L\u00e1bio superior', 'Lamelas filtradoras', 'L\u00edngua protr\u00e1til', 'Mand\u00edbulas mastigadoras', 'Maxil\u00edpedes', 'Odont\u00f3foro', 'Papilas bucais', 'Pe\u00e7as bucais', 'Prob\u00f3scide alimentar', 'Prob\u00f3scide evers\u00edvel', 'R\u00e1dula', 'Rostelo', 'Sif\u00e3o bucal', 'Tent\u00e1culos orais'],
+            'Dentes e estruturas semelhantes': ['Dentes caninos', 'Dentes carniceiros', 'Dentes far\u00edngeos', 'Dentes incisivos', 'Dentes molares', 'Dentes palatinos', 'Dentes pr\u00e9-molares', 'Dentes vomerianos', 'Dent\u00edculos d\u00e9rmicos', 'L\u00e2minas dent\u00e1rias', 'Presas', 'Placas dent\u00e1rias', 'Rostro serrilhado'],
+            'Cornos, hastes e protuber\u00e2ncias': ['Antilocapras', 'Bossa', 'Calosidade', 'Chifre', 'Chifre d\u00e9rmico', 'Chifre queratinoso', 'Corno', 'Espor\u00e3o', 'Galhada', 'Haste', 'Ossicones', 'Protuber\u00e2ncia frontal', 'Tub\u00e9rculo', 'Verruga d\u00e9rmica'],
+            'Cristas, pregas, bolsas e expans\u00f5es': ['Bolsa bucal', 'Bolsa incubadora', 'Bolsa marsupial', 'Bolsa vocal', 'Bolsa gular', 'Capacete', 'Car\u00fancula frontal', 'Car\u00fancula nasal', 'Car\u00fancula ocular', 'Crista carnuda', 'Crista cef\u00e1lica', 'Crista dorsal', 'Crista \u00f3ssea', 'Crista sagital', 'Dobras cut\u00e2neas', 'Fole gular', 'Franja d\u00e9rmica', 'Membrana expans\u00edvel', 'Prega abdominal', 'Prega gular', 'Prega lateral', 'Saco a\u00e9reo externo', 'Saco bucal', 'Saco gular', 'Saco vocal'],
+            'Ap\u00eandices locomotores': ['Asa', 'Asa membranosa', 'Asa r\u00edgida', 'Bra\u00e7o', 'Cirros locomotores', 'Elitro', 'Falso polegar', 'Flipper ou membro em forma de remo', 'Barbatana adiposa', 'Barbatana anal', 'Barbatana caudal', 'Barbatana dorsal', 'Barbatana peitoral', 'Barbatana p\u00e9lvica', 'Parap\u00f3dio', 'Pat\u00e1gio', 'P\u00e9', 'P\u00e9 ambulacr\u00e1rio', 'P\u00e9 muscular', 'Perna', 'Pin\u00e7a', 'Pseud\u00f3pode', 'Quela', 'Rem\u00edgio', 'Tent\u00e1culo locomotor'],
+            'Estruturas de fixa\u00e7\u00e3o e ader\u00eancia': ['Acet\u00e1bulo', 'Almofada adesiva', 'Ampola adesiva', 'Botr\u00eddio', 'Botr\u00eddia', 'Disco adesivo', 'Disco de suc\u00e7\u00e3o', 'Disco p\u00e9lvico', 'Ganchos de fixa\u00e7\u00e3o', 'Lamelas adesivas', '\u00d3rg\u00e3o adesivo', 'Pelos adesivos', 'Rostelo com ganchos', 'Seta adesiva', 'Ventosa'],
+            'Estruturas das patas e extremidades': ['Almofada plantar', 'Ar\u00f3lio', 'Casco', 'Digit\u00edgrado especializado', 'Esc\u00f3pula', 'Espor\u00e3o calc\u00e2neo', 'Garra', 'Garra retr\u00e1til', 'Unha venenosa', 'Pente tarsal', 'Pin\u00e7a pedipalpal', 'Polegar opositor', 'Pseudopolegar', 'Pulvilo', 'Tarso adesivo', 'Unha', 'Unha fendida'],
+            'Estruturas da cauda': ['Abanador caudal', 'Aguilh\u00e3o caudal', 'Barbela caudal', 'Cauda pre\u00eansil', 'Cauda propulsora', 'Cauda regener\u00e1vel', 'Cauda em remo', 'Clava caudal', 'Espinho caudal', 'Ferr\u00e3o caudal', 'Filamento caudal', 'L\u00f3bulo caudal', 'Pin\u00e7a caudal', 'Placa caudal', 'Telson', 'Ur\u00f3podes'],
+            'Estruturas respirat\u00f3rias': ['Br\u00e2nquia', 'Br\u00e2nquia externa', 'Br\u00e2nquia interna', 'Br\u00e2nquia foliar', 'Br\u00e2nquia pulmonar', 'C\u00e2mara branquial', 'Espir\u00e1culo', 'Filamento branquial', 'Lamela branquial', 'Livro pulmonar', 'Op\u00e9rculo', 'Papila respirat\u00f3ria', 'Parabr\u00f4nquio', 'Pecten respirat\u00f3rio', 'Plastr\u00e3o respirat\u00f3rio', 'Pulm\u00e3o', 'Pulm\u00e3o sacular', 'Sif\u00e3o respirat\u00f3rio', 'Traqueia', 'Traqueobr\u00e2nquia', 'T\u00fabulo respirat\u00f3rio'],
+            'Estruturas aqu\u00e1ticas especiais': ['Ampola de Lorenzini', 'Barbilh\u00e3o sensorial', 'Bexiga natat\u00f3ria', 'Canal da linha lateral', 'Cl\u00e1sper', 'Dent\u00edculo d\u00e9rmico', 'Disco cef\u00e1lico', 'Fot\u00f3foro', 'Linha lateral', '\u00d3rg\u00e3o luminoso', 'Ped\u00fanculo caudal', 'Placa branquial', 'Rostro eletrossensorial', 'Sif\u00e3o exalante', 'Sif\u00e3o inalante'],
+            'Estruturas sensoriais': ['Antena', 'Ant\u00eanula', 'Cerda sensorial', 'Cirro sensorial', 'Escama sensorial', 'Estatocisto', 'Fosseta sensorial', 'F\u00f3vea sensorial', 'Linha lateral', 'Neuromasto', 'Ocelos', '\u00d3rg\u00e3o de Jacobson', '\u00d3rg\u00e3o de Johnston', '\u00d3rg\u00e3o timp\u00e2nico', 'Papila sensorial', 'Pedicelo ocular', 'Pelo sensorial', 'Quimiorrecetor', 'Sensilo', 'Sensilo campaniforme', 'Sensilo celoc\u00f3nico', 'Sensilo tric\u00f3ide', 'Tent\u00e1culo sensorial', 'Tricob\u00f3trio', 'Vibrissa'],
+            'Estruturas oculares': ['Cristalino esf\u00e9rico', 'Escama supraocular', 'Membrana nictitante', 'Ocelos', 'Olho composto', 'Olho pedunculado', 'Olho simples', 'P\u00e1lpebra transparente', 'Placa ocular', 'Tapetum lucidum', 'Tub\u00e9rculo ocular'],
+            'Estruturas auditivas e de equil\u00edbrio': ['Bula auditiva', 'Columela', 'Estatocisto', 'Labirinto membranoso', 'Linha ac\u00fastica', 'Membrana timp\u00e2nica', '\u00d3rg\u00e3o de equil\u00edbrio', '\u00d3rg\u00e3o timp\u00e2nico', 'Ot\u00f3lito', 'Pavilh\u00e3o auricular', 'T\u00edmpano'],
+            'Estruturas de defesa e ataque': ['Aguilh\u00e3o', 'Arp\u00e3o', 'Cerda urticante', 'Cnid\u00f3cito', 'Espinho', 'Espinho defensivo', 'Espinho venenoso', 'Ferr\u00e3o', 'Forc\u00edpula venenosa', 'Garra', 'Mand\u00edbula cortante', 'Nematocisto', 'Pedicel\u00e1ria', 'Pin\u00e7a', 'Presa inoculadora', 'Quela', 'Rostro perfurante', 'Seta urticante', 'Tub\u00e9rculo defensivo', 'Unha venenosa'],
+            'Estruturas produtoras ou inoculadoras de veneno': ['Aguilh\u00e3o venenoso', 'Cerda venenosa', 'Dente inoculador', 'Espinho venenoso', 'Espor\u00e3o venenoso', 'Ferr\u00e3o venenoso', 'Forc\u00edpulas', 'Forc\u00edpulas venenosas', 'Gl\u00e2ndula de pe\u00e7onha', 'Gl\u00e2ndula de veneno', 'Nematocisto', 'Presa solen\u00f3glifa', 'Presa opist\u00f3glifa', 'Presa proter\u00f3glifa', 'Presa venenosa', 'Unha venenosa'],
+            'Estruturas glandulares': ['Gl\u00e2ndula adesiva', 'Gl\u00e2ndula anal', 'Gl\u00e2ndula antenal', 'Gl\u00e2ndula de alarme', 'Gl\u00e2ndula de cheiro', 'Gl\u00e2ndula de cera', 'Gl\u00e2ndula de seda', 'Gl\u00e2ndula de veneno', 'Gl\u00e2ndula de pe\u00e7onha', 'Gl\u00e2ndula de sal', 'Gl\u00e2ndula de tinta', 'Gl\u00e2ndula de urop\u00edgio', 'Gl\u00e2ndula femoral', 'Gl\u00e2ndula frontal', 'Gl\u00e2ndula lacrimal', 'Gl\u00e2ndula mam\u00e1ria', 'Gl\u00e2ndula mandibular', 'Gl\u00e2ndula metapleural', 'Gl\u00e2ndula mucosa', 'Gl\u00e2ndula odor\u00edfera', 'Gl\u00e2ndula parotoide', 'Gl\u00e2ndula pr\u00e9-orbital', 'Gl\u00e2ndula seb\u00e1cea', 'Gl\u00e2ndula subcaudal', 'Gl\u00e2ndula sudor\u00edpara', 'Gl\u00e2ndula temporal', 'Gl\u00e2ndula tergal'],
+            'Estruturas produtoras de seda, muco ou secre\u00e7\u00f5es': ['Cribelo', 'Fiandeira', 'F\u00fasula', 'Gl\u00e2ndula de muco', 'Gl\u00e2ndula de seda', 'Gl\u00e2ndula salivar modificada', '\u00d3rg\u00e3o produtor de cera', 'Placa cribelar', 'Tubo de seda'],
+            'Estruturas el\u00e9tricas, luminosas e t\u00e9rmicas': ['Ampola de Lorenzini', 'Eletr\u00f3cito', 'Fot\u00f3foro', 'Fosseta termossens\u00edvel', '\u00d3rg\u00e3o el\u00e9trico', '\u00d3rg\u00e3o eletrog\u00e9nico', '\u00d3rg\u00e3o eletrossensorial', '\u00d3rg\u00e3o luminoso', 'Placa el\u00e9trica'],
+            'Estruturas de reprodu\u00e7\u00e3o': ['Aedeago', 'Bolsa copuladora', 'Bursa copulatrix', 'Cl\u00e1sper', 'Clitelo', 'Espermateca', 'Esp\u00edcula copuladora', 'Gon\u00f3pode', 'Hemip\u00e9nis', 'Mars\u00fapio', 'Ovipositor', 'P\u00e9nis', 'Pedipalpo copulador', 'Poro genital', 'Recept\u00e1culo seminal', 'Tent\u00e1culo hectocotilizado', '\u00datero incubador'],
+            'Estruturas de incuba\u00e7\u00e3o e cuidado parental': ['Bolsa incubadora', 'Bolsa marsupial', 'C\u00e2mara incubadora', 'Cavidade bucal incubadora', 'Ninho epid\u00e9rmico', 'Placa incubadora', 'Prega incubadora', 'Saco incubador', 'Sulco incubador'],
+            'Estruturas das aves': ['\u00c1lula', 'Barba da pena', 'B\u00e1rbula', 'Bico', 'Car\u00fancula', 'Cera', 'Crista', 'Escudo do tarso', 'Espor\u00e3o', 'Filopluma', 'Papo', 'Pena', 'Pena de contorno', 'Pena de voo', 'Pena ornamental', 'Pluma', 'R\u00e9mige', 'Retriz', 'Saco gular', 'Urop\u00edgio'],
+            'Estruturas dos mam\u00edferos': ['Almofada plantar', 'Barbatana peitoral modificada', 'Barbas de baleia', 'Chifre', 'Disco nasal', 'Falso polegar', 'Galhada', 'Gl\u00e2ndula mam\u00e1ria', 'Melena', 'Ossicone', 'Pat\u00e1gio', 'Placa d\u00e9rmica', 'Placas de barbas', 'Presas', 'Queratina nasal', 'Tromba', 'Vibrissas'],
+            'Estruturas dos r\u00e9pteis e anf\u00edbios': ['Capacete cef\u00e1lico', 'Carapa\u00e7a', 'Crista dorsal', 'Disco adesivo digital', 'Escama ventral', 'Escudo d\u00e9rmico', 'Fosseta loreal', 'Gl\u00e2ndula parotoide', 'Hemip\u00e9nis', 'Lamelas subdigitais', 'Membrana interdigital', 'Osteodermo', 'Plastr\u00e3o', 'Prega dorsolateral', 'Saco vocal', 'Tub\u00e9rculo nupcial'],
+            'Estruturas dos artr\u00f3podes': ['Antena', 'Ant\u00eanula', 'Carapa\u00e7a', 'Cerco', 'Cl\u00edpeo', 'Coxa', 'Elitro', 'Escutelo', 'Espir\u00e1culo', 'Exopodito', 'Fiandeira', 'Forc\u00edpula', 'Gnat\u00f3pode', 'Maxil\u00edpede', 'Omat\u00eddio', 'Ovipositor', 'Pedipalpo', 'Ple\u00f3pode', 'Pronoto', 'Quela', 'Rostro', 'Sensilo', 'Tarso', 'Telson', 'Ur\u00f3pode'],
+            'Estruturas dos moluscos': ['Bissos', 'Cerata', 'Concha', 'Hectoc\u00f3tilo', 'Manto', 'N\u00e1car', 'Op\u00e9rculo', 'P\u00e9 muscular', 'R\u00e1dula', 'Sif\u00e3o', 'Tent\u00e1culo', 'Umbo'],
+            'Estruturas dos anel\u00eddeos': ['Clitelo', 'Parap\u00f3dio', 'Prost\u00f3mio', 'Pig\u00eddio', 'Seta', 'Cirro', 'Ventosa', 'Prob\u00f3scide evers\u00edvel'],
+            'Estruturas dos equinodermes': ['Ambulacro', '\u00c1rvore respirat\u00f3ria', 'Espinho', 'Lanterna de Arist\u00f3teles', 'Madreporito', 'Papula', 'Pedicel\u00e1ria', 'P\u00e9 ambulacr\u00e1rio', 'Placa calc\u00e1ria', 'Sulco ambulacral'],
+            'Estruturas dos cnid\u00e1rios': ['Acrorr\u00e1gio', 'Cnid\u00f3cito', 'Coralito', 'Disco oral', 'Mesogleia', 'Nematocisto', 'P\u00f3lipo', 'Septo', 'Tent\u00e1culo', 'Verruga adesiva'],
+            'Estruturas dos por\u00edferos': ['Esp\u00edcula', 'Espongina', '\u00d3sculo', '\u00d3stio', 'Por\u00f3cito', 'Coan\u00f3cito', 'C\u00e2mara coanocit\u00e1ria', 'Espongoc\u00e9lio']
+        };
 
+
+
+        Object.keys(ANATOMICAL_STRUCTURE_DEFINITIONS).forEach(tipo => {
+            if (!generalVisualOptions.some(existing => normalizeSearchText(existing.tipo) === normalizeSearchText(tipo))) {
+                generalVisualOptions.push({ tipo, unidade: 'cm' });
+            }
+        });
 
         const GENERAL_VISUAL_SECTIONS = [
+
             {
                 key: 'geral',
                 title: 'Geral',
@@ -93,7 +135,7 @@
                 key: 'habitat',
                 title: 'Habitat',
                 icon: 'fa-mountain-sun',
-                models: ['Bioma', 'Zona Climática']
+                models: ['Bioma', 'Estrato ecológico', 'Zona Climática']
             },
             {
                 key: 'habitos',
@@ -102,16 +144,34 @@
                 models: ['Atividade', 'Comportamento sazonal', 'Locomoção', 'Vida Social', 'Composição do grupo social']
             },
             {
+                key: 'anatomia',
+                title: 'Anatomia',
+                icon: 'fa-bone',
+                models: ['Força da mordida', 'Número de dentes', 'Número de mamas', 'Simetria corporal', 'Número de segmentos', 'Número de patas', 'Número de poros', 'Número de brânquias', 'Número de barbatanas', 'Número de vértebras', 'Número de escamas', 'Número de miómeros', 'Tipo de esqueleto']
+            },
+            {
                 key: 'fisiologia',
                 title: 'Fisiologia',
                 icon: 'fa-heart-pulse',
-                models: ['Força da mordida', 'Número de dentes', 'Número de mamas', 'Simetria corporal', 'Termorregulação', 'Transformações do desenvolvimento', 'Número de segmentos', 'Número de patas', 'Número de poros', 'Número de brânquias', 'Número de barbatanas', 'Número de vértebras', 'Número de escamas', 'Número de miômeros', 'Tipo de esqueleto']
+                models: ['Termorregulação']
+            },
+            {
+                key: 'desenvolvimento',
+                title: 'Desenvolvimento',
+                icon: 'fa-seedling',
+                models: ['Transformações do desenvolvimento']
             },
             {
                 key: 'crias',
                 title: 'Crias',
                 icon: 'fa-baby',
                 models: ['Tempo de Amamentação', 'Abertura dos olhos', 'Início da marcha', 'Início da corrida', 'Saída do esconderijo', 'Independência', 'Início do voo', 'Primeira alimentação sólida', 'Saída do ninho', 'Saída da toca', 'Desmame', 'Primeira vocalização', 'Maturidade física']
+            },
+            {
+                key: 'estruturas_anatomicas',
+                title: 'Estruturas anatómicas',
+                icon: 'fa-dna',
+                models: Object.keys(ANATOMICAL_STRUCTURE_DEFINITIONS)
             }
         ];
 
@@ -149,7 +209,17 @@
 
                 const header = document.createElement('div');
                 header.className = 'general-visual-row-header general-visual-section-row-header';
-                header.innerHTML = `
+                header.dataset.section = section.key;
+                header.innerHTML = section.key === 'estruturas_anatomicas'
+                    ? `
+                    <span>Modelo</span>
+                    <span>Estrutura</span>
+                    <span>Mín.</span>
+                    <span>Máx.</span>
+                    <span>Unidade</span>
+                    <span>Género</span>
+                    <span>Fase</span>`
+                    : `
                     <span>Modelo</span>
                     <span>Mín.</span>
                     <span>Máx.</span>
@@ -203,7 +273,7 @@
         }
 
         function isMixedDropdownRangeGeneralModel(type = '') {
-            return false;
+            return Object.prototype.hasOwnProperty.call(ANATOMICAL_STRUCTURE_DEFINITIONS, type);
         }
 
         function isUnitlessGeneralModel(type = '') {
@@ -251,6 +321,10 @@
                 'Redução de atividade na estação seca',
                 'Aumento de atividade na estação húmida'
             ];
+        }
+
+        function getAnatomicalStructureOptions(type = '') {
+            return ANATOMICAL_STRUCTURE_DEFINITIONS[type] || [];
         }
 
         function isBaseLifeExpectancyGeneralModel(type = '') {
@@ -353,6 +427,7 @@
         }
 
         function getGeneralUnitOptions(type = '') {
+            if (isMixedDropdownRangeGeneralModel(type)) return ['mm', 'cm', 'm'];
             if (isBasalMetabolicRateGeneralModel(type)) return getBasalMetabolicRateUnits();
             if (isDepthGeneralModel(type)) return getDepthUnits();
             if (isCaptivityMovementGeneralModel(type)) return getCaptivityMovementUnits();
@@ -371,6 +446,7 @@
         }
 
         function getGeneralDefaultUnit(type = '') {
+            if (isMixedDropdownRangeGeneralModel(type)) return 'cm';
             if (isBasalMetabolicRateGeneralModel(type)) return 'W';
             if (isDepthGeneralModel(type)) return 'm';
             if (isCaptivityMovementGeneralModel(type)) return 'km/dia';
@@ -422,15 +498,16 @@
             if (isLifeExpectancyGeneralModel(type)) return 'Ex: 15';
             if (isDevelopmentMilestoneGeneralModel(type)) return 'Ex: 3';
             if (isSocialGroupSizeGeneralModel(type)) return 'Ex: 5';
-            if (isSocialGroupCompositionGeneralModel(type)) return 'Ex: 10';
-            if (isTerritorySizeGeneralModel(type)) return 'Ex: 10';
-            if (isPercentageContextGeneralModel(type)) return 'Ex: 80';
-            if (isAltitudeGeneralModel(type)) return 'Ex: 2500';
+            if (isSocialGroupCompositionGeneralModel(type)) return 'Ex: 3';
+            if (isTerritorySizeGeneralModel(type)) return 'Ex: 5';
+            if (isPercentageContextGeneralModel(type)) return 'Ex: 70';
+            if (isAltitudeGeneralModel(type)) return 'Ex: 3000';
             return type && type.includes('Velocidade') ? 'Ex: 80' : 'Ex: 15';
         }
 
         function configureGeneralVisualRowControls(type, minInput, maxInput, unitSelect, strategySelect) {
             const isStrategy = isDropdownOnlyGeneralModel(type);
+            const isMixedStrategy = isMixedDropdownRangeGeneralModel(type);
             const isUnitless = isUnitlessGeneralModel(type);
             
             if (isStrategy) {
@@ -443,6 +520,19 @@
                 }
                 maxInput.value = '';
                 unitSelect.value = '';
+            } else if (isMixedStrategy) {
+                minInput.style.display = '';
+                maxInput.style.display = '';
+                unitSelect.style.display = '';
+                unitSelect.style.visibility = 'visible';
+                unitSelect.style.pointerEvents = '';
+                unitSelect.tabIndex = 0;
+                if (strategySelect) {
+                    strategySelect.style.display = '';
+                    strategySelect.style.gridColumn = '';
+                }
+                minInput.step = '0.01';
+                minInput.min = '0';
             } else {
                 minInput.style.display = '';
                 maxInput.style.display = '';
@@ -485,15 +575,19 @@
             strategySelect.style.display = 'none';
             function populateDropdownSelect(selectedType) {
                 const isSeasonal = isSeasonalBehaviorGeneralModel(selectedType);
+                const isAnatomicalStructure = isMixedDropdownRangeGeneralModel(selectedType);
                 const config = isSeasonal ? { placeholder: 'Escolhe o comportamento sazonal' } : getGeneralVisualSelectConfig(selectedType);
                 const options = isSeasonal
                     ? getSeasonalBehaviorOptions()
-                    : [...getGeneralVisualSelectOptions(selectedType)].sort((a, b) => a.localeCompare(b));
-                strategySelect.innerHTML = `<option value="">${config?.placeholder || 'Escolhe uma opção'}</option>` +
+                    : isAnatomicalStructure
+                        ? getAnatomicalStructureOptions(selectedType)
+                        : [...getGeneralVisualSelectOptions(selectedType)].sort((a, b) => a.localeCompare(b));
+                const placeholder = isAnatomicalStructure ? 'Escolhe uma estrutura' : (config?.placeholder || 'Escolhe uma opção');
+                strategySelect.innerHTML = `<option value="">${placeholder}</option>` +
                     options.map(option => `<option value="${option}">${option}</option>`).join('');
             }
             populateDropdownSelect(type);
-            if (isDropdownOnlyGeneralModel(type)) {
+            if (isDropdownOnlyGeneralModel(type) || isMixedDropdownRangeGeneralModel(type)) {
                 strategySelect.value = minValue || optionValue;
             }
 
@@ -574,7 +668,11 @@
                 updateGeneralVisualPreview();
             });
 
-            row.append(typeSelect, minInput, strategySelect, maxInput, unitSelect, genderBtn, faseBtn, removeBtn);
+            if (section.key === 'estruturas_anatomicas') {
+                row.append(typeSelect, strategySelect, minInput, maxInput, unitSelect, genderBtn, faseBtn, removeBtn);
+            } else {
+                row.append(typeSelect, minInput, strategySelect, maxInput, unitSelect, genderBtn, faseBtn, removeBtn);
+            }
             const sectionRows = generalVisualSectionRows.get(section.key) || generalVisualRowsContainer;
             sectionRows.appendChild(row);
             updateGeneralVisualSectionCounts();
@@ -586,6 +684,7 @@
                 .map(row => {
                     const type = row.querySelector('.general-visual-type')?.value || '';
                     const isStrategy = isDropdownOnlyGeneralModel(type);
+                    const isMixedStrategy = isMixedDropdownRangeGeneralModel(type);
                     const optionValue = row.querySelector('.general-visual-strategy')?.value || '';
                     const min = isStrategy
                         ? optionValue
@@ -596,13 +695,13 @@
                         valor: min,
                         valorMin: min,
                         valorMax: max,
-                        opcao: '',
+                        opcao: isMixedStrategy ? optionValue : '',
                         unidade: (isStrategy || isUnitlessGeneralModel(type)) ? '' : (row.querySelector('.general-visual-unit')?.value || ''),
                         genero: normalizeGenderValue(row.querySelector('.general-visual-gender-toggle')?.dataset.value, GENDER_BOTH),
                         fase: row.querySelector('.general-visual-fase-toggle')?.dataset.value || 'Adulto'
                     };
                 })
-                .filter(item => item.tipo && (item.valorMin || item.valorMax || item.valor));
+                .filter(item => item.tipo && (item.opcao || item.valorMin || item.valorMax || item.valor));
         }
 
         function getDefaultGeneralVisualOptions() {
@@ -925,3 +1024,4 @@
         }
 
         // --- ALIMENTAÇÃO E MODELO VISUAL ---
+
