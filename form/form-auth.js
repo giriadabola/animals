@@ -13,13 +13,6 @@ function setStatus(message) {
     if (status) status.textContent = message;
 }
 
-function showFormChrome() {
-    const title = document.getElementById('formTitle');
-    const subtitle = document.getElementById('formSubtitle');
-    if (title) title.style.display = '';
-    if (subtitle) subtitle.style.display = '';
-}
-
 function applyRoleUI(role) {
     const gestorIndexBtn = document.getElementById('gestorIndexBtn');
     const isAdmin = role === 'ruler' || role === 'estafeta';
@@ -38,7 +31,6 @@ function hideLoadingOverlay(reason = 'ready') {
 
     document.body.classList.remove('form-auth-pending');
     document.body.classList.add('form-auth-ready');
-    showFormChrome();
 
     if (overlay) {
         overlay.classList.add('form-loading-hidden');
@@ -49,6 +41,17 @@ function hideLoadingOverlay(reason = 'ready') {
         overlay.style.display = 'none';
         requestAnimationFrame(() => overlay?.remove());
     }
+
+    setTimeout(() => {
+        const sciInput = document.getElementById('nomeCientifico');
+        if (sciInput && !sciInput.disabled && !sciInput.readOnly) {
+            sciInput.focus({ preventScroll: true });
+            const len = sciInput.value.length;
+            if (typeof sciInput.setSelectionRange === 'function') {
+                sciInput.setSelectionRange(len, len);
+            }
+        }
+    }, 100);
 
     console.log(`Form Auth: overlay fechado (${reason}).`);
 }
@@ -99,7 +102,6 @@ onAuthStateChanged(auth, async (user) => {
             applyRoleUI(role);
             setStatus('Autorizado. A abrir formulário...');
             window.__FORM_AUTH_VERIFIED = true;
-            showFormChrome();
             document.dispatchEvent(new CustomEvent('form:auth-ready', { detail: { role } }));
             return;
         }
@@ -108,7 +110,6 @@ onAuthStateChanged(auth, async (user) => {
             applyRoleUI('colaborador');
             setStatus('Modo de sugestão autorizado. A abrir formulário...');
             window.__FORM_AUTH_VERIFIED = true;
-            showFormChrome();
             document.dispatchEvent(new CustomEvent('form:auth-ready', { detail: { role: 'colaborador' } }));
             return;
         }

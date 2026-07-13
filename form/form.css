@@ -2986,6 +2986,209 @@ body.edit-theme #tabpanel-ecologia {
     min-width: 0;
 }
 
+.distribution-map-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.distribution-map-close-btn {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    flex: 0 0 auto;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.2);
+    color: var(--text-primary);
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+.distribution-map-close-btn:hover {
+    background: rgba(239, 68, 68, 0.25);
+    border-color: rgba(248, 113, 113, 0.58);
+    color: #fecaca;
+}
+
+body.distribution-map-modal-open::before {
+    display: none;
+}
+
+html.distribution-map-modal-open,
+body.distribution-map-modal-open {
+    overflow: hidden;
+}
+
+.map-container-wrapper.distribution-map-expanded {
+    position: fixed;
+    inset: 18px;
+    z-index: 1900;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    padding: 22px;
+    box-sizing: border-box;
+    height: calc(100vh - 36px);
+    height: calc(100dvh - 36px);
+    min-height: 0;
+    max-height: none;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-gutter: stable;
+    border: 1px solid rgba(245, 158, 11, 0.42);
+    border-radius: 22px;
+    background: #2b1c12;
+    box-shadow: 0 0 0 100vmax rgba(8, 5, 3, 0.78), 0 24px 80px rgba(0, 0, 0, 0.55);
+}
+
+.map-container-wrapper.distribution-map-expanded .distribution-map-close-btn {
+    display: inline-flex;
+}
+
+.distribution-map-expanded .map-container {
+    height: min(72vh, 720px);
+    min-height: 420px;
+    overscroll-behavior: contain;
+}
+
+.distribution-map-tools {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    margin-top: 12px;
+    padding: 12px 14px;
+    border: 1px solid rgba(245, 158, 11, 0.2);
+    border-radius: 14px;
+    background: rgba(245, 158, 11, 0.06);
+}
+
+.distribution-map-tool-copy {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+}
+
+.distribution-map-tool-copy strong {
+    color: var(--text-primary);
+    font-size: 0.82rem;
+}
+
+.distribution-map-tool-copy span,
+.distribution-map-status {
+    color: var(--text-secondary);
+    font-size: 0.75rem;
+    line-height: 1.45;
+}
+
+.distribution-map-tool-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: flex-end;
+}
+
+.distribution-map-tool-actions .secondary-action-btn {
+    min-height: 36px;
+    padding: 8px 11px;
+    white-space: nowrap;
+}
+
+.distribution-map-status {
+    min-height: 18px;
+    margin: 8px 2px 0;
+}
+
+.habitat-area-list,
+.habitat-point-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 4px;
+}
+
+.habitat-area-item {
+    display: grid;
+    grid-template-columns: 10px minmax(0, 1fr) minmax(150px, 0.8fr) 36px;
+    gap: 8px;
+    align-items: center;
+    padding: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    background: rgba(0, 0, 0, 0.14);
+}
+
+.habitat-area-swatch {
+    width: 10px;
+    height: 28px;
+    border-radius: 999px;
+}
+
+.habitat-area-item input,
+.habitat-area-item select {
+    width: 100%;
+    min-width: 0;
+    min-height: 36px;
+    padding: 7px 9px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 9px;
+    background: #181322;
+    color: var(--text-primary);
+    color-scheme: dark;
+}
+
+.habitat-area-remove {
+    width: 36px;
+    height: 36px;
+    border: 1px solid rgba(255, 90, 90, 0.42);
+    border-radius: 9px;
+    background: rgba(255, 72, 72, 0.1);
+    color: #ffd2d2;
+    cursor: pointer;
+}
+
+@media (max-width: 720px) {
+    .distribution-map-heading {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .map-container-wrapper.distribution-map-expanded {
+        inset: 8px;
+        padding: 14px;
+        height: calc(100vh - 16px);
+        height: calc(100dvh - 16px);
+        border-radius: 16px;
+    }
+
+    .distribution-map-expanded .map-container {
+        height: 62vh;
+        min-height: 300px;
+    }
+
+    .distribution-map-tools {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .distribution-map-tool-actions {
+        justify-content: flex-start;
+    }
+
+    .habitat-area-item {
+        grid-template-columns: 10px minmax(0, 1fr) 36px;
+    }
+
+    .habitat-area-item select {
+        grid-column: 2 / -1;
+    }
+}
+
 .distribution-biogeographic-field {
     grid-column: 1 / -1;
     margin-top: 6px;

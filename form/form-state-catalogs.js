@@ -22,8 +22,6 @@
 
         const animalForm = document.getElementById('animalForm');
         const saveButton = document.getElementById('saveButton');
-        const formTitle = document.getElementById('formTitle');
-        const formSubtitle = document.getElementById('formSubtitle');
         const statusMessage = document.getElementById('statusMessage');
         const nomeCientificoInput = document.getElementById('nomeCientifico');
         const scientificPriorityGroup = nomeCientificoInput.closest('.scientific-name-priority');

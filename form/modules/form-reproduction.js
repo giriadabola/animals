@@ -1130,7 +1130,7 @@
                         };
                     }
                 })
-                .filter(item => item && (item.tipo || item.detalhe));
+                .filter(item => item && (item.tipo === 'Investimento Parental' ? (item.etapa || item.cuidado || item.responsavel) : item.detalhe));
             return dynamicItems;
         }
 

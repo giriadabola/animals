@@ -22,8 +22,6 @@
 
         const animalForm = document.getElementById('animalForm');
         const saveButton = document.getElementById('saveButton');
-        const formTitle = document.getElementById('formTitle');
-        const formSubtitle = document.getElementById('formSubtitle');
         const statusMessage = document.getElementById('statusMessage');
         const nomeCientificoInput = document.getElementById('nomeCientifico');
         const scientificPriorityGroup = nomeCientificoInput.closest('.scientific-name-priority');
@@ -724,6 +722,15 @@
                 const distributionRegionsSaveData = typeof window.getDistributionRegionsData === 'function'
                     ? window.getDistributionRegionsData()
                     : [];
+                const distributionAreasSaveData = typeof window.getDistributionAreasData === 'function'
+                    ? window.getDistributionAreasData()
+                    : [];
+                const distributionPointsSaveData = typeof window.getDistributionPointsData === 'function'
+                    ? window.getDistributionPointsData()
+                    : [];
+                const automaticDistributionCountries = typeof window.getAutoDetectedDistributionCountryCodes === 'function'
+                    ? window.getAutoDetectedDistributionCountryCodes()
+                    : [];
 
                 const animalData = {
                     nome: document.getElementById('nomeAnimal').value,
@@ -756,6 +763,9 @@
                     imagemPerfilSexo: profilePhotosSaveData.primary?.gender || '',
                     imagemPerfilFase: profilePhotosSaveData.primary?.phase || '',
                     profileImages: profilePhotosSaveData.profileImages || [],
+                    imagemRodape: document.getElementById('imagemRodape').value || '',
+                    rodapeHasEsqueleto: document.getElementById('rodapeHasEsqueleto').checked,
+                    rodapeHasAnatomia: document.getElementById('rodapeHasAnatomia').checked,
                     categoria: getSelectedCategoriesMap(),
                     qualidadeRegisto: qualitySaveData,
                     nivelQualidade: qualitySaveData.nivel,
@@ -777,6 +787,9 @@
                         distribuicao: {
                             paises: selectedCountries,
                             paisesDetalhes: paisesDetalhes,
+                            paisesAutomaticos: automaticDistributionCountries,
+                            areas: distributionAreasSaveData,
+                            pontos: distributionPointsSaveData,
                             descricao: document.getElementById('infoDistribuicao').value || '',
                             regioesBiogeograficas: distributionRegionsSaveData,
                             regioes: distributionRegionsSaveData
@@ -885,6 +898,7 @@
                 statusMessage.textContent = error.message || 'Ocorreu um erro ao gravar. Verifique a consola.';
             } finally {
                 saveButton.disabled = false;
+                saveButton.textContent = isSuggestionMode ? 'Enviar sugestão' : (isEditMode ? 'Atualizar Dados' : 'Gravar Novo Animal');
             }
         });
 

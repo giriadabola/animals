@@ -1,4 +1,4 @@
-﻿import { db } from "../js/firebase-config.js?v=5";
+import { db } from "../js/firebase-config.js?v=5";
         import { doc, getDoc, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
         import { feedingTypeDescriptions, getFeedingVisualMeta, getFeedingModelSvg } from "../js/feeding-visuals.js";
         import { feedingAnimalOptions } from "../js/feeding-animal-options.js?v=2";
@@ -7,7 +7,7 @@
         import { ecologyBlockConfigs, getEcologyBlockSvg } from "../js/ecology-visuals.js?v=1";
         import { getGeneralVisualMeta as getGeneralVisualCatalogMeta, getGeneralModelSvg as getGeneralCatalogModelSvg, getActivityMeta, getActivitySvg, getSocialMeta, getSocialSvg, getEcologicalFunctionMeta, getEcologicalFunctionSvg, getLocomotionMeta, getLocomotionSvg } from "../js/general-visual-catalog.js";
         import { collapseCombinedGenderItems, collectConcreteGenders, genderMatchesSelection, normalizeGenderValue } from "../js/gender-utils.js?v=2";
-        import { renderAnatomyBlock, initAnatomyViewer } from "../js/anatomy-viewer.js?v=20260710_audio_3";
+        import { renderAnimalMediaBlock, initAnimalMediaBlock, initFooterAnatomyTabs } from "../js/animal-media-block.js?v=3";
         import { renderAnimalAudioThumbnail, initAnimalAudioControls, pauseAllAnimalAudio } from "../js/animal-audio.js?v=20260710_audio_4";
         import { initAnimalProfileActions } from "../js/profile-favorites.js?v=4";
         
@@ -35,7 +35,7 @@
                 const response = await fetch('../js/countries.json');
                 countryList = await response.json();
             } catch (error) {
-                console.error("Erro ao carregar lista de paÃ­ses:", error);
+                console.error("Erro ao carregar lista de países:", error);
             }
         }
 
@@ -111,7 +111,7 @@
             const defaultGender = genders.has('M') ? 'M' : 'F';
             let html = `<span class="info-gender-tabs" style="display: inline-flex; gap: 10px; align-items: center; vertical-align: middle;">`;
             
-            // Abas de Fase (ÃƒÂ  esquerda)
+            // Abas de Fase (Ã  esquerda)
             if (hasPhases) {
                 html += `
                     <span class="glass-pill-toggle phase-toggle-container" style="display: inline-flex; background: rgba(255, 255, 255, 0.04); backdrop-filter: blur(8px); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 30px; padding: 3px; gap: 2px; align-items: center; box-shadow: inset 0 1px 1px rgba(255,255,255,0.05);">
@@ -124,12 +124,12 @@
                 }
             }
             
-            // Abas de GÃ©nero (ÃƒÂ  direita)
+            // Abas de Género (Ã  direita)
             if (hasGenders) {
                 html += `
                     <span class="glass-pill-toggle gender-toggle-container" style="display: inline-flex; background: rgba(255, 255, 255, 0.04); backdrop-filter: blur(8px); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 30px; padding: 3px; gap: 2px; align-items: center; box-shadow: inset 0 1px 1px rgba(255,255,255,0.05);">
                         ${showSplitGenderToggle
-                            ? `${genders.has('M') ? `<button class="gender-tab-btn ${defaultGender === 'M' ? 'active' : ''}" data-gender="M" style="color: ${defaultGender === 'M' ? '#3b82f6' : 'rgba(255,255,255,0.4)'}; background: ${defaultGender === 'M' ? 'rgba(59, 130, 246, 0.12)' : 'transparent'}; border: 1px solid ${defaultGender === 'M' ? 'rgba(59, 130, 246, 0.15)' : 'transparent'}; border-radius: 20px; width: 36px; height: 36px; font-weight: bold; font-size: 1.05rem; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; outline: none; padding: 0; line-height: 1;">â™‚</button>` : ''}${genders.has('F') ? `<button class="gender-tab-btn ${defaultGender === 'F' ? 'active' : ''}" data-gender="F" style="color: ${defaultGender === 'F' ? '#ec4899' : 'rgba(255,255,255,0.4)'}; background: ${defaultGender === 'F' ? 'rgba(236, 72, 153, 0.12)' : 'transparent'}; border: 1px solid ${defaultGender === 'F' ? 'rgba(236, 72, 153, 0.15)' : 'transparent'}; border-radius: 20px; width: 36px; height: 36px; font-weight: bold; font-size: 1.05rem; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; outline: none; padding: 0; line-height: 1;">â™€</button>` : ''}`
+                            ? `${genders.has('M') ? `<button class="gender-tab-btn ${defaultGender === 'M' ? 'active' : ''}" data-gender="M" style="color: ${defaultGender === 'M' ? '#3b82f6' : 'rgba(255,255,255,0.4)'}; background: ${defaultGender === 'M' ? 'rgba(59, 130, 246, 0.12)' : 'transparent'}; border: 1px solid ${defaultGender === 'M' ? 'rgba(59, 130, 246, 0.15)' : 'transparent'}; border-radius: 20px; width: 36px; height: 36px; font-weight: bold; font-size: 1.05rem; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; outline: none; padding: 0; line-height: 1;">♂</button>` : ''}${genders.has('F') ? `<button class="gender-tab-btn ${defaultGender === 'F' ? 'active' : ''}" data-gender="F" style="color: ${defaultGender === 'F' ? '#ec4899' : 'rgba(255,255,255,0.4)'}; background: ${defaultGender === 'F' ? 'rgba(236, 72, 153, 0.12)' : 'transparent'}; border: 1px solid ${defaultGender === 'F' ? 'rgba(236, 72, 153, 0.15)' : 'transparent'}; border-radius: 20px; width: 36px; height: 36px; font-weight: bold; font-size: 1.05rem; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; outline: none; padding: 0; line-height: 1;">♀</button>` : ''}`
                             : `<span style="display: inline-flex; align-items: center; justify-content: center; gap: 2px; border-radius: 20px; width: 36px; height: 36px; background: linear-gradient(135deg, rgba(59, 130, 246, 0.14), rgba(236, 72, 153, 0.14)); border: 1px solid rgba(255,255,255,0.1);"><span style="color: #3b82f6; font-weight: 700; font-size: 0.95rem; line-height: 1;">&#9794;</span><span style="color: #ec4899; font-weight: 700; font-size: 0.95rem; line-height: 1;">&#9792;</span></span>`}
                     </span>
                 `;
@@ -214,7 +214,7 @@
             if (normalized.includes('pata')) return { key: 'patas', title: metric || 'Comprimento das patas', accent: 'accent-leg' };
             if (normalized.includes('ovo')) return { key: 'ovo', title: metric || 'Tamanho do ovo', accent: 'accent-egg' };
             if (normalized.includes('largura')) return { key: 'largura', title: metric || 'Largura', accent: 'accent-width' };
-            if (normalized.includes('diametro')) return { key: 'diametro', title: metric || 'DiÃ¢metro do corpo', accent: 'accent-width' };
+            if (normalized.includes('diametro')) return { key: 'diametro', title: metric || 'Diâmetro do corpo', accent: 'accent-width' };
             if (normalized.includes('comprimento')) return { key: 'comprimento', title: metric || 'Comprimento', accent: 'accent-length' };
             return { key: 'medida', title: metric || 'Medida', accent: 'accent-generic' };
         }
@@ -284,36 +284,61 @@
                     <div class="dimension-model-icon">${getMetricModelSvg(meta.key)}</div>
                     <div class="dimension-model-copy">
                         <div class="dimension-model-label${inlineGenderSymbol ? ' with-gender' : ''}">${escapeHtml(meta.title)}${inlineGenderSymbol}</div>
-                        <div class="dimension-model-value">${formatDimension(item, 'â€”')}</div>
+                        <div class="dimension-model-value">${formatDimension(item, '—')}</div>
                     </div>
                 </article>`;
         }
 
         function getInfoGroupForGeneralType(type = '') {
-            const normalized = normalizeDimensionKey(type);
-            if (
-                normalized.includes('atividade') ||
-                normalized.includes('estrategia') ||
-                normalized.includes('amament') ||
-                normalized.includes('funcao ecologica') ||
-                normalized.includes('locomocao') ||
-                normalized.includes('vida social')
-            ) {
-                return 'estilo-vida';
-            }
-
-            if (
-                normalized.includes('mordida') ||
-                normalized.includes('velocidade') ||
-                normalized.includes('vida util') ||
-                normalized.includes('expectativa media de vida') ||
-                normalized.includes('espetativa media de vida') ||
-                normalized.includes('dentes') ||
-                normalized.includes('popul')
-            ) {
-                return 'medidas';
-            }
-
+            const normalized = String(type || '').trim();
+            
+            const estiloVidaModels = new Set([
+                'Atividade', 'Comportamento sazonal', 'Locomoção', 'Vida Social', 
+                'Composição do grupo social', 'Organização social', 
+                'Construção de local de repouso', 'Autoinfeção'
+            ]);
+            
+            const anatomiaModels = new Set([
+                'Força da mordida', 'Número de dentes', 'Número de mamas', 'Simetria corporal', 
+                'Número de segmentos', 'Número de patas', 'Número de poros', 'Número de brânquias', 
+                'Número de barbatanas', 'Número de vértebras', 'Número de escamas', 'Número de miómeros', 
+                'Tipo de esqueleto', 'Presença/ausência de sistema digestivo', 
+                'Lado corporal da estrutura', 'Forma da estrutura'
+            ]);
+            
+            const fisiologiaModels = new Set([
+                'Termorregulação', 'Tipo de perceção'
+            ]);
+            
+            const desenvolvimentoModels = new Set([
+                'Transformações do desenvolvimento', 'Capacidade de regeneração'
+            ]);
+            
+            const estruturasAnatomicasModels = new Set([
+                'Estruturas gerais do corpo', 'Estruturas da cabeça e face', 
+                'Estruturas bucais e alimentares', 'Dentes e estruturas semelhantes', 
+                'Cornos, hastes e protuberâncias', 'Cristas, pregas, bolsas e expansões', 
+                'Apêndices locomotores', 'Estruturas de fixação e aderência', 
+                'Estruturas das patas e extremidades', 'Estruturas da cauda', 
+                'Estruturas respiratórias', 'Estruturas aquáticas especiais', 
+                'Estruturas sensoriais', 'Estruturas oculares', 
+                'Estruturas auditivas e de equilíbrio', 'Estruturas de defesa e ataque', 
+                'Estruturas produtoras ou inoculadoras de veneno', 'Estruturas glandulares', 
+                'Estruturas produtoras de seda, muco ou secreções', 
+                'Estruturas elétricas, luminosas e térmicas', 'Estruturas de reprodução', 
+                'Estruturas de incubação e cuidado parental', 'Estruturas das aves', 
+                'Estruturas dos mamíferos', 'Estruturas dos répteis e anfíbios', 
+                'Estruturas dos artrópodes', 'Estruturas dos moluscos', 
+                'Estruturas dos anelídeos', 'Estruturas dos equinodermes', 
+                'Estruturas dos cnidários', 'Estruturas dos poríferos'
+            ]);
+            
+            if (estiloVidaModels.has(normalized)) return 'estilo-vida';
+            if (anatomiaModels.has(normalized)) return 'anatomia';
+            if (fisiologiaModels.has(normalized)) return 'fisiologia';
+            if (desenvolvimentoModels.has(normalized)) return 'desenvolvimento';
+            if (estruturasAnatomicasModels.has(normalized)) return 'estruturas-anatomicas';
+            
             return 'medidas';
         }
 
@@ -321,20 +346,38 @@
             const icons = {
                 'estilo-vida': `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 14c1.2-2.6 3.5-4 6.8-4h1.4c3.3 0 5.6 1.4 6.8 4"/><circle cx="8" cy="8" r="1.5"/><circle cx="12" cy="6.5" r="1.5"/><circle cx="16" cy="8" r="1.5"/><path d="M9 17.5c.9 1 1.9 1.5 3 1.5s2.1-.5 3-1.5"/></svg>`,
                 medidas: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 16h16"/><path d="M7 16V8"/><path d="M12 16V5"/><path d="M17 16v-6"/><path d="M4 20h16"/></svg>`,
-                dimensoes: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 9V5h4"/><path d="M19 15v4h-4"/><path d="M19 9V5h-4"/><path d="M5 15v4h4"/><path d="M7 17L17 7"/></svg>`
+                dimensoes: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 9V5h4"/><path d="M19 15v4h-4"/><path d="M19 9V5h-4"/><path d="M5 15v4h4"/><path d="M7 17L17 7"/></svg>`,
+                anatomia: `<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="6" r="2.5"/><path d="M6 18l12-12" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><circle cx="8" cy="20" r="2.5"/><circle cx="20" cy="8" r="2.5"/></svg>`,
+                fisiologia: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>`,
+                desenvolvimento: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17 8a4 4 0 0 0-4 4v9h2v-9a2 2 0 0 1 2-2h2V8h-2zM7 12a4 4 0 0 0-4 4v5h2v-5a2 2 0 0 1 2-2h2v-2H7zM11 2v20h2V2h-2z"/></svg>`,
+                'estruturas-anatomicas': `<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="4.5" cy="6.5" r="1.5"/><circle cx="16.5" cy="17.5" r="1.5"/><circle cx="4.5" cy="17.5" r="1.5"/><circle cx="16.5" cy="6.5" r="1.5"/><path d="M4.5 6.5l12 11M4.5 17.5l12-11" stroke="currentColor" stroke-width="2"/></svg>`
             };
             return icons[group] || icons['estilo-vida'];
         }
 
-        function getInfoGroupFiltersHTML() {
+        function getInfoGroupFiltersHTML(allItems = []) {
+            const activeGroups = new Set();
+            allItems.forEach(item => {
+                const group = item.isDimension
+                    ? 'dimensoes' 
+                    : getInfoGroupForGeneralType(item.tipo);
+                activeGroups.add(group);
+            });
+
             const groups = [
                 { key: 'estilo-vida', label: 'Estilo de Vida' },
                 { key: 'medidas', label: 'Medidas' },
-                { key: 'dimensoes', label: 'DimensÃµes' }
-            ];
+                { key: 'dimensoes', label: 'Dimensões' },
+                { key: 'anatomia', label: 'Anatomia' },
+                { key: 'fisiologia', label: 'Fisiologia' },
+                { key: 'desenvolvimento', label: 'Desenvolvimento' },
+                { key: 'estruturas-anatomicas', label: 'Estruturas anatómicas' }
+            ].filter(g => activeGroups.has(g.key));
+
+            if (groups.length <= 1) return '';
 
             return `
-                <div class="info-group-filters" aria-label="Filtrar informaÃ§Ãµes gerais">
+                <div class="info-group-filters" aria-label="Filtrar informações gerais">
                     ${groups.map(group => `
                         <button type="button" class="info-group-filter-btn" data-group="${group.key}" title="${group.label}" aria-label="${group.label}">
                             ${getInfoGroupFilterIconSvg(group.key)}
@@ -351,7 +394,7 @@
                 return '<span class="dimension-model-gender-symbol male-symbol" aria-label="Macho" title="Macho">&#9794;</span>';
             }
             if (normalizedGender === 'F') {
-                return '<span class="dimension-model-gender-symbol female-symbol" aria-label="FÃªmea" title="FÃªmea">&#9792;</span>';
+                return '<span class="dimension-model-gender-symbol female-symbol" aria-label="Fêmea" title="Fêmea">&#9792;</span>';
             }
             return '';
         }
@@ -365,7 +408,7 @@
             if (normalizedGender === 'M') {
                 html += ' <span class="dimension-model-gender-symbol male-symbol" aria-label="Macho" title="Macho" style="font-size: 1rem; margin-left: 4px;">&#9794;</span>';
             } else if (normalizedGender === 'F') {
-                html += ' <span class="dimension-model-gender-symbol female-symbol" aria-label="FÃªmea" title="FÃªmea" style="font-size: 1rem; margin-left: 4px;">&#9792;</span>';
+                html += ' <span class="dimension-model-gender-symbol female-symbol" aria-label="Fêmea" title="Fêmea" style="font-size: 1rem; margin-left: 4px;">&#9792;</span>';
             }
 
             // Phase
@@ -410,7 +453,7 @@
                 html += '<span class="dimension-model-gender-symbol male-symbol" aria-label="Macho" title="Macho">&#9794;</span>';
             }
             if (hasFemale) {
-                html += '<span class="dimension-model-gender-symbol female-symbol" aria-label="FÃªmea" title="FÃªmea">&#9792;</span>';
+                html += '<span class="dimension-model-gender-symbol female-symbol" aria-label="Fêmea" title="Fêmea">&#9792;</span>';
             }
             if (!html && (normalized.includes('cria') || normalized.includes('juvenil'))) {
                 html = '<span class="parental-investment-phase-symbol young-symbol" aria-label="Cria" title="Cria"><i class="fa-solid fa-baby"></i></span>';
@@ -424,7 +467,7 @@
         }
 
         function renderParentalInvestmentGroupCard(group) {
-            const stage = group.stage || 'Fase nÃ£o definida';
+            const stage = group.stage || 'Fase não definida';
             const seen = new Set();
             const careRows = group.items.map(item => {
                 const care = getParentalCareValue(item) || 'Cuidado parental';
@@ -449,7 +492,7 @@
         function groupParentalInvestmentItems(items) {
             const groups = new Map();
             items.forEach(item => {
-                const stage = getParentalStageValue(item) || 'Fase nÃ£o definida';
+                const stage = getParentalStageValue(item) || 'Fase não definida';
                 const key = normalizeDimensionKey(stage) || '__sem_fase__';
                 if (!groups.has(key)) groups.set(key, { stage, items: [] });
                 groups.get(key).items.push(item);
@@ -457,7 +500,7 @@
             return Array.from(groups.values());
         }
 
-        function formatGeneralVisualValue(item, fallback = 'â€”') {
+        function formatGeneralVisualValue(item, fallback = '—') {
             if (!item) return fallback;
             const min = item.valorMin ?? item.valor ?? '';
             const max = item.valorMax ?? '';
@@ -467,17 +510,17 @@
             const normalizedType = normalizeDimensionKey(item.tipo || '');
             const isPercentageContext = normalizedType.includes('taxa de sucesso da caca') || normalizedType.includes('taxa de mortalidade');
             return isPercentageContext
-                ? `${escapeHtml(value)} %${unit ? ` â€¢ ${escapeHtml(unit)}` : ''}`.trim()
+                ? `${escapeHtml(value)} %${unit ? ` • ${escapeHtml(unit)}` : ''}`.trim()
                 : `${escapeHtml(value)}${unit ? ` ${escapeHtml(unit)}` : ''}`.trim();
         }
 
         function getGeneralVisualMeta(type = '') {
             const normalized = normalizeDimensionKey(type);
             if (normalized.includes('vida util cativeiro')) {
-                return { key: 'vida-cativeiro', title: type || 'Vida Ãºtil (cativeiro)', accent: 'accent-captive-life' };
+                return { key: 'vida-cativeiro', title: type || 'Vida útil (cativeiro)', accent: 'accent-captive-life' };
             }
             if (normalized.includes('amament')) {
-                return { key: 'amamentacao', title: type || 'Tempo de AmamentaÃ§Ã£o', accent: 'accent-life' };
+                return { key: 'amamentacao', title: type || 'Tempo de Amamentação', accent: 'accent-life' };
             }
             return getGeneralVisualCatalogMeta(type);
         }
@@ -574,7 +617,7 @@
             const climateMeta = isClimateZone ? getClimateZoneMeta(value) : null;
             const biomaMeta = isBioma ? getBiomaMeta(value) : null;
             const icon = climateMeta
-                ? `<img class="climate-zone-model-image" src="${climateMeta.image}" alt="Zona climÃ¡tica ${escapeHtml(value)}" loading="lazy">`
+                ? `<img class="climate-zone-model-image" src="${climateMeta.image}" alt="Zona climática ${escapeHtml(value)}" loading="lazy">`
                 : biomaMeta
                     ? `<img class="climate-zone-model-image" src="${biomaMeta.image}" alt="Bioma ${escapeHtml(value)}" loading="lazy">`
                     : ecologicalMeta
@@ -593,7 +636,7 @@
                     <div class="dimension-model-icon ${climateMeta || biomaMeta ? 'climate-zone-model-icon' : ''}">${icon}</div>
                     <div class="dimension-model-copy">
                         <div class="dimension-model-label${inlineGenderSymbol ? ' with-gender' : ''}">${escapeHtml(meta.title)}${inlineGenderSymbol}</div>
-                        <div class="dimension-model-value">${mixedOption ? `${escapeHtml(mixedOption)} â€¢ ` : ''}${formatGeneralVisualValue(item)}</div>
+                        <div class="dimension-model-value">${mixedOption ? `${escapeHtml(mixedOption)} • ` : ''}${formatGeneralVisualValue(item)}</div>
                     </div>
                 </article>`;
         }
@@ -636,7 +679,7 @@
                 html += `
                 <div class="general-visual-card">
                     <div class="general-visual-title" style="display: flex; align-items: center; justify-content: space-between;">
-                        <strong>Dados rÃ¡pidos</strong>
+                        <strong>Dados rápidos</strong>
                         ${getGenderTabsHTML(valid)}
                     </div>
                     <div class="general-visual-models">
@@ -648,7 +691,7 @@
                 html += `
                 <div class="general-visual-card" style="margin-top: 15px;">
                     <div class="general-visual-title">
-                        <strong>Zona ClimÃ¡tica & Bioma</strong>
+                        <strong>Zona Climática & Bioma</strong>
                     </div>
                     <div class="general-visual-models">
                         ${envItems.map(renderGeneralVisualCard).join('')}
@@ -670,11 +713,11 @@
             return `
                 <div class="animal-climate-zone ${climateMeta.accent}">
                     <div class="climate-zone-info">
-                        <span class="climate-zone-label">Zona ClimÃ¡tica</span>
+                        <span class="climate-zone-label">Zona Climática</span>
                         <span class="climate-zone-name">${escapeHtml(value)}</span>
                     </div>
                     <div class="climate-zone-divider"></div>
-                    <img src="${climateMeta.image}" alt="Zona climÃ¡tica: ${escapeHtml(value)}" class="climate-zone-badge-image">
+                    <img src="${climateMeta.image}" alt="Zona climática: ${escapeHtml(value)}" class="climate-zone-badge-image">
                 </div>
             `;
         }
@@ -716,7 +759,9 @@
         }
 
         function renderDimensionsVisual(animalData) {
-            const dimensions = collapseCombinedGenderItems(animalData.informacao?.dimensoesDetalhadas || []);
+            const rawDimensions = animalData.informacao?.dimensoesDetalhadas || [];
+            const filteredDimensions = rawDimensions.filter(item => item.tipo && (String(item.valor ?? '').trim() !== '' || String(item.valorMin ?? '').trim() !== '' || String(item.valorMax ?? '').trim() !== ''));
+            const dimensions = collapseCombinedGenderItems(filteredDimensions);
             if (!Array.isArray(dimensions) || dimensions.length === 0) return '';
 
             const height = getDimensionByLabel(dimensions, ['Altura', 'Altura ao ombro']);
@@ -727,7 +772,7 @@
             return `
                 <div class="dimensions-visual-card">
                     <div class="general-visual-title" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; padding: 0 10px;">
-                        <strong>Dados rÃ¡pidos</strong>
+                        <strong>Dados rápidos</strong>
                         ${getGenderTabsHTML(ordered)}
                     </div>
                     <div class="visual-stage">
@@ -742,7 +787,8 @@
         }
 
         function renderDimensionsVisualOnlyStage(animalData) {
-            const dimensions = animalData.informacao?.dimensoesDetalhadas || [];
+            const rawDimensions = animalData.informacao?.dimensoesDetalhadas || [];
+            const dimensions = rawDimensions.filter(item => item.tipo && (String(item.valor ?? '').trim() !== '' || String(item.valorMin ?? '').trim() !== '' || String(item.valorMax ?? '').trim() !== ''));
             if (!Array.isArray(dimensions) || dimensions.length === 0) return '';
 
             const height = getDimensionByLabel(dimensions, ['Altura', 'Altura ao ombro']);
@@ -771,7 +817,7 @@
             const groups = new Map();
 
             items.forEach(item => {
-                const type = item.tipo || 'AlimentaÃ§Ã£o';
+                const type = item.tipo || 'Alimentação';
                 const detail = (item.detalhe || '').trim();
                 const animalOption = getFeedingAnimalOption(detail);
 
@@ -794,14 +840,14 @@
 
         function getFeedingNutritionMeta(type = '') {
             const normalized = normalizeDimensionKey(type);
-            if (normalized.includes('tipo de alimentacao') || normalized.includes('tipo de alimentaÃ§Ã£o')) {
-                return { key: 'alimentacaoTipo', title: 'Tipo de AlimentaÃ§Ã£o', accent: 'accent-food' };
+            if (normalized.includes('tipo de alimentacao') || normalized.includes('tipo de alimentação')) {
+                return { key: 'alimentacaoTipo', title: 'Tipo de Alimentação', accent: 'accent-food' };
             }
             if (normalized.includes('alimento ingerido')) {
-                return { key: 'alimentoMedio', title: 'Alimento Ingerido em MÃ©dia', accent: 'accent-meal' };
+                return { key: 'alimentoMedio', title: 'Alimento Ingerido em Média', accent: 'accent-meal' };
             }
-            if (normalized.includes('agua bebida') || normalized.includes('Ã¡gua bebida')) {
-                return { key: 'aguaMedia', title: 'Ãgua bebida em MÃ©dia', accent: 'accent-water' };
+            if (normalized.includes('agua bebida') || normalized.includes('água bebida')) {
+                return { key: 'aguaMedia', title: 'Água bebida em Média', accent: 'accent-water' };
             }
             return null;
         }
@@ -823,7 +869,7 @@
 
         function renderFeedingTypeCard(group) {
             const nutritionMeta = getFeedingNutritionMeta(group.type);
-            if (nutritionMeta && group.type === 'Tipo de AlimentaÃƒÂ§ÃƒÂ£o') {
+            if (nutritionMeta && group.type === 'Tipo de AlimentaÃ§Ã£o') {
                 const entries = group.details
                     .map(parseFeedingDetail)
                     .filter(entry => entry.display)
@@ -979,7 +1025,7 @@
             if (nutritionMeta) {
                 const detailData = parseFeedingDetail(item.detalhe || '');
                 const resolvedValue = detailData.display || item.detalhe || feedingTypeDescriptions[type] || 'Modelo visual';
-                const icon = type === 'Tipo de AlimentaÃƒÂ§ÃƒÂ£o'
+                const icon = type === 'Tipo de AlimentaÃ§Ã£o'
                     ? getFeedingModelSvg(getFeedingVisualMeta(detailData.primary || resolvedValue).key)
                     : getReproductionModelSvg(nutritionMeta.key);
                 return `
@@ -1008,7 +1054,7 @@
         function renderFeedingStrategyCard(item) {
             const strategy = item.estrategia || item.tipo || '';
             const meta = getFeedingStrategyMeta(strategy);
-            const detail = item.detalhe || feedingStrategyDescriptions[strategy] || 'EstratÃ¯Â¿Â½gia alimentar';
+            const detail = item.detalhe || feedingStrategyDescriptions[strategy] || 'Estratï¿½gia alimentar';
             return `
                 <article class="dimension-model-card feeding-strategy-card ${meta.accent}">
                     <div class="dimension-model-icon">${getFeedingStrategySvg(meta.key)}</div>
@@ -1142,10 +1188,10 @@
         function isValidEcologyDetail(item = {}) {
             const type = item?.tipo || '';
             if (!type) return false;
-            if (type === 'FunÃ§Ã£o EcolÃ³gica') return Boolean(String(item.valor || item.detalhe || '').trim());
+            if (type === 'Função Ecológica') return Boolean(String(item.valor || item.detalhe || '').trim());
             const animals = normalizeEcologyList(item.animais || item.animalIds || []);
             const text = String(item.texto || item.detalhe || '').trim();
-            return animals.length > 0 || (type === 'AmeaÃ§as naturais' && Boolean(text));
+            return animals.length > 0 || (type === 'Ameaças naturais' && Boolean(text));
         }
 
         function renderEcologyVisual(animalData) {
@@ -1158,20 +1204,20 @@
             const legacyItems = [];
             const functionValue = ecology.funcaoEcologica || ecology.funcao || '';
             if (String(functionValue).trim()) {
-                legacyItems.push({ tipo: 'FunÃ§Ã£o EcolÃ³gica', valor: functionValue });
+                legacyItems.push({ tipo: 'Função Ecológica', valor: functionValue });
             }
 
             const legacyMap = [
                 ['Predadores naturais', ecology.predadoresNaturais || ecology.predadores || []],
                 ['Presas', ecology.presas || []],
                 ['Competidores', ecology.competidores || []],
-                ['AmeaÃ§as naturais', ecology.ameacasNaturais || ecology.ameacas || [], ecology.ameacasNaturaisTexto || ecology.ameacasTexto || ''],
-                ['RelaÃ§Ãµes SimbiÃ³ticas', ecology.relacoesSimbioticas || ecology.relacoes || []]
+                ['Ameaças naturais', ecology.ameacasNaturais || ecology.ameacas || [], ecology.ameacasNaturaisTexto || ecology.ameacasTexto || ''],
+                ['Relações Simbióticas', ecology.relacoesSimbioticas || ecology.relacoes || []]
             ];
             legacyMap.forEach(([tipo, animais, texto = '']) => {
                 const refs = normalizeEcologyList(animais || []);
                 const freeText = String(texto || '').trim();
-                if (refs.length || (tipo === 'AmeaÃ§as naturais' && freeText)) {
+                if (refs.length || (tipo === 'Ameaças naturais' && freeText)) {
                     legacyItems.push({ tipo, animais: refs, texto: freeText });
                 }
             });
@@ -1180,7 +1226,7 @@
             if (!itemsToRender.length && !ecologyText) return '';
 
             const cards = itemsToRender.map(item => {
-                if (item.tipo === 'FunÃ§Ã£o EcolÃ³gica') {
+                if (item.tipo === 'Função Ecológica') {
                     const value = item.valor || item.detalhe || '';
                     const functionMeta = getEcologicalFunctionMeta(value || '');
                     return renderEcologyBlockCard(
@@ -1211,26 +1257,26 @@
             const normalized = normalizeDimensionKey(type);
             if (normalized.includes('investimento parental')) return { key: 'investimentoParental', title: type || 'Investimento Parental', accent: 'accent-parental-investment' };
             if (normalized.includes('acasalamento')) return { key: 'acasalamento', title: type || 'Acasalamento', accent: 'accent-generic' };
-            if (normalized.includes('cria') || normalized.includes('filhote')) return { key: 'cuidado', title: type || 'NÃºmero de Crias', accent: 'accent-tail' };
-            if (normalized.includes('duracao do estro')) return { key: 'duracaoEstro', title: type || 'DuraÃ§Ã£o do estro', accent: 'accent-mating-polygamy' };
+            if (normalized.includes('cria') || normalized.includes('filhote')) return { key: 'cuidado', title: type || 'Número de Crias', accent: 'accent-tail' };
+            if (normalized.includes('duracao do estro')) return { key: 'duracaoEstro', title: type || 'Duração do estro', accent: 'accent-mating-polygamy' };
             if (normalized.includes('sistema sexual')) return { key: 'sistemaSexual', title: type || 'Sistema sexual', accent: 'accent-width' };
-            if (normalized.includes('frequencia de acasalamento durante o estro')) return { key: 'frequenciaAcasalamentoEstro', title: type || 'FrequÃªncia de acasalamento durante o estro', accent: 'accent-speed-average' };
+            if (normalized.includes('frequencia de acasalamento durante o estro')) return { key: 'frequenciaAcasalamentoEstro', title: type || 'Frequência de acasalamento durante o estro', accent: 'accent-speed-average' };
             if (normalized.includes('taxa de sucesso reprodutivo')) return { key: 'taxaSucessoReprodutivo', title: type || 'Taxa de sucesso reprodutivo', accent: 'accent-life' };
             if (normalized.includes('intervalo entre nascimentos')) return { key: 'intervaloNascimentos', title: type || 'Intervalo entre nascimentos', accent: 'accent-maturity' };
             if (normalized.includes('idade da metamorfose')) return { key: 'idadeMetamorfose', title: type || 'Idade da metamorfose', accent: 'accent-wing' };
-            if (normalized.includes('numero de mudas')) return { key: 'numeroMudas', title: type || 'NÃºmero de mudas', accent: 'accent-tail' };
-            if (normalized.includes('numero de estadios larvais')) return { key: 'numeroEstadiosLarvais', title: type || 'NÃºmero de estÃ¡dios larvais', accent: 'accent-egg' };
-            if (normalized.includes('gestacao') || normalized.includes('gestaÃ§Ã£o') || normalized.includes('gravidez') || normalized.includes('tempo')) return { key: 'gestacao', title: type || 'GestaÃ§Ã£o', accent: 'accent-weight' };
-            if (normalized.includes('oviparo') || normalized.includes('ovo')) return { key: 'ovo', title: type || 'OvÃ­paro', accent: 'accent-egg' };
-            if (normalized.includes('viviparo') || normalized.includes('placental')) return { key: 'viviparo', title: type || 'VivÃ­paro', accent: 'accent-weight' };
+            if (normalized.includes('numero de mudas')) return { key: 'numeroMudas', title: type || 'Número de mudas', accent: 'accent-tail' };
+            if (normalized.includes('numero de estadios larvais')) return { key: 'numeroEstadiosLarvais', title: type || 'Número de estádios larvais', accent: 'accent-egg' };
+            if (normalized.includes('gestacao') || normalized.includes('gestação') || normalized.includes('gravidez') || normalized.includes('tempo')) return { key: 'gestacao', title: type || 'Gestação', accent: 'accent-weight' };
+            if (normalized.includes('oviparo') || normalized.includes('ovo')) return { key: 'ovo', title: type || 'Ovíparo', accent: 'accent-egg' };
+            if (normalized.includes('viviparo') || normalized.includes('placental')) return { key: 'viviparo', title: type || 'Vivíparo', accent: 'accent-weight' };
             if (normalized.includes('marsupial')) return { key: 'marsupial', title: type || 'Marsupial', accent: 'accent-tail' };
             if (normalized.includes('larvar') || normalized.includes('metamorfose') || normalized.includes('girino') || normalized.includes('ninfa') || normalized.includes('pupa')) return { key: 'metamorfose', title: type || 'Metamorfose', accent: 'accent-wing' };
-            if (normalized.includes('fertilizacao') || normalized.includes('sexuada') || normalized.includes('sexos separados')) return { key: 'fertilizacao', title: type || 'FertilizaÃ§Ã£o', accent: 'accent-length' };
+            if (normalized.includes('fertilizacao') || normalized.includes('sexuada') || normalized.includes('sexos separados')) return { key: 'fertilizacao', title: type || 'Fertilização', accent: 'accent-length' };
             if (normalized.includes('hermafrodita') || normalized.includes('partenogenese')) return { key: 'hermafrodita', title: type || 'Hermafrodita', accent: 'accent-width' };
-            if (normalized.includes('divisao') || normalized.includes('assexuada') || normalized.includes('brotamento') || normalized.includes('conjugacao') || normalized.includes('multiplicacao') || normalized.includes('esporulacao') || normalized.includes('fragmentacao') || normalized.includes('regeneracao')) return { key: 'celular', title: type || 'ReproduÃ§Ã£o celular', accent: 'accent-generic' };
+            if (normalized.includes('divisao') || normalized.includes('assexuada') || normalized.includes('brotamento') || normalized.includes('conjugacao') || normalized.includes('multiplicacao') || normalized.includes('esporulacao') || normalized.includes('fragmentacao') || normalized.includes('regeneracao')) return { key: 'celular', title: type || 'Reprodução celular', accent: 'accent-generic' };
             if (normalized.includes('fossil') || normalized.includes('provavel') || normalized.includes('desconhecido') || normalized.includes('estimado')) return { key: 'fossil', title: type || 'Estimado', accent: 'accent-beak' };
             if (normalized.includes('parental') || normalized.includes('ninho') || normalized.includes('nidicola') || normalized.includes('nidifugo') || normalized.includes('saco')) return { key: 'cuidado', title: type || 'Cuidado parental', accent: 'accent-leg' };
-            return { key: 'reproducao', title: type || 'ReproduÃ§Ã£o', accent: 'accent-generic' };
+            return { key: 'reproducao', title: type || 'Reprodução', accent: 'accent-generic' };
         }
 
         function getReproductionModelSvg(key = 'reproducao') {
@@ -1267,7 +1313,7 @@
             const inlineGenderSymbol = renderInlineGenderSymbol(item);
             if (isParentalInvestmentItem(item)) {
                 return renderParentalInvestmentGroupCard({
-                    stage: getParentalStageValue(item) || 'Fase nÃ£o definida',
+                    stage: getParentalStageValue(item) || 'Fase não definida',
                     items: [item]
                 });
             }
@@ -1315,7 +1361,23 @@
                 ...(animalData.informacao?.reproducaoDetalhada || []),
                 ...getLegacyGeneralMatingReproductionItems(animalData.informacao?.geralDetalhada || [])
             ];
-            const valid = Array.isArray(reproduction) ? reproduction.filter(item => item.tipo || item.detalhe || item.etapa || item.cuidado) : [];
+            const valid = Array.isArray(reproduction) ? reproduction.filter(item => {
+                if (!item || !item.tipo) return false;
+                const normalized = normalizeDimensionKey(item.tipo);
+                if (normalized === 'investimento parental') {
+                    return Boolean(String(item.etapa || '').trim()) || Boolean(String(item.cuidado || '').trim()) || Boolean(String(item.responsavel || '').trim());
+                }
+                if (normalized === 'tipo de reproducao') {
+                    return Boolean(String(item.detalhe || '').trim());
+                }
+                if (hasCategory(animalData.categoria, 'Aves') && getBirdEggVisualByLabel(item.tipo)) {
+                    return true;
+                }
+                return Boolean(String(item.detalhe || '').trim()) || 
+                       Boolean(String(item.valor || '').trim()) || 
+                       Boolean(String(item.valorMin || '').trim()) || 
+                       Boolean(String(item.valorMax || '').trim());
+            }) : [];
             if (!valid.length) return '';
 
             const parentalItems = valid.filter(isParentalInvestmentItem);
@@ -1350,9 +1412,9 @@
         }
 
         const bodyCoveringTitles = {
-            Aves: 'Plumagem', Mamiferos: 'Pelagem', Peixes: 'Escamas e coloraÃ§Ã£o', Repteis: 'Escamas e coloraÃ§Ã£o',
-            Anfibios: 'Pele e coloraÃ§Ã£o', Insetos: 'Exoesqueleto e coloraÃ§Ã£o', Aracnideos: 'Exoesqueleto e coloraÃ§Ã£o',
-            Crustaceos: 'CarapaÃ§a e coloraÃ§Ã£o', Moluscos: 'Concha, pele e coloraÃ§Ã£o', Vermes: 'Pele e revestimento',
+            Aves: 'Plumagem', Mamiferos: 'Pelagem', Peixes: 'Escamas e coloração', Repteis: 'Escamas e coloração',
+            Anfibios: 'Pele e coloração', Insetos: 'Exoesqueleto e coloração', Aracnideos: 'Exoesqueleto e coloração',
+            Crustaceos: 'Carapaça e coloração', Moluscos: 'Concha, pele e coloração', Vermes: 'Pele e revestimento',
             Microscopicos: 'Revestimento corporal'
         };
         const bodyCoveringIcons = {
@@ -1360,21 +1422,21 @@
             Insetos:'fa-bug', Aracnideos:'fa-spider', Crustaceos:'fa-shrimp', Moluscos:'fa-shell', Vermes:'fa-wave-square', Microscopicos:'fa-microscope'
         };
         const bodyCoveringTypeIcons = {
-            'Penugem':'fa-cloud','Plumagem juvenil':'fa-egg','Plumagem adulta':'fa-feather','Plumagem nupcial':'fa-heart','Plumagem de eclipse':'fa-moon','Plumagem de inverno':'fa-snowflake','Plumagem de verÃ£o':'fa-sun','Plumagem de camuflagem':'fa-leaf','Plumagem ornamental':'fa-gem','Plumagem impermeÃ¡vel':'fa-droplet','Plumagem sexualmente dimÃ³rfica':'fa-venus-mars','RÃ©miges':'fa-plane','Retrizes':'fa-arrows-left-right','Tectrizes':'fa-shield-halved','Semiplumas':'fa-wind','Filoplumas':'fa-lines-leaning','Cerdas':'fa-grip-lines',
-            'Pelagem curta':'fa-scissors','Pelagem longa':'fa-wave-square','Pelagem densa':'fa-layer-group','Pelagem lanosa':'fa-cloud','Pelagem impermeÃ¡vel':'fa-umbrella','Pelagem sazonal':'fa-arrows-rotate','Pelagem de camuflagem':'fa-leaf','Pelagem com riscas':'fa-bars','Pelagem com manchas':'fa-circle-dot','Pelo liso':'fa-minus','Pelo ondulado':'fa-water','Pelo encaracolado':'fa-hurricane','Pelo Ã¡spero':'fa-grip-lines','Subpelo isolante':'fa-temperature-half','Vibrissas':'fa-lines-leaning','Espinhos modificados':'fa-burst','Sem pelo aparente':'fa-ban',
-            'Escamas placoides':'fa-tooth','Escamas ganoides':'fa-gem','Escamas cicloides':'fa-circle-notch','Escamas ctenoides':'fa-fan','Escamas reduzidas':'fa-compress','Sem escamas':'fa-ban','Pele mucosa':'fa-droplet','Placas dÃ©rmicas':'fa-shield','DentÃ­culos dÃ©rmicos':'fa-teeth','BioluminescÃªncia':'fa-lightbulb','ColoraÃ§Ã£o iridescente':'fa-wand-magic-sparkles','MudanÃ§a de cor':'fa-palette',
-            'Pele lisa':'fa-circle','Pele rugosa':'fa-braille','Pele granulosa':'fa-grip','Pele hÃºmida':'fa-droplet','Pele verrugosa':'fa-circle-nodes','Pele translÃºcida':'fa-eye','GlÃ¢ndulas mucosas':'fa-water','GlÃ¢ndulas de veneno':'fa-flask','Dobras cutÃ¢neas':'fa-wave-square','TubÃ©rculos':'fa-circle-dot','ColoraÃ§Ã£o aposemÃ¡tica':'fa-triangle-exclamation',
-            'Exoesqueleto rÃ­gido':'fa-shield-halved','Exoesqueleto flexÃ­vel':'fa-link','Exoesqueleto quitinoso':'fa-shield','Ã‰litros':'fa-door-closed','CutÃ­cula cerosa':'fa-droplet','Muda do exoesqueleto':'fa-arrows-rotate','Cerdas sensoriais':'fa-satellite-dish','Espinhos':'fa-burst','Placas':'fa-table-cells','Brilho metÃ¡lico':'fa-bolt','Pelos urticantes':'fa-fire','CarapaÃ§a calcificada':'fa-gem','CarapaÃ§a rÃ­gida':'fa-shield','CarapaÃ§a flexÃ­vel':'fa-link','Exoesqueleto segmentado':'fa-layer-group','Muda da carapaÃ§a':'fa-arrows-rotate','PinÃ§as especializadas':'fa-scissors',
+            'Penugem':'fa-cloud','Plumagem juvenil':'fa-egg','Plumagem adulta':'fa-feather','Plumagem nupcial':'fa-heart','Plumagem de eclipse':'fa-moon','Plumagem de inverno':'fa-snowflake','Plumagem de verão':'fa-sun','Plumagem de camuflagem':'fa-leaf','Plumagem ornamental':'fa-gem','Plumagem impermeável':'fa-droplet','Plumagem sexualmente dimórfica':'fa-venus-mars','Rémiges':'fa-plane','Retrizes':'fa-arrows-left-right','Tectrizes':'fa-shield-halved','Semiplumas':'fa-wind','Filoplumas':'fa-lines-leaning','Cerdas':'fa-grip-lines',
+            'Pelagem curta':'fa-scissors','Pelagem longa':'fa-wave-square','Pelagem densa':'fa-layer-group','Pelagem lanosa':'fa-cloud','Pelagem impermeável':'fa-umbrella','Pelagem sazonal':'fa-arrows-rotate','Pelagem de camuflagem':'fa-leaf','Pelagem com riscas':'fa-bars','Pelagem com manchas':'fa-circle-dot','Pelo liso':'fa-minus','Pelo ondulado':'fa-water','Pelo encaracolado':'fa-hurricane','Pelo áspero':'fa-grip-lines','Subpelo isolante':'fa-temperature-half','Vibrissas':'fa-lines-leaning','Espinhos modificados':'fa-burst','Sem pelo aparente':'fa-ban',
+            'Escamas placoides':'fa-tooth','Escamas ganoides':'fa-gem','Escamas cicloides':'fa-circle-notch','Escamas ctenoides':'fa-fan','Escamas reduzidas':'fa-compress','Sem escamas':'fa-ban','Pele mucosa':'fa-droplet','Placas dérmicas':'fa-shield','Dentículos dérmicos':'fa-teeth','Bioluminescência':'fa-lightbulb','Coloração iridescente':'fa-wand-magic-sparkles','Mudança de cor':'fa-palette',
+            'Pele lisa':'fa-circle','Pele rugosa':'fa-braille','Pele granulosa':'fa-grip','Pele húmida':'fa-droplet','Pele verrugosa':'fa-circle-nodes','Pele translúcida':'fa-eye','Glândulas mucosas':'fa-water','Glândulas de veneno':'fa-flask','Dobras cutâneas':'fa-wave-square','Tubérculos':'fa-circle-dot','Coloração aposemática':'fa-triangle-exclamation',
+            'Exoesqueleto rígido':'fa-shield-halved','Exoesqueleto flexível':'fa-link','Exoesqueleto quitinoso':'fa-shield','Élitros':'fa-door-closed','Cutícula cerosa':'fa-droplet','Muda do exoesqueleto':'fa-arrows-rotate','Cerdas sensoriais':'fa-satellite-dish','Espinhos':'fa-burst','Placas':'fa-table-cells','Brilho metálico':'fa-bolt','Pelos urticantes':'fa-fire','Carapaça calcificada':'fa-gem','Carapaça rígida':'fa-shield','Carapaça flexível':'fa-link','Exoesqueleto segmentado':'fa-layer-group','Muda da carapaça':'fa-arrows-rotate','Pinças especializadas':'fa-scissors',
             'Manchas':'fa-circle-dot',
-            'Concha univalve':'fa-circle-notch','Concha bivalve':'fa-book-open','Concha espiral':'fa-hurricane','Concha interna':'fa-circle-half-stroke','Sem concha externa':'fa-ban','Manto':'fa-sheet-plastic','CromatÃ³foros':'fa-palette','Pele segmentada':'fa-grip-lines','CutÃ­cula':'fa-layer-group','Pele ciliada':'fa-lines-leaning','AnÃ©is corporais':'fa-ring','Membrana celular':'fa-circle','PelÃ­cula':'fa-circle-notch','Parede externa':'fa-border-all','CÃ¡psula':'fa-capsules','CarapaÃ§a microscÃ³pica':'fa-shield','CÃ­lios':'fa-lines-leaning','Flagelos':'fa-wave-square','PseudÃ³podes':'fa-hand','EspÃ­culas':'fa-burst'
+            'Concha univalve':'fa-circle-notch','Concha bivalve':'fa-book-open','Concha espiral':'fa-hurricane','Concha interna':'fa-circle-half-stroke','Sem concha externa':'fa-ban','Manto':'fa-sheet-plastic','Cromatóforos':'fa-palette','Pele segmentada':'fa-grip-lines','Cutícula':'fa-layer-group','Pele ciliada':'fa-lines-leaning','Anéis corporais':'fa-ring','Membrana celular':'fa-circle','Película':'fa-circle-notch','Parede externa':'fa-border-all','Cápsula':'fa-capsules','Carapaça microscópica':'fa-shield','Cílios':'fa-lines-leaning','Flagelos':'fa-wave-square','Pseudópodes':'fa-hand','Espículas':'fa-burst'
         };
 
         const bodyCoveringGroupLabels = {
             cor_plumagem:'Cor da plumagem', cor_pelagem:'Cor da pelagem', cor_escamas:'Cor das escamas',
-            cor_pele:'Cor da pele', cor_carapaca:'Cor da carapaÃ§a', cor_exoesqueleto:'Cor do exoesqueleto',
+            cor_pele:'Cor da pele', cor_carapaca:'Cor da carapaça', cor_exoesqueleto:'Cor do exoesqueleto',
             cor_concha:'Cor da concha', cor_manto:'Cor do manto', cor_penas_ornamentais:'Cor das penas ornamentais',
             cor_barbatanas:'Cor das barbatanas', cor_asas:'Cor das asas', cor_ventre:'Cor do ventre',
-            cor_dorso:'Cor do dorso', cor_cabeca:'Cor da cabeÃ§a', cor_membros:'Cor dos membros', cor_cauda:'Cor da cauda',
+            cor_dorso:'Cor do dorso', cor_cabeca:'Cor da cabeça', cor_membros:'Cor dos membros', cor_cauda:'Cor da cauda',
             manchas:'Manchas'
         };
 
@@ -1392,7 +1454,7 @@
         function getBodyCoveringTitle(animalData={}) { return bodyCoveringTitles[getAnimalPrimaryCategory(animalData)] || 'Revestimento corporal'; }
         function getPlumageVisualMeta(type = '', group = '', animalData={}) {
             const category = getAnimalPrimaryCategory(animalData);
-            return { label: type || getBodyCoveringTitle(animalData), group: bodyCoveringGroupLabels[group] || group || getBodyCoveringTitle(animalData), icon: bodyCoveringTypeIcons[type] || (String(group).startsWith('cor_') || group === 'cor' ? 'fa-palette' : bodyCoveringIcons[category]), description: 'CaracterÃ­stica do revestimento corporal.' };
+            return { label: type || getBodyCoveringTitle(animalData), group: bodyCoveringGroupLabels[group] || group || getBodyCoveringTitle(animalData), icon: bodyCoveringTypeIcons[type] || (String(group).startsWith('cor_') || group === 'cor' ? 'fa-palette' : bodyCoveringIcons[category]), description: 'Característica do revestimento corporal.' };
         }
         function escapeBodyCoveringSvgText(value = '') {
             return String(value || '').replace(/[&<>"']/g, char => ({
@@ -1503,7 +1565,7 @@
 
         function renderPlumageModelCard(item, animalData) {
             const meta = getPlumageVisualMeta(item.tipo, item.grupo, animalData);
-            const detail = item.grupo === 'manchas' ? [item.tipo, item.cor ? `Cor: ${item.cor}` : String(item.detalhe || '').replace(/^Cor:\s*/i,'')].filter(Boolean).join(' Â· ') : (item.detalhe || meta.description);
+            const detail = item.grupo === 'manchas' ? [item.tipo, item.cor ? `Cor: ${item.cor}` : String(item.detalhe || '').replace(/^Cor:\s*/i,'')].filter(Boolean).join(' · ') : (item.detalhe || meta.description);
             const isSpots = item.tipo === 'Manchas' || item.grupo === 'manchas';
             const title = getBodyCoveringTitle(animalData);
             const visualType = item.tipo;
@@ -1523,12 +1585,12 @@
         function renderPlumageVisual(animalData) {
             const plumage = animalData.informacao?.plumagemDetalhada || [];
             if (!Array.isArray(plumage) || plumage.length === 0) return '';
-            const valid = plumage.filter(item => item.tipo || item.detalhe);
+            const valid = plumage.filter(item => item.tipo && (String(item.detalhe || '').trim() !== '' || String(item.cor || '').trim() !== ''));
             if (!valid.length) return '';
             const title = getBodyCoveringTitle(animalData);
             const hero = valid[0];
             const heroMeta = getPlumageVisualMeta(hero.tipo, hero.grupo, animalData);
-            return `<div class="plumage-visual-card"><div class="plumage-preview-stage compact"><div class="plumage-hero-figure compact body-covering-display-hero">${renderBodyCoveringSvg(hero.tipo, hero.grupo, 'body-covering-hero-icon', title, hero.cor || '')}</div><div class="plumage-hero-copy compact"><span>Modelo visual de ${escapeHtml(title.toLowerCase())}</span><strong>${escapeHtml(heroMeta.label)}</strong><p>${escapeHtml(hero.grupo === 'manchas' ? [hero.tipo, hero.cor ? `Cor: ${hero.cor}` : String(hero.detalhe || '').replace(/^Cor:\s*/i,'')].filter(Boolean).join(' Â· ') : (hero.detalhe || heroMeta.description))}</p></div></div><div class="plumage-model-grid">${valid.map(item => renderPlumageModelCard(item, animalData)).join('')}</div></div>`;
+            return `<div class="plumage-visual-card"><div class="plumage-preview-stage compact"><div class="plumage-hero-figure compact body-covering-display-hero">${renderBodyCoveringSvg(hero.tipo, hero.grupo, 'body-covering-hero-icon', title, hero.cor || '')}</div><div class="plumage-hero-copy compact"><span>Modelo visual de ${escapeHtml(title.toLowerCase())}</span><strong>${escapeHtml(heroMeta.label)}</strong><p>${escapeHtml(hero.grupo === 'manchas' ? [hero.tipo, hero.cor ? `Cor: ${hero.cor}` : String(hero.detalhe || '').replace(/^Cor:\s*/i,'')].filter(Boolean).join(' · ') : (hero.detalhe || heroMeta.description))}</p></div></div><div class="plumage-model-grid">${valid.map(item => renderPlumageModelCard(item, animalData)).join('')}</div></div>`;
         }
 
         function renderCuriosidadesVisual(animalData) {
@@ -1554,11 +1616,11 @@
             };
 
             const statusColors = {
-                'NE': { bg: '#5c6773', text: '#ffffff', name: 'NÃ£o Avaliado' },
+                'NE': { bg: '#5c6773', text: '#ffffff', name: 'Não Avaliado' },
                 'DD': { bg: '#835d90', text: '#ffffff', name: 'Dados Insuficientes' },
                 'LC': { bg: '#007a5e', text: '#ffffff', name: 'Pouco Preocupante' },
-                'NT': { bg: '#85bb65', text: '#000000', name: 'Quase AmeaÃ§ado' },
-                'VU': { bg: '#e69f00', text: '#000000', name: 'VulnerÃ¡vel' },
+                'NT': { bg: '#85bb65', text: '#000000', name: 'Quase Ameaçado' },
+                'VU': { bg: '#e69f00', text: '#000000', name: 'Vulnerável' },
                 'EN': { bg: '#d55e00', text: '#ffffff', name: 'Em Perigo' },
                 'CR': { bg: '#c00000', text: '#ffffff', name: 'Criticamente em Perigo' },
                 'EW': { bg: '#542788', text: '#ffffff', name: 'Extinto na Natureza' },
@@ -1568,24 +1630,24 @@
             const detailItems = Array.isArray(curiosidades.detalhes) && curiosidades.detalhes.length
                 ? curiosidades.detalhes.filter(item => {
                     if (!item?.tipo) return false;
-                    const hasValue = item.valor !== undefined && item.valor !== null && String(item.valor).trim() !== '';
+                    const hasValue = item.valor !== undefined && item.valor !== null && String(item.valor).trim() !== '' && (item.unidade ? String(item.valor).trim() !== String(item.unidade).trim() : true);
                     const hasMin = item.valorMin !== undefined && item.valorMin !== null && String(item.valorMin).trim() !== '';
                     const hasMax = item.valorMax !== undefined && item.valorMax !== null && String(item.valorMax).trim() !== '';
                     return hasValue || hasMin || hasMax;
                 })
                 : [
                     curiosidades.cor ? { tipo: 'Cor do animal', valor: curiosidades.cor, genero: 'MF', fase: 'Adulto' } : null,
-                    curiosidades.estadoConservacao ? { tipo: 'Estado de ConservaÃ§Ã£o', valor: curiosidades.estadoConservacao, genero: 'MF', fase: 'Adulto' } : null,
-                    curiosidades.relacaoHumanos ? { tipo: 'RelaÃ§Ã£o com Humanos', valor: curiosidades.relacaoHumanos, genero: 'MF', fase: 'Adulto' } : null,
-                    curiosidades.importanciaEconomicaHumanos ? { tipo: 'ImportÃ¢ncia econÃ³mica para os humanos', valor: curiosidades.importanciaEconomicaHumanos, genero: 'MF', fase: 'Adulto' } : null,
-                    curiosidades.distanciaPercorrida ? { tipo: 'DistÃ¢ncia Percorrida', valor: curiosidades.distanciaPercorrida, genero: 'MF', fase: 'Adulto' } : null,
+                    curiosidades.estadoConservacao ? { tipo: 'Estado de Conservação', valor: curiosidades.estadoConservacao, genero: 'MF', fase: 'Adulto' } : null,
+                    curiosidades.relacaoHumanos ? { tipo: 'Relação com Humanos', valor: curiosidades.relacaoHumanos, genero: 'MF', fase: 'Adulto' } : null,
+                    curiosidades.importanciaEconomicaHumanos ? { tipo: 'Importância económica para os humanos', valor: curiosidades.importanciaEconomicaHumanos, genero: 'MF', fase: 'Adulto' } : null,
+                    curiosidades.distanciaPercorrida ? { tipo: 'Distância Percorrida', valor: curiosidades.distanciaPercorrida, genero: 'MF', fase: 'Adulto' } : null,
                     curiosidades.horasSono ? { tipo: 'Horas de Sono', valor: curiosidades.horasSono, genero: 'MF', fase: 'Adulto' } : null,
                     curiosidades.maiorPesoRegistado ? { tipo: 'Maior peso registado', valor: curiosidades.maiorPesoRegistado, genero: 'MF', fase: 'Adulto' } : null,
                     curiosidades.maiorIdadeRegistada ? { tipo: 'Maior idade registada', valor: curiosidades.maiorIdadeRegistada, genero: 'MF', fase: 'Adulto' } : null,
                     curiosidades.maiorComprimentoRegistado ? { tipo: 'Maior comprimento registado', valor: curiosidades.maiorComprimentoRegistado, genero: 'MF', fase: 'Adulto' } : null,
                     curiosidades.maiorAlturaRegistada ? { tipo: 'Maior altura registada', valor: curiosidades.maiorAlturaRegistada, genero: 'MF', fase: 'Adulto' } : null,
                     curiosidades.maiorEnvergaduraRegistada ? { tipo: 'Maior envergadura registada', valor: curiosidades.maiorEnvergaduraRegistada, genero: 'MF', fase: 'Adulto' } : null,
-                    Array.isArray(curiosidades.tambemConhecidoComo) && curiosidades.tambemConhecidoComo.length ? { tipo: 'TambÃ©m conhecido como', valor: curiosidades.tambemConhecidoComo.join(', '), genero: 'MF', fase: 'Adulto' } : null,
+                    Array.isArray(curiosidades.tambemConhecidoComo) && curiosidades.tambemConhecidoComo.length ? { tipo: 'Também conhecido como', valor: curiosidades.tambemConhecidoComo.join(', '), genero: 'MF', fase: 'Adulto' } : null,
                     curiosidades.temperaturaAmbiente ? { tipo: 'Temperatura do Ambiente', valor: curiosidades.temperaturaAmbiente, genero: 'MF', fase: 'Adulto' } : null
                 ].filter(Boolean);
 
@@ -1605,15 +1667,15 @@
             };
 
             const getGenderLabel = (gender) => {
-                if (gender === 'M') return 'â™‚ Macho';
-                if (gender === 'F') return 'â™€ FÃªmea';
-                return 'â™‚â™€ Macho e fÃªmea';
+                if (gender === 'M') return '♂ Macho';
+                if (gender === 'F') return '♀ Fêmea';
+                return '♂♀ Macho e fêmea';
             };
 
             const renderMeta = (item) => `
                 <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px;">
                     <span style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 8px; border-radius: 999px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08); color: rgba(255,255,255,0.72); font-size: 0.72rem; font-weight: 600;">${escapeHtml(getGenderLabel(item.genero || 'MF'))}</span>
-                    <span style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 8px; border-radius: 999px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08); color: rgba(255,255,255,0.72); font-size: 0.72rem; font-weight: 600;">${item.fase === 'Cria' ? 'ðŸ‘¶ Cria' : 'ðŸ¾ Adulto'}</span>
+                    <span style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 8px; border-radius: 999px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08); color: rgba(255,255,255,0.72); font-size: 0.72rem; font-weight: 600;">${item.fase === 'Cria' ? '👶 Cria' : '🐾 Adulto'}</span>
                 </div>
             `;
 
@@ -1622,7 +1684,7 @@
                 const min = item.valorMin !== undefined && item.valorMin !== null ? String(item.valorMin).trim() : '';
                 const max = item.valorMax !== undefined && item.valorMax !== null ? String(item.valorMax).trim() : '';
                 const unit = item.unidade ? ` ${String(item.unidade).trim()}` : '';
-                if (min && max) return min === max ? `${min}${unit}` : `${min}â€“${max}${unit}`;
+                if (min && max) return min === max ? `${min}${unit}` : `${min}–${max}${unit}`;
                 if (min) return `${min}${unit}`;
                 if (max) return `${max}${unit}`;
                 return '';
@@ -1667,12 +1729,12 @@
                     accent: '#f472b6',
                     background: 'rgba(236, 72, 153, 0.18)'
                 },
-                'Via de administraÃ§Ã£o da toxina': {
+                'Via de administração da toxina': {
                     icon: 'fa-syringe',
                     accent: '#38bdf8',
                     background: 'rgba(14, 165, 233, 0.18)'
                 },
-                'AntÃ­doto disponÃ­vel': {
+                'Antídoto disponível': {
                     icon: 'fa-kit-medical',
                     accent: '#34d399',
                     background: 'rgba(16, 185, 129, 0.18)'
@@ -1688,11 +1750,11 @@
                     : normalizedTipo === 'tipo de toxina'
                         ? 'toxinType'
                         : normalizedTipo.includes('administra') && normalizedTipo.includes('toxina')
-                            ? 'Via de administraÃƒÂ§ÃƒÂ£o da toxina'
+                            ? 'Via de administraÃ§Ã£o da toxina'
                             : normalizedTipo.includes('doto') && normalizedTipo.includes('disp')
-                                ? 'AntÃƒÂ­doto disponÃƒÂ­vel'
+                                ? 'AntÃ­doto disponÃ­vel'
                                 : '';
-                if (item.tipo === 'TambÃ©m conhecido como') {
+                if (item.tipo === 'Também conhecido como') {
                     return `
                         <article class="dimension-model-card curiosidades-model-card" style="width: 100%; box-sizing: border-box; display: flex; align-items: center;">
                             <div class="dimension-model-icon" style="flex-shrink: 0; background: rgba(96, 165, 250, 0.18); color: #bfdbfe; display: flex; align-items: center; justify-content: center;">
@@ -1703,13 +1765,13 @@
                                     <span class="dimension-model-label">${valuesHtml}</span>
                                     ${renderMetaSymbols(item)}
                                 </div>
-                                <strong class="dimension-model-value">TambÃ©m conhecido como</strong>
+                                <strong class="dimension-model-value">Também conhecido como</strong>
                             </div>
                         </article>
                     `;
                 }
 
-                if (item.tipo === 'RelaÃ§Ã£o com Humanos') {
+                if (item.tipo === 'Relação com Humanos') {
                     return `
                         <article class="dimension-model-card curiosidades-model-card" style="width: 100%; box-sizing: border-box; display: flex; align-items: center;">
                             <div class="dimension-model-icon" style="flex-shrink: 0; background: linear-gradient(135deg, rgba(14, 165, 233, 0.24), rgba(16, 185, 129, 0.18)); color: #67e8f9; display: flex; align-items: center; justify-content: center;">
@@ -1726,13 +1788,13 @@
                                     <span class="dimension-model-label">${valuesHtml}</span>
                                     ${renderMetaSymbols(item)}
                                 </div>
-                                <strong class="dimension-model-value">RelaÃ§Ã£o com Humanos</strong>
+                                <strong class="dimension-model-value">Relação com Humanos</strong>
                             </div>
                         </article>
                     `;
                 }
 
-                if (item.tipo === 'ImportÃ¢ncia econÃ³mica para os humanos') {
+                if (item.tipo === 'Importância económica para os humanos') {
                     return `
                         <article class="dimension-model-card curiosidades-model-card" style="width: 100%; box-sizing: border-box; display: flex; align-items: center;">
                             <div class="dimension-model-icon" style="flex-shrink: 0; background: rgba(245, 158, 11, 0.18); color: #fbbf24; display: flex; align-items: center; justify-content: center;">
@@ -1743,7 +1805,7 @@
                                     <span class="dimension-model-label">${valuesHtml}</span>
                                     ${renderMetaSymbols(item)}
                                 </div>
-                                <strong class="dimension-model-value">ImportÃ¢ncia econÃ³mica para os humanos</strong>
+                                <strong class="dimension-model-value">Importância económica para os humanos</strong>
                             </div>
                         </article>
                     `;
@@ -1768,7 +1830,7 @@
                     `;
                 }
 
-                if (item.tipo === 'Tipo de ComunicaÃ§Ã£o') {
+                if (item.tipo === 'Tipo de Comunicação') {
                     return `
                         <article class="dimension-model-card curiosidades-model-card" style="width: 100%; box-sizing: border-box; display: flex; align-items: center;">
                             <div class="dimension-model-icon" style="flex-shrink: 0; background: rgba(32, 201, 151, 0.18); color: #67e8f9; display: flex; align-items: center; justify-content: center;">
@@ -1779,7 +1841,7 @@
                                     <span class="dimension-model-label">${valuesHtml}</span>
                                     ${renderMetaSymbols(item)}
                                 </div>
-                                <strong class="dimension-model-value">Tipo de ComunicaÃ§Ã£o</strong>
+                                <strong class="dimension-model-value">Tipo de Comunicação</strong>
                             </div>
                         </article>
                     `;
@@ -1826,7 +1888,7 @@
                     return `<article class="dimension-model-card curiosidades-model-card" style="width:100%;box-sizing:border-box;display:flex;align-items:center;"><div class="dimension-model-icon" style="flex-shrink:0;color:#fb7185;background:rgba(251,113,133,.16);"><svg class="record-custom-svg" viewBox="0 0 64 64" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M32 32c-7-9-15-14-25-15c4 10 11 17 21 21"/><path d="M32 32c7-9 15-14 25-15c-4 10-11 17-21 21"/><path d="M32 26v22"/><path d="M8 52h48"/><path d="m8 52 6-5M8 52l6 5M56 52l-6-5M56 52l-6 5"/></svg></div><div class="dimension-model-copy"><div class="curiosidades-card-head"><span class="dimension-model-label" style="color:#fda4af;font-weight:800;">${valuesHtml}</span>${renderMetaSymbols(item)}</div><strong class="dimension-model-value" style="color:#fb7185;">Maior envergadura registada</strong></div></article>`;
                 }
 
-                if (item.tipo === 'DistÃ¢ncia Percorrida') {
+                if (item.tipo === 'Distância Percorrida') {
                     return `
                         <article class="dimension-model-card curiosidades-model-card" style="width: 100%; box-sizing: border-box; display: flex; align-items: center;">
                             <div class="dimension-model-icon" style="flex-shrink: 0; background: rgba(14, 165, 233, 0.18); color: #7dd3fc; display: flex; align-items: center; justify-content: center;">
@@ -1837,7 +1899,7 @@
                                     <span class="dimension-model-label">${valuesHtml}</span>
                                     ${renderMetaSymbols(item)}
                                 </div>
-                                <strong class="dimension-model-value">DistÃ¢ncia Percorrida</strong>
+                                <strong class="dimension-model-value">Distância Percorrida</strong>
                             </div>
                         </article>
                     `;
@@ -1883,19 +1945,19 @@
                     `;
                 }
 
-                if (item.tipo === 'TendÃªncia populacional') {
-                    const trendIcon = item.valor === 'A aumentar' ? 'fa-arrow-trend-up' : item.valor === 'A diminuir' ? 'fa-arrow-trend-down' : item.valor === 'EstÃ¡vel' ? 'fa-minus' : 'fa-question';
+                if (item.tipo === 'Tendência populacional') {
+                    const trendIcon = item.valor === 'A aumentar' ? 'fa-arrow-trend-up' : item.valor === 'A diminuir' ? 'fa-arrow-trend-down' : item.valor === 'Estável' ? 'fa-minus' : 'fa-question';
                     return `
                         <article class="dimension-model-card curiosidades-model-card" style="width:100%;box-sizing:border-box;display:flex;align-items:center;">
                             <div class="dimension-model-icon" style="flex-shrink:0;background:rgba(34,197,94,.18);color:#86efac;display:flex;align-items:center;justify-content:center;"><i class="fa-solid ${trendIcon}"></i></div>
-                            <div class="dimension-model-copy"><div class="curiosidades-card-head"><span class="dimension-model-label">${valuesHtml}</span>${renderMetaSymbols(item)}</div><strong class="dimension-model-value">TendÃªncia populacional</strong></div>
+                            <div class="dimension-model-copy"><div class="curiosidades-card-head"><span class="dimension-model-label">${valuesHtml}</span>${renderMetaSymbols(item)}</div><strong class="dimension-model-value">Tendência populacional</strong></div>
                         </article>`;
                 }
-                if (item.tipo === 'DependÃªncia de Ã¡reas protegidas') {
+                if (item.tipo === 'Dependência de áreas protegidas') {
                     return `
                         <article class="dimension-model-card curiosidades-model-card" style="width:100%;box-sizing:border-box;display:flex;align-items:center;">
                             <div class="dimension-model-icon" style="flex-shrink:0;background:rgba(16,185,129,.18);color:#6ee7b7;display:flex;align-items:center;justify-content:center;"><i class="fa-solid fa-shield-halved"></i></div>
-                            <div class="dimension-model-copy"><div class="curiosidades-card-head"><span class="dimension-model-label">${valuesHtml}</span>${renderMetaSymbols(item)}</div><strong class="dimension-model-value">DependÃªncia de Ã¡reas protegidas</strong></div>
+                            <div class="dimension-model-copy"><div class="curiosidades-card-head"><span class="dimension-model-label">${valuesHtml}</span>${renderMetaSymbols(item)}</div><strong class="dimension-model-value">Dependência de áreas protegidas</strong></div>
                         </article>`;
                 }
 
@@ -1915,7 +1977,7 @@
                     `;
                 }
 
-                if (item.tipo !== 'Estado de ConservaÃƒÂ§ÃƒÂ£o' && item.tipo !== 'Estado de ConservaÃ§Ã£o') {
+                if (item.tipo !== 'Estado de ConservaÃ§Ã£o' && item.tipo !== 'Estado de Conservação') {
                     return `
                         <article class="dimension-model-card curiosidades-model-card" style="width:100%;box-sizing:border-box;display:flex;align-items:center;">
                             <div class="dimension-model-icon" style="flex-shrink:0;background:rgba(148, 163, 184, 0.16);color:#cbd5e1;display:flex;align-items:center;justify-content:center;"><i class="fa-solid fa-sparkles"></i></div>
@@ -1941,7 +2003,7 @@
                                 <span class="dimension-model-label">${escapeHtml(sColor.name)}</span>
                                 ${renderMetaSymbols(item)}
                             </div>
-                            <strong class="dimension-model-value">Estado de ConservaÃ§Ã£o</strong>
+                            <strong class="dimension-model-value">Estado de Conservação</strong>
                         </div>
                     </article>
                 `;
@@ -1953,7 +2015,7 @@
                 </div>
             `;
         }
-        
+
         function playVideo(videoUrl, thumbnailElement) {
             const videoId = getYouTubeVideoId(videoUrl);
             if (!videoId) return;
@@ -1969,7 +2031,6 @@
             iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&enablejsapi=1`;
             videoContainer.style.display = 'block';
         }
-
 
         async function fetchAndRenderSubspeciesParents(subespeciesDe = []) {
             const container = document.getElementById('subspecies-parent-animals-container');
@@ -1990,7 +2051,7 @@
                         if (!parentDoc.exists()) return null;
                         return { id: parentDoc.id, ...parentDoc.data() };
                     } catch (error) {
-                        console.error("Erro ao carregar animal anexado em SubespÃ©cies de:", error);
+                        console.error("Erro ao carregar animal anexado em Subespécies de:", error);
                         return null;
                     }
                 }))).filter(Boolean);
@@ -2013,7 +2074,7 @@
                 });
                 listHTML += '</ul>';
 
-                const sectionHTML = `<h3>SubespÃ©cie de</h3>${listHTML}`;
+                const sectionHTML = `<h3>Subespécie de</h3>${listHTML}`;
                 if (container) {
                     container.innerHTML = sectionHTML;
                     container.style.display = 'block';
@@ -2023,7 +2084,7 @@
                     containerMobile.style.display = 'block';
                 }
             } catch (error) {
-                console.error("Erro ao renderizar animais anexados em SubespÃ©cies de:", error);
+                console.error("Erro ao renderizar animais anexados em Subespécies de:", error);
             }
         }
 
@@ -2036,9 +2097,9 @@
 
             const familyUrl = `family.html?subfamilia=${encodeURIComponent(subfamilia)}`;
             const portalHTML = `
-                <a class="family-portal-link" href="${familyUrl}" aria-label="Visitar a subfamÃ­lia ${escapeHtml(subfamilia)}">
+                <a class="family-portal-link" href="${familyUrl}" aria-label="Visitar a subfamília ${escapeHtml(subfamilia)}">
                     <div class="family-portal-content">
-                        <span class="family-portal-eyebrow">Visite a SubfamÃ­lia</span>
+                        <span class="family-portal-eyebrow">Visite a Subfamília</span>
                         <span class="family-portal-name">${escapeHtml(subfamilia)} <i class="fa-solid fa-arrow-right"></i></span>
                     </div>
                 </a>`;
@@ -2046,6 +2107,11 @@
             try {
                 const q = query(collection(db, "animais"), where("subfamilia", "==", subfamilia));
                 const querySnapshot = await getDocs(q);
+
+                if (querySnapshot.size < 2) {
+                    return;
+                }
+
                 const relatedAnimals = [];
                 querySnapshot.forEach(resultDoc => {
                     if (resultDoc.id !== currentAnimalId) relatedAnimals.push({ id: resultDoc.id, ...resultDoc.data() });
@@ -2054,7 +2120,7 @@
 
                 let listHTML = '';
                 if (relatedAnimals.length) {
-                    listHTML = '<div class="related-family-list-block"><h3>Da mesma subfamÃ­lia</h3><ul class="related-list">' + relatedAnimals.map(animal => {
+                    listHTML = '<div class="related-family-list-block"><h3>Da mesma subfamília</h3><ul class="related-list">' + relatedAnimals.map(animal => {
                         const objectPos = animal.imagemObjectPosition || 'center center';
                         return `<li class="related-item"><a href="animal.html?id=${encodeURIComponent(animal.id)}"><img src="${escapeHtml(animal.imagemUrl || '')}" alt="${escapeHtml(animal.nome || '')}" style="object-position:${escapeHtml(objectPos)}"><span>${escapeHtml(animal.nome || 'Animal')}</span></a></li>`;
                     }).join('') + '</ul></div>';
@@ -2064,9 +2130,6 @@
                 if (containerMobile) { containerMobile.innerHTML = html; containerMobile.style.display = 'block'; }
             } catch (error) {
                 console.error("Erro ao buscar animais relacionados:", error);
-                const fallbackHTML = `<div class="related-family-shell">${portalHTML}</div>`;
-                if (container) { container.innerHTML = fallbackHTML; container.style.display = 'block'; }
-                if (containerMobile) { containerMobile.innerHTML = fallbackHTML; containerMobile.style.display = 'block'; }
             }
         }
 
@@ -2076,10 +2139,10 @@
             return raw
                 .map(item => {
                     if (!item) return null;
-                    const tipo = String(item.tipo || item.type || 'RegiÃµes BiogeogrÃ¡ficas').trim() || 'RegiÃµes BiogeogrÃ¡ficas';
+                    const tipo = String(item.tipo || item.type || 'Regiões Biogeográficas').trim() || 'Regiões Biogeográficas';
                     const valor = String(item.valor || item.regiao || item.region || '').trim();
                     if (!valor) return null;
-                    return { tipo: 'RegiÃµes BiogeogrÃ¡ficas', valor };
+                    return { tipo: 'Regiões Biogeográficas', valor };
                 })
                 .filter(Boolean)
                 .filter((item, index, arr) => arr.findIndex(other => other.tipo === item.tipo && other.valor === item.valor) === index)
@@ -2090,7 +2153,7 @@
             return `
                 <details class="distribution-countries-collapse">
                     <summary>
-                        <span>PaÃ­ses assinalados:</span>
+                        <span>Países assinalados:</span>
                         <i class="fa-solid fa-chevron-down"></i>
                     </summary>
                     <div class="distribution-countries-body">
@@ -2123,11 +2186,34 @@
                                 <div class="dimension-model-icon">${getBiogeographicRegionSvg()}</div>
                                 <div class="dimension-model-copy">
                                     <div class="dimension-model-label">${escapeHtml(item.valor)}</div>
-                                    <div class="dimension-model-value">RegiÃµes BiogeogrÃ¡ficas</div>
+                                    <div class="dimension-model-value">Regiões Biogeográficas</div>
                                 </div>
                             </article>
                         `).join('')}
                     </div>
+                </div>`;
+        }
+
+        function renderDistributionAreasLegend(distributionData = {}) {
+            const areas = window.DistributionAreas?.normalizeDistributionAreas?.(distributionData.areas || []) || [];
+            const points = window.DistributionAreas?.normalizeDistributionPoints?.(distributionData.pontos || []) || [];
+            if (!areas.length && !points.length) return '';
+            const getColor = window.DistributionAreas?.getDistributionAreaColor;
+            return `
+                <div class="distribution-areas-legend" aria-label="Legenda das áreas de distribuição">
+                    <span class="distribution-areas-legend-title">Áreas e pontos representados</span>
+                    ${areas.map(area => `
+                        <span class="distribution-area-legend-item">
+                            <i style="background:${getColor?.(area.tipo) || '#ef4444'}"></i>
+                            ${escapeHtml(area.nome)}
+                        </span>
+                    `).join('')}
+                    ${points.map(point => `
+                        <span class="distribution-area-legend-item">
+                            <i style="background:${getColor?.(point.tipo) || '#ef4444'}"></i>
+                            ${escapeHtml(point.nome)}
+                        </span>
+                    `).join('')}
                 </div>`;
         }
 
@@ -2141,7 +2227,7 @@
                     if (videoId) {
                         thumbnailsHTML += `
                             <div class="thumbnail" data-video-url="${videoUrl}">
-                                <img src="https://img.youtube.com/vi/${videoId}/mqdefault.jpg" alt="Miniatura de vÃ­deo">
+                                <img src="https://img.youtube.com/vi/${videoId}/mqdefault.jpg" alt="Miniatura de vídeo">
                                 <div class="play-icon"><i class="fa-solid fa-play" style="transform: translateX(1px);"></i></div>
                             </div>`;
                     }
@@ -2191,11 +2277,15 @@
             const hasPlumagem = hasPlumagemText || hasPlumagemVisual;
             
             const distributionRegions = normalizeDistributionRegions(animalData.informacao?.distribuicao || {});
+            const distributionAreas = window.DistributionAreas?.normalizeDistributionAreas?.(animalData.informacao?.distribuicao?.areas || []) || [];
+            const distributionPoints = window.DistributionAreas?.normalizeDistributionPoints?.(animalData.informacao?.distribuicao?.pontos || []) || [];
             const hasDistribicaoText = animalData.informacao?.distribuicao?.descricao && animalData.informacao.distribuicao.descricao.trim() !== "";
             const hasDistribicao = animalData.informacao?.distribuicao && 
                                    ((Array.isArray(animalData.informacao.distribuicao.paises) && animalData.informacao.distribuicao.paises.length > 0) || 
                                     hasDistribicaoText ||
-                                    distributionRegions.length > 0);
+                                    distributionRegions.length > 0 ||
+                                    distributionAreas.length > 0 ||
+                                    distributionPoints.length > 0);
 
             const hasCuriosidadesText = animalData.informacao?.curiosidades?.texto && animalData.informacao.curiosidades.texto.trim() !== "";
             const hasCuriosidadesVisual = animalData.informacao?.curiosidades && (
@@ -2244,12 +2334,12 @@
 
             const navItems = [];
             if (hasGeralText) navItems.push({ desktopHref: '#info-geral', mobileHref: '#info-geral-mobile', label: 'Geral' });
-            if (hasDimensoesText) navItems.push({ href: '#info-dimensoes', label: 'DimensÃµes' });
-            if (hasAlimentacao) navItems.push({ href: '#info-alimentacao', label: 'AlimentaÃ§Ã£o' });
+            if (hasDimensoesText) navItems.push({ href: '#info-dimensoes', label: 'Dimensões' });
+            if (hasAlimentacao) navItems.push({ href: '#info-alimentacao', label: 'Alimentação' });
             if (hasEcologia) navItems.push({ href: '#info-ecologia', label: 'Ecologia' });
-            if (hasReproducao) navItems.push({ href: '#info-reproducao', label: 'ReproduÃ§Ã£o' });
+            if (hasReproducao) navItems.push({ href: '#info-reproducao', label: 'Reprodução' });
             if (hasPlumagem) navItems.push({ href: '#info-plumagem', label: getBodyCoveringTitle(animalData) });
-            if (hasDistribicao) navItems.push({ href: '#info-distribuicao', label: 'DistribuiÃ§Ã£o' });
+            if (hasDistribicao) navItems.push({ href: '#info-distribuicao', label: 'Distribuição' });
             if (hasCuriosidades) navItems.push({ href: '#info-curiosidades', label: 'Curiosidades' });
             const navHTMLDesktop = navItems.map((item, idx) => {
                 const desktopHref = item.desktopHref || item.href;
@@ -2326,24 +2416,24 @@
                 ['ordem', 'Ordem:', animalData.ordem],
                 ['subordem', 'Subordem:', animalData.subordem],
                 ['infraordem', 'Infraordem:', animalData.infraordem],
-                ['familia', 'FamÃ­lia:', animalData.familia],
-                ['subfamilia', 'SubfamÃ­lia:', animalData.subfamilia],
-                ['genero', 'GÃ©nero:', animalData.genero, { italic: true }],
-                ['subgenero', 'SubgÃ©nero:', animalData.subgenero, { italic: true }],
-                ['especie', 'EspÃ©cie:', animalData.especie, { italic: true }],
-                ['autoridadeTaxonomica', 'Autoridade taxonÃ³mica:', animalData.autoridadeTaxonomica]
+                ['familia', 'Família:', animalData.familia],
+                ['subfamilia', 'Subfamília:', animalData.subfamilia],
+                ['genero', 'Género:', animalData.genero, { italic: true }],
+                ['subgenero', 'Subgénero:', animalData.subgenero, { italic: true }],
+                ['especie', 'Espécie:', animalData.especie, { italic: true }],
+                ['autoridadeTaxonomica', 'Autoridade taxonómica:', animalData.autoridadeTaxonomica]
             ].map(([filterType, label, value, options]) => {
                 return classificationRow(filterType, label, value, options);
             }).join('') + ((Array.isArray(animalData.subespeciesDe) && animalData.subespeciesDe.length > 0) ? `
                 <div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px;">
-                    <strong style="color: var(--text-secondary);">SubespÃ©cie de:</strong>
+                    <strong style="color: var(--text-secondary);">Subespécie de:</strong>
                     <span class="subespecies-names" style="color: var(--text-primary); font-weight: 500;">Carregando...</span>
                 </div>` : '') : '';
 
             const scientificClassificationSectionDesktopHTML = hasScientificClassification ? `
                 <div class="info-section-card desktop-only" id="info-classificacao" style="margin-top: 24px; border-color: rgba(139, 92, 246, 0.3); background: linear-gradient(135deg, rgba(6, 182, 212, 0.04), rgba(236, 72, 153, 0.04), rgba(9, 9, 20, 0.85)); padding: 24px; box-shadow: 0 8px 32px rgba(139, 92, 246, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.02);">
                     <h3 style="font-size: 1.25rem; margin-bottom: 14px; padding-bottom: 8px; display: flex; align-items: center; border-bottom: 1px solid var(--border-color); color: var(--text-primary);">
-                        <span class="icon" style="margin-right: 10px; display: inline-flex;"><i class="fa-solid fa-dna" style="font-size: 1.1rem; background: linear-gradient(135deg, #06b6d4, #ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"></i></span>ClassificaÃ§Ã£o cientÃ­fica
+                        <span class="icon" style="margin-right: 10px; display: inline-flex;"><i class="fa-solid fa-dna" style="font-size: 1.1rem; background: linear-gradient(135deg, #06b6d4, #ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"></i></span>Classificação científica
                     </h3>
                     <div class="classification-grid" style="display: flex; flex-direction: column; gap: 8px; font-size: 0.95rem;">
                         ${scientificClassificationRowsLinkedHTML}
@@ -2353,7 +2443,7 @@
 
             const scientificClassificationSectionMobileHTML = hasScientificClassification ? `
                 <div class="info-section" id="info-classificacao-mobile">
-                    <h3><span class="icon" style="margin-right: 10px; display: inline-flex;"><i class="fa-solid fa-dna" style="font-size: 1.1rem; background: linear-gradient(135deg, #06b6d4, #ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"></i></span>ClassificaÃ§Ã£o cientÃ­fica</h3>
+                    <h3><span class="icon" style="margin-right: 10px; display: inline-flex;"><i class="fa-solid fa-dna" style="font-size: 1.1rem; background: linear-gradient(135deg, #06b6d4, #ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"></i></span>Classificação científica</h3>
                     <div class="classification-grid" style="display: flex; flex-direction: column; gap: 8px; font-size: 0.95rem; margin-top: 15px;">
                         ${scientificClassificationRowsLinkedHTML}
                     </div>
@@ -2361,15 +2451,15 @@
             ` : '';
 
             const sanitizeScientificClassificationHtml = (html = '') => html
-                .replaceAll('ClassificaÃ§Ã£o cientÃ­fica', 'ClassificaÃ§Ã£o cientÃ­fica')
-                .replaceAll('FamÃ­lia:', 'FamÃ­lia:')
-                .replaceAll('GÃ©nero:', 'GÃ©nero:')
-                .replaceAll('EspÃ©cie:', 'EspÃ©cie:')
-                .replaceAll('SubespÃ©cie de:', 'SubespÃ©cie de:')
-                .replaceAll('FamÃ­lia:', 'FamÃ­lia:')
-                .replaceAll('GÃ©nero:', 'GÃ©nero:')
-                .replaceAll('EspÃ©cie:', 'EspÃ©cie:')
-                .replaceAll('SubespÃ©cie de:', 'SubespÃ©cie de:');
+                .replaceAll('Classificação científica', 'Classificação científica')
+                .replaceAll('Família:', 'Família:')
+                .replaceAll('Género:', 'Género:')
+                .replaceAll('Espécie:', 'Espécie:')
+                .replaceAll('Subespécie de:', 'Subespécie de:')
+                .replaceAll('Família:', 'Família:')
+                .replaceAll('Género:', 'Género:')
+                .replaceAll('Espécie:', 'Espécie:')
+                .replaceAll('Subespécie de:', 'Subespécie de:');
             const scientificClassificationSectionDesktopCleanHTML = sanitizeScientificClassificationHtml(scientificClassificationSectionDesktopHTML);
             const scientificClassificationSectionMobileCleanHTML = sanitizeScientificClassificationHtml(scientificClassificationSectionMobileHTML);
             const forceScientificClassificationHtml = (html = '') => html
@@ -2400,30 +2490,30 @@
                 <div class="content-grid has-3-cols">
                     <!-- Column 1: Image & Related Animals -->
                     <div class="left-column">
-                        ${renderAnatomyBlock(animalData, animalId)}
+                        ${renderAnimalMediaBlock(animalData, animalId)}
                         <div id="animal-profile-actions"></div>
                         ${scientificClassificationSectionDesktopFinalHTML}
                         <div id="subspecies-parent-animals-container" class="desktop-only" style="display: none;"></div>
                         <div id="related-animals-container" class="desktop-only" style="display: none;"></div>
                     </div>
                     
-                    <!-- Column 2: Sections (Geral, DimensÃµes, AlimentaÃ§Ã£o, ReproduÃ§Ã£o, Plumagem, DistribuiÃ§Ã£o) -->
+                    <!-- Column 2: Sections (Geral, Dimensões, Alimentação, Reprodução, Plumagem, Distribuição) -->
                     <div class="middle-column desktop-only">
                         ${hasGeralText ? `
                         <div class="info-section-card" id="info-geral">
-                            <h3><span class="icon svg-icon">${getInfoSectionIconSvg('geral')}</span>InformaÃ§Ã£o Geral</h3>
+                            <h3><span class="icon svg-icon">${getInfoSectionIconSvg('geral')}</span>Informação Geral</h3>
                             <p>${animalData.informacao.geral}</p>
                         </div>` : ''}
 
                         ${hasDimensoesText ? `
                         <div class="info-section-card" id="info-dimensoes">
-                            <h3><span class="icon svg-icon">${getInfoSectionIconSvg('dimensoes')}</span>DimensÃµes</h3>
+                            <h3><span class="icon svg-icon">${getInfoSectionIconSvg('dimensoes')}</span>Dimensões</h3>
                             <p>${animalData.informacao.dimensoes}</p>
                         </div>` : ''}
 
                         ${hasAlimentacao ? `
                         <div class="info-section-card" id="info-alimentacao">
-                            <h3><span class="icon svg-icon">${getInfoSectionIconSvg('alimentacao')}</span>AlimentaÃ§Ã£o</h3>
+                            <h3><span class="icon svg-icon">${getInfoSectionIconSvg('alimentacao')}</span>Alimentação</h3>
                             ${animalData.informacao.alimentacao ? `<p>${animalData.informacao.alimentacao}</p>` : ''}
                             ${renderFeedingVisual(animalData)}
                         </div>` : ''}
@@ -2436,7 +2526,7 @@
 
                         ${hasReproducao ? `
                         <div class="info-section-card" id="info-reproducao">
-                            <h3><span class="icon svg-icon">${getInfoSectionIconSvg('reproducao')}</span>ReproduÃ§Ã£o</h3>
+                            <h3><span class="icon svg-icon">${getInfoSectionIconSvg('reproducao')}</span>Reprodução</h3>
                             ${animalData.informacao.reproducao ? `<p>${animalData.informacao.reproducao}</p>` : ''}
                             ${renderReproductionVisual(animalData)}
                         </div>` : ''}
@@ -2450,13 +2540,14 @@
 
                         ${hasDistribicao ? `
                         <div class="info-section-card" id="info-distribuicao">
-                            <h3><span class="icon svg-icon">${getInfoSectionIconSvg('distribuicao')}</span>DistribuiÃ§Ã£o</h3>
+                            <h3><span class="icon svg-icon">${getInfoSectionIconSvg('distribuicao')}</span>Distribuição</h3>
                             <div class="distribution-stacked-layout" style="margin-top: 20px; display: flex; flex-direction: column; gap: 16px;">
                                 ${hasDistribicaoText ? `<p>${animalData.informacao.distribuicao.descricao}</p>` : ''}
-                                <div class="map-container-wrapper">
-                                    <div class="map-container" id="distributionMapDetailDesktop" style="height: 320px;"></div>
-                                </div>
-                                ${renderCountriesCollapse()}
+                                    <div class="map-container-wrapper">
+                                        <div class="map-container" id="distributionMapDetailDesktop" style="height: 320px;"></div>
+                                    </div>
+                                    ${renderDistributionAreasLegend(animalData.informacao.distribuicao)}
+                                    ${renderCountriesCollapse()}
                                 ${renderDistributionRegionsCard(animalData.informacao.distribuicao)}
                             </div>
                         </div>` : ''}
@@ -2502,7 +2593,7 @@
                             return `
                             <div class="info-section-card" id="info-modelos-visuais">
                                 <h3 style="display: flex; align-items: center; justify-content: space-between; width: 100%;"><span style="display: flex; align-items: center;"><span class="icon svg-icon">${getInfoSectionIconSvg('geral')}</span>Infos</span>${genderIconsHTML}</h3>
-                                ${getInfoGroupFiltersHTML()}
+                                ${getInfoGroupFiltersHTML(combined)}
                                 <div class="visual-models-grid" style="display: flex; flex-direction: column; gap: 14px;">
                                     ${cardsHTML}
                                 </div>
@@ -2511,7 +2602,7 @@
 
                         ${envQuickData.length > 0 ? `
                         <div class="info-section-card" id="info-ambiente" style="margin-top: 20px;">
-                            <h3><span class="icon svg-icon">${getInfoSectionIconSvg('distribuicao')}</span>Zona ClimÃ¡tica & Bioma</h3>
+                            <h3><span class="icon svg-icon">${getInfoSectionIconSvg('distribuicao')}</span>Zona Climática & Bioma</h3>
                             <div class="visual-models-grid" style="display: flex; flex-direction: column; gap: 14px;">
                                 ${envQuickData.map(renderGeneralVisualCard).join('')}
                             </div>
@@ -2552,7 +2643,7 @@
                                 return `
                                 <div class="info-section mobile-only" id="info-modelos-visuais-mobile" style="margin-bottom: 20px;">
                                     <h3 style="display: flex; align-items: center; justify-content: space-between; width: 100%;"><span style="display: flex; align-items: center;"><span class="icon svg-icon">${getInfoSectionIconSvg('geral')}</span>Infos</span>${genderIconsHTML}</h3>
-                                    ${getInfoGroupFiltersHTML()}
+                                    ${getInfoGroupFiltersHTML(combined)}
                                     <div class="visual-models-grid" style="display: flex; flex-direction: column; gap: 14px; margin-top: 15px;">
                                         ${cardsHTML}
                                     </div>
@@ -2560,7 +2651,7 @@
                             })() : ''}
                             ${envQuickData.length > 0 ? `
                             <div class="info-section mobile-only" id="info-ambiente-mobile" style="margin-bottom: 20px;">
-                                <h3><span class="icon svg-icon">${getInfoSectionIconSvg('distribuicao')}</span>Zona ClimÃ¡tica & Bioma</h3>
+                                <h3><span class="icon svg-icon">${getInfoSectionIconSvg('distribuicao')}</span>Zona Climática & Bioma</h3>
                                 <div class="visual-models-grid" style="display: flex; flex-direction: column; gap: 14px; margin-top: 15px;">
                                     ${envQuickData.map(renderGeneralVisualCard).join('')}
                                 </div>
@@ -2568,18 +2659,18 @@
 
                             ${hasGeralText ? `
                             <div class="info-section" id="info-geral-mobile">
-                                <h3><span class="icon svg-icon">${getInfoSectionIconSvg('geral')}</span>InformaÃ§Ã£o Geral</h3>
+                                <h3><span class="icon svg-icon">${getInfoSectionIconSvg('geral')}</span>Informação Geral</h3>
                                 <p>${animalData.informacao.geral}</p>
                             </div>` : ''}
 
                             ${hasDimensoesText ? `
                             <div class="info-section" id="info-dimensoes-mobile">
-                                <h3><span class="icon svg-icon">${getInfoSectionIconSvg('dimensoes')}</span>DimensÃµes</h3>
+                                <h3><span class="icon svg-icon">${getInfoSectionIconSvg('dimensoes')}</span>Dimensões</h3>
                                 <p>${animalData.informacao.dimensoes || ''}</p>
                             </div>` : ''}
                             ${hasAlimentacao ? `
                             <div class="info-section" id="info-alimentacao-mobile">
-                                <h3><span class="icon svg-icon">${getInfoSectionIconSvg('alimentacao')}</span>AlimentaÃ§Ã£o</h3>
+                                <h3><span class="icon svg-icon">${getInfoSectionIconSvg('alimentacao')}</span>Alimentação</h3>
                                 ${hasAlimentacaoText ? `<p>${animalData.informacao.alimentacao}</p>` : ''}
                                 ${renderFeedingVisual(animalData)}
                             </div>` : ''}
@@ -2590,7 +2681,7 @@
                             </div>` : ''}
                             ${hasReproducao ? `
                             <div class="info-section" id="info-reproducao-mobile">
-                                <h3><span class="icon svg-icon">${getInfoSectionIconSvg('reproducao')}</span>ReproduÃ§Ã£o</h3>
+                                <h3><span class="icon svg-icon">${getInfoSectionIconSvg('reproducao')}</span>Reprodução</h3>
                                 <p>${animalData.informacao.reproducao || ''}</p>
                                 ${renderReproductionVisual(animalData)}
                             </div>` : ''}
@@ -2602,12 +2693,13 @@
                             </div>` : ''}
                             ${hasDistribicao ? `
                             <div class="info-section" id="info-distribuicao-mobile">
-                                <h3><span class="icon svg-icon">${getInfoSectionIconSvg('distribuicao')}</span>DistribuiÃ§Ã£o</h3>
+                                <h3><span class="icon svg-icon">${getInfoSectionIconSvg('distribuicao')}</span>Distribuição</h3>
                                 <div class="distribution-stacked-layout" style="margin-top: 20px; display: flex; flex-direction: column; gap: 16px;">
                                     ${animalData.informacao.distribuicao.descricao && animalData.informacao.distribuicao.descricao.trim() !== "" ? `<p>${animalData.informacao.distribuicao.descricao}</p>` : ''}
                                     <div class="map-container-wrapper">
                                         <div class="map-container" id="distributionMapDetailMobile" style="height: 320px;"></div>
                                     </div>
+                                    ${renderDistributionAreasLegend(animalData.informacao.distribuicao)}
                                     ${renderCountriesCollapse()}
                                     ${renderDistributionRegionsCard(animalData.informacao.distribuicao)}
                                 </div>
@@ -2624,14 +2716,68 @@
                             <div id="related-animals-container-mobile" class="info-section mobile-only" style="margin-top: 24px; display: none;"></div>
                         </div>
                     </div>
-                </div>`;
+                </div>
+                ${(() => {
+                    const hasFooterImage = !!animalData.imagemRodape;
+                    const hasEsqueleto = !!animalData.rodapeHasEsqueleto;
+                    const hasAnatomia = !!animalData.rodapeHasAnatomia;
+                    const cleanSciName = String(animalData.nomeCientifico || '').trim().replace(/\s+/g, '_');
 
-            initAnatomyViewer(mainContent);
+                    const models = animalData.informacao?.geralDetalhada || [];
+                    const biomaItem = Array.isArray(models) ? models.find(item => item.tipo && normalizeDimensionKey(item.tipo).includes('bioma')) : null;
+                    const biomaValue = biomaItem ? (biomaItem.valor || biomaItem.valorMin || '') : '';
+                    const normalizedBioma = biomaValue ? normalizeDimensionKey(biomaValue).replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '') : '';
+
+                    if (!hasFooterImage && !hasEsqueleto && !hasAnatomia) return '';
+
+                    return `
+                        <div class="footer-anatomy-section">
+                            ${(hasEsqueleto || hasAnatomia) ? `
+                                <div class="footer-anatomy-svgs-row">
+                                    ${hasEsqueleto ? `
+                                        <div class="footer-svg-container" data-svg-url="assets/anatomy/${cleanSciName}_esqueleto_interativo.svg">
+                                            <div class="footer-svg-title">Esqueleto</div>
+                                            <div class="svg-content-wrapper">
+                                                <div class="svg-loading-placeholder">A carregar esqueleto...</div>
+                                            </div>
+                                        </div>
+                                    ` : ''}
+                                    ${hasAnatomia ? `
+                                        <div class="footer-svg-container" data-svg-url="assets/anatomy/${cleanSciName}_orgaos_interativo.svg">
+                                            <div class="footer-svg-title">Anatomia</div>
+                                            <div class="svg-content-wrapper">
+                                                <div class="svg-loading-placeholder">A carregar anatomia...</div>
+                                            </div>
+                                        </div>
+                                    ` : ''}
+                                </div>
+                            ` : ''}
+                            ${hasFooterImage ? `
+                                <div class="footer-image-row">
+                                    <div class="footer-image-card ${normalizedBioma ? 'has-cartoon-bg' : ''}">
+                                        ${normalizedBioma ? `<img src="assets/biomas_cartoon/${normalizedBioma}.png" class="footer-cartoon-bg" alt="" loading="lazy">` : ''}
+                                        <img src="${escapeHtml(animalData.imagemRodape)}" alt="Imagem de rodapé de ${escapeHtml(animalData.nome)}" class="footer-main-image">
+                                    </div>
+                                </div>
+                            ` : ''}
+                        </div>
+                    `;
+                })()}
+            `;
+
+            initAnimalMediaBlock(mainContent);
+            initFooterAnatomyTabs(mainContent);
             initAnimalAudioControls(mainContent);
             initAnimalProfileActions({ animalId });
             
             if (hasDistribicao) {
                 const selectedCodes = animalData.informacao.distribuicao.paises || [];
+                const automaticCodes = new Set(
+                    Array.isArray(animalData.informacao.distribuicao.paisesAutomaticos)
+                        ? animalData.informacao.distribuicao.paisesAutomaticos
+                        : []
+                );
+                const highlightedCodes = selectedCodes.filter(code => !automaticCodes.has(code));
                 const paisesDetalhes = animalData.informacao.distribuicao.paisesDetalhes || {};
 
                 function applySubregionGradient(code, subregion, mapId) {
@@ -2726,7 +2872,7 @@
                             selector: `#${mapId}`,
                             map: 'world',
                             regionsSelectable: false,
-                            selectedRegions: selectedCodes,
+                            selectedRegions: highlightedCodes,
                             zoomButtons: false,
                             zoomOnScroll: false,
                             regionStyle: {
@@ -2743,28 +2889,56 @@
                             }
                         });
 
+                        const createAreaOverlay = window.DistributionAreas?.createDistributionAreaOverlay;
+                        if (typeof createAreaOverlay === 'function') {
+                            const areaOverlay = createAreaOverlay(container, {
+                                areas: distributionAreas,
+                                points: distributionPoints
+                            });
+                            areaOverlay?.render(distributionAreas, [], distributionPoints);
+                        }
+
                         container.classList.add('jsvectormap-init-done');
 
                         // Apply gradients on loaded regions
-                        selectedCodes.forEach(code => {
+                        highlightedCodes.forEach(code => {
                             applySubregionGradient(code, paisesDetalhes[code] || 'inteiro', mapId);
                         });
 
                         // Polling focus handler: waits for map container to have actual size in browser layout
-                        if (selectedCodes.length > 0) {
+                        const hasDrawnGeometry = distributionAreas.length > 0 || distributionPoints.length > 0;
+                        if (hasDrawnGeometry || highlightedCodes.length > 0) {
                             let attempts = 0;
                             const focusInterval = setInterval(() => {
                                 attempts++;
                                 if (container.offsetWidth > 0 && container.offsetHeight > 0) {
+                                    const focusGeometry = window.DistributionAreas?.focusDistributionGeometry;
+                                    const geometryFocused = typeof focusGeometry === 'function' && focusGeometry(
+                                        mapDetail,
+                                        container,
+                                        distributionAreas,
+                                        distributionPoints,
+                                        { animate: false, padding: 0.35, maximumZoom: 7 }
+                                    );
+                                    if (geometryFocused) {
+                                        clearInterval(focusInterval);
+                                        return;
+                                    }
+
+                                    if (highlightedCodes.length === 0) {
+                                        clearInterval(focusInterval);
+                                        return;
+                                    }
+
                                     try {
-                                        mapDetail.setFocus({ regions: selectedCodes, animate: false });
+                                        mapDetail.setFocus({ regions: highlightedCodes, animate: false });
                                         clearInterval(focusInterval);
                                     } catch (e) {
                                         try {
-                                            mapDetail.setFocus({ region: selectedCodes[0], animate: false });
+                                            mapDetail.setFocus({ region: highlightedCodes[0], animate: false });
                                             clearInterval(focusInterval);
                                         } catch (err) {
-                                            console.error("Erro ao focar regiÃµes:", err);
+                                            console.error("Erro ao focar regiões:", err);
                                         }
                                     }
                                 }
@@ -2791,7 +2965,7 @@
                 const namesSpans = document.querySelectorAll('.highlightedCountriesNames');
                 namesSpans.forEach(namesSpan => {
                     const subLabels = {
-                        'inteiro': 'PaÃ­s inteiro',
+                        'inteiro': 'País inteiro',
                         'esquerdo': 'Lado esquerdo',
                         'direito': 'Lado direito',
                         'cima': 'Lado de cima',
@@ -2802,11 +2976,11 @@
                         const subregion = paisesDetalhes[code] || 'inteiro';
                         return `${name} (${subLabels[subregion]})`;
                     });
-                    namesSpan.textContent = countryNames.length > 0 ? countryNames.join(', ') : 'Nenhum paÃ­s selecionado.';
+                    namesSpan.textContent = countryNames.length > 0 ? countryNames.join(', ') : 'Nenhum país selecionado.';
                 });
             }
 
-            // Carregar nomes das subespÃ©cies de
+            // Carregar nomes das subespécies de
             if (Array.isArray(animalData.subespeciesDe) && animalData.subespeciesDe.length > 0) {
                 const namesContainers = document.querySelectorAll('.subespecies-names');
                 if (namesContainers.length > 0) {
@@ -2837,7 +3011,7 @@
                 });
             });
 
-            // LÃ³gica para abas de gÃ©nero (Macho/FÃªmea) e fase (Adulto/Cria)
+            // Lógica para abas de género (Macho/Fêmea) e fase (Adulto/Cria)
             function applyCombinedFilters(container) {
                 if (!container) return;
                 
@@ -2881,7 +3055,7 @@
                 });
             });
 
-            // Registrar cliques nas abas de gÃ©nero
+            // Registrar cliques nas abas de género
             document.querySelectorAll('.gender-tab-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
                     btn.parentElement.querySelectorAll('.gender-tab-btn').forEach(b => {
@@ -2919,7 +3093,7 @@
                 });
             });
 
-            // LÃ³gica para navegaÃ§Ã£o interna ativa
+            // Lógica para navegação interna ativa
             const navAnchors = document.querySelectorAll('.nav-anchor');
             const sections = document.querySelectorAll('.middle-column .info-section-card, .info-sections .info-section');
 
@@ -2940,20 +3114,20 @@
                 });
             });
 
-            // Seletor dinÃ¢mico baseado no scroll usando getBoundingClientRect
+            // Seletor dinâmico baseado no scroll usando getBoundingClientRect
             window.addEventListener('scroll', () => {
                 let current = '';
                 
-                // Encontrar a primeira secÃ§Ã£o visÃ­vel cujo fundo ultrapasse o topo/cabeÃ§alho da pÃ¡gina
+                // Encontrar a primeira secção visível cujo fundo ultrapasse o topo/cabeçalho da página
                 for (const section of sections) {
-                    // Ignorar secÃ§Ãµes ocultas no layout atual
+                    // Ignorar secções ocultas no layout atual
                     if (section.offsetWidth === 0 || section.offsetHeight === 0) continue;
                     
                     const rect = section.getBoundingClientRect();
-                    // Se o fundo da secÃ§Ã£o estÃ¡ abaixo do limiar (150px do topo do visor)
+                    // Se o fundo da secção está abaixo do limiar (150px do topo do visor)
                     if (rect.bottom > 150) {
                         current = section.getAttribute('id');
-                        break; // Primeira secÃ§Ã£o correspondente encontrada, interrompe a procura
+                        break; // Primeira secção correspondente encontrada, interrompe a procura
                     }
                 }
                 
@@ -2973,7 +3147,7 @@
             const params = new URLSearchParams(window.location.search);
             const animalId = params.get('id');
             if (!animalId) {
-                mainContent.innerHTML = `<p class="error">Erro: ID do animal nÃ£o fornecido.</p>`;
+                mainContent.innerHTML = `<p class="error">Erro: ID do animal não fornecido.</p>`;
                 return;
             }
             try {
@@ -2986,7 +3160,7 @@
                     fetchAndRenderSubspeciesParents(animalData.subespeciesDe);
                     fetchAndRenderRelatedAnimals(animalData.subfamilia, animalId);
                 } else {
-                    mainContent.innerHTML = `<p class="error">Erro: Animal nÃ£o encontrado.</p>`;
+                    mainContent.innerHTML = `<p class="error">Erro: Animal não encontrado.</p>`;
                 }
             } catch (error) {
                 console.error("Erro ao carregar dados do animal:", error);

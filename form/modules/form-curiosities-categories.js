@@ -164,6 +164,7 @@
             const maxVal = String(max || '').trim();
             const unitVal = String(unit || '').trim();
             const value = minVal && maxVal ? `${minVal}-${maxVal}` : `${minVal || maxVal}`;
+            if (!value) return '';
             return `${value}${unitVal ? ` ${unitVal}` : ''}`.trim();
         }
 

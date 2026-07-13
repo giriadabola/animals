@@ -18,6 +18,10 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Mapa interactivo dos países -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsvectormap/dist/css/jsvectormap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/jsvectormap"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsvectormap/dist/maps/world.js"></script>
     <!-- CSS Global -->
     <link rel="stylesheet" href="css/style.css?v=1.0.8">
     <script src="js/runtime-guard.js"></script>
@@ -93,6 +97,133 @@
             .subfamily-filter-btn { width: 44px; height: 44px; min-width: 44px; font-size: .72rem; }
             .subfamily-filter-track::before { top: 23px; left: 22px; right: 22px; }
         }
+
+        .continent-map-panel {
+            display: none;
+            margin: -18px 0 32px;
+            padding: 22px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-md), inset 0 1px 0 rgba(255,255,255,0.03);
+        }
+        .continent-map-panel.is-open { display: block; }
+        .continent-map-panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 18px;
+        }
+        .continent-map-panel-header h2 {
+            margin: 0;
+            font-size: 1.25rem;
+            color: var(--text-primary);
+        }
+        .continent-map-panel-header p {
+            margin: 5px 0 0;
+            color: var(--text-secondary);
+            font-size: .92rem;
+        }
+        .continent-map-close,
+        .continent-map-clear {
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 9px 12px;
+            background: rgba(0,0,0,.18);
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .continent-map-close:hover,
+        .continent-map-clear:hover {
+            color: var(--text-primary);
+            border-color: var(--primary-color);
+        }
+        .continent-map-layout {
+            display: grid;
+            grid-template-columns: minmax(0, 1.3fr) minmax(250px, .7fr);
+            gap: 20px;
+            align-items: stretch;
+        }
+        .continent-map-canvas {
+            min-height: 420px;
+            padding: 8px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            background: rgba(0,0,0,.16);
+        }
+        #continent-map {
+            width: 100%;
+            height: 100%;
+            min-height: 400px;
+        }
+        .continent-map-countries {
+            min-width: 0;
+            max-height: 436px;
+            overflow-y: auto;
+            padding: 4px;
+        }
+        .continent-map-countries-title {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 10px;
+            color: var(--text-primary);
+            font-weight: 800;
+        }
+        .continent-map-status {
+            color: var(--text-secondary);
+            font-size: .86rem;
+            margin: 0 0 12px;
+            line-height: 1.45;
+        }
+        .continent-country-list {
+            display: grid;
+            gap: 8px;
+        }
+        .continent-country-btn {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 11px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            background: rgba(0,0,0,.14);
+            color: var(--text-primary);
+            text-align: left;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .continent-country-btn span {
+            color: var(--text-secondary);
+            font-size: .76rem;
+            font-weight: 800;
+            letter-spacing: .06em;
+        }
+        .continent-country-btn:hover,
+        .continent-country-btn.active {
+            border-color: var(--primary-color);
+            background: rgba(110,231,183,.12);
+            transform: translateX(3px);
+        }
+        .continent-country-btn.active { color: var(--primary-color); }
+        .continent-map-panel .jvm-container { height: 100%; min-height: 400px; }
+        .continent-map-panel .jvm-zoom-btn {
+            background: var(--bg-card) !important;
+            color: var(--text-primary) !important;
+            border-color: var(--border-color) !important;
+        }
+        @media (max-width: 800px) {
+            .continent-map-layout { grid-template-columns: 1fr; }
+            .continent-map-canvas,
+            #continent-map,
+            .continent-map-panel .jvm-container { min-height: 300px; }
+            .continent-map-countries { max-height: 340px; }
+        }
     </style>
 </head>
 <body>
@@ -105,6 +236,30 @@
                 <i class="fa-solid fa-xmark" id="clear-search" style="position: absolute; right: 16px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--text-secondary); font-size: 1.2rem; display: none;"></i>
             </div>
         </div>
+        <section id="continent-map-panel" class="continent-map-panel" aria-hidden="true">
+            <div class="continent-map-panel-header">
+                <div>
+                    <h2 id="continent-map-title">Mapa do continente</h2>
+                    <p>Clique num país no mapa ou na lista para filtrar os animais.</p>
+                </div>
+                <button type="button" class="continent-map-close" id="continent-map-close" aria-label="Fechar mapa">
+                    <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+                </button>
+            </div>
+            <div class="continent-map-layout">
+                <div class="continent-map-canvas">
+                    <div id="continent-map" aria-label="Mapa interactivo do continente"></div>
+                </div>
+                <div class="continent-map-countries">
+                    <div class="continent-map-countries-title">
+                        <span>Países</span>
+                        <button type="button" class="continent-map-clear" id="continent-map-clear">Todos</button>
+                    </div>
+                    <p class="continent-map-status" id="continent-map-status">Seleccione um país para filtrar a lista.</p>
+                    <div class="continent-country-list" id="continent-country-list"></div>
+                </div>
+            </div>
+        </section>
         <nav id="subfamily-filter-nav" class="subfamily-filter-nav" aria-label="Filtrar por subfamília">
             <div id="subfamily-filter-track" class="subfamily-filter-track"></div>
         </nav>
@@ -137,6 +292,11 @@
         let familyAllAnimals = [];
         let activeSubfamily = 'all';
         let activeFamilyName = '';
+        let activeFilterType = '';
+        let activeCountryCode = '';
+        let countryFilteredAnimals = [];
+        let continentMapInstance = null;
+        let continentMapData = {};
         const taxonomyLabels = {
             reino: 'Reino: ',
             filo: 'Filo: ',
@@ -342,11 +502,12 @@
 
         function handleSearch(queryText) {
             const normalizedQuery = queryText.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+            const sourceAnimals = activeFilterType === 'continente' ? countryFilteredAnimals : matchedAnimals;
             if (!normalizedQuery) {
-                filteredAnimals = [...matchedAnimals];
+                filteredAnimals = [...sourceAnimals];
                 clearSearch.style.display = 'none';
             } else {
-                filteredAnimals = matchedAnimals.filter(item => animalMatchesSearch(item.data, normalizedQuery));
+                filteredAnimals = sourceAnimals.filter(item => animalMatchesSearch(item.data, normalizedQuery));
                 clearSearch.style.display = 'block';
             }
             
@@ -357,6 +518,133 @@
 
         function normalizeFilterText(value = '') {
             return String(value).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+        }
+
+        function getDistributionCountryCode(country) {
+            return String(typeof country === 'object'
+                ? (country.codigo || country.code || country.id || '')
+                : country).trim().toUpperCase();
+        }
+
+        function animalHasCountry(animal = {}, countryCode = '') {
+            const countries = animal.informacao?.distribuicao?.paises || [];
+            return countries.some(country => getDistributionCountryCode(country) === countryCode);
+        }
+
+        function updateCountryFilteredList(countryCode = '', countryName = '') {
+            activeCountryCode = countryCode;
+            countryFilteredAnimals = countryCode
+                ? matchedAnimals.filter(item => animalHasCountry(item.data, countryCode))
+                : [...matchedAnimals];
+
+            searchInput.value = '';
+            clearSearch.style.display = 'none';
+            filteredAnimals = [...countryFilteredAnimals];
+            currentPage = 1;
+            renderPage(currentPage, false);
+            renderPagination();
+
+            const hasResults = filteredAnimals.length > 0;
+            listContainer.style.display = hasResults ? '' : 'none';
+            loadingMessage.style.display = hasResults ? 'none' : 'block';
+            if (!hasResults) {
+                loadingMessage.textContent = countryName
+                    ? `Nenhum animal encontrado em ${countryName}.`
+                    : 'Nenhum animal encontrado.';
+            }
+
+            const status = document.getElementById('continent-map-status');
+            if (status) {
+                status.textContent = countryCode
+                    ? `${countryName}: ${countryFilteredAnimals.length} animal(is) encontrado(s).`
+                    : 'Seleccione um país para filtrar a lista.';
+            }
+
+            document.querySelectorAll('.continent-country-btn').forEach(button => {
+                button.classList.toggle('active', button.dataset.countryCode === countryCode);
+            });
+        }
+
+        function renderContinentCountryList(countriesByCode, continentName) {
+            const list = document.getElementById('continent-country-list');
+            if (!list) return;
+            list.innerHTML = '';
+
+            Object.entries(countriesByCode)
+                .filter(([, entry]) => normalizeFilterText(entry?.continente) === normalizeFilterText(continentName))
+                .sort(([, a], [, b]) => String(a?.nome || '').localeCompare(String(b?.nome || ''), 'pt-PT'))
+                .forEach(([code, entry]) => {
+                    const button = document.createElement('button');
+                    button.type = 'button';
+                    button.className = 'continent-country-btn';
+                    button.dataset.countryCode = code;
+                    button.innerHTML = `<strong>${entry.nome}</strong><span>${code}</span>`;
+                    button.addEventListener('click', () => updateCountryFilteredList(code, entry.nome));
+                    list.appendChild(button);
+                });
+        }
+
+        function openContinentMap(continentName) {
+            const panel = document.getElementById('continent-map-panel');
+            const title = document.getElementById('continent-map-title');
+            const toggle = document.getElementById('continent-map-toggle');
+            if (!panel || !window.jsVectorMap) return;
+
+            const continentCodes = Object.entries(continentMapData)
+                .filter(([, entry]) => normalizeFilterText(entry?.continente) === normalizeFilterText(continentName))
+                .map(([code]) => code);
+
+            panel.classList.add('is-open');
+            panel.setAttribute('aria-hidden', 'false');
+            if (title) title.textContent = `Mapa de ${continentName}`;
+            if (toggle) {
+                toggle.classList.add('active');
+                toggle.setAttribute('aria-pressed', 'true');
+            }
+            renderContinentCountryList(continentMapData, continentName);
+
+            if (!continentMapInstance) {
+                continentMapInstance = new window.jsVectorMap({
+                    selector: '#continent-map',
+                    map: 'world',
+                    regionsSelectable: false,
+                    zoomButtons: true,
+                    zoomOnScroll: false,
+                    selectedRegions: continentCodes,
+                    regionStyle: {
+                        initial: { fill: '#27313b', fillOpacity: 1, stroke: '#53616b', strokeWidth: .55 },
+                        selected: { fill: '#5ee6ae', fillOpacity: .92 },
+                        hover: { fill: '#f4c430', fillOpacity: .9, cursor: 'pointer' }
+                    },
+                    onRegionClick: function(event, code) {
+                        const normalizedCode = String(code || '').toUpperCase();
+                        const entry = continentMapData[normalizedCode];
+                        if (!entry || normalizeFilterText(entry.continente) !== normalizeFilterText(continentName)) return;
+                        updateCountryFilteredList(normalizedCode, entry.nome);
+                    }
+                });
+            }
+
+            try {
+                continentMapInstance.setFocus({ regions: continentCodes, animate: false });
+                if (typeof continentMapInstance.setSelectedRegions === 'function') {
+                    continentMapInstance.setSelectedRegions(continentCodes);
+                }
+            } catch (error) {
+                console.warn('Não foi possível focar o mapa no continente:', error);
+            }
+        }
+
+        function closeContinentMap() {
+            const panel = document.getElementById('continent-map-panel');
+            const toggle = document.getElementById('continent-map-toggle');
+            if (!panel) return;
+            panel.classList.remove('is-open');
+            panel.setAttribute('aria-hidden', 'true');
+            if (toggle) {
+                toggle.classList.remove('active');
+                toggle.setAttribute('aria-pressed', 'false');
+            }
         }
 
         searchInput.addEventListener('input', (e) => {
@@ -424,6 +712,7 @@
             const params = new URLSearchParams(window.location.search);
             let filterType = params.get('tipo') || 'estrategia-alimento';
             let filterValue = params.get('valor') || params.get('estrategia');
+            activeFilterType = filterType;
 
             if (!filterValue) {
                 categoryTitle.innerHTML = `Erro`;
@@ -510,6 +799,7 @@
                 </span>
                 <span class="title-actions" style="display: flex; align-items: center; gap: 16px;">
                     <i class="fa-solid fa-magnifying-glass" id="search-toggle-btn" style="font-size: 1.5rem; color: var(--primary-color); cursor: pointer; transition: var(--transition);" title="Pesquisar"></i>
+                    ${filterType === 'continente' ? '<i class="fa-solid fa-map" id="continent-map-toggle" role="button" tabindex="0" aria-label="Abrir mapa do continente" aria-pressed="false" style="font-size: 1.5rem; color: var(--primary-color); cursor: pointer; transition: var(--transition);" title="Abrir mapa do continente"></i>' : ''}
                     <i class="fa-solid fa-table-cells-large" id="view-mode-toggle" style="font-size: 1.5rem; color: var(--primary-color); cursor: pointer; transition: var(--transition);" title="Mudar visualização"></i>
                 </span>
             `;
@@ -569,12 +859,35 @@
                     const response = await fetch('./js/countries.json');
                     if (!response.ok) throw new Error(`HTTP ${response.status}`);
                     countriesByCode = await response.json();
+                    continentMapData = countriesByCode;
                 } catch (countryError) {
                     console.error('Erro ao carregar países e continentes:', countryError);
                     loadingMessage.textContent = 'Não foi possível carregar a associação dos países aos continentes.';
                     hideLoadingOverlay();
                     return;
                 }
+            }
+
+            if (filterType === 'continente') {
+                const mapToggle = document.getElementById('continent-map-toggle');
+                const mapClose = document.getElementById('continent-map-close');
+                const mapClear = document.getElementById('continent-map-clear');
+                if (mapToggle) {
+                    const toggleMap = () => {
+                        const panel = document.getElementById('continent-map-panel');
+                        if (panel?.classList.contains('is-open')) closeContinentMap();
+                        else openContinentMap(filterValue);
+                    };
+                    mapToggle.addEventListener('click', toggleMap);
+                    mapToggle.addEventListener('keydown', event => {
+                        if (event.key === 'Enter' || event.key === ' ') {
+                            event.preventDefault();
+                            toggleMap();
+                        }
+                    });
+                }
+                mapClose?.addEventListener('click', closeContinentMap);
+                mapClear?.addEventListener('click', () => updateCountryFilteredList());
             }
 
             try {
@@ -696,6 +1009,8 @@
                     listContainer.style.display = 'none';
                 } else {
                     loadingMessage.style.display = 'none';
+                    listContainer.style.display = '';
+                    countryFilteredAnimals = [...matchedAnimals];
                     filteredAnimals = [...matchedAnimals];
                     currentPage = 1;
                     renderPage(currentPage, false);

@@ -1,10 +1,10 @@
-﻿        @media (min-width: 1025px) {
+        @media (min-width: 1025px) {
             body {
                 zoom: 0.9;
             }
         }
 
-        /* ForÃ§ar o mesmo tamanho para a segunda linha de todos os cards de modelos visuais */
+        /* Forçar o mesmo tamanho para a segunda linha de todos os cards de modelos visuais */
         .dimension-model-card .dimension-model-value,
         .reproduction-model-card .dimension-model-value,
         .feeding-model-card .dimension-model-value,
@@ -23,7 +23,7 @@
             font-weight: 400 !important;
         }
 
-        /* Reduzir escala na seÃ§Ã£o de Infos e Ambiente do animal (tanto no desktop quanto mobile) */
+        /* Reduzir escala na seção de Infos e Ambiente do animal (tanto no desktop quanto mobile) */
         #info-modelos-visuais .dimension-model-card,
         #info-modelos-visuais-mobile .dimension-model-card,
         #info-ambiente .dimension-model-card,
@@ -249,7 +249,7 @@
             color: #c4b5fd;
         }
 
-        /* Aumentar 30% em relaÃ§Ã£o ao tamanho reduzido dos cards de AlimentaÃ§Ã£o, ReproduÃ§Ã£o e Curiosidades */
+        /* Aumentar 30% em relação ao tamanho reduzido dos cards de Alimentação, Reprodução e Curiosidades */
         .feeding-model-card,
         .feeding-strategy-card,
         .reproduction-model-card,
@@ -303,7 +303,7 @@
 
 
 
-        /* AlimentaÃ§Ã£o e Ecologia: mesma leitura visual da ReproduÃ§Ã£o
+        /* Alimentação e Ecologia: mesma leitura visual da Reprodução
            valor principal em cima, categoria em baixo, cards largos e 1 por linha */
         .feeding-model-grid,
         .ecology-model-grid {
@@ -407,7 +407,7 @@
 
 
 
-        /* Ecologia: mesmas medidas dos cards/Ã­cones da ReproduÃ§Ã£o */
+        /* Ecologia: mesmas medidas dos cards/ícones da Reprodução */
         .ecology-model-card {
             padding: 11px 18px !important;
             gap: 14px !important;
@@ -424,12 +424,12 @@
             height: 26px !important;
         }
 
-        /* ForÃ§ar exibiÃ§Ã£o em forma de lista vertical (1 por linha) na ReproduÃ§Ã£o */
+        /* Forçar exibição em forma de lista vertical (1 por linha) na Reprodução */
         .reproduction-model-grid {
             grid-template-columns: 1fr !important;
         }
 
-        /* Estilo temÃ¡tico de cor da secÃ§Ã£o de Curiosidades (Cinzento / Slate Grey) */
+        /* Estilo temático de cor da secção de Curiosidades (Cinzento / Slate Grey) */
         .curiosidades-model-card .dimension-model-copy {
             flex: 1 1 auto;
             min-width: 0;
@@ -542,7 +542,7 @@
             box-shadow: 0 8px 32px rgba(148, 163, 184, 0.03), inset 0 1px 0 rgba(255, 255, 255, 0.02) !important;
         }
 
-        /* Faz a secÃ§Ã£o da famÃ­lia usar apenas um Ãºnico card visÃ­vel */
+        /* Faz a secção da família usar apenas um único card visível */
         #related-animals-container,
         #related-animals-container-mobile {
             background: transparent !important;
@@ -554,7 +554,7 @@
             -webkit-backdrop-filter: none !important;
         }
 
-        /* Portal para a pÃ¡gina da famÃ­lia */
+        /* Portal para a página da família */
         .family-portal-link {
             position: relative;
             display: block;
@@ -657,7 +657,7 @@
             margin-top: 0;
         }
 
-                /* Estilo super elegante para animais da mesma famÃ­lia */
+                /* Estilo super elegante para animais da mesma família */
         .related-list {
             display: flex;
             flex-direction: column;
@@ -785,6 +785,37 @@
             grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
         }
 
+        .distribution-areas-legend {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 8px 12px;
+            padding: 10px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-sm);
+            background: rgba(0, 0, 0, 0.14);
+            color: var(--text-secondary);
+            font-size: 0.78rem;
+        }
+
+        .distribution-areas-legend-title {
+            color: var(--text-primary);
+            font-weight: 800;
+        }
+
+        .distribution-area-legend-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .distribution-area-legend-item i {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
         .reproduction-model-card.accent-biogeographic-region {
             --card-accent: #38bdf8;
             --card-accent-soft: rgba(56, 189, 248, 0.16);
@@ -797,7 +828,7 @@
 
 .body-covering-display-icon{display:grid;place-items:center;min-width:72px;min-height:72px;border-radius:20px;background:linear-gradient(145deg,rgba(52,61,78,.72),rgba(31,37,52,.86));border:1px solid rgba(148,163,184,.28);box-shadow:inset 0 1px 0 rgba(255,255,255,.05),0 8px 18px rgba(0,0,0,.18)}.body-covering-display-icon i{font-size:2rem;color:#0f766e}.body-covering-display-hero{display:grid!important;place-items:center}.body-covering-display-hero i{font-size:4rem;color:#0f766e;filter:drop-shadow(0 8px 14px rgba(15,118,110,.22))}
 
-        /* Modelos prÃ³prios do revestimento corporal: SVG desenhado no projeto */
+        /* Modelos próprios do revestimento corporal: SVG desenhado no projeto */
         .body-covering-display-icon .body-covering-custom-svg {
             width: 66px;
             height: 66px;
@@ -812,7 +843,7 @@
             filter: drop-shadow(0 12px 22px rgba(0,0,0,.28));
         }
 
-        /* CorreÃ§Ã£o final: modelos visuais no mesmo estilo do site */
+        /* Correção final: modelos visuais no mesmo estilo do site */
         .body-covering-display-icon,
         .plumage-model-figure {
             background: linear-gradient(145deg, rgba(52,61,78,.72), rgba(31,37,52,.84)) !important;
@@ -830,3 +861,429 @@
         .plumage-model-card:nth-child(7n+1){--model-accent:#20b8d6}.plumage-model-card:nth-child(7n+2){--model-accent:#42c77a}.plumage-model-card:nth-child(7n+3){--model-accent:#b69cff}.plumage-model-card:nth-child(7n+4){--model-accent:#f59a45}.plumage-model-card:nth-child(7n+5){--model-accent:#ea6f91}.plumage-model-card:nth-child(7n+6){--model-accent:#65a8ff}.plumage-model-card:nth-child(7n){--model-accent:#d1b56b}
 
 .record-weight-card,.record-age-card{background:linear-gradient(145deg,rgba(38,45,61,.82),rgba(27,32,45,.92))!important;border:1px solid rgba(148,163,184,.22)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.05),0 8px 18px rgba(0,0,0,.18)!important}.record-site-icon{background:linear-gradient(145deg,rgba(52,61,78,.72),rgba(31,37,52,.86))!important;border:1px solid rgba(148,163,184,.22)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.05),0 8px 18px rgba(0,0,0,.18)!important}.record-weight-site-icon{color:#f59e0b!important}.record-age-site-icon{color:#a78bfa!important}.record-site-icon .record-custom-svg{width:46px;height:46px;display:block}
+
+.animal-media-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 14px;
+}
+
+.animal-media-action {
+    width: 48px;
+    height: 48px;
+    border-radius: 18px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(12, 17, 34, 0.72);
+    color: rgba(255, 255, 255, 0.78);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.2s ease, border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
+    text-decoration: none;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+}
+
+.animal-media-action:hover,
+.animal-media-action:focus-visible {
+    transform: translateY(-1px);
+    border-color: rgba(34, 197, 94, 0.28);
+    color: #ffffff;
+    background: rgba(22, 28, 48, 0.88);
+    outline: none;
+}
+
+.animal-media-action svg {
+    width: 20px;
+    height: 20px;
+    stroke: currentColor;
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.animal-image {
+    position: relative;
+}
+
+.profile-image-badges {
+    position: absolute;
+    top: 14px;
+    left: 14px;
+    z-index: 3;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 7px;
+    max-width: min(78%, 310px);
+    pointer-events: auto;
+}
+
+.profile-image-badge {
+    min-width: 34px;
+    height: 34px;
+    padding: 0 10px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    background: rgba(9, 9, 20, 0.68);
+    color: #ffffff;
+    font-weight: 900;
+    font-size: 0.82rem;
+    line-height: 1;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.profile-image-badge:hover,
+.profile-image-badge.active {
+    transform: translateY(-1px) scale(1.04);
+    border-color: rgba(255, 255, 255, 0.38);
+    box-shadow: 0 12px 26px rgba(0, 0, 0, 0.34), 0 0 0 2px rgba(167, 139, 250, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+.profile-image-badge.male {
+    color: #bfdbfe;
+    border-color: rgba(96, 165, 250, 0.35);
+    background: rgba(30, 64, 175, 0.35);
+    font-size: 1.15rem;
+}
+
+.profile-image-badge.female {
+    color: #fbcfe8;
+    border-color: rgba(244, 114, 182, 0.35);
+    background: rgba(157, 23, 77, 0.32);
+    font-size: 1.15rem;
+}
+
+.profile-image-badge.phase {
+    color: #ddd6fe;
+    border-color: rgba(167, 139, 250, 0.38);
+    background: rgba(76, 29, 149, 0.34);
+    padding: 0;
+    font-size: 1.02rem;
+}
+
+.profile-image-badge.phase.adult {
+    color: #86efac;
+    border-color: rgba(16, 185, 129, 0.32);
+    background: rgba(16, 185, 129, 0.18);
+}
+
+.profile-image-badge.phase.young {
+    color: #fcd34d;
+    border-color: rgba(245, 158, 11, 0.34);
+    background: rgba(245, 158, 11, 0.18);
+}
+
+@media (max-width: 640px) {
+    .profile-image-badges {
+        top: 10px;
+        left: 10px;
+        gap: 5px;
+    }
+
+    .profile-image-badge {
+        min-width: 30px;
+        height: 30px;
+        padding: 0 8px;
+        font-size: 0.72rem;
+    }
+
+    .profile-image-badge.male,
+    .profile-image-badge.female {
+        font-size: 1rem;
+    }
+
+    .profile-image-badge.phase {
+        font-size: 0.92rem;
+    }
+}
+
+/* Foto de perfil principal da página do animal: formato vertical 600 × 950 */
+.animal-image {
+    width: min(100%, 600px);
+    max-width: 600px;
+    aspect-ratio: 600 / 950;
+    border-radius: 28px;
+    overflow: hidden;
+    background: rgba(9, 9, 20, 0.72);
+}
+
+.animal-image > img[data-profile-main-image] {
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    display: block;
+    object-fit: cover;
+}
+
+@media (min-width: 900px) {
+    .animal-image {
+        height: auto;
+        max-height: 950px;
+    }
+}
+
+/* Áudio xeno-canto da página do animal */
+.animal-media-action-audio {
+    color: #bbf7d0;
+    border-color: rgba(34, 197, 94, 0.24);
+    background: rgba(22, 101, 52, 0.18);
+}
+
+.animal-media-action-audio:hover,
+.animal-media-action-audio:focus-visible {
+    border-color: rgba(34, 197, 94, 0.52);
+    background: rgba(22, 101, 52, 0.32);
+}
+
+.animal-audio-panel {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 12px;
+    padding: 8px;
+    border-radius: 999px;
+    border: 1px solid rgba(34, 197, 94, 0.22);
+    background: rgba(9, 9, 20, 0.72);
+    box-shadow: 0 16px 34px rgba(0, 0, 0, 0.22), inset 0 1px 0 rgba(255,255,255,0.05);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+.animal-audio-panel[hidden] {
+    display: none !important;
+}
+
+.animal-audio-control {
+    height: 38px;
+    padding: 0 13px;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.04);
+    color: rgba(255, 255, 255, 0.86);
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    cursor: pointer;
+    font-weight: 800;
+    letter-spacing: 0.01em;
+}
+
+.animal-audio-control:hover,
+.animal-audio-control:focus-visible {
+    border-color: rgba(34, 197, 94, 0.36);
+    background: rgba(34, 197, 94, 0.14);
+    color: #ffffff;
+    outline: none;
+}
+
+.animal-audio-control svg {
+    width: 17px;
+    height: 17px;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+/* Footer anatomy section spanning the full width of the screen / main area */
+.footer-anatomy-section {
+    width: 100vw;
+    margin-left: calc(-50vw + 50%);
+    position: relative;
+    margin-top: 60px;
+    padding: 60px 24px;
+    box-sizing: border-box;
+    background: #ffffff;
+    border-top: 1px solid #e9ecef;
+    box-shadow: inset 0 10px 40px rgba(0, 0, 0, 0.05);
+    color: #212529;
+}
+
+@media (min-width: 1840px) {
+    .footer-anatomy-section {
+        padding: 60px calc((100vw - 1840px) / 2);
+    }
+}
+
+.footer-anatomy-svgs-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 30px;
+    margin-bottom: 40px;
+    width: 100%;
+}
+
+.footer-svg-container {
+    background: #ffffff;
+    border: 1px solid #dee2e6;
+    border-radius: 24px;
+    padding: 24px;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.05);
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+    align-content: start;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@media (min-width: 992px) {
+    .footer-svg-container.has-active-info {
+        grid-template-columns: 1.2fr 0.8fr;
+        max-width: 100%;
+    }
+}
+
+.anatomy-info-panel {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 20px;
+    padding: 24px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.02);
+    animation: fadeInAnatomyInfo 0.3s ease;
+}
+
+@keyframes fadeInAnatomyInfo {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.anatomy-info-close {
+    position: absolute;
+    top: 12px;
+    right: 16px;
+    background: none;
+    border: none;
+    color: #6c757d;
+    font-size: 1.8rem;
+    cursor: pointer;
+    line-height: 1;
+    transition: color 0.2s;
+}
+
+.anatomy-info-close:hover {
+    color: #212529;
+}
+
+.anatomy-info-content {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.anatomy-info-title {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #2b8a3e; /* Nice green accent suitable for light theme */
+    margin: 0;
+    line-height: 1.2;
+    border-bottom: 1px solid #dee2e6;
+    padding-bottom: 8px;
+}
+
+.anatomy-info-desc {
+    font-size: 1.15rem;
+    line-height: 1.6;
+    color: #495057;
+    margin: 0;
+}
+
+.footer-svg-title {
+    grid-column: 1 / -1;
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: #212529;
+    margin-bottom: 18px;
+    border-bottom: 1px solid #dee2e6;
+    padding-bottom: 10px;
+    text-align: center;
+}
+
+.svg-content-wrapper {
+    width: 100%;
+    min-height: 250px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.svg-content-wrapper svg {
+    width: 100%;
+    height: auto;
+    max-height: 500px;
+    display: block;
+}
+
+.footer-image-row {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.footer-image-card {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 24px;
+    padding: 16px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
+    max-width: 900px;
+    width: 100%;
+}
+
+.footer-image-card.has-cartoon-bg {
+    position: relative;
+    overflow: hidden;
+    padding: 0;
+    min-height: 350px;
+}
+
+.footer-cartoon-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 1;
+    pointer-events: none;
+}
+
+.footer-main-image {
+    max-width: 100%;
+    max-height: 500px;
+    height: auto;
+    border-radius: 16px;
+    object-fit: contain;
+    display: block;
+}
+
+.footer-image-card.has-cartoon-bg .footer-main-image {
+    position: relative;
+    z-index: 2;
+    padding: 16px;
+}
+
+.svg-loading-placeholder {
+    color: var(--text-secondary);
+    padding: 40px;
+    text-align: center;
+    font-style: italic;
+}

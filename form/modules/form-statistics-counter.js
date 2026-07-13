@@ -112,7 +112,12 @@ function getConfiguredFormParameterTotal() {
         // Revestimento corporal: os nomes dos grupos mudam por categoria animal.
         if (typeof bodyCoveringCategoryConfig !== 'undefined') {
             Object.values(bodyCoveringCategoryConfig).forEach(config => {
-                (config?.groups || []).forEach(add);
+                const groups = config?.groups;
+                if (Array.isArray(groups)) {
+                    groups.forEach(add);
+                } else if (groups && typeof groups === 'object') {
+                    Object.values(groups).forEach(add);
+                }
             });
         }
 

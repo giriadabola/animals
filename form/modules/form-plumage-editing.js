@@ -300,7 +300,7 @@
                 return grupo === 'manchas'
                     ? { grupo, tipo, detalhe: detalhe ? `Cor: ${detalhe}` : '', cor: detalhe, genero, fase }
                     : { grupo, tipo, detalhe, genero, fase };
-            }).filter(item => item.tipo || item.detalhe);
+            }).filter(item => item.detalhe);
         }
 
         function setPlumageData(items = []) {
@@ -792,6 +792,9 @@
             document.getElementById('familia').value = animal.familia || '';
             document.getElementById('imagemUrl').value = animal.imagemUrl || '';
             document.getElementById('imagemObjectPosition').value = animal.imagemObjectPosition || 'center center';
+            document.getElementById('imagemRodape').value = animal.imagemRodape || '';
+            document.getElementById('rodapeHasEsqueleto').checked = !!animal.rodapeHasEsqueleto;
+            document.getElementById('rodapeHasAnatomia').checked = !!animal.rodapeHasAnatomia;
             if (typeof setProfilePhotosData === 'function') setProfilePhotosData(animal);
             setCategoryData(animal.categoria);
             setRecordTypeData(animal);
@@ -846,18 +849,28 @@
             }
             setPlumageData(coveringItems);
             
-            const distData = animal.informacao.distribuicao || { paises: [], paisesDetalhes: {}, descricao: '', regioesBiogeograficas: [] };
+            const distData = animal.informacao.distribuicao || { paises: [], paisesDetalhes: {}, paisesAutomaticos: [], descricao: '', regioesBiogeograficas: [], areas: [], pontos: [] };
             selectedCountries = distData.paises || [];
             paisesDetalhes = distData.paisesDetalhes || {};
+            const savedAutomaticCountries = new Set(Array.isArray(distData.paisesAutomaticos) ? distData.paisesAutomaticos : []);
+            manualSelectedCountryCodes.clear();
+            autoSelectedCountryCodes.clear();
+            selectedCountries.forEach(code => {
+                if (savedAutomaticCountries.has(code)) autoSelectedCountryCodes.add(code);
+                else manualSelectedCountryCodes.add(code);
+            });
+            distributionAreas = window.DistributionAreas?.normalizeDistributionAreas?.(distData.areas || []) || [];
+            distributionPoints = window.DistributionAreas?.normalizeDistributionPoints?.(distData.pontos || distData.marcadores || []) || [];
             document.getElementById('infoDistribuicao').value = distData.descricao || '';
             if (typeof window.setDistributionRegionsData === 'function') {
                 window.setDistributionRegionsData(distData.regioesBiogeograficas || distData.regioes || []);
             }
             renderSelectedCountries();
+            renderHabitatAreas();
             if (mapForm) {
-                mapForm.setSelectedRegions(selectedCountries);
+                mapForm.setSelectedRegions(getHighlightedCountryCodes());
                 setTimeout(() => {
-                    selectedCountries.forEach(code => {
+                    getHighlightedCountryCodes().forEach(code => {
                         applySubregionGradient(code, paisesDetalhes[code] || 'inteiro');
                     });
                 }, 100);
@@ -899,10 +912,6 @@
         function switchToEditMode(animalId) {
             isEditMode = true;
             currentEditingId = animalId;
-            formTitle.style.display = 'block';
-            formSubtitle.style.display = 'block';
-            formTitle.textContent = "Editar Animal";
-            formSubtitle.textContent = `A editar: ${document.getElementById('nomeAnimal').value}`;
             saveButton.textContent = "Atualizar Dados";
             document.getElementById('nomeCientifico').disabled = true;
             document.body.classList.add('edit-theme');
@@ -939,11 +948,19 @@
             
             selectedCountries = [];
             paisesDetalhes = {};
+            toggleExpandedDistributionMap(false);
+            manualSelectedCountryCodes.clear();
+            autoSelectedCountryCodes.clear();
+            distributionAreas = [];
+            distributionPoints = [];
+            habitatDraftPoints = [];
+            setHabitatDrawMode(false);
             document.getElementById('infoDistribuicao').value = '';
             if (typeof window.setDistributionRegionsData === 'function') {
                 window.setDistributionRegionsData([]);
             }
             renderSelectedCountries();
+            renderHabitatAreas();
             if (mapForm) {
                 mapForm.setSelectedRegions([]);
             }
@@ -960,10 +977,6 @@
 
             const geralBtn = document.querySelector('[data-tab="geral"]');
             if (geralBtn) geralBtn.click();
-            formTitle.style.display = 'none';
-            formSubtitle.style.display = 'none';
-            formTitle.textContent = "Gerir Grandes Projetos";
-            formSubtitle.textContent = "Formulário de Criação de Animais";
             saveButton.textContent = "Gravar Novo Animal";
             document.getElementById('nomeCientifico').disabled = false;
             nomeCientificoWarning.style.display = 'none';
@@ -1272,6 +1285,7 @@
                         } else {
                             mapForm.updateSize();
                         }
+                        focusDistributionMapContent();
                     }, 50);
                 }
             });
@@ -1435,4 +1449,3 @@
             'EW': { bg: '#542788', text: '#ffffff', name: 'Extinto na Natureza' },
             'EX': { bg: '#000000', text: '#ffffff', name: 'Extinto' }
         };
-
