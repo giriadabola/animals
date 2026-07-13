@@ -795,6 +795,9 @@
             document.getElementById('imagemRodape').value = animal.imagemRodape || '';
             document.getElementById('rodapeHasEsqueleto').checked = !!animal.rodapeHasEsqueleto;
             document.getElementById('rodapeHasAnatomia').checked = !!animal.rodapeHasAnatomia;
+            if (typeof window.setSelectedRodapeParams === 'function') {
+                window.setSelectedRodapeParams(animal.rodapeParamsOn || []);
+            }
             if (typeof setProfilePhotosData === 'function') setProfilePhotosData(animal);
             setCategoryData(animal.categoria);
             setRecordTypeData(animal);

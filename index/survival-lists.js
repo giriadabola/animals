@@ -1,3 +1,5 @@
+import { extractPopulationMetric } from "../js/ranking-metrics.js?v=1";
+
 function getFirstActiveCategory(categoria) {
     if (typeof categoria === 'string') return categoria;
     if (categoria && typeof categoria === 'object') {
@@ -168,7 +170,8 @@ export async function populateSurvivalLists(allAnimals, db, searchResultsContain
         { key: 'mais-espesso', title: 'Mais Espesso', tag: 'Espessura', icon: 'fa-ruler-combined', isRanking: true, extractRanking: (animal) => extractNumericMetric(animal.informacao?.dimensoesDetalhadas || [], ['espessura']) },
         { key: 'maior-envergadura', title: 'Maior Envergadura', tag: 'Envergadura', icon: 'fa-feather', isRanking: true, extractRanking: (animal) => extractNumericMetric(animal.informacao?.dimensoesDetalhadas || [], ['envergadura']) },
         { key: 'mais-longos', title: 'Os Mais Longos', tag: 'Comprimento', icon: 'fa-ruler-horizontal', isRanking: true, extractRanking: (animal) => extractNumericMetric(animal.informacao?.dimensoesDetalhadas || [], ['comprimento']) },
-        { key: 'forca-mordida', title: 'Força da Mordida', tag: 'Mordida', icon: 'fa-tooth', isRanking: true, extractRanking: (animal) => extractNumericMetric(animal.informacao?.geralDetalhada || [], ['mordida']) }
+        { key: 'forca-mordida', title: 'Força da Mordida', tag: 'Mordida', icon: 'fa-tooth', isRanking: true, extractRanking: (animal) => extractNumericMetric(animal.informacao?.geralDetalhada || [], ['mordida']) },
+        { key: 'maior-populacao', title: 'Maior População', tag: 'População', icon: 'fa-globe', isRanking: true, extractRanking: (animal) => extractPopulationMetric(animal.informacao?.geralDetalhada || []) }
     ];
 
     function createSectionGridWrapper(innerSectionEl) {

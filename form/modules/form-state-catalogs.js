@@ -766,6 +766,7 @@
                     imagemRodape: document.getElementById('imagemRodape').value || '',
                     rodapeHasEsqueleto: document.getElementById('rodapeHasEsqueleto').checked,
                     rodapeHasAnatomia: document.getElementById('rodapeHasAnatomia').checked,
+                    rodapeParamsOn: window.getSelectedRodapeParams ? window.getSelectedRodapeParams() : [],
                     categoria: getSelectedCategoriesMap(),
                     qualidadeRegisto: qualitySaveData,
                     nivelQualidade: qualitySaveData.nivel,

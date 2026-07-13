@@ -29,7 +29,8 @@ const FORM_MODULE_FILES = [
     './modules/form-statistics-counter.js',
     './modules/form-parameter-search.js',
     './modules/form-text-import-popup.js',
-    './modules/form-distribution-submit.js'
+    './modules/form-distribution-submit.js',
+    './modules/form-rodape-tab.js'
 ];
 
 async function loadFormModules() {

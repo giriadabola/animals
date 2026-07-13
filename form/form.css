@@ -4162,3 +4162,148 @@ body.form-text-import-open { overflow: hidden; }
 
 .advanced-parameter-unique-icon{display:grid;place-items:center;width:64px;height:64px;border-radius:20px;background:linear-gradient(145deg,rgba(183,148,246,.22),rgba(109,40,217,.1));border:1px solid rgba(183,148,246,.42);box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 10px 24px rgba(0,0,0,.18)}
 .advanced-parameter-unique-icon i{font-size:1.65rem;color:#c4a7ff;filter:drop-shadow(0 4px 9px rgba(126,75,220,.35))}
+
+/* Top level tabs e Rodapé section */
+.top-level-tabs-nav {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+    grid-column: span 3;
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 12px;
+    margin-top: 10px;
+    width: 100%;
+}
+
+.top-level-tab-btn {
+    padding: 10px 24px;
+    border: 1px solid var(--border-color);
+    background: transparent;
+    color: var(--text-primary);
+    border-radius: var(--border-radius-sm);
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
+}
+
+.top-level-tab-btn.active {
+    border-color: transparent !important;
+    background: var(--primary-color) !important;
+    color: var(--bg-primary) !important;
+}
+
+#top-tabpanel-rodape {
+    display: none;
+    flex-direction: column;
+    gap: 20px;
+    margin-bottom: 20px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.rodape-options-card {
+    display: flex;
+    gap: 20px;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    background: var(--bg-card);
+    padding: 20px;
+    border-radius: var(--border-radius-md);
+    border: 1px solid var(--border-color);
+    box-sizing: border-box;
+    width: 100%;
+}
+
+.rodape-list-card {
+    background: var(--bg-card);
+    padding: 20px;
+    border-radius: var(--border-radius-md);
+    border: 1px solid var(--border-color);
+    box-sizing: border-box;
+    width: 100%;
+}
+
+.rodape-parameter-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 18px;
+    background: var(--bg-primary);
+    border-radius: var(--border-radius-sm);
+    border: 1px solid var(--border-color);
+    gap: 15px;
+    transition: background-color 0.2s ease;
+}
+
+.rodape-parameter-row:hover {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.rodape-parameter-info {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    max-width: 80%;
+    word-break: break-word;
+}
+
+.rodape-parameter-name {
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 0.95rem;
+}
+
+.rodape-parameter-value {
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+    line-height: 1.3;
+}
+
+.rodape-parameter-checkbox {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+    .top-level-tabs-nav {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        padding-bottom: 8px;
+    }
+    
+    .top-level-tab-btn {
+        width: 100%;
+        justify-content: center;
+        padding: 8px 16px;
+        font-size: 0.9rem;
+    }
+
+    .rodape-options-card {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 15px;
+        padding: 16px;
+    }
+    
+    .rodape-options-card > div:first-child {
+        width: 100%;
+    }
+
+    .rodape-options-card > div:last-child {
+        justify-content: space-around;
+        width: 100%;
+        height: auto !important;
+        padding-top: 5px;
+    }
+
+    .rodape-list-card {
+        padding: 16px;
+    }
+}

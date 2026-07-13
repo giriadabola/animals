@@ -90,6 +90,14 @@
 
     <div class="container">
         <form id="animalForm" class="scientific-gate-active">
+            <div class="top-level-tabs-nav">
+                <button type="button" class="top-level-tab-btn active" data-top-tab="parametros">
+                    <i class="fa-solid fa-sliders"></i> Parâmetros
+                </button>
+                <button type="button" class="top-level-tab-btn" data-top-tab="rodape">
+                    <i class="fa-solid fa-shoe-prints" style="transform: rotate(-90deg);"></i> Rodapé
+                </button>
+            </div>
             <div class="form-header-fields">
                 <div class="form-group">
                     <label for="nomeAnimal">Nome Comum</label>
@@ -268,20 +276,6 @@
                         <button type="button" id="addProfileExtraPhotoBtn" class="add-row-btn profile-add-photo-btn">
                             <i class="fa-solid fa-plus"></i> Adicionar mais
                         </button>
-                    </div>
-                    <div class="form-group grid-span-3" style="display: flex; gap: 20px; align-items: flex-end; flex-wrap: wrap;">
-                        <div style="flex: 1; min-width: 250px; display: flex; flex-direction: column; gap: 6px;">
-                            <label for="imagemRodape">Adicionar imagem para rodapé</label>
-                            <input type="text" id="imagemRodape" placeholder="URL da imagem de rodapé" style="width: 100%;">
-                        </div>
-                        <div style="display: flex; gap: 15px; height: 42px; align-items: center;">
-                            <label style="display: inline-flex; align-items: center; gap: 6px; cursor: pointer; color: var(--text-secondary); font-size: 0.95rem; user-select: none;">
-                                <input type="checkbox" id="rodapeHasEsqueleto" style="width: 18px; height: 18px; cursor: pointer; margin: 0;"> Esqueleto
-                            </label>
-                            <label style="display: inline-flex; align-items: center; gap: 6px; cursor: pointer; color: var(--text-secondary); font-size: 0.95rem; user-select: none;">
-                                <input type="checkbox" id="rodapeHasAnatomia" style="width: 18px; height: 18px; cursor: pointer; margin: 0;"> Anatomia
-                            </label>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -837,6 +831,31 @@
                     </div>
                 </div>
             </fieldset>
+            
+            <div id="top-tabpanel-rodape" class="grid-span-3">
+                <div class="rodape-options-card">
+                    <div style="flex: 1; min-width: 250px; display: flex; flex-direction: column; gap: 6px;">
+                        <label for="imagemRodape">Adicionar imagem para rodapé</label>
+                        <input type="text" id="imagemRodape" placeholder="URL da imagem de rodapé" style="width: 100%;">
+                    </div>
+                    <div style="display: flex; gap: 15px; height: 42px; align-items: center;">
+                        <label style="display: inline-flex; align-items: center; gap: 6px; cursor: pointer; color: var(--text-secondary); font-size: 0.95rem; user-select: none;">
+                            <input type="checkbox" id="rodapeHasEsqueleto" style="width: 18px; height: 18px; cursor: pointer; margin: 0;"> Esqueleto
+                        </label>
+                        <label style="display: inline-flex; align-items: center; gap: 6px; cursor: pointer; color: var(--text-secondary); font-size: 0.95rem; user-select: none;">
+                            <input type="checkbox" id="rodapeHasAnatomia" style="width: 18px; height: 18px; cursor: pointer; margin: 0;"> Anatomia
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="rodape-list-card">
+                    <h3 style="margin-top: 0; color: var(--primary-color); margin-bottom: 15px;">Coleção de Parâmetros no Rodapé</h3>
+                    <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 15px;">Selecione os parâmetros que devem aparecer como cards ao lado da imagem do rodapé na página do animal (máximo 10).</p>
+                    <div id="rodapeParametersList" style="display: flex; flex-direction: column; gap: 10px; max-height: 400px; overflow-y: auto; padding-right: 5px;">
+                        <p style="color: var(--text-secondary); font-style: italic;">Nenhum parâmetro preenchido em "Parâmetros".</p>
+                    </div>
+                </div>
+            </div>
             
             <div class="save-quality-row grid-span-3">
                 <div class="animal-quality-selector" id="animalQualitySelector" aria-label="Nível de qualidade do registo">

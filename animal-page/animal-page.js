@@ -5,11 +5,12 @@ import { db } from "../js/firebase-config.js?v=5";
         import { feedingStrategyDescriptions, getFeedingStrategyMeta, getFeedingStrategySvg } from "../js/feeding-strategies.js";
         import { getMatingMeta, getMatingSystemSvg } from "../js/mating-systems.js";
         import { ecologyBlockConfigs, getEcologyBlockSvg } from "../js/ecology-visuals.js?v=1";
-        import { getGeneralVisualMeta as getGeneralVisualCatalogMeta, getGeneralModelSvg as getGeneralCatalogModelSvg, getActivityMeta, getActivitySvg, getSocialMeta, getSocialSvg, getEcologicalFunctionMeta, getEcologicalFunctionSvg, getLocomotionMeta, getLocomotionSvg } from "../js/general-visual-catalog.js";
+        import { getGeneralVisualMeta as getGeneralVisualCatalogMeta, getGeneralModelSvg as getGeneralCatalogModelSvg, getActivityMeta, getActivitySvg, getSocialMeta, getSocialSvg, getEcologicalFunctionMeta, getEcologicalFunctionSvg, getLocomotionMeta, getLocomotionSvg, isDropdownOnlyGeneralModel as isDropdownOnlyGeneralCatalogModel } from "../js/general-visual-catalog.js";
         import { collapseCombinedGenderItems, collectConcreteGenders, genderMatchesSelection, normalizeGenderValue } from "../js/gender-utils.js?v=2";
         import { renderAnimalMediaBlock, initAnimalMediaBlock, initFooterAnatomyTabs } from "../js/animal-media-block.js?v=3";
         import { renderAnimalAudioThumbnail, initAnimalAudioControls, pauseAllAnimalAudio } from "../js/animal-audio.js?v=20260710_audio_4";
         import { initAnimalProfileActions } from "../js/profile-favorites.js?v=4";
+        import { POPULATION_RANKING_KEY } from "../js/ranking-metrics.js?v=1";
         
         const mainContent = document.getElementById('main-content-area');
 
@@ -2727,8 +2728,147 @@ import { db } from "../js/firebase-config.js?v=5";
                     const biomaItem = Array.isArray(models) ? models.find(item => item.tipo && normalizeDimensionKey(item.tipo).includes('bioma')) : null;
                     const biomaValue = biomaItem ? (biomaItem.valor || biomaItem.valorMin || '') : '';
                     const normalizedBioma = biomaValue ? normalizeDimensionKey(biomaValue).replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '') : '';
+                    const rodapeParamsOn = animalData.rodapeParamsOn || [];
+                    const footerCards = [];
+                    
+                    if (rodapeParamsOn.length > 0) {
+                        const allDetails = [];
+                        const addSafe = (arr) => {
+                            if (Array.isArray(arr)) {
+                                allDetails.push(...arr.filter(Boolean));
+                            }
+                        };
+                        
+                        addSafe(animalData.informacao?.geralDetalhada);
+                        addSafe(animalData.informacao?.dimensoesDetalhadas);
+                        addSafe(animalData.informacao?.alimentacaoDetalhada);
+                        addSafe(animalData.informacao?.reproducaoDetalhada);
+                        addSafe(animalData.informacao?.plumagemDetalhada);
+                        
+                        const cur = animalData.informacao?.curiosidades;
+                        if (cur) {
+                            if (Array.isArray(cur)) {
+                                allDetails.push(...cur);
+                            } else if (Array.isArray(cur.detalhes)) {
+                                allDetails.push(...cur.detalhes);
+                            }
+                        }
+                        
+                        const ecologyItems = animalData.informacao?.ecologia;
+                        if (ecologyItems && typeof ecologyItems === 'object') {
+                            if (Array.isArray(ecologyItems)) {
+                                allDetails.push(...ecologyItems);
+                            } else {
+                                Object.keys(ecologyItems).forEach(k => {
+                                    const val = ecologyItems[k];
+                                    if (val && typeof val === 'object') {
+                                        allDetails.push({ tipo: k, ...val });
+                                    } else if (typeof val === 'string') {
+                                        allDetails.push({ tipo: k, valor: val });
+                                    }
+                                });
+                            }
+                        }
 
-                    if (!hasFooterImage && !hasEsqueleto && !hasAnatomia) return '';
+                        const getDisplayVal = (item) => {
+                            if (!item) return '';
+                            if (item.valor) return item.valor;
+                            if (item.detalhe) return item.detalhe;
+                            if (item.texto) return item.texto;
+                            if (item.valorMin || item.valorMax) {
+                                const min = item.valorMin || '';
+                                const max = item.valorMax || '';
+                                const unit = item.unidade || '';
+                                if (min && max) return `${min}-${max} ${unit}`.trim();
+                                return `${min || max} ${unit}`.trim();
+                            }
+                            if (item.animais && item.animais.length) {
+                                return item.animais.map(a => a.nome || a.id).join(', ');
+                            }
+                            return '';
+                        };
+                        
+                        const isNumericParam = (paramName, item) => {
+                            const normalizedParamName = normalizeDimensionKey(paramName);
+                            const primaryValue = item?.valor ?? item?.valorMin ?? '';
+                            const isTextualValue = typeof primaryValue === 'string' && primaryValue.trim() !== '' && !/^-?\d+(?:[.,]\d+)?(?:-\d+(?:[.,]\d+)?)?$/.test(primaryValue.trim());
+                            const isDropdownOnly = isDropdownOnlyGeneralCatalogModel(paramName) || (
+                                !item?.unidade &&
+                                (item?.valorMax === undefined || String(item.valorMax).trim() === '') &&
+                                isTextualValue
+                            );
+
+                            if (isDropdownOnly) return false;
+
+                            if (item && (item.valorMin !== undefined || item.valorMax !== undefined || item.unidade)) {
+                                return true;
+                            }
+                            const label = normalizedParamName;
+                            const numericKeywords = [
+                                'vida', 'velocidade', 'tamanho', 'populacao', 'peso', 'comprimento', 'altura',
+                                'largura', 'espessura', 'sono', 'distancia', 'temperatura', 'envergadura', 
+                                'metabolica', 'muda', 'estadio', 'ovo', 'cria', 'nascimento', 'gestacao', 'eclosao', 'idade'
+                            ];
+                            return numericKeywords.some(kw => label.includes(kw));
+                        };
+                        
+                        const getRankingUrl = (paramName) => {
+                            const name = String(paramName || '').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                            if (name.includes('vida') || name.includes('longevidade')) {
+                                return 'filtros.html?tipo=mais-vida-util&valor=Com%20mais%20Vida%20Útil';
+                            }
+                            if (name.includes('velocidade') || name.includes('veloz')) {
+                                return 'filtros.html?tipo=mais-velozes&valor=Os%20Mais%20Velozes';
+                            }
+                            if (name.includes('altura')) {
+                                return 'filtros.html?tipo=mais-altos&valor=Os%20Mais%20Altos';
+                            }
+                            if (name.includes('peso')) {
+                                return 'filtros.html?tipo=mais-pesados&valor=Os%20Mais%20Pesados';
+                            }
+                            if (name.includes('largura') || name.includes('envergadura')) {
+                                return 'filtros.html?tipo=mais-largo&valor=Mais%20Largo';
+                            }
+                            if (name.includes('espessura')) {
+                                return 'filtros.html?tipo=mais-espesso&valor=Mais%20Espesso';
+                            }
+                            if (name.includes('tamanho') && name.includes('popul')) {
+                                return `filtros.html?tipo=${POPULATION_RANKING_KEY}&valor=ranking`;
+                            }
+                            return `filtros.html?tipo=${encodeURIComponent(paramName)}&valor=ranking`;
+                        };
+
+                        rodapeParamsOn.forEach(paramName => {
+                            const foundItem = allDetails.find(item => {
+                                if (!item) return false;
+                                const label = item.tipo || item.type || item.label || item.categoria || '';
+                                return label.toLowerCase().trim() === paramName.toLowerCase().trim();
+                            });
+                            if (foundItem) {
+                                const valStr = getDisplayVal(foundItem);
+                                if (valStr) {
+                                    const numeric = isNumericParam(paramName, foundItem);
+                                    if (numeric) {
+                                        footerCards.push({
+                                            label: paramName,
+                                            value: '',
+                                            isRanking: true,
+                                            url: getRankingUrl(paramName)
+                                        });
+                                    } else {
+                                        footerCards.push({
+                                            label: paramName,
+                                            value: valStr,
+                                            isRanking: false,
+                                            url: `filtros.html?tipo=${encodeURIComponent(paramName)}&valor=${encodeURIComponent(valStr)}`
+                                        });
+                                    }
+                                }
+                            }
+                        });
+                    }
+
+                    if (!hasFooterImage && !hasEsqueleto && !hasAnatomia && footerCards.length === 0) return '';
 
                     return `
                         <div class="footer-anatomy-section">
@@ -2752,12 +2892,57 @@ import { db } from "../js/firebase-config.js?v=5";
                                     ` : ''}
                                 </div>
                             ` : ''}
-                            ${hasFooterImage ? `
-                                <div class="footer-image-row">
-                                    <div class="footer-image-card ${normalizedBioma ? 'has-cartoon-bg' : ''}">
-                                        ${normalizedBioma ? `<img src="assets/biomas_cartoon/${normalizedBioma}.png" class="footer-cartoon-bg" alt="" loading="lazy">` : ''}
-                                        <img src="${escapeHtml(animalData.imagemRodape)}" alt="Imagem de rodapé de ${escapeHtml(animalData.nome)}" class="footer-main-image">
-                                    </div>
+                            ${(hasFooterImage || footerCards.length > 0) ? `
+                                <div class="footer-image-row" style="display: flex; gap: 24px; align-items: center; flex-wrap: wrap; justify-content: center; width: 100%;">
+                                    ${hasFooterImage ? `
+                                        <div class="footer-image-card ${normalizedBioma ? 'has-cartoon-bg' : ''}" style="margin: 0;">
+                                            ${normalizedBioma ? `<img src="assets/biomas_cartoon/${normalizedBioma}.png" class="footer-cartoon-bg" alt="" loading="lazy">` : ''}
+                                            <img src="${escapeHtml(animalData.imagemRodape)}" alt="Imagem de rodapé de ${escapeHtml(animalData.nome)}" class="footer-main-image">
+                                        </div>
+                                    ` : ''}
+                                    ${footerCards.length > 0 ? (() => {
+                                        const gradients = [
+                                            'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',   // Blue
+                                            'linear-gradient(135deg, #059669 0%, #047857 100%)',   // Emerald
+                                            'linear-gradient(135deg, #d97706 0%, #b45309 100%)',   // Amber
+                                            'linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)',    // Red
+                                            'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)',   // Purple
+                                            'linear-gradient(135deg, #db2777 0%, #be185d 100%)',   // Pink
+                                            'linear-gradient(135deg, #0891b2 0%, #0e7490 100%)',    // Cyan
+                                            'linear-gradient(135deg, #ea580c 0%, #c2410c 100%)',   // Orange
+                                            'linear-gradient(135deg, #0d9488 0%, #0f766e 100%)',  // Teal
+                                            'linear-gradient(135deg, #4f46e5 0%, #4338ca 100%)'    // Indigo
+                                        ];
+                                        const borderColors = [
+                                            '#1e40af',
+                                            '#065f46',
+                                            '#92400e',
+                                            '#991b1b',
+                                            '#5b21b6',
+                                            '#9d174d',
+                                            '#155e75',
+                                            '#9a3412',
+                                            '#115e59',
+                                            '#3730a3'
+                                        ];
+                                        return `
+                                            <div class="footer-collection-cards" style="display: flex; flex-direction: column; gap: 10px; flex: 1; min-width: 280px; max-width: 450px; text-align: left;">
+                                                ${footerCards.slice(0, 10).map((card, idx) => {
+                                                    const bgGrad = gradients[idx % gradients.length];
+                                                    const borderColor = borderColors[idx % borderColors.length];
+                                                    const cardText = card.isRanking 
+                                                        ? `Coleção ${escapeHtml(card.label)}`
+                                                        : `<strong style="color: #ffffff; text-decoration: underline; text-underline-offset: 3px;">${escapeHtml(card.value)}</strong> <span style="opacity: 0.92;">— Coleção ${escapeHtml(card.label)}</span>`;
+                                                    return `
+                                                        <a href="${card.url}" class="footer-collection-card" style="display: flex; align-items: center; padding: 12px 18px; background: ${bgGrad}; border: 1px solid ${borderColor}; border-radius: 10px; text-decoration: none; color: #ffffff; box-shadow: 0 4px 12px rgba(0,0,0,0.15); transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); font-size: 0.92rem; font-weight: 600; text-shadow: 0 1px 2px rgba(0,0,0,0.2);" onmouseover="this.style.filter='brightness(1.15) saturate(1.1)'; this.style.transform='translateX(4px)'; this.style.boxShadow='0 6px 16px rgba(0,0,0,0.25)';" onmouseout="this.style.filter='none'; this.style.transform='none'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.15)';">
+                                                            <i class="fa-solid fa-tags" style="margin-right: 12px; color: #ffffff; opacity: 0.9; font-size: 1rem;"></i>
+                                                            <span>${cardText}</span>
+                                                        </a>
+                                                    `;
+                                                }).join('')}
+                                            </div>
+                                        `;
+                                    })() : ''}
                                 </div>
                             ` : ''}
                         </div>
