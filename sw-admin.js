@@ -1,28 +1,33 @@
-const CACHE_NAME = 'animals-admin-v20260711-cache-reset-1';
+const CACHE_NAME = 'animals-admin-v20260713-text-import-1';
 
 const ASSETS_TO_CACHE = [
   './',
-  './form.html',
-  './form.css',
-  './form.js',
-  './form-auth.js',
-  './form-cache.js',
-  './sw-register.js',
-  './manifest-admin.webmanifest',
+  './form/form.html',
+  './form/form.css',
+  './form/form.js',
+  './form/form-auth.js',
+  './form/form-cache.js',
+  './form/sw-register.js',
+  './form/manifest-admin.webmanifest',
 
-  './modules/form-state-catalogs.js',
-  './modules/form-record-type.js',
-  './modules/form-quality-level.js',
-  './modules/form-profile-link.js',
-  './modules/form-dimensions.js',
-  './modules/form-general.js',
-  './modules/form-feeding.js',
-  './modules/form-ecology.js',
-  './modules/form-reproduction.js',
-  './modules/form-plumage-editing.js',
-  './modules/form-curiosities-categories.js',
-  './modules/form-statistics-counter.js',
-  './modules/form-distribution-submit.js',
+  './form/modules/form-dropdown-polish.js',
+  './form/modules/form-state-catalogs.js',
+  './form/modules/form-record-type.js',
+  './form/modules/form-quality-level.js',
+  './form/modules/form-profile-photos.js',
+  './form/modules/form-profile-link.js',
+  './form/modules/form-dimensions.js',
+  './form/modules/form-general.js',
+  './form/modules/form-feeding.js',
+  './form/modules/form-ecology.js',
+  './form/modules/form-reproduction.js',
+  './form/modules/form-reproduction-parental-investment.js',
+  './form/modules/form-plumage-editing.js',
+  './form/modules/form-curiosities-categories.js',
+  './form/modules/form-advanced-parameters.js',
+  './form/modules/form-statistics-counter.js',
+  './form/modules/form-parameter-search.js',
+  './form/modules/form-distribution-submit.js',
 
   '../gestor-index.html',
   '../login.html',
@@ -109,7 +114,7 @@ self.addEventListener('fetch', (event) => {
           return response;
         })
         .catch(() => caches.match(event.request, { ignoreSearch: true })
-          .then((cachedResponse) => cachedResponse || caches.match('./form.html')))
+          .then((cachedResponse) => cachedResponse || caches.match('./form/form.html')))
     );
     return;
   }

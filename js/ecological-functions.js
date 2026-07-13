@@ -1,4 +1,6 @@
 export const ecologicalFunctionCatalog = [
+    { label: 'Bioerosão', key: 'bioerosao', accent: 'accent-bioma' },
+    { label: 'Controlo de populações', key: 'controlo_de_populacoes', accent: 'accent-bioma' },
     { label: 'Predador', key: 'predador', accent: 'accent-bioma' },
     { label: 'Presa', key: 'presa', accent: 'accent-bioma' },
     { label: 'Herbívoro controlador de vegetação', key: 'herbivoro_controlador_vegetacao', accent: 'accent-bioma' },

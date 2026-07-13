@@ -255,6 +255,19 @@
             return controls;
         }
 
+        const ECOLOGY_ADVANCED_OPTIONS = {
+            'Tipo de hospedeiro': ['Hospedeiro definitivo','Hospedeiro intermediário','Hospedeiro paraténico','Hospedeiro reservatório','Hospedeiro acidental','Vetor'],
+            'Localização no hospedeiro': ['Sistema digestivo','Intestino delgado','Sangue','Músculo','Cérebro','Órgãos internos','Rim','Pele','Brânquias','Cavidade corporal'],
+            'Tipo de parasita': ['Endoparasita','Ectoparasita','Parasita obrigatório','Parasita facultativo','Cleptoparasita','Parasita social']
+        };
+        function createEcologyAdvancedSelector(type, value = '') {
+            const controls=document.createElement('div'); controls.className='ecology-detail-controls';
+            const select=document.createElement('select'); select.className='ecology-advanced-value';
+            const options=ECOLOGY_ADVANCED_OPTIONS[type]||[];
+            select.innerHTML='<option value="">Escolhe um valor</option>'+options.map(v=>`<option value="${v}">${v}</option>`).join('');
+            select.value=value||''; select.addEventListener('change',updateEcologyPreview); controls.append(select); return controls;
+        }
+
         function createEcologyRow(type = '', data = {}) {
             const row = document.createElement('div');
             row.className = 'ecology-row';
@@ -281,8 +294,10 @@
                     controls = createEcologyFunctionSelector(data.valor || data.detalhe || '');
                 } else if (currentType === 'Importância económica para os humanos') {
                     controls = createEcologyEconomicImportanceSelector(data.valor || data.detalhe || '');
+                } else if (ECOLOGY_ADVANCED_OPTIONS[currentType]) {
+                    controls = createEcologyAdvancedSelector(currentType, data.valor || data.detalhe || '');
                 } else {
-                    controls = createEcologyAnimalSelector(data.animais || data.animalIds || [], currentType === 'Ameaças naturais' ? (data.texto || data.detalhe || '') : null);
+                    controls = createEcologyAnimalSelector(data.animais || data.animalIds || [], data.texto || data.detalhe || '');
                 }
                 row.insertBefore(controls, genderBtn);
             }
@@ -315,6 +330,10 @@
                     };
                     if (tipo === 'Função Ecológica') {
                         const valor = row.querySelector('.ecology-function-value')?.value || '';
+                        return valor ? { ...rowMeta, tipo, valor } : null;
+                    }
+                    if (ECOLOGY_ADVANCED_OPTIONS[tipo]) {
+                        const valor = row.querySelector('.ecology-advanced-value')?.value || '';
                         return valor ? { ...rowMeta, tipo, valor } : null;
                     }
                     if (tipo === 'Importância económica para os humanos') {

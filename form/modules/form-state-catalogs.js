@@ -144,6 +144,7 @@
                 { label: 'Comprimento da tromba', unit: 'cm' },
                 { label: 'Comprimento das presas', unit: 'cm' },
                 { label: 'Comprimento dos caninos', unit: 'cm' },
+                { label: 'Distância entre os caninos', unit: 'cm' },
                 { label: 'Comprimento dos cornos', unit: 'cm' },
                 { label: 'Comprimento das galhadas', unit: 'cm' },
                 { label: 'Comprimento da juba', unit: 'cm' },
@@ -196,6 +197,7 @@
                 { label: 'Largura das guelras', unit: 'cm' },
                 { label: 'Comprimento dos espinhos', unit: 'cm' },
                 { label: 'Comprimento dos tentáculos / filamentos', unit: 'cm' },
+                { label: 'Número de escamas da linha lateral', unit: 'unid.' },
                 { label: 'Envergadura das barbatanas', unit: 'cm' },
                 { label: 'Largura do disco corporal', unit: 'cm' }
             ],
@@ -495,6 +497,12 @@
             'Estimado por comparação': 'Baseado em espécies semelhantes'
         };
 
+
+        const advancedReproductionValues = ['Sistema social reprodutivo','Armazenamento de esperma','Implantação embrionária','Harém','Reprodução cooperativa','Reprodução em pares','Promiscuidade','Eusocialidade'];
+        Object.keys(reproductionTypesByCategory).forEach(category => {
+            reproductionTypesByCategory[category] = [...new Set([...(reproductionTypesByCategory[category] || []), ...advancedReproductionValues])];
+        });
+
         const birdEggVisuals = [
             { label: 'Branco', image: '../assets/ovos/ovo_branco.png', average: '2-5 ovos' },
             { label: 'Creme', image: '../assets/ovos/ovo_creme.png', average: '2-5 ovos' },
@@ -570,6 +578,23 @@
             Microscopicos: { title: 'Revestimento corporal', icon: 'fa-microscope', groups: { revestimento: 'Tipo de revestimento', estrutura: 'Estruturas externas', cor: 'Cor do revestimento', manchas: 'Manchas' }, options: { revestimento: ['Membrana celular','Película','Parede externa','Cápsula','Carapaça microscópica'], estrutura: ['Cílios','Flagelos','Pseudópodes','Espículas'], cor: ['Preto', 'Branco', 'Cinzento', 'Castanho', 'Bege', 'Creme', 'Amarelo', 'Dourado', 'Laranja', 'Vermelho', 'Rosa', 'Verde', 'Azul', 'Roxo', 'Prateado', 'Multicolor', 'Iridescente'], manchas: ['Pintas', 'Máculas', 'Rosetas', 'Ocelos', 'Anéis', 'Salpicado', 'Mosqueado', 'Malhado', 'Marmoreado', 'Mesclado', 'Reticulado', 'Tigrado', 'Arlequim', 'Merle', 'Ruão', 'Tartaruga', 'Tricolor', 'Manchas em sela', 'Manchas irregulares'] } }
         };
 
+
+
+        // Parâmetros transversais do revestimento corporal.
+        const advancedBodyCoveringGroups = {
+            propriedade_optica: 'Propriedade óptica da coloração',
+            mudanca_dinamica_cor: 'Mudança dinâmica de cor',
+            padrao_manchas: 'Padrão das manchas'
+        };
+        const advancedBodyCoveringOptions = {
+            propriedade_optica: ['Mate','Metálica','Iridescente','Fluorescente','Bioluminescente','Estrutural','Translúcida','Opaca'],
+            mudanca_dinamica_cor: ['Não muda','Sazonal','Com a idade','Em resposta ao stress','Durante o acasalamento','Durante a defesa territorial','Segundo a fase sexual','Camuflagem ativa'],
+            padrao_manchas: ['Triangulares','Anéis','Linhas longitudinais','Linhas faciais','Moteado','Salpicado','Margens contrastantes','Padrão específico por segmento']
+        };
+        Object.values(bodyCoveringCategoryConfig).forEach(config => {
+            Object.assign(config.groups, advancedBodyCoveringGroups);
+            Object.entries(advancedBodyCoveringOptions).forEach(([key, values]) => { config.options[key] = [...values]; });
+        });
 
         // Todos os campos cromáticos usam o mesmo catálogo de cores, mas conservam
         // um grupo próprio para que cada região/revestimento tenha modelo visual único.

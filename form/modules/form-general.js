@@ -1,4 +1,4 @@
-﻿// Modelo visual de informações gerais
+// Modelo visual de informações gerais
         function getGeneralVisualOption(type = '') {
             return getGeneralVisualCatalogOption(type);
         }
@@ -48,7 +48,24 @@
             { tipo: 'Número de miómeros', unidade: 'centenas' },
             { tipo: 'Tipo de esqueleto', unidade: '' },
             { tipo: 'Estrato ecológico', unidade: '' },
-            { tipo: 'Comportamento sazonal', unidade: '' }
+            { tipo: 'Comportamento sazonal', unidade: '' },
+            { tipo: 'Duração do mergulho', unidade: 'minutos' },
+            { tipo: 'Percentagem de gordura corporal', unidade: '%' },
+            { tipo: 'Espessura da camada de gordura', unidade: 'cm' },
+            { tipo: 'Número de fases do ciclo de vida', unidade: 'unidade' },
+            { tipo: 'Tempo à superfície', unidade: 'minutos' },
+            { tipo: 'Tempo de recuperação entre mergulhos', unidade: 'minutos' },
+            { tipo: 'Frequência de mergulho', unidade: 'mergulhos/hora' },
+            { tipo: 'Organização social', unidade: '' },
+            { tipo: 'Construção de local de repouso', unidade: '' },
+            { tipo: 'Autoinfeção', unidade: '' },
+            { tipo: 'Tipo de perceção', unidade: '' },
+            { tipo: 'Alcance de deteção', unidade: 'm' },
+            { tipo: 'Taxa de emissão de sinais', unidade: 'sinais/segundo' },
+            { tipo: 'Presença/ausência de sistema digestivo', unidade: '' },
+            { tipo: 'Lado corporal da estrutura', unidade: '' },
+            { tipo: 'Forma da estrutura', unidade: '' },
+            { tipo: 'Capacidade de regeneração', unidade: '' },
         ].forEach(option => {
             if (!generalVisualOptions.some(existing => normalizeSearchText(existing.tipo) === normalizeSearchText(option.tipo))) {
                 generalVisualOptions.push(option);
@@ -128,7 +145,7 @@
                     'Taxa de mortalidade',
                     'Taxa de mortalidade (cativeiro)',
                     'Altitude mínima',
-                    'Altitude máxima'
+                    'Altitude máxima', 'Duração do mergulho', 'Percentagem de gordura corporal', 'Espessura da camada de gordura', 'Número de fases do ciclo de vida', 'Tempo à superfície', 'Tempo de recuperação entre mergulhos', 'Frequência de mergulho', 'Alcance de deteção', 'Taxa de emissão de sinais'
                 ]
             },
             {
@@ -141,25 +158,25 @@
                 key: 'habitos',
                 title: 'Hábitos',
                 icon: 'fa-arrows-spin',
-                models: ['Atividade', 'Comportamento sazonal', 'Locomoção', 'Vida Social', 'Composição do grupo social']
+                models: ['Atividade', 'Comportamento sazonal', 'Locomoção', 'Vida Social', 'Composição do grupo social', 'Organização social', 'Construção de local de repouso', 'Autoinfeção']
             },
             {
                 key: 'anatomia',
                 title: 'Anatomia',
                 icon: 'fa-bone',
-                models: ['Força da mordida', 'Número de dentes', 'Número de mamas', 'Simetria corporal', 'Número de segmentos', 'Número de patas', 'Número de poros', 'Número de brânquias', 'Número de barbatanas', 'Número de vértebras', 'Número de escamas', 'Número de miómeros', 'Tipo de esqueleto']
+                models: ['Força da mordida', 'Número de dentes', 'Número de mamas', 'Simetria corporal', 'Número de segmentos', 'Número de patas', 'Número de poros', 'Número de brânquias', 'Número de barbatanas', 'Número de vértebras', 'Número de escamas', 'Número de miómeros', 'Tipo de esqueleto', 'Presença/ausência de sistema digestivo', 'Lado corporal da estrutura', 'Forma da estrutura']
             },
             {
                 key: 'fisiologia',
                 title: 'Fisiologia',
                 icon: 'fa-heart-pulse',
-                models: ['Termorregulação']
+                models: ['Termorregulação', 'Tipo de perceção']
             },
             {
                 key: 'desenvolvimento',
                 title: 'Desenvolvimento',
                 icon: 'fa-seedling',
-                models: ['Transformações do desenvolvimento']
+                models: ['Transformações do desenvolvimento', 'Capacidade de regeneração']
             },
             {
                 key: 'crias',
@@ -268,8 +285,20 @@
             select.value = selectedValue;
         }
 
+        const CUSTOM_GENERAL_SELECT_OPTIONS = {
+            'Organização social': ['Harém','Colónia','Eusocial','Subsocial','Comunal','Solitário gregário','Grupos de forrageamento','Grupo materno','Hierarquia de dominância','Reprodução cooperativa'],
+            'Construção de local de repouso': ['Escava depressão para repousar','Usa toca abandonada','Constrói toca','Usa cavidade em árvore','Abriga-se sob folhas','Abriga-se em cavernas'],
+            'Autoinfeção': ['Ausente','Autoinfeção externa','Autoinfeção interna','Reinfeção'],
+            'Tipo de perceção': ['Visual','Tátil','Química','Olfativa','Acústica','Ultravioleta','Elétrica / eletroreceção','Vibrações','Eco-localização','Pressão da água','Temperatura','Magnetorreceção'],
+            'Presença/ausência de sistema digestivo': ['Presente','Reduzido','Ausente'],
+            'Lado corporal da estrutura': ['Esquerdo','Direito','Bilateral','Mediano','Assimétrico'],
+            'Forma da estrutura': ['Reta','Curva','Espiralada','Cónica','Achatada','Serrilhada','Anelada','Ramificada'],
+            'Capacidade de regeneração': ['Ausente','Limitada','Moderada','Elevada']
+        };
+        function getCustomGeneralSelectOptions(type = '') { return CUSTOM_GENERAL_SELECT_OPTIONS[type] || []; }
+
         function isDropdownOnlyGeneralModel(type = '') {
-            return isSeasonalBehaviorGeneralModel(type) || isGeneralVisualCatalogDropdownOnly(type);
+            return isSeasonalBehaviorGeneralModel(type) || getCustomGeneralSelectOptions(type).length > 0 || isGeneralVisualCatalogDropdownOnly(type);
         }
 
         function isMixedDropdownRangeGeneralModel(type = '') {
@@ -428,6 +457,11 @@
 
         function getGeneralUnitOptions(type = '') {
             if (isMixedDropdownRangeGeneralModel(type)) return ['mm', 'cm', 'm'];
+            if (normalizeSearchText(type).includes('percentagem de gordura')) return ['%'];
+            if (normalizeSearchText(type).includes('duracao do mergulho') || normalizeSearchText(type).includes('tempo a superficie') || normalizeSearchText(type).includes('tempo de recuperacao')) return ['segundos','minutos','horas'];
+            if (normalizeSearchText(type).includes('frequencia de mergulho')) return ['mergulhos/hora','mergulhos/dia'];
+            if (normalizeSearchText(type).includes('alcance de detecao')) return ['cm','m','km'];
+            if (normalizeSearchText(type).includes('taxa de emissao')) return ['sinais/segundo','cliques/segundo','pulsos/segundo','cliques/metro'];
             if (isBasalMetabolicRateGeneralModel(type)) return getBasalMetabolicRateUnits();
             if (isDepthGeneralModel(type)) return getDepthUnits();
             if (isCaptivityMovementGeneralModel(type)) return getCaptivityMovementUnits();
@@ -447,6 +481,11 @@
 
         function getGeneralDefaultUnit(type = '') {
             if (isMixedDropdownRangeGeneralModel(type)) return 'cm';
+            if (normalizeSearchText(type).includes('percentagem de gordura')) return '%';
+            if (normalizeSearchText(type).includes('duracao do mergulho') || normalizeSearchText(type).includes('tempo a superficie') || normalizeSearchText(type).includes('tempo de recuperacao')) return 'minutos';
+            if (normalizeSearchText(type).includes('frequencia de mergulho')) return 'mergulhos/hora';
+            if (normalizeSearchText(type).includes('alcance de detecao')) return 'm';
+            if (normalizeSearchText(type).includes('taxa de emissao')) return 'sinais/segundo';
             if (isBasalMetabolicRateGeneralModel(type)) return 'W';
             if (isDepthGeneralModel(type)) return 'm';
             if (isCaptivityMovementGeneralModel(type)) return 'km/dia';
@@ -581,7 +620,7 @@
                     ? getSeasonalBehaviorOptions()
                     : isAnatomicalStructure
                         ? getAnatomicalStructureOptions(selectedType)
-                        : [...getGeneralVisualSelectOptions(selectedType)].sort((a, b) => a.localeCompare(b));
+                        : [...(getCustomGeneralSelectOptions(selectedType).length ? getCustomGeneralSelectOptions(selectedType) : getGeneralVisualSelectOptions(selectedType))].sort((a, b) => a.localeCompare(b));
                 const placeholder = isAnatomicalStructure ? 'Escolhe uma estrutura' : (config?.placeholder || 'Escolhe uma opção');
                 strategySelect.innerHTML = `<option value="">${placeholder}</option>` +
                     options.map(option => `<option value="${option}">${option}</option>`).join('');

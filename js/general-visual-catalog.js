@@ -231,6 +231,25 @@ const anatomicalCategoryMeta = {
     'estruturas dos poriferos': { key: 'anatomia-poriferos', accent: 'accent-bioma' }
 };
 
+const uniqueGeneralVisualMeta = {
+    'duracao do mergulho': { key: 'duracao-mergulho', accent: 'accent-depth-max' },
+    'percentagem de gordura corporal': { key: 'gordura-corporal', accent: 'accent-life' },
+    'espessura da camada de gordura': { key: 'camada-gordura', accent: 'accent-width' },
+    'tempo a superficie': { key: 'tempo-superficie', accent: 'accent-water' },
+    'tempo de recuperacao entre mergulhos': { key: 'recuperacao-mergulhos', accent: 'accent-metabolic-rate' },
+    'frequencia de mergulho': { key: 'frequencia-mergulho', accent: 'accent-depth-average' },
+    'alcance de detecao': { key: 'alcance-detecao', accent: 'accent-eye' },
+    'taxa de emissao de sinais': { key: 'emissao-sinais', accent: 'accent-climate' },
+    'organizacao social': { key: 'organizacao-social', accent: 'accent-mating-polygamy' },
+    'autoinfeccao': { key: 'autoinfeccao', accent: 'accent-generic' },
+    'construcao de local de repouso': { key: 'local-repouso', accent: 'accent-bioma' },
+    'presenca ausencia de sistema digestivo': { key: 'sistema-digestivo', accent: 'accent-life' },
+    'lado corporal da estrutura': { key: 'lado-estrutura', accent: 'accent-width' },
+    'forma da estrutura': { key: 'forma-estrutura', accent: 'accent-generic' },
+    'tipo de percecao': { key: 'tipo-percecao', accent: 'accent-eye' },
+    'capacidade de regeneracao': { key: 'regeneracao', accent: 'accent-life' }
+};
+
 const activityMap = new Map(activityCatalog.map(item => [normalizeGeneralVisualKey(item.label), item]));
 const socialMap = new Map(socialCatalog.map(item => [normalizeGeneralVisualKey(item.label), item]));
 
@@ -280,6 +299,10 @@ export function getGeneralVisualMeta(type = '') {
     const anatomicalMeta = anatomicalCategoryMeta[normalized];
     if (anatomicalMeta) {
         return { key: anatomicalMeta.key, title: type || 'Estrutura anatómica', accent: anatomicalMeta.accent };
+    }
+    const uniqueMeta = uniqueGeneralVisualMeta[normalized];
+    if (uniqueMeta) {
+        return { key: uniqueMeta.key, title: type || 'Modelo visual', accent: uniqueMeta.accent };
     }
     if (normalized.includes('espetativa media de vida') || normalized.includes('expectativa media de vida')) {
         return { key: 'espetativa-vida', title: type || 'Espetativa média de vida', accent: 'accent-life' };
@@ -340,6 +363,22 @@ function makeSvg(body, className = 'general-model-svg') {
 
 export function getGeneralModelSvg(key = 'geral') {
     const icons = {
+        'duracao-mergulho': makeSvg('<path d="M16 52c8-12 16-18 24-18s16 6 24 18"/><path d="M16 58h48"/><circle cx="56" cy="24" r="10"/><path d="M56 24v-5"/><path d="M56 24l4 3"/><path d="M26 30c4 3 8 3 12 0"/>'),
+        'gordura-corporal': makeSvg('<path d="M28 18c8 0 12 7 12 14v16c0 8-5 14-12 14s-12-6-12-14V32c0-7 4-14 12-14Z"/><path d="M48 22c7 0 12 5 12 12v12c0 7-5 12-12 12"/><path d="M28 34h12"/><path d="M26 50c6-5 10-5 16 0"/><path d="M54 28l6 20"/><path d="M61 28l-14 20"/>'),
+        'camada-gordura': makeSvg('<path d="M14 24c8-10 44-10 52 0"/><path d="M14 38c8-10 44-10 52 0"/><path d="M14 52c8-10 44-10 52 0"/><path d="M20 30h40"/><path d="M20 44h40"/><path d="M20 58h40"/>'),
+        'tempo-superficie': makeSvg('<path d="M14 26c8-6 16-6 24 0s16 6 24 0"/><path d="M18 58h44"/><path d="M40 52V26"/><path d="M33 34l7-8l7 8"/><circle cx="54" cy="48" r="7"/>'),
+        'recuperacao-mergulhos': makeSvg('<path d="M16 56h48"/><path d="M18 34c4-8 10-12 18-12c6 0 10 3 14 8c3-5 7-8 13-8c7 0 13 5 13 13c0 8-7 13-15 19"/><path d="M25 42c0 8 6 14 15 20"/><path d="M52 16c6 1 11 6 12 12"/><path d="M61 14l4 4l-5 3"/>'),
+        'frequencia-mergulho': makeSvg('<path d="M16 22c8-6 16-6 24 0s16 6 24 0"/><path d="M16 40c8-6 16-6 24 0s16 6 24 0"/><path d="M16 58c8-6 16-6 24 0s16 6 24 0"/><path d="M26 16v12"/><path d="M50 34v12"/><path d="M38 52v12"/>'),
+        'alcance-detecao': makeSvg('<circle cx="40" cy="40" r="6"/><path d="M40 12v10M12 40h10M58 40h10M40 58v10"/><path d="M24 40a16 16 0 0 1 16-16"/><path d="M56 40a16 16 0 0 0-16-16"/><path d="M18 40a22 22 0 0 1 22-22"/><path d="M62 40a22 22 0 0 0-22-22"/>'),
+        'emissao-sinais': makeSvg('<circle cx="24" cy="40" r="6"/><path d="M32 40h10"/><path d="M46 30c6 4 10 10 10 18"/><path d="M46 50c6-4 10-10 10-18"/><path d="M54 24c9 6 14 15 14 26"/><path d="M54 56c9-6 14-15 14-26"/>'),
+        'organizacao-social': makeSvg('<circle cx="22" cy="28" r="6"/><circle cx="40" cy="20" r="7"/><circle cx="58" cy="28" r="6"/><circle cx="31" cy="50" r="6"/><circle cx="49" cy="50" r="6"/><path d="M22 34l9 10l9-17l18 7"/><path d="M31 50h18"/>'),
+        autoinfeccao: makeSvg('<circle cx="40" cy="40" r="16"/><path d="M40 24c7 0 13 5 15 12"/><path d="M54 28l3 8l-8 1"/><path d="M40 56c-7 0-13-5-15-12"/><path d="M26 52l-3-8l8-1"/><path d="M36 36c2-3 6-4 9-2c3 2 4 6 2 9c-2 3-6 4-9 2c-3-2-4-6-2-9Z"/>'),
+        'local-repouso': makeSvg('<path d="M14 54c8-12 17-18 26-18s18 6 26 18"/><path d="M20 54h40"/><path d="M24 42l6-10l8 8l8-12l10 14"/><path d="M18 58h44"/>'),
+        'sistema-digestivo': makeSvg('<path d="M33 14c-4 4-5 8-4 12c1 4 4 6 4 10v8c0 7-4 12-10 16"/><path d="M47 14c4 4 5 8 4 12c-1 4-4 6-4 10v10c0 8 5 12 10 14"/><path d="M33 36h14"/><path d="M28 58c4-3 8-4 12-4s8 1 12 4"/>'),
+        'lado-estrutura': makeSvg('<path d="M40 12v56"/><path d="M24 24c6-4 10-4 16 0v32c-6-4-10-4-16 0Z"/><path d="M56 24c-6-4-10-4-16 0v32c6-4 10-4 16 0Z"/><path d="M18 40h8M54 40h8"/>'),
+        'forma-estrutura': makeSvg('<path d="M16 56c0-12 8-20 20-20"/><path d="M44 20h18v18H44Z"/><path d="M50 42c6 0 10 4 10 10s-4 10-10 10s-10-4-10-10s4-10 10-10Z"/><path d="M20 22l14 14l-14 14"/>'),
+        'tipo-percecao': makeSvg('<path d="M12 40c8-13 18-20 28-20s20 7 28 20c-8 13-18 20-28 20S20 53 12 40Z"/><circle cx="40" cy="40" r="8"/><path d="M58 20l8-8M60 32h10M58 44l8 8"/>'),
+        regeneracao: makeSvg('<path d="M24 56c8-16 18-24 30-24"/><path d="M46 20c8 2 14 8 16 16"/><path d="M54 16l8 4l-5 7"/><path d="M22 50c2-6 7-10 14-10"/><path d="M20 60l6-8l6 6"/><path d="M34 52c4 4 8 4 12 0"/>'),
         'anatomia-corpo-geral': makeSvg('<path d="M20 20h40v40H20Z"/><path d="M30 12v16M50 12v16M30 52v16M50 52v16"/><path d="M20 40h40"/>'),
         'anatomia-cabeca-face': makeSvg('<circle cx="40" cy="32" r="18"/><path d="M32 30h4M44 30h4"/><path d="M34 42c4 3 8 3 12 0"/><path d="M24 56c4-7 10-11 16-11s12 4 16 11"/>'),
         'anatomia-bucal-alimentar': makeSvg('<path d="M18 34c0-8 10-14 22-14s22 6 22 14v6H18Z"/><path d="M22 40h36"/><path d="M26 46l6 10M54 46l-6 10"/><path d="M40 20v12"/>'),

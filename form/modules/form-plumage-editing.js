@@ -1358,7 +1358,11 @@
             'Relação com Humanos',
             'Também conhecido como',
             'Temperatura do Ambiente',
-            'Tipo de Comunicação'
+            'Tipo de Comunicação',
+            'Periculosidade',
+            'Tipo de toxina',
+            'Via de administração da toxina',
+            'Antídoto disponível'
         ];
         const curiosidadesColorMap = {
             'Preto': '#111111',

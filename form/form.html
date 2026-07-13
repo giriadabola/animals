@@ -27,7 +27,7 @@
     <script src="https://cdn.jsdelivr.net/npm/jsvectormap"></script>
     <script src="https://cdn.jsdelivr.net/npm/jsvectormap/dist/maps/world.js"></script>
     <script src="./form-cache.js?v=20260709_portfolio_1"></script>
-    <link rel="stylesheet" href="./form.css?v=20260713_parameter_search_1">
+    <link rel="stylesheet" href="./form.css?v=20260713_text_import_1">
 
     <style id="form-auth-critical-css">
         /* Evita flash do formulário antes de confirmar login. */
@@ -287,10 +287,15 @@
                 </div>
 
                 <div class="form-parameter-search" id="formParameterSearch">
-                    <div class="form-parameter-search-box">
-                        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
-                        <input type="search" id="formParameterSearchInput" autocomplete="off" placeholder="Pesquisar parâmetros e opções…" aria-label="Pesquisar parâmetros e opções do formulário" aria-controls="formParameterSearchResults" aria-expanded="false">
-                        <button type="button" id="formParameterSearchClear" class="form-parameter-search-clear" aria-label="Limpar pesquisa" title="Limpar">&times;</button>
+                    <div class="form-parameter-search-toolbar">
+                        <div class="form-parameter-search-box">
+                            <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                            <input type="search" id="formParameterSearchInput" autocomplete="off" placeholder="Pesquisar parâmetros e opções…" aria-label="Pesquisar parâmetros e opções do formulário" aria-controls="formParameterSearchResults" aria-expanded="false">
+                            <button type="button" id="formParameterSearchClear" class="form-parameter-search-clear" aria-label="Limpar pesquisa" title="Limpar">&times;</button>
+                        </div>
+                        <button type="button" id="openFormTextImportBtn" class="form-text-import-trigger" aria-label="Colar texto extraído" title="Colar texto extraído" aria-haspopup="dialog" aria-controls="formTextImportModalOverlay">
+                            <i class="fa-solid fa-file-import" aria-hidden="true"></i>
+                        </button>
                     </div>
                     <div id="formParameterSearchResults" class="form-parameter-search-results" role="listbox" hidden></div>
                     <small class="form-parameter-search-note">Pesquisa parâmetros e subparâmetros. As unidades de medida não são incluídas.</small>
@@ -875,6 +880,42 @@
         </div>
     </div>
 
+    <!-- Modal para colar texto extraído de fontes externas -->
+    <div class="modal-overlay form-text-import-modal-overlay" id="formTextImportModalOverlay" role="presentation" aria-hidden="true">
+        <div class="modal form-text-import-modal" role="dialog" aria-modal="true" aria-labelledby="formTextImportModalTitle">
+            <div class="form-text-import-modal-heading">
+                <div>
+                    <span class="form-text-import-kicker"><i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i> Importação de texto</span>
+                    <h2 id="formTextImportModalTitle">Colar texto extraído</h2>
+                </div>
+                <button type="button" id="closeFormTextImportBtn" class="form-text-import-close" aria-label="Fechar janela" title="Fechar">&times;</button>
+            </div>
+            <p class="form-text-import-description">Cole aqui o texto estruturado retirado de uma fonte. O conteúdo fica disponível para a próxima etapa de análise e preenchimento dos parâmetros.</p>
+            <label class="form-text-import-label" for="formTextImportTextarea">Texto extraído</label>
+            <textarea id="formTextImportTextarea" class="form-text-import-textarea" spellcheck="false" placeholder="Cole aqui o texto extraído..." aria-describedby="formTextImportHint"></textarea>
+            <small id="formTextImportHint" class="form-text-import-hint">Pode colar várias linhas no formato Categoria &gt; Parâmetro &gt; valores. Confirme a pré-visualização antes de automatizar.</small>
+            <section id="formTextImportPreview" class="form-text-import-preview" aria-live="polite" hidden>
+                <div class="form-text-import-preview-heading">
+                    <strong>Campos que serão preenchidos</strong>
+                    <span id="formTextImportPreviewCount"></span>
+                </div>
+                <div id="formTextImportPreviewList" class="form-text-import-preview-list"></div>
+            </section>
+            <div class="form-text-import-actions">
+                <button type="button" id="pasteFromClipboardBtn" class="form-text-import-secondary-btn">
+                    <i class="fa-regular fa-clipboard" aria-hidden="true"></i> Colar da área de transferência
+                </button>
+                <div class="form-text-import-action-group">
+                    <button type="button" id="closeFormTextImportBtnBottom" class="form-text-import-secondary-btn">Cancelar</button>
+                    <button type="button" id="automateFormTextImportBtn" class="menu-button form-text-import-primary-btn" disabled>
+                        <i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i> Automatizar
+                    </button>
+                </div>
+            </div>
+            <p id="formTextImportStatus" class="form-text-import-status" role="status" aria-live="polite" hidden></p>
+        </div>
+    </div>
+
     <!-- Modal de Seleção de Subregião -->
     <div class="modal-overlay" id="subregionModalOverlay" style="z-index: 2000;">
         <div class="modal" style="max-width: 440px;">
@@ -986,7 +1027,7 @@
     <!-- Componentes e Lógica -->
     <script type="module" src="../js/components.js?v=20260710_no_animais_snapshot_1"></script>
     <script src="./modules/form-distribution-regions.js?v=20260710_1"></script>
-    <script type="module" src="./form.js?v=20260713_parameter_search_1"></script>
+    <script type="module" src="./form.js?v=20260713_text_import_automation_2"></script>
     <!-- Service Worker PWA -->
     <script src="./sw-register.js?v=20260710_no_animais_snapshot_1"></script>
 </body>

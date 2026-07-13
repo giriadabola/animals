@@ -50,7 +50,17 @@
         'Adoção ou cuidado aloparental',
         'Associação pós-independência com os pais',
         'Abandono após postura',
-        'Abandono após nascimento'
+        'Abandono após nascimento',
+        'Transporte no dorso',
+        'Alimentação das larvas',
+        'Manutenção do ninho',
+        'Construção coletiva do ninho',
+        'Defesa coletiva do ninho',
+        'Cuidado por irmãos',
+        'Cuidado por operárias',
+        'Preparação de células larvares',
+        'Postura individual fixada a substrato',
+        'Proteção gelatinosa dos ovos'
     ]);
 
     const parentalActors = sortPt([
@@ -67,7 +77,11 @@
         'Fêmeas auxiliares',
         'Machos auxiliares',
         'Indivíduos não progenitores',
-        'Nenhum'
+        'Nenhum',
+        'Rainha',
+        'Operárias',
+        'Primeira geração de descendentes',
+        'Colónia'
     ]);
 
     const parentalIconSvg = `<svg class="metric-model-svg reproduction-icon-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M17 48c5-14 15-22 29-22c13 0 23 8 28 22"/><path d="M22 52c7 11 17 17 31 17c10 0 18-4 24-12"/><circle cx="39" cy="43" r="8"/><path d="M39 35V22"/><path d="M30 22h18"/><path d="M16 32c5-8 12-12 21-12"/><path d="M64 32c-5-8-12-12-21-12"/></svg>`;

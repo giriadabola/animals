@@ -1,4 +1,5 @@
 export const feedingTypes = [
+    'Canibalismo',
     'Herbívoro',
     'Carnívoro',
     'Omnívoro',
@@ -25,6 +26,7 @@ export const feedingTypes = [
 ];
 
 export const feedingTypeDescriptions = {
+    'Canibalismo': 'Consumo de indivíduos da própria espécie, ocasional ou regular',
     'Herbívoro': 'Baseada em plantas, folhas, caules ou ervas',
     'Carnívoro': 'Baseada em outros animais',
     'Omnívoro': 'Combina alimentos vegetais e animais',

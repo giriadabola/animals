@@ -80,6 +80,7 @@
             'Água bebida em Média',
             'Alimento Ingerido em Média',
             'Estratégia para obter alimentos',
+            'Mecanismo de ingestão',
             'Tipo de Alimentação'
         ].sort((a, b) => a.localeCompare(b, 'pt', { sensitivity: 'base' }));
 
@@ -88,10 +89,11 @@
 
         function isFeedingStrategyModel(tipo = '') {
             const normalized = normalizeSearchText(tipo);
-            return normalized.includes('estrategia') && normalized.includes('alimento');
+            return (normalized.includes('estrategia') && normalized.includes('alimento')) || normalized.includes('mecanismo de ingestao');
         }
 
-        function getFeedingStrategyOptions() {
+        function getFeedingStrategyOptions(type = 'Estratégia para obter alimentos') {
+            if (normalizeSearchText(type).includes('mecanismo de ingestao')) return ['Mastigação','Sucção','Filtração','Raspagem','Trituração faríngea','Absorção pelo tegumento','Perfuração','Injeção de veneno','Digestão externa','Engolimento inteiro'];
             return [...getGeneralVisualSelectOptions('Estratégia para obter alimento')].sort((a, b) => a.localeCompare(b));
         }
 
@@ -163,7 +165,7 @@
             } else if (isFeedingStrategyModel(tipo)) {
                 const strategySelect = document.createElement('select');
                 strategySelect.className = 'feeding-strategy-value';
-                const options = getFeedingStrategyOptions();
+                const options = getFeedingStrategyOptions(tipo);
                 strategySelect.innerHTML = '<option value="">Escolhe uma estratégia</option>' +
                     options.map(option => `<option value="${option}">${option}</option>`).join('');
                 strategySelect.value = options.includes(detail) ? detail : '';
@@ -241,7 +243,7 @@
 
             if (isFeedingStrategyModel(tipo)) {
                 const detail = row.querySelector('.feeding-strategy-value')?.value || '';
-                return detail ? { tipo: 'Estratégia para obter alimentos', detalhe: detail, ...meta } : null;
+                return detail ? { tipo, detalhe: detail, ...meta } : null;
             }
 
             const feedingTypeVal = row.querySelector('.feeding-type-value')?.value || '';
@@ -348,7 +350,10 @@
             'Função Ecológica',
             'Predadores naturais',
             'Presas',
-            'Relações Simbióticas'
+            'Relações Simbióticas',
+            'Tipo de hospedeiro',
+            'Localização no hospedeiro',
+            'Tipo de parasita'
         ];
 
         const ecologyRelationKeys = {
@@ -358,4 +363,3 @@
             'Ameaças naturais': 'ameacasNaturais',
             'Relações Simbióticas': 'relacoesSimbioticas'
         };
-

@@ -8,7 +8,7 @@ import { db, auth } from "../js/firebase-config.js?v=5";
         import { GENDER_BOTH, collapseCombinedGenderItems, expandCombinedGenderItems, getGenderUi, getNextGenderValue, normalizeGenderValue } from "../js/gender-utils.js?v=2";
         import { getEcologyVisualMeta as getSharedEcologyVisualMeta, getEcologyModelSvg as getSharedEcologyModelSvg } from "../js/ecology-visuals.js?v=2";
 
-const FORM_JS_VERSION = '38_parameter_search';
+const FORM_JS_VERSION = '40_text_import_automation';
 
 const FORM_MODULE_FILES = [
     './modules/form-dropdown-polish.js',
@@ -25,8 +25,10 @@ const FORM_MODULE_FILES = [
     './modules/form-reproduction-parental-investment.js',
     './modules/form-plumage-editing.js',
     './modules/form-curiosities-categories.js',
+    './modules/form-advanced-parameters.js',
     './modules/form-statistics-counter.js',
     './modules/form-parameter-search.js',
+    './modules/form-text-import-popup.js',
     './modules/form-distribution-submit.js'
 ];
 

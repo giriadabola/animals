@@ -30,6 +30,10 @@
             if (type === 'Importância económica para os humanos') return ['Negativo', 'Positivo', 'Negativo/Positivo', 'Neutro'];
             if (type === 'Tendência populacional') return ['A aumentar', 'Estável', 'A diminuir', 'Desconhecida'];
             if (type === 'Dependência de áreas protegidas') return ['Elevada', 'Moderada', 'Reduzida', 'Desconhecida'];
+            if (type === 'Periculosidade') return ['Não perigoso','Venenoso','Peçonhento','Tóxico por ingestão','Mordedura','Picada','Esporão venenoso','Choque elétrico','Transmissor de doença','Constrição','Trauma físico'];
+            if (type === 'Tipo de toxina') return ['Neurotoxina','Hemotoxina','Citotoxina','Cardiotoxina','Miotoxina','Enzima digestiva','Irritante'];
+            if (type === 'Via de administração da toxina') return ['Mordedura','Ferrão','Esporão','Nemátocistos','Secreção cutânea','Injeção na presa','Libertação na água','Ingestão'];
+            if (type === 'Antídoto disponível') return ['Sim','Não','Desconhecido'];
             return [];
         }
 
@@ -161,6 +165,15 @@
             const unitVal = String(unit || '').trim();
             const value = minVal && maxVal ? `${minVal}-${maxVal}` : `${minVal || maxVal}`;
             return `${value}${unitVal ? ` ${unitVal}` : ''}`.trim();
+        }
+
+        function getCuriosidadeMetricDisplay(item = {}, fallbackType = '') {
+            const metricValue = buildCuriosidadeMetricValue(
+                item.valorMin || '',
+                item.valorMax || '',
+                item.unidade || getCuriosidadeDefaultMetricUnit(item.tipo || fallbackType)
+            );
+            return metricValue || item.valor || '';
         }
 
         function renderCuriosidadeValueControls(row, type = '', data = {}) {
@@ -319,7 +332,7 @@
                         item.valorMax = max;
                         item.unidade = '°C';
                     }
-                    if (isSleepHoursCuriosidade(tipo) || isDistanceCuriosidade(tipo) || isMaiorPesoRegistadoCuriosidade(tipo) || isMaiorIdadeRegistadaCuriosidade(tipo)) {
+                    if (isSleepHoursCuriosidade(tipo) || isDistanceCuriosidade(tipo) || isMaiorPesoRegistadoCuriosidade(tipo) || isMaiorIdadeRegistadaCuriosidade(tipo) || isRecordDimensionCuriosidade(tipo)) {
                         const min = row.querySelector('.curiosidade-metric-min')?.value || '';
                         const max = row.querySelector('.curiosidade-metric-max')?.value || '';
                         const unit = row.querySelector('.curiosidade-metric-unit')?.value || getCuriosidadeDefaultMetricUnit(tipo);
@@ -443,6 +456,29 @@
         }
 
         function renderCuriosidadePreviewCard(item) {
+            const toxicityPreviewMeta = {
+                'Periculosidade': {
+                    icon: 'fa-triangle-exclamation',
+                    accent: '#f97316',
+                    description: 'Modelo visual próprio do grau de risco ou mecanismo defensivo.'
+                },
+                'Tipo de toxina': {
+                    icon: 'fa-flask-vial',
+                    accent: '#ef4444',
+                    description: 'Modelo visual próprio da classe de toxina registada.'
+                },
+                'Via de administração da toxina': {
+                    icon: 'fa-syringe',
+                    accent: '#38bdf8',
+                    description: 'Modelo visual próprio da forma como a toxina é administrada.'
+                },
+                'Antídoto disponível': {
+                    icon: 'fa-kit-medical',
+                    accent: '#22c55e',
+                    description: 'Modelo visual próprio da disponibilidade de antídoto.'
+                }
+            };
+
             if (item.tipo === 'Também conhecido como') {
                 return `
                     <div class="curiosidades-preview-item also-known-preview-item">
@@ -522,6 +558,7 @@
             }
 
             if (item.tipo === 'Maior peso registado') {
+                const displayValue = getCuriosidadeMetricDisplay(item, 'Maior peso registado');
                 return `
                     <div class="curiosidades-preview-item record-weight-preview-item">
                         <div class="communication-preview-icon record-model-icon">
@@ -529,7 +566,7 @@
                         </div>
                         <div class="curiosidades-preview-info">
                             <span class="preview-label">Maior peso registado</span>
-                            <strong style="font-size: 1.05rem; font-weight: 800; color: #facc15;">${item.valor}</strong>
+                            <strong style="font-size: 1.05rem; font-weight: 800; color: #facc15;">${displayValue}</strong>
                             <div class="communication-preview-desc">Recorde de peso documentado para este sexo e fase de vida.</div>
                             ${renderCuriosidadeMeta(item)}
                         </div>
@@ -537,6 +574,7 @@
             }
 
             if (item.tipo === 'Maior idade registada') {
+                const displayValue = getCuriosidadeMetricDisplay(item, 'Maior idade registada');
                 return `
                     <div class="curiosidades-preview-item record-age-preview-item">
                         <div class="communication-preview-icon record-model-icon">
@@ -544,7 +582,7 @@
                         </div>
                         <div class="curiosidades-preview-info">
                             <span class="preview-label">Maior idade registada</span>
-                            <strong style="font-size: 1.05rem; font-weight: 800; color: #c4b5fd;">${item.valor}</strong>
+                            <strong style="font-size: 1.05rem; font-weight: 800; color: #c4b5fd;">${displayValue}</strong>
                             <div class="communication-preview-desc">Recorde de longevidade documentado para este sexo e fase de vida.</div>
                             ${renderCuriosidadeMeta(item)}
                         </div>
@@ -552,22 +590,26 @@
             }
 
             if (item.tipo === 'Maior comprimento registado') {
-                return `<div class="curiosidades-preview-item record-length-preview-item"><div class="communication-preview-icon record-model-icon">${renderRecordVisualSvg('length')}</div><div class="curiosidades-preview-info"><span class="preview-label">Maior comprimento registado</span><strong style="font-size:1.05rem;font-weight:800;color:#38bdf8;">${item.valor}</strong><div class="communication-preview-desc">Recorde de comprimento documentado para este sexo e fase de vida.</div>${renderCuriosidadeMeta(item)}</div></div>`;
+                const displayValue = getCuriosidadeMetricDisplay(item, 'Maior comprimento registado');
+                return `<div class="curiosidades-preview-item record-length-preview-item"><div class="communication-preview-icon record-model-icon">${renderRecordVisualSvg('length')}</div><div class="curiosidades-preview-info"><span class="preview-label">Maior comprimento registado</span><strong style="font-size:1.05rem;font-weight:800;color:#38bdf8;">${displayValue}</strong><div class="communication-preview-desc">Recorde de comprimento documentado para este sexo e fase de vida.</div>${renderCuriosidadeMeta(item)}</div></div>`;
             }
             if (item.tipo === 'Maior altura registada') {
-                return `<div class="curiosidades-preview-item record-height-preview-item"><div class="communication-preview-icon record-model-icon">${renderRecordVisualSvg('height')}</div><div class="curiosidades-preview-info"><span class="preview-label">Maior altura registada</span><strong style="font-size:1.05rem;font-weight:800;color:#34d399;">${item.valor}</strong><div class="communication-preview-desc">Recorde de altura documentado para este sexo e fase de vida.</div>${renderCuriosidadeMeta(item)}</div></div>`;
+                const displayValue = getCuriosidadeMetricDisplay(item, 'Maior altura registada');
+                return `<div class="curiosidades-preview-item record-height-preview-item"><div class="communication-preview-icon record-model-icon">${renderRecordVisualSvg('height')}</div><div class="curiosidades-preview-info"><span class="preview-label">Maior altura registada</span><strong style="font-size:1.05rem;font-weight:800;color:#34d399;">${displayValue}</strong><div class="communication-preview-desc">Recorde de altura documentado para este sexo e fase de vida.</div>${renderCuriosidadeMeta(item)}</div></div>`;
             }
             if (item.tipo === 'Maior envergadura registada') {
-                return `<div class="curiosidades-preview-item record-wingspan-preview-item"><div class="communication-preview-icon record-model-icon">${renderRecordVisualSvg('wingspan')}</div><div class="curiosidades-preview-info"><span class="preview-label">Maior envergadura registada</span><strong style="font-size:1.05rem;font-weight:800;color:#fb7185;">${item.valor}</strong><div class="communication-preview-desc">Recorde de envergadura documentado para este sexo e fase de vida.</div>${renderCuriosidadeMeta(item)}</div></div>`;
+                const displayValue = getCuriosidadeMetricDisplay(item, 'Maior envergadura registada');
+                return `<div class="curiosidades-preview-item record-wingspan-preview-item"><div class="communication-preview-icon record-model-icon">${renderRecordVisualSvg('wingspan')}</div><div class="curiosidades-preview-info"><span class="preview-label">Maior envergadura registada</span><strong style="font-size:1.05rem;font-weight:800;color:#fb7185;">${displayValue}</strong><div class="communication-preview-desc">Recorde de envergadura documentado para este sexo e fase de vida.</div>${renderCuriosidadeMeta(item)}</div></div>`;
             }
 
             if (item.tipo === 'Horas de Sono') {
+                const displayValue = getCuriosidadeMetricDisplay(item, 'Horas de Sono');
                 return `
                     <div class="curiosidades-preview-item sleep-preview-item">
                         <div class="communication-preview-icon"><i class="fa-solid fa-moon"></i></div>
                         <div class="curiosidades-preview-info">
                             <span class="preview-label">Horas de Sono</span>
-                            <strong style="font-size: 1.05rem; font-weight: 700; color: var(--text-primary);">${item.valor}</strong>
+                            <strong style="font-size: 1.05rem; font-weight: 700; color: var(--text-primary);">${displayValue}</strong>
                             <div class="communication-preview-desc">Modelo visual próprio do descanso diário ou sazonal.</div>
                             ${renderCuriosidadeMeta(item)}
                         </div>
@@ -575,12 +617,13 @@
             }
 
             if (item.tipo === 'Distância Percorrida') {
+                const displayValue = getCuriosidadeMetricDisplay(item, 'Distância Percorrida');
                 return `
                     <div class="curiosidades-preview-item distance-preview-item">
                         <div class="communication-preview-icon"><i class="fa-solid fa-route"></i></div>
                         <div class="curiosidades-preview-info">
                             <span class="preview-label">Distância Percorrida</span>
-                            <strong style="font-size: 1.05rem; font-weight: 700; color: var(--text-primary);">${item.valor}</strong>
+                            <strong style="font-size: 1.05rem; font-weight: 700; color: var(--text-primary);">${displayValue}</strong>
                             <div class="communication-preview-desc">Modelo visual próprio de deslocação e movimento.</div>
                             ${renderCuriosidadeMeta(item)}
                         </div>
@@ -614,13 +657,39 @@
                     </div>`;
             }
 
-            const statusMeta = curiosidadesStatusMeta[item.valor] || { bg: '#666', text: '#fff', name: item.valor };
+            if (toxicityPreviewMeta[item.tipo]) {
+                const meta = toxicityPreviewMeta[item.tipo];
+                return `
+                    <div class="curiosidades-preview-item toxicity-preview-item">
+                        <div class="communication-preview-icon"><i class="fa-solid ${meta.icon}" style="color: ${meta.accent};"></i></div>
+                        <div class="curiosidades-preview-info">
+                            <span class="preview-label">${item.tipo}</span>
+                            <strong style="font-size: 1.05rem; font-weight: 700; color: var(--text-primary);">${item.valor}</strong>
+                            <div class="communication-preview-desc">${meta.description}</div>
+                            ${renderCuriosidadeMeta(item)}
+                        </div>
+                    </div>`;
+            }
+
+            if (item.tipo === 'Estado de Conservação') {
+                const statusMeta = curiosidadesStatusMeta[item.valor] || { bg: '#666', text: '#fff', name: item.valor };
+                return `
+                    <div class="curiosidades-preview-item">
+                        <div class="status-preview-badge" style="background-color: ${statusMeta.bg}; color: ${statusMeta.text};">${item.valor}</div>
+                        <div class="curiosidades-preview-info">
+                            <span class="preview-label">Estado de Conservação</span>
+                            <strong style="font-size: 1.05rem; font-weight: 700; color: var(--text-primary);">${statusMeta.name}</strong>
+                            ${renderCuriosidadeMeta(item)}
+                        </div>
+                    </div>`;
+            }
+
             return `
                 <div class="curiosidades-preview-item">
-                    <div class="status-preview-badge" style="background-color: ${statusMeta.bg}; color: ${statusMeta.text};">${item.valor}</div>
+                    <div class="communication-preview-icon"><i class="fa-solid fa-circle-info"></i></div>
                     <div class="curiosidades-preview-info">
-                        <span class="preview-label">Estado de Conservação</span>
-                        <strong style="font-size: 1.05rem; font-weight: 700; color: var(--text-primary);">${statusMeta.name}</strong>
+                        <span class="preview-label">${item.tipo}</span>
+                        <strong style="font-size: 1.05rem; font-weight: 700; color: var(--text-primary);">${item.valor}</strong>
                         ${renderCuriosidadeMeta(item)}
                     </div>
                 </div>`;
@@ -636,6 +705,34 @@
             }
             curiosidadesPreviewList.innerHTML = selected.map(renderCuriosidadePreviewCard).join('');
             emptyPreview.style.display = 'none';
+        }
+
+        const curiosidadesPreviewCoverage = new Set([
+            'Cor do animal',
+            'Distância Percorrida',
+            'Estado de Conservação',
+            'Horas de Sono',
+            'Importância económica para os humanos',
+            'Maior peso registado',
+            'Maior idade registada',
+            'Maior comprimento registado',
+            'Maior altura registada',
+            'Maior envergadura registada',
+            'Tendência populacional',
+            'Dependência de áreas protegidas',
+            'Relação com Humanos',
+            'Também conhecido como',
+            'Temperatura do Ambiente',
+            'Tipo de Comunicação',
+            'Periculosidade',
+            'Tipo de toxina',
+            'Via de administração da toxina',
+            'Antídoto disponível'
+        ]);
+
+        const curiosidadesPreviewMissing = curiosidadesTypeOptions.filter(type => !curiosidadesPreviewCoverage.has(type));
+        if (curiosidadesPreviewMissing.length) {
+            console.warn('[Curiosidades] Tipos sem modelo visual dedicado:', curiosidadesPreviewMissing);
         }
 
         addCuriosidadesBtn.addEventListener('click', () => createCuriosidadeRow());
