@@ -1,4 +1,4 @@
-const CACHE_NAME = 'animals-app-v20260711-cache-reset-1';
+const CACHE_NAME = 'animals-app-v20260714-reproduction-preview-selection-1';
 
 const ASSETS_TO_CACHE = [
   './',
@@ -11,6 +11,7 @@ const ASSETS_TO_CACHE = [
   './myportefolio.html',
 
   './css/style.css',
+  './css/distance-filter.css',
   './index/globe-search.css',
   './index/bioma-explorer.css',
   './index/main.js',
@@ -34,6 +35,11 @@ const ASSETS_TO_CACHE = [
   './js/locomotion-visuals.js',
   './js/communication-catalog.js',
   './js/ecological-functions.js',
+  './js/biogeographic-regions.js',
+  './js/biogeographic-regions-popup.js',
+  './js/communication-visuals.js',
+  './js/communication-type-popup.js',
+  './js/distance-filter.js',
 
   './form/form.html',
   './form/form.css',
@@ -41,7 +47,7 @@ const ASSETS_TO_CACHE = [
   './form/form-auth.js',
   './form/form-cache.js',
   './form/sw-register.js',
-  './form/sw-admin.js',
+  './sw-admin.js',
   './form/manifest-admin.webmanifest',
   './form/modules/form-state-catalogs.js',
   './form/modules/form-record-type.js',
@@ -52,6 +58,7 @@ const ASSETS_TO_CACHE = [
   './form/modules/form-feeding.js',
   './form/modules/form-ecology.js',
   './form/modules/form-reproduction.js',
+  './form/modules/form-reproduction-parental-investment.js',
   './form/modules/form-plumage-editing.js',
   './form/modules/form-curiosities-categories.js',
   './form/modules/form-statistics-counter.js',

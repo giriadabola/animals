@@ -432,7 +432,7 @@
         };
 
         const reproductionTypesByCategory = {
-            Mamiferos: ['Vivíparo', 'Placental', 'Marsupial', 'Ovíparo'],
+            Mamiferos: ['Vivíparo', 'Placentário', 'Marsupial', 'Ovíparo'],
             Aves: ['Ovíparo', 'Incubação externa', 'Nidícola', 'Nidífugo'],
             Peixes: ['Ovíparo', 'Vivíparo', 'Ovovivíparo', 'Desova externa', 'Fertilização interna', 'Hermafrodita'],
             Moluscos: ['Ovíparo', 'Hermafrodita', 'Sexos separados', 'Fertilização interna', 'Fertilização externa', 'Desenvolvimento larvar'],
@@ -448,6 +448,7 @@
 
         const reproductionTypeDescriptions = {
             'Vivíparo': 'Crias nascem vivas',
+            'Placentário': 'Desenvolvimento com placenta',
             'Placental': 'Desenvolvimento com placenta',
             'Marsupial': 'Crias continuam na bolsa',
             'Ovíparo': 'Postura de ovos',
@@ -495,11 +496,6 @@
             'Estimado por comparação': 'Baseado em espécies semelhantes'
         };
 
-
-        const advancedReproductionValues = ['Sistema social reprodutivo','Armazenamento de esperma','Implantação embrionária','Harém','Reprodução cooperativa','Reprodução em pares','Promiscuidade','Eusocialidade'];
-        Object.keys(reproductionTypesByCategory).forEach(category => {
-            reproductionTypesByCategory[category] = [...new Set([...(reproductionTypesByCategory[category] || []), ...advancedReproductionValues])];
-        });
 
         const birdEggVisuals = [
             { label: 'Branco', image: '../assets/ovos/ovo_branco.png', average: '2-5 ovos' },

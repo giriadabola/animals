@@ -24,6 +24,32 @@ export const ecologicalFunctionCatalog = [
     { label: 'Construtor de bioma', key: 'construtor_de_bioma', accent: 'accent-bioma' }
 ];
 
+export const ecologicalFunctionDescriptions = {
+    'Bioerosão': 'Desgasta ou remove substrato, como rocha, madeira ou conchas, contribuindo para a sua transformação.',
+    'Bioindicador': 'A sua presença, ausência ou estado ajuda a avaliar as condições do ambiente.',
+    'Comensal': 'Beneficia da associação enquanto o outro organismo não é beneficiado nem prejudicado de forma significativa.',
+    'Competidor': 'Disputa recursos limitados, como alimento, espaço ou parceiros, com outros organismos.',
+    'Construtor de bioma': 'Cria ou modifica estruturas que definem o habitat e favorecem comunidades inteiras.',
+    'Controlador de pragas': 'Ajuda a reduzir populações de organismos considerados pragas.',
+    'Controlo de populações': 'Regula a abundância de outras espécies através de predação, herbivoria ou outras interações.',
+    'Decompositor': 'Decompõe matéria orgânica e devolve nutrientes ao ecossistema.',
+    'Dispersor de sementes': 'Transporta e espalha sementes, contribuindo para a regeneração e expansão das plantas.',
+    'Engenheiro do ecossistema': 'Altera fisicamente o ambiente e cria condições para outras espécies.',
+    'Espécie-chave': 'Tem um efeito desproporcional na estrutura e no funcionamento do ecossistema.',
+    'Espécie invasora': 'Espécie não nativa que se espalha e pode causar impactos ecológicos, económicos ou sociais.',
+    'Filtrador': 'Retém partículas ou organismos suspensos, geralmente na água, para se alimentar.',
+    'Herbívoro controlador de vegetação': 'Limita o crescimento da vegetação através do consumo de plantas.',
+    'Hospedeiro': 'Aloja outro organismo, fornecendo-lhe recursos ou condições para viver.',
+    'Migrador': 'Desloca-se regularmente entre áreas diferentes, muitas vezes seguindo ciclos sazonais.',
+    'Mutualista': 'Participa numa relação em que ambos os organismos obtêm benefícios.',
+    'Navegador / orientador': 'Contribui para a orientação ou navegação de outros indivíduos ou espécies no ambiente.',
+    'Necrófago': 'Consome animais mortos e contribui para a remoção de carcaças.',
+    'Parasita': 'Obtém recursos de um hospedeiro, normalmente causando-lhe prejuízo.',
+    'Polinizador': 'Transporta pólen entre flores e permite a reprodução de muitas plantas.',
+    'Predador': 'Captura e consome outros organismos vivos.',
+    'Presa': 'Serve de alimento a predadores ou a outros consumidores.'
+};
+
 function makeSvg(body, className = 'general-model-svg ecological-model-svg') {
     return `<svg class="metric-model-svg ${className}" viewBox="0 0 80 80" fill="none" aria-hidden="true">${body}</svg>`;
 }

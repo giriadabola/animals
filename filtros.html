@@ -24,6 +24,7 @@
     <script src="https://cdn.jsdelivr.net/npm/jsvectormap/dist/maps/world.js"></script>
     <!-- CSS Global -->
     <link rel="stylesheet" href="css/style.css?v=1.0.8">
+    <link rel="stylesheet" href="css/distance-filter.css?v=20260714_distance_filter">
     <script src="js/runtime-guard.js"></script>
 
     <style>
@@ -236,6 +237,7 @@
                 <i class="fa-solid fa-xmark" id="clear-search" style="position: absolute; right: 16px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--text-secondary); font-size: 1.2rem; display: none;"></i>
             </div>
         </div>
+        <section id="distance-filter-panel" hidden aria-label="Filtro de distância percorrida"></section>
         <section id="continent-map-panel" class="continent-map-panel" aria-hidden="true">
             <div class="continent-map-panel-header">
                 <div>
@@ -275,6 +277,7 @@
         import { collection, getDocs } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
         import { hideLoadingOverlay } from "./js/loader.js?v=2";
         import { extractPopulationMetric, isPopulationRankingFilter, POPULATION_RANKING_KEY } from "./js/ranking-metrics.js?v=1";
+        import { getDistanceMetricFromAnimal, initDistanceFilterPanel } from "./js/distance-filter.js?v=20260714_distance_filter";
 
         const categoryTitle = document.getElementById('category-title');
         const listContainer = document.getElementById('animal-list-container');
@@ -713,6 +716,7 @@
             const params = new URLSearchParams(window.location.search);
             let filterType = params.get('tipo') || 'estrategia-alimento';
             let filterValue = params.get('valor') || params.get('estrategia');
+            const isDistanceFilter = normalizeFilterText(filterType) === 'distancia percorrida';
 
             if (isPopulationRankingFilter(filterType, filterValue)) {
                 filterType = POPULATION_RANKING_KEY;
@@ -721,10 +725,14 @@
 
             activeFilterType = filterType;
 
-            if (!filterValue) {
+            if (!filterValue && !isDistanceFilter) {
                 categoryTitle.innerHTML = `Erro`;
                 loadingMessage.textContent = "Nenhum valor de filtro foi especificado no URL.";
                 return;
+            }
+
+            if (isDistanceFilter) {
+                filterValue = 'Distância Percorrida';
             }
 
             let iconClass = 'fa-tag';
@@ -798,6 +806,9 @@
                 if (countryName) {
                     filterValue = countryName;
                 }
+            } else if (isDistanceFilter) {
+                iconClass = 'fa-route';
+                titlePrefix = '';
             } else {
                 iconClass = 'fa-tags';
                 titlePrefix = `${filterType}: `;
@@ -912,7 +923,17 @@
                 querySnapshot.forEach((doc) => {
                     const animalData = doc.data();
                     
-                    if (isRanking) {
+                    if (isDistanceFilter) {
+                        const distanceMetric = getDistanceMetricFromAnimal(animalData);
+                        if (distanceMetric) {
+                            matchedAnimals.push({
+                                data: animalData,
+                                id: doc.id,
+                                distanceMetric,
+                                displayValue: distanceMetric.displayValue
+                            });
+                        }
+                    } else if (isRanking) {
                         let res = null;
                         if (filterType === 'mais-velozes') {
                             res = extractNumericMetric(animalData.informacao?.geralDetalhada || [], ['velocidade']);
@@ -1087,6 +1108,23 @@
 
                 if (isRanking) {
                     matchedAnimals.sort((a, b) => b.numericValue - a.numericValue);
+                }
+
+                if (isDistanceFilter) {
+                    const distancePanel = document.getElementById('distance-filter-panel');
+                    initDistanceFilterPanel(distancePanel, matchedAnimals, minimum => {
+                        filteredAnimals = minimum === null
+                            ? [...matchedAnimals]
+                            : matchedAnimals.filter(item => item.distanceMetric.baseMax >= minimum);
+                        currentPage = 1;
+                        renderPage(currentPage, false);
+                        renderPagination();
+                        listContainer.style.display = filteredAnimals.length ? '' : 'none';
+                        loadingMessage.style.display = filteredAnimals.length ? 'none' : 'block';
+                        if (!filteredAnimals.length) {
+                            loadingMessage.textContent = 'Nenhum animal encontrado para este intervalo.';
+                        }
+                    });
                 }
 
                 if (filterType === 'familia') {

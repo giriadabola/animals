@@ -430,7 +430,7 @@
         };
 
         const reproductionTypesByCategory = {
-            Mamiferos: ['Vivíparo', 'Placental', 'Marsupial', 'Ovíparo'],
+            Mamiferos: ['Vivíparo', 'Placentário', 'Marsupial', 'Ovíparo'],
             Aves: ['Ovíparo', 'Incubação externa', 'Nidícola', 'Nidífugo'],
             Peixes: ['Ovíparo', 'Vivíparo', 'Ovovivíparo', 'Desova externa', 'Fertilização interna', 'Hermafrodita'],
             Moluscos: ['Ovíparo', 'Hermafrodita', 'Sexos separados', 'Fertilização interna', 'Fertilização externa', 'Desenvolvimento larvar'],
@@ -446,6 +446,7 @@
 
         const reproductionTypeDescriptions = {
             'Vivíparo': 'Crias nascem vivas',
+            'Placentário': 'Desenvolvimento com placenta',
             'Placental': 'Desenvolvimento com placenta',
             'Marsupial': 'Crias continuam na bolsa',
             'Ovíparo': 'Postura de ovos',

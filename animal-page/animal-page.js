@@ -3,14 +3,23 @@ import { db } from "../js/firebase-config.js?v=5";
         import { feedingTypeDescriptions, getFeedingVisualMeta, getFeedingModelSvg } from "../js/feeding-visuals.js";
         import { feedingAnimalOptions } from "../js/feeding-animal-options.js?v=2";
         import { feedingStrategyDescriptions, getFeedingStrategyMeta, getFeedingStrategySvg } from "../js/feeding-strategies.js";
-        import { getMatingMeta, getMatingSystemSvg } from "../js/mating-systems.js";
+        import { matingSystems, getMatingMeta, getMatingSystemSvg } from "../js/mating-systems.js?v=2";
+        import { sexualSystems } from "../js/sexual-systems.js?v=1";
         import { ecologyBlockConfigs, getEcologyBlockSvg } from "../js/ecology-visuals.js?v=1";
         import { getGeneralVisualMeta as getGeneralVisualCatalogMeta, getGeneralModelSvg as getGeneralCatalogModelSvg, getActivityMeta, getActivitySvg, getSocialMeta, getSocialSvg, getEcologicalFunctionMeta, getEcologicalFunctionSvg, getLocomotionMeta, getLocomotionSvg, isDropdownOnlyGeneralModel as isDropdownOnlyGeneralCatalogModel } from "../js/general-visual-catalog.js";
         import { collapseCombinedGenderItems, collectConcreteGenders, genderMatchesSelection, normalizeGenderValue } from "../js/gender-utils.js?v=2";
         import { renderAnimalMediaBlock, initAnimalMediaBlock, initFooterAnatomyTabs } from "../js/animal-media-block.js?v=3";
         import { renderAnimalAudioThumbnail, initAnimalAudioControls, pauseAllAnimalAudio } from "../js/animal-audio.js?v=20260710_audio_4";
         import { initAnimalProfileActions } from "../js/profile-favorites.js?v=4";
-        import { POPULATION_RANKING_KEY } from "../js/ranking-metrics.js?v=1";
+import { POPULATION_RANKING_KEY } from "../js/ranking-metrics.js?v=1";
+import { getConservationStatusMeta, initConservationStatusPopup } from "../js/conservation-status-popup.js?v=1";
+import { initFeedingTypePopup } from "../js/feeding-type-popup.js?v=2";
+import { initEcologicalFunctionPopup } from "../js/ecological-function-popup.js?v=2";
+import { initMatingSystemPopup } from "../js/mating-system-popup.js?v=1";
+import { initSexualSystemPopup } from "../js/sexual-system-popup.js?v=1";
+import { initBiogeographicRegionPopup } from "../js/biogeographic-regions-popup.js?v=1";
+import { getCommunicationGenericModelSvg } from "../js/communication-visuals.js?v=2";
+import { initCommunicationTypePopup } from "../js/communication-type-popup.js?v=1";
         
         const mainContent = document.getElementById('main-content-area');
 
@@ -31,6 +40,25 @@ import { db } from "../js/firebase-config.js?v=5";
         }
 
         let countryList = {};
+        function normalizeCountryCode(value = '') {
+            if (value && typeof value === 'object') {
+                return String(value.codigo || value.code || value.iso2 || value.iso || value.id || '').trim().toUpperCase();
+            }
+            return String(value || '').trim().toUpperCase();
+        }
+
+        function getCountryRecord(code) {
+            const normalizedCode = normalizeCountryCode(code);
+            const record = countryList[normalizedCode];
+            return record && typeof record === 'object' ? record : { nome: record || normalizedCode };
+        }
+
+        function getCountryFlagEmoji(code) {
+            const normalizedCode = normalizeCountryCode(code);
+            if (!/^[A-Z]{2}$/.test(normalizedCode)) return '🌍';
+            return [...normalizedCode].map(character => String.fromCodePoint(127397 + character.charCodeAt(0))).join('');
+        }
+
         async function loadCountryList() {
             try {
                 const response = await fetch('../js/countries.json');
@@ -962,6 +990,12 @@ import { db } from "../js/firebase-config.js?v=5";
                 .filter((entry, index, list) => list.findIndex(candidate => candidate.display === entry.display) === index);
 
             if (nutritionMeta && normalizedType.includes('tipo de alimentacao')) {
+                const entryTypes = entries.map(entry => entry.primary || entry.display).filter(Boolean);
+                const fallbackTypes = Array.isArray(group.animals) ? group.animals.map(animal => animal.feedingType).filter(Boolean) : [];
+                const selectedFeedingTypes = [...new Set((entryTypes.length ? entryTypes : fallbackTypes)
+                    .map(value => String(value || '').trim())
+                    .filter(Boolean))];
+                const selectedFeedingTypesData = JSON.stringify(selectedFeedingTypes);
                 const firstEntry = entries[0] || { primary: '', secondary: '', display: '' };
                 const firstMeta = getFeedingVisualMeta(firstEntry.primary || nutritionMeta.title);
                 const heroIcon = getFeedingModelSvg(entries.length > 1 ? 'alimentacao' : firstMeta.key);
@@ -983,14 +1017,14 @@ import { db } from "../js/firebase-config.js?v=5";
                     : '';
 
                 return `
-                    <article class="dimension-model-card feeding-model-card feeding-type-highlight-card ${nutritionMeta.accent}">
+                    <button type="button" class="dimension-model-card feeding-model-card feeding-type-highlight-card feeding-type-popup-trigger ${nutritionMeta.accent}" data-feeding-type-popup data-feeding-types="${escapeHtml(selectedFeedingTypesData)}" aria-haspopup="dialog" aria-label="Ver os tipos de alimentação e respetivas explicações" style="width: 100%; box-sizing: border-box; display: flex; align-items: center;">
                         <div class="dimension-model-icon">${heroIcon}</div>
                         <div class="dimension-model-copy">
                             ${listHtml}
                             <div class="dimension-model-label">${nutritionMeta.title}</div>
                             ${secondaryHtml}
                         </div>
-                    </article>`;
+                    </button>`;
             }
 
             if (nutritionMeta) {
@@ -1150,16 +1184,22 @@ import { db } from "../js/firebase-config.js?v=5";
                 || { key: 'funcaoEcologica', label: tipo || 'Ecologia', accent: 'accent-bioma' };
         }
 
-        function renderEcologyBlockCard(title, value, icon, accent, meta = '') {
+        function renderEcologyBlockCard(title, value, icon, accent, meta = '', popupFunctions = []) {
+            const isInteractive = popupFunctions.length > 0;
+            const tagName = isInteractive ? 'button' : 'article';
+            const interactiveClass = isInteractive ? ' ecology-function-popup-trigger' : '';
+            const interactiveAttributes = isInteractive
+                ? ` type="button" data-ecology-function-popup data-ecology-functions="${escapeHtml(JSON.stringify(popupFunctions))}" aria-haspopup="dialog" aria-label="Ver as funções ecológicas e respetivas explicações" style="width: 100%; box-sizing: border-box; display: flex; align-items: center;"`
+                : '';
             return `
-                <article class="dimension-model-card ecology-model-card ${accent}">
+                <${tagName} class="dimension-model-card ecology-model-card ${accent}${interactiveClass}"${interactiveAttributes}>
                     <div class="dimension-model-icon">${icon}</div>
                     <div class="dimension-model-copy">
                         <div class="dimension-model-label">${escapeHtml(value)}</div>
                         <div class="dimension-model-value">${escapeHtml(title)}</div>
                         ${meta ? `<div class="dimension-model-meta">${meta}</div>` : ''}
                     </div>
-                </article>
+                </${tagName}>
             `;
         }
 
@@ -1226,15 +1266,23 @@ import { db } from "../js/firebase-config.js?v=5";
             const itemsToRender = detailItems.length ? detailItems : legacyItems;
             if (!itemsToRender.length && !ecologyText) return '';
 
+            const selectedEcologicalFunctions = [...new Set(itemsToRender
+                .filter(item => normalizeDimensionKey(item.tipo) === 'funcao ecologica')
+                .map(item => item.valor || item.detalhe || '')
+                .map(value => String(value).trim())
+                .filter(Boolean))];
+
             const cards = itemsToRender.map(item => {
-                if (item.tipo === 'Função Ecológica') {
+                if (normalizeDimensionKey(item.tipo) === 'funcao ecologica') {
                     const value = item.valor || item.detalhe || '';
                     const functionMeta = getEcologicalFunctionMeta(value || '');
                     return renderEcologyBlockCard(
-                        functionMeta.title,
+                        'Função Ecológica',
                         value,
                         getEcologicalFunctionSvg(functionMeta.key),
-                        functionMeta.accent
+                        functionMeta.accent,
+                        '',
+                        selectedEcologicalFunctions
                     );
                 }
 
@@ -1309,7 +1357,7 @@ import { db } from "../js/firebase-config.js?v=5";
             return icons[key] || icons.reproducao;
         }
 
-        function renderReproductionModelCard(item, animalData = {}) {
+        function renderReproductionModelCard(item, animalData = {}, popupMatingSystems = [], popupSexualSystems = []) {
             const egg = hasCategory(animalData.categoria, 'Aves') ? getBirdEggVisualByLabel(item.tipo) : null;
             const inlineGenderSymbol = renderInlineGenderSymbol(item);
             if (isParentalInvestmentItem(item)) {
@@ -1329,19 +1377,45 @@ import { db } from "../js/firebase-config.js?v=5";
                     </article>`;
             }
 
+            const sexualValue = normalizeDimensionKey(item.tipo || '').includes('sistema sexual')
+                ? (item.detalhe || item.valor || '')
+                : '';
+            if (sexualValue) {
+                const isInteractive = popupSexualSystems.length > 0 && sexualSystems.some(system => normalizeDimensionKey(system) === normalizeDimensionKey(sexualValue));
+                const cardTag = isInteractive ? 'button' : 'article';
+                const interactiveClass = isInteractive ? ' sexual-system-popup-trigger' : '';
+                const interactiveAttributes = isInteractive
+                    ? ` type="button" data-sexual-system-popup data-sexual-systems="${escapeHtml(JSON.stringify(popupSexualSystems))}" aria-haspopup="dialog" aria-controls="sexual-system-modal" aria-label="Ver as opções de sistema sexual"`
+                    : '';
+                return `
+                <${cardTag} class="dimension-model-card reproduction-model-card accent-width${interactiveClass}"${interactiveAttributes}>
+                    <div class="dimension-model-icon">${getReproductionModelSvg('sistemaSexual')}</div>
+                    <div class="dimension-model-copy">
+                        <div class="dimension-model-label">${escapeHtml(sexualValue)}</div>
+                        <div class="dimension-model-value">Sistema Sexual</div>
+                    </div>
+                </${cardTag}>`;
+            }
+
             const matingValue = normalizeDimensionKey(item.tipo || '').includes('acasalamento')
                 ? (item.detalhe || '')
                 : (getMatingMeta(item.tipo || '').key !== 'acasalamento' ? (item.tipo || '') : '');
             if (matingValue) {
                 const meta = getMatingMeta(matingValue);
+                const isInteractive = popupMatingSystems.length > 0 && matingSystems.some(system => normalizeDimensionKey(system) === normalizeDimensionKey(matingValue));
+                const cardTag = isInteractive ? 'button' : 'article';
+                const interactiveClass = isInteractive ? ' mating-system-popup-trigger' : '';
+                const interactiveAttributes = isInteractive
+                    ? ` type="button" data-mating-system-popup data-mating-systems="${escapeHtml(JSON.stringify(popupMatingSystems))}" aria-haspopup="dialog" aria-controls="mating-system-modal" aria-label="Ver as opções de acasalamento"`
+                    : '';
                 return `
-                <article class="dimension-model-card reproduction-model-card ${meta.accent}">
+                <${cardTag} class="dimension-model-card reproduction-model-card ${meta.accent}${interactiveClass}"${interactiveAttributes}>
                     <div class="dimension-model-icon">${getMatingSystemSvg(meta.key)}</div>
                     <div class="dimension-model-copy">
                         <div class="dimension-model-label${inlineGenderSymbol ? ' with-gender' : ''}">${escapeHtml(matingValue)}${inlineGenderSymbol}</div>
                         <div class="dimension-model-value">Acasalamento</div>
                     </div>
-                </article>`;
+                </${cardTag}>`;
             }
 
             const meta = getReproductionVisualMeta(item.tipo);
@@ -1381,10 +1455,24 @@ import { db } from "../js/firebase-config.js?v=5";
             }) : [];
             if (!valid.length) return '';
 
+            const selectedMatingSystems = [...new Set(valid.flatMap(item => {
+                const type = String(item.tipo || '').trim();
+                const normalizedType = normalizeDimensionKey(type);
+                if (normalizedType.includes('acasalamento')) {
+                    return [String(item.detalhe || item.valor || '').trim()];
+                }
+                return matingSystems.some(system => normalizeDimensionKey(system) === normalizedType) ? [type] : [];
+            }).filter(value => value && matingSystems.some(system => normalizeDimensionKey(system) === normalizeDimensionKey(value))))];
+            const selectedSexualSystems = [...new Set(valid.flatMap(item => {
+                const type = String(item.tipo || '').trim();
+                if (!normalizeDimensionKey(type).includes('sistema sexual')) return [];
+                return [String(item.detalhe || item.valor || '').trim()];
+            }).filter(value => value && sexualSystems.some(system => normalizeDimensionKey(system) === normalizeDimensionKey(value))))];
+
             const parentalItems = valid.filter(isParentalInvestmentItem);
             const regularItems = valid.filter(item => !isParentalInvestmentItem(item));
             const cards = [
-                ...regularItems.map(item => renderReproductionModelCard(item, animalData)),
+                ...regularItems.map(item => renderReproductionModelCard(item, animalData, selectedMatingSystems, selectedSexualSystems)),
                 ...groupParentalInvestmentItems(parentalItems).map(renderParentalInvestmentGroupCard)
             ].join('');
 
@@ -1712,6 +1800,11 @@ import { db } from "../js/firebase-config.js?v=5";
             }, {});
 
             const groupedItems = Object.values(groupedDetailItems);
+            const communicationTypeValues = [...new Set(groupedItems
+                .filter(item => normalizeDimensionKey(item.tipo) === 'tipo de comunicacao')
+                .flatMap(item => Array.isArray(item.valores) && item.valores.length ? item.valores : [item.valor])
+                .map(value => String(value || '').trim())
+                .filter(Boolean))];
 
             const renderValuesHtml = (item) => {
                 const values = Array.isArray(item.valores) && item.valores.length ? item.valores : [item.valor];
@@ -1742,7 +1835,28 @@ import { db } from "../js/firebase-config.js?v=5";
                 }
             };
 
+            const renderConservationStatusCard = (item) => {
+                const status = getConservationStatusMeta(item.valor);
+                return `
+                    <button type="button" class="dimension-model-card curiosidades-model-card conservation-status-card" data-conservation-status="${escapeHtml(status.code)}" aria-haspopup="dialog" aria-label="Ver todos os Estados de Conservação. Selecionado: ${escapeHtml(status.name)}" style="width: 100%; box-sizing: border-box; display: flex; align-items: center;">
+                        <div class="dimension-model-icon" style="flex-shrink: 0; background: ${status.bg}; color: ${status.text}; font-weight: 800; font-size: 1.05rem; text-transform: uppercase; display: flex; align-items: center; justify-content: center;">
+                            ${escapeHtml(item.valor)}
+                        </div>
+                        <div class="dimension-model-copy" style="display: flex; flex-direction: column; align-items: flex-start; text-align: left;">
+                            <div class="curiosidades-card-head">
+                                <span class="dimension-model-label">${escapeHtml(status.name)}</span>
+                                ${renderMetaSymbols(item)}
+                                <span class="curiosidades-card-open-indicator" aria-hidden="true">↗</span>
+                            </div>
+                            <strong class="dimension-model-value">Estado de Conservação</strong>
+                        </div>
+                    </button>`;
+            };
+
             const cardsHtml = groupedItems.map(item => {
+                if (normalizeDimensionKey(item.tipo).includes('estado de conserva')) {
+                    return renderConservationStatusCard(item);
+                }
                 const valuesHtml = renderValuesHtml(item);
                 const normalizedTipo = (item.tipo || '').trim().toLowerCase();
                 const isHorasSono = normalizedTipo === 'horas de sono' || normalizedTipo === 'horas sono' || normalizedTipo.includes('sono');
@@ -1763,9 +1877,9 @@ import { db } from "../js/firebase-config.js?v=5";
                             </div>
                             <div class="dimension-model-copy" style="display: flex; flex-direction: column; align-items: flex-start; text-align: left;">
                                 <div class="curiosidades-card-head">
-                                    <span class="dimension-model-label">${valuesHtml}</span>
-                                    ${renderMetaSymbols(item)}
-                                </div>
+                                <span class="dimension-model-label">${valuesHtml}</span>
+                                ${renderMetaSymbols(item)}
+                            </div>
                                 <strong class="dimension-model-value">Também conhecido como</strong>
                             </div>
                         </article>
@@ -1831,20 +1945,22 @@ import { db } from "../js/firebase-config.js?v=5";
                     `;
                 }
 
-                if (item.tipo === 'Tipo de Comunicação') {
+                if (normalizeDimensionKey(item.tipo) === 'tipo de comunicacao') {
+                    const communicationTypesData = escapeHtml(JSON.stringify(communicationTypeValues));
                     return `
-                        <article class="dimension-model-card curiosidades-model-card" style="width: 100%; box-sizing: border-box; display: flex; align-items: center;">
+                        <button type="button" class="dimension-model-card curiosidades-model-card communication-type-popup-trigger" data-communication-type-popup data-communication-types="${communicationTypesData}" aria-haspopup="dialog" aria-controls="communication-type-modal" aria-label="Ver os tipos de comunicação e respetivas explicações" style="width: 100%; box-sizing: border-box; display: flex; align-items: center;">
                             <div class="dimension-model-icon" style="flex-shrink: 0; background: rgba(32, 201, 151, 0.18); color: #67e8f9; display: flex; align-items: center; justify-content: center;">
-                                <i class="fa-solid fa-comments"></i>
+                                ${getCommunicationGenericModelSvg()}
                             </div>
                             <div class="dimension-model-copy" style="display: flex; flex-direction: column; align-items: flex-start; text-align: left;">
                                 <div class="curiosidades-card-head">
-                                    <span class="dimension-model-label">${valuesHtml}</span>
-                                    ${renderMetaSymbols(item)}
+                                <span class="dimension-model-label">${valuesHtml}</span>
+                                ${renderMetaSymbols(item)}
+                                <span class="curiosidades-card-open-indicator" aria-hidden="true">↗</span>
                                 </div>
                                 <strong class="dimension-model-value">Tipo de Comunicação</strong>
                             </div>
-                        </article>
+                        </button>
                     `;
                 }
 
@@ -1993,9 +2109,9 @@ import { db } from "../js/firebase-config.js?v=5";
                     `;
                 }
 
-                const sColor = statusColors[item.valor] || { bg: '#666', text: '#fff', name: item.valor };
+                const sColor = getConservationStatusMeta(item.valor);
                 return `
-                    <article class="dimension-model-card curiosidades-model-card" style="width: 100%; box-sizing: border-box; display: flex; align-items: center;">
+                    <button type="button" class="dimension-model-card curiosidades-model-card conservation-status-card" data-conservation-status="${escapeHtml(sColor.code)}" aria-haspopup="dialog" aria-label="Ver todos os Estados de Conservação. Selecionado: ${escapeHtml(sColor.name)}" style="width: 100%; box-sizing: border-box; display: flex; align-items: center;">
                         <div class="dimension-model-icon" style="flex-shrink: 0; background: ${sColor.bg}; color: ${sColor.text}; font-weight: 800; font-size: 1.05rem; text-transform: uppercase; display: flex; align-items: center; justify-content: center;">
                             ${escapeHtml(item.valor)}
                         </div>
@@ -2003,10 +2119,11 @@ import { db } from "../js/firebase-config.js?v=5";
                             <div class="curiosidades-card-head">
                                 <span class="dimension-model-label">${escapeHtml(sColor.name)}</span>
                                 ${renderMetaSymbols(item)}
+                                <span class="curiosidades-card-open-indicator" aria-hidden="true">↗</span>
                             </div>
                             <strong class="dimension-model-value">Estado de Conservação</strong>
                         </div>
-                    </article>
+                    </button>
                 `;
             }).join('' );
 
@@ -2158,7 +2275,7 @@ import { db } from "../js/firebase-config.js?v=5";
                         <i class="fa-solid fa-chevron-down"></i>
                     </summary>
                     <div class="distribution-countries-body">
-                        <span class="highlightedCountriesNames">Carregando...</span>
+                        <div class="highlightedCountriesNames distribution-country-list">Carregando...</div>
                     </div>
                 </details>`;
         }
@@ -2179,17 +2296,19 @@ import { db } from "../js/firebase-config.js?v=5";
         function renderDistributionRegionsCard(distributionData = {}) {
             const regions = normalizeDistributionRegions(distributionData);
             if (!regions.length) return '';
+            const regionValues = regions.map(item => item.valor);
+            const regionValuesData = escapeHtml(JSON.stringify(regionValues));
             return `
                 <div class="distribution-regions-card reproduction-visual-card">
                     <div class="reproduction-model-grid">
                         ${regions.map(item => `
-                            <article class="dimension-model-card reproduction-model-card accent-biogeographic-region">
+                            <button type="button" class="dimension-model-card reproduction-model-card accent-biogeographic-region biogeographic-region-popup-trigger" data-biogeographic-region-popup data-biogeographic-regions="${regionValuesData}" aria-haspopup="dialog" aria-controls="biogeographic-region-modal" aria-label="Ver as regiões biogeográficas e o mapa-mundo">
                                 <div class="dimension-model-icon">${getBiogeographicRegionSvg()}</div>
                                 <div class="dimension-model-copy">
                                     <div class="dimension-model-label">${escapeHtml(item.valor)}</div>
                                     <div class="dimension-model-value">Regiões Biogeográficas</div>
                                 </div>
-                            </article>
+                            </button>
                         `).join('')}
                     </div>
                 </div>`;
@@ -2216,6 +2335,67 @@ import { db } from "../js/firebase-config.js?v=5";
                         </span>
                     `).join('')}
                 </div>`;
+        }
+
+        function initFooterBiomaSlider(root = document) {
+            root.querySelectorAll('[data-footer-bioma-slider]').forEach(slider => {
+                if (slider.dataset.footerBiomaReady === 'true') return;
+
+                const track = slider.querySelector('[data-footer-bioma-track]');
+                const previousButton = slider.querySelector('[data-footer-bioma-prev]');
+                const nextButton = slider.querySelector('[data-footer-bioma-next]');
+                const countLabel = slider.querySelector('[data-footer-bioma-count]');
+                if (!track || !previousButton || !nextButton) return;
+
+                const totalBiomas = Number(countLabel?.textContent?.split('/').pop()?.trim() || 0);
+                if (totalBiomas < 2) return;
+
+                slider.dataset.footerBiomaReady = 'true';
+                let slideIndex = 1;
+
+                const updateCount = () => {
+                    if (!countLabel) return;
+                    const visibleIndex = ((slideIndex - 1 + totalBiomas) % totalBiomas) + 1;
+                    countLabel.textContent = `${visibleIndex} / ${totalBiomas}`;
+                };
+
+                const setTrackPosition = (animate = true) => {
+                    if (!animate) track.style.transition = 'none';
+                    track.style.transform = `translateX(-${slideIndex * 100}%)`;
+                    if (!animate) {
+                        requestAnimationFrame(() => {
+                            requestAnimationFrame(() => {
+                                track.style.transition = '';
+                            });
+                        });
+                    }
+                    updateCount();
+                };
+
+                previousButton.addEventListener('click', () => {
+                    slideIndex -= 1;
+                    setTrackPosition();
+                });
+
+                nextButton.addEventListener('click', () => {
+                    slideIndex += 1;
+                    setTrackPosition();
+                });
+
+                track.addEventListener('transitionend', event => {
+                    if (event.propertyName !== 'transform') return;
+
+                    if (slideIndex === 0) {
+                        slideIndex = totalBiomas;
+                        setTrackPosition(false);
+                    } else if (slideIndex === totalBiomas + 1) {
+                        slideIndex = 1;
+                        setTrackPosition(false);
+                    }
+                });
+
+                updateCount();
+            });
         }
 
         function renderAnimalData(animalData, animalId) {
@@ -2725,9 +2905,38 @@ import { db } from "../js/firebase-config.js?v=5";
                     const cleanSciName = String(animalData.nomeCientifico || '').trim().replace(/\s+/g, '_');
 
                     const models = animalData.informacao?.geralDetalhada || [];
-                    const biomaItem = Array.isArray(models) ? models.find(item => item.tipo && normalizeDimensionKey(item.tipo).includes('bioma')) : null;
-                    const biomaValue = biomaItem ? (biomaItem.valor || biomaItem.valorMin || '') : '';
-                    const normalizedBioma = biomaValue ? normalizeDimensionKey(biomaValue).replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '') : '';
+                    const footerBiomaBackgroundFiles = {
+                        bosque: 'bosque.png',
+                        floresta: 'floresta.png',
+                        marinho: 'marinho.png',
+                        matagal: 'matagal.png',
+                        montanha: 'montanha.png',
+                        pantano: 'pântano.png',
+                        savana: 'savana.png'
+                    };
+                    const biomaValues = [];
+                    if (Array.isArray(models)) {
+                        models
+                            .filter(item => item?.tipo && normalizeDimensionKey(item.tipo).includes('bioma'))
+                            .forEach(item => {
+                                const rawValue = item.valor || item.valorMin || item.valorMax || '';
+                                const values = Array.isArray(rawValue) ? rawValue : String(rawValue).split(/[,;|]/);
+                                values
+                                    .map(value => String(value).trim())
+                                    .filter(Boolean)
+                                    .forEach(value => {
+                                        if (!biomaValues.some(existing => normalizeDimensionKey(existing) === normalizeDimensionKey(value))) {
+                                            biomaValues.push(value);
+                                        }
+                                    });
+                            });
+                    }
+                    const footerBiomas = biomaValues
+                        .map(value => {
+                            const key = normalizeDimensionKey(value).replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
+                            return { value, meta: getBiomaMeta(value), backgroundFile: footerBiomaBackgroundFiles[key] };
+                        })
+                        .filter(item => item.meta && item.backgroundFile);
                     const rodapeParamsOn = animalData.rodapeParamsOn || [];
                     const footerCards = [];
                     
@@ -2895,8 +3104,31 @@ import { db } from "../js/firebase-config.js?v=5";
                             ${(hasFooterImage || footerCards.length > 0) ? `
                                 <div class="footer-image-row" style="display: flex; gap: 24px; align-items: center; flex-wrap: wrap; justify-content: center; width: 100%;">
                                     ${hasFooterImage ? `
-                                        <div class="footer-image-card ${normalizedBioma ? 'has-cartoon-bg' : ''}" style="margin: 0;">
-                                            ${normalizedBioma ? `<img src="assets/biomas_cartoon/${normalizedBioma}.png" class="footer-cartoon-bg" alt="" loading="lazy">` : ''}
+                                        <div class="footer-image-card ${footerBiomas.length ? 'has-cartoon-bg' : ''}" style="margin: 0;"${footerBiomas.length > 1 ? ' data-footer-bioma-slider' : ''}>
+                                            ${footerBiomas.length ? (() => {
+                                                const slides = footerBiomas.length > 1
+                                                    ? [footerBiomas[footerBiomas.length - 1], ...footerBiomas, footerBiomas[0]]
+                                                    : footerBiomas;
+                                                const initialSlide = footerBiomas.length > 1 ? 1 : 0;
+                                                return `
+                                                    <div class="footer-cartoon-track" data-footer-bioma-track data-slide-index="${initialSlide}" style="transform: translateX(-${initialSlide * 100}%);">
+                                                        ${slides.map(item => `
+                                                            <div class="footer-cartoon-slide">
+                                                                <img src="assets/biomas_cartoon/${item.backgroundFile}" class="footer-cartoon-slide-image" alt="" loading="lazy" aria-hidden="true">
+                                                            </div>
+                                                        `).join('')}
+                                                    </div>
+                                                    ${footerBiomas.length > 1 ? `
+                                                        <button type="button" class="footer-bioma-arrow footer-bioma-arrow-left" data-footer-bioma-prev aria-label="Bioma anterior">
+                                                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+                                                        </button>
+                                                        <button type="button" class="footer-bioma-arrow footer-bioma-arrow-right" data-footer-bioma-next aria-label="Bioma seguinte">
+                                                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+                                                        </button>
+                                                        <span class="footer-bioma-count" data-footer-bioma-count aria-live="polite">1 / ${footerBiomas.length}</span>
+                                                    ` : ''}
+                                                `;
+                                            })() : ''}
                                             <img src="${escapeHtml(animalData.imagemRodape)}" alt="Imagem de rodapé de ${escapeHtml(animalData.nome)}" class="footer-main-image">
                                         </div>
                                     ` : ''}
@@ -2927,7 +3159,7 @@ import { db } from "../js/firebase-config.js?v=5";
                                         ];
                                         return `
                                             <div class="footer-collection-cards" style="display: flex; flex-direction: column; gap: 10px; flex: 1; min-width: 280px; max-width: 450px; text-align: left;">
-                                                ${footerCards.slice(0, 10).map((card, idx) => {
+                                                ${footerCards.slice(0, 8).map((card, idx) => {
                                                     const bgGrad = gradients[idx % gradients.length];
                                                     const borderColor = borderColors[idx % borderColors.length];
                                                     const cardText = card.isRanking 
@@ -2952,14 +3184,24 @@ import { db } from "../js/firebase-config.js?v=5";
 
             initAnimalMediaBlock(mainContent);
             initFooterAnatomyTabs(mainContent);
+            initFooterBiomaSlider(mainContent);
             initAnimalAudioControls(mainContent);
             initAnimalProfileActions({ animalId });
+            initConservationStatusPopup(mainContent);
+            initFeedingTypePopup(mainContent);
+            initEcologicalFunctionPopup(mainContent);
+            initMatingSystemPopup(mainContent);
+            initSexualSystemPopup(mainContent);
+            initBiogeographicRegionPopup(mainContent);
+            initCommunicationTypePopup(mainContent);
             
             if (hasDistribicao) {
-                const selectedCodes = animalData.informacao.distribuicao.paises || [];
+                const selectedCodes = (animalData.informacao.distribuicao.paises || [])
+                    .map(normalizeCountryCode)
+                    .filter(Boolean);
                 const automaticCodes = new Set(
                     Array.isArray(animalData.informacao.distribuicao.paisesAutomaticos)
-                        ? animalData.informacao.distribuicao.paisesAutomaticos
+                        ? animalData.informacao.distribuicao.paisesAutomaticos.map(normalizeCountryCode)
                         : []
                 );
                 const highlightedCodes = selectedCodes.filter(code => !automaticCodes.has(code));
@@ -3156,12 +3398,22 @@ import { db } from "../js/firebase-config.js?v=5";
                         'cima': 'Lado de cima',
                         'baixo': 'Lado de baixo'
                     };
-                    const countryNames = selectedCodes.map(code => {
-                        const name = countryList[code] || code;
+                    const countryCards = selectedCodes.map(code => {
+                        const country = getCountryRecord(code);
+                        const name = country.nome || country.name || code;
                         const subregion = paisesDetalhes[code] || 'inteiro';
-                        return `${name} (${subLabels[subregion]})`;
+                        return `
+                            <article class="distribution-country-card">
+                                <span class="distribution-country-flag" aria-hidden="true">${getCountryFlagEmoji(code)}</span>
+                                <span class="distribution-country-copy">
+                                    <strong>${escapeHtml(name)}</strong>
+                                    <small>${escapeHtml(subLabels[subregion] || subregion)}</small>
+                                </span>
+                            </article>`;
                     });
-                    namesSpan.textContent = countryNames.length > 0 ? countryNames.join(', ') : 'Nenhum país selecionado.';
+                    namesSpan.innerHTML = countryCards.length > 0
+                        ? countryCards.join('')
+                        : '<p class="distribution-country-empty">Nenhum país selecionado.</p>';
                 });
             }
 

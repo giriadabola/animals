@@ -1,0 +1,148 @@
+#distance-filter-panel {
+    margin: -8px 0 30px;
+    padding: 22px;
+    border: 1px solid rgba(125, 211, 252, .28);
+    border-radius: 18px;
+    background: linear-gradient(135deg, rgba(15, 32, 48, .94), rgba(19, 23, 43, .96));
+    box-shadow: 0 16px 36px rgba(0, 0, 0, .2), inset 0 1px 0 rgba(255, 255, 255, .04);
+}
+
+#distance-filter-panel[hidden] { display: none; }
+
+.distance-filter-header,
+.distance-range-labels,
+.distance-filter-options {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+}
+
+.distance-filter-kicker,
+.distance-options-label {
+    color: #7dd3fc;
+    font-size: .74rem;
+    font-weight: 900;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+.distance-filter-header h2 {
+    margin: 5px 0 4px;
+    color: var(--text-primary);
+    font-size: clamp(1.35rem, 2.5vw, 1.85rem);
+}
+
+.distance-filter-header p,
+.distance-filter-status {
+    margin: 0;
+    color: var(--text-secondary);
+}
+
+.distance-unit-control {
+    display: grid;
+    gap: 5px;
+    min-width: 130px;
+    color: var(--text-secondary);
+    font-size: .76rem;
+    font-weight: 800;
+}
+
+.distance-unit-control select {
+    min-height: 38px;
+    padding: 0 12px;
+    border: 1px solid rgba(125, 211, 252, .34);
+    border-radius: 10px;
+    background: rgba(6, 15, 26, .78);
+    color: var(--text-primary);
+    font: inherit;
+    font-weight: 800;
+}
+
+.distance-range-summary { margin: 26px 0 24px; }
+.distance-range-labels { justify-content: flex-start; color: #e0f2fe; font-size: 1.05rem; }
+.distance-range-labels span { color: rgba(224, 242, 254, .45); }
+
+.distance-range-rail {
+    position: relative;
+    height: 42px;
+    margin: 17px 15px 0;
+    border-top: 3px solid rgba(125, 211, 252, .35);
+}
+
+.distance-range-rail::before {
+    content: '';
+    position: absolute;
+    inset: -3px 0 auto;
+    height: 3px;
+    border-radius: 99px;
+    background: linear-gradient(90deg, #38bdf8, #6ee7b7);
+}
+
+.distance-range-mark {
+    position: absolute;
+    top: -11px;
+    transform: translateX(-50%);
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    border: 3px solid #0f2030;
+    border-radius: 50%;
+    background: #7dd3fc;
+    color: #06131f;
+    font-size: .62rem;
+    font-weight: 900;
+    cursor: pointer;
+    box-shadow: 0 0 0 2px rgba(125, 211, 252, .25);
+    transition: transform .2s ease, background .2s ease, box-shadow .2s ease;
+}
+
+.distance-range-mark:hover,
+.distance-range-mark:focus-visible {
+    transform: translateX(-50%) scale(1.15);
+    background: #6ee7b7;
+    box-shadow: 0 0 0 5px rgba(110, 231, 183, .16);
+    outline: none;
+}
+
+.distance-filter-options {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 11px;
+    padding-top: 18px;
+    border-top: 1px solid rgba(255, 255, 255, .09);
+}
+
+.distance-filter-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+
+.distance-filter-chip {
+    min-height: 35px;
+    padding: 7px 12px;
+    border: 1px solid rgba(125, 211, 252, .22);
+    border-radius: 999px;
+    background: rgba(10, 19, 32, .7);
+    color: var(--text-secondary);
+    font: inherit;
+    font-size: .78rem;
+    font-weight: 800;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.distance-filter-chip:hover,
+.distance-filter-chip.active {
+    border-color: #6ee7b7;
+    background: rgba(110, 231, 183, .15);
+    color: #d1fae5;
+}
+
+.distance-filter-status { margin-top: 18px; font-size: .88rem; }
+
+@media (max-width: 650px) {
+    #distance-filter-panel { padding: 18px; }
+    .distance-filter-header { align-items: flex-start; flex-direction: column; }
+    .distance-unit-control { width: 100%; }
+    .distance-unit-control select { width: 100%; }
+    .distance-range-labels { font-size: .9rem; }
+    .distance-range-mark { width: 26px; height: 26px; font-size: .55rem; }
+}

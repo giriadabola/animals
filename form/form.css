@@ -1777,6 +1777,14 @@ body.edit-theme #tabpanel-ecologia {
     grid-column: span 2 !important;
 }
 
+/* Tipo de reprodução: o valor deve ocupar apenas a coluna Mín. */
+#subtabpanel-reproducao-modelo-visual .reproduction-row.reproduction-type-row .reproduction-type {
+    grid-column: 2 / 3 !important;
+}
+#subtabpanel-reproducao-modelo-visual .reproduction-row.reproduction-type-row .reproduction-type-empty-cell {
+    min-width: 0;
+}
+
 @media (max-width: 1180px) {
     #subtabpanel-alimentacao-modelo-visual .feeding-layout,
     #subtabpanel-reproducao-modelo-visual .reproduction-layout {

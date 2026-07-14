@@ -4,15 +4,17 @@
         }
 
         function getReproductionOptionsForCategory(category = getSelectedCategory()) {
-            if (isBirdCategory(category)) return birdEggVisuals.map(egg => egg.label);
-            const options = reproductionTypesByCategory[category] || [];
+            const options = [...(reproductionTypesByCategory[category] || [])];
+            if (isBirdCategory(category)) {
+                options.push(...birdEggVisuals.map(egg => egg.label));
+            }
             return [...new Set(options)];
         }
 
         function fillReproductionTypeSelect(select, selectedValue = '') {
             const options = [...getReproductionOptionsForCategory()].sort((a, b) => a.localeCompare(b));
             const hasSelected = selectedValue && options.includes(selectedValue);
-            const placeholder = isBirdCategory() ? 'Escolhe a cor/padrão do ovo' : 'Escolhe um tipo';
+            const placeholder = isBirdCategory() ? 'Escolhe um tipo ou cor/padrão do ovo' : 'Escolhe um tipo';
             select.innerHTML = `<option value="">${placeholder}</option>` +
                 options.map(option => `<option value="${option}">${option}</option>`).join('') +
                 (selectedValue && !hasSelected ? `<option value="${selectedValue}">${selectedValue} — fora desta categoria</option>` : '');
@@ -63,6 +65,7 @@
 
         function createReproductionRow(type = '', detail = '', gender = GENDER_BOTH, fase = 'Adulto') {
             const typeStr = String(type || '');
+            const catalogTypeStr = typeStr === 'Placental' ? 'Placentário' : typeStr;
             const detailStr = String(detail || '');
             const row = document.createElement('div');
             row.className = 'reproduction-row';
@@ -228,6 +231,7 @@
             const isMating = isMatingReproductionItem(typeStr);
 
             const isParental = typeStr === 'Investimento Parental' || typeStr === 'parental_investment';
+            const isTipoModelLabel = normalizeSearchText(typeStr) === 'tipo de reproducao';
             const isGestation = typeStr === 'Tempo de Gestação' || typeStr.toLowerCase().includes('gestação') || typeStr.toLowerCase().includes('gestacao');
             const isCrias = typeStr === 'Número de Crias' || typeStr.toLowerCase().includes('cria');
             const isMaturidade = typeStr === 'Maturidade Sexual' || normalizeSearchText(typeStr).includes('maturidade sexual');
@@ -523,7 +527,7 @@
                 rowModeSelect.value = 'parental_investment';
             } else if (typeStr) {
                 rowModeSelect.value = 'tipo';
-                fillReproductionTypeSelect(typeSelect, typeStr);
+                fillReproductionTypeSelect(typeSelect, isTipoModelLabel ? '' : catalogTypeStr);
             } else {
                 rowModeSelect.value = '';
             }
@@ -533,6 +537,7 @@
                 unitSelect.disabled = false;
                 minInput.removeAttribute('max');
                 maxInput.removeAttribute('max');
+                row.classList.toggle('reproduction-type-row', rowModeSelect.value === 'tipo');
                 row.append(rowModeSelect);
                 if (rowModeSelect.value === '') {
                     const spacer = document.createElement('div');
@@ -541,8 +546,12 @@
                 } else if (rowModeSelect.value === 'parental_investment') {
                     row.append(minInput, maxInput, unitSelect, genderBtn, faseBtn, removeBtn);
                 } else if (rowModeSelect.value === 'tipo') {
-                    fillReproductionTypeSelect(typeSelect, typeSelect.value || (!isGestation && !isCrias && !isMaturidade && !isMating && !isAlimentacaoTipo && !isAlimentoMedio && !isAguaMedia && !isEpocaReproducao && !isNumeroOvos && !isTempoEclosao && !isDuracaoEstro && !isFrequenciaAcasalamentoEstro && !isTaxaSucessoReprodutivo && !isIntervaloNascimentos && !isIdadeMetamorfose && !isNumeroMudas && !isNumeroEstadiosLarvais && !isSistemaSexual && !isParental ? typeStr : ''));
-                    row.append(typeSelect, genderBtn, faseBtn, removeBtn);
+                    fillReproductionTypeSelect(typeSelect, typeSelect.value || (!isTipoModelLabel && !isGestation && !isCrias && !isMaturidade && !isMating && !isAlimentacaoTipo && !isAlimentoMedio && !isAguaMedia && !isEpocaReproducao && !isNumeroOvos && !isTempoEclosao && !isDuracaoEstro && !isFrequenciaAcasalamentoEstro && !isTaxaSucessoReprodutivo && !isIntervaloNascimentos && !isIdadeMetamorfose && !isNumeroMudas && !isNumeroEstadiosLarvais && !isSistemaSexual && !isParental ? catalogTypeStr : ''));
+                    const maxSpacer = document.createElement('div');
+                    const unitSpacer = document.createElement('div');
+                    maxSpacer.className = 'reproduction-type-empty-cell';
+                    unitSpacer.className = 'reproduction-type-empty-cell';
+                    row.append(typeSelect, maxSpacer, unitSpacer, genderBtn, faseBtn, removeBtn);
                 } else if (rowModeSelect.value === 'acasalamento') {
                     fillMatingTypeSelect(matingSelect, matingSelect.value || initialMatingValue);
                     row.append(matingSelect, genderBtn, faseBtn, removeBtn);
@@ -917,7 +926,9 @@
                         return {
                             ...rowMeta,
                             tipo: typeVal,
-                            detalhe: ''
+                            detalhe: (typeof getBirdEggVisualByLabel === 'function' && getBirdEggVisualByLabel(typeVal))
+                                ? ''
+                                : (reproductionTypeDescriptions[typeVal] || typeVal)
                         };
                     } else if (rowModeSelect.value === 'acasalamento') {
                         const matingVal = row.querySelector('.reproduction-mating-type')?.value || '';
@@ -1130,7 +1141,9 @@
                         };
                     }
                 })
-                .filter(item => item && (item.tipo === 'Investimento Parental' ? (item.etapa || item.cuidado || item.responsavel) : item.detalhe));
+                .filter(item => item && (item.tipo === 'Investimento Parental'
+                    ? (item.etapa || item.cuidado || item.responsavel)
+                    : (item.detalhe || (typeof getBirdEggVisualByLabel === 'function' && getBirdEggVisualByLabel(item.tipo)))));
             return dynamicItems;
         }
 
@@ -1225,7 +1238,7 @@
                 return { key: 'aguaMedia', title: type || 'Água bebida em Média', accent: 'accent-water' };
             }
             if (normalized.includes('oviparo') || normalized.includes('ovo')) return { key: 'ovo', title: type || 'Ovíparo', accent: 'accent-egg' };
-            if (normalized.includes('viviparo') || normalized.includes('placental')) return { key: 'viviparo', title: type || 'Vivíparo', accent: 'accent-weight' };
+            if (normalized.includes('viviparo') || normalized.includes('placental') || normalized.includes('placentario')) return { key: 'viviparo', title: type || 'Vivíparo', accent: 'accent-weight' };
             if (normalized.includes('marsupial')) return { key: 'marsupial', title: type || 'Marsupial', accent: 'accent-tail' };
             if (normalized.includes('larvar') || normalized.includes('metamorfose') || normalized.includes('girino') || normalized.includes('ninfa') || normalized.includes('pupa')) return { key: 'metamorfose', title: type || 'Metamorfose', accent: 'accent-wing' };
             if (normalized.includes('fertilizacao') || normalized.includes('sexuada') || normalized.includes('sexos separados')) return { key: 'fertilizacao', title: type || 'Fertilização', accent: 'accent-length' };
@@ -1329,15 +1342,9 @@
                 return;
             }
 
-            if (isBirdCategory(category)) {
-                previewReproductionModels.innerHTML = '<div class="dimension-model-empty">Escolhe uma cor/padrão de ovo e escreve o número médio de ovos para aparecer aqui a imagem correta.</div>';
-                return;
-            }
-
-            const suggestions = getReproductionOptionsForCategory(category);
-            previewReproductionModels.innerHTML = suggestions.length
-                ? suggestions.map(type => renderReproductionModelCard(type, true)).join('')
-                : '<div class="dimension-model-empty">Seleciona uma categoria para ver os modelos de reprodução próprios desse grupo.</div>';
+            previewReproductionModels.innerHTML = category
+                ? '<div class="dimension-model-empty">Adiciona dados de reprodução para ver os modelos visuais seleccionados.</div>'
+                : '<div class="dimension-model-empty">Seleciona uma categoria e adiciona dados de reprodução.</div>';
         }
 
         [feedingNutritionType, feedingNutritionDetail, feedingFoodMin, feedingFoodMax, feedingFoodUnit, feedingWaterMin, feedingWaterMax, feedingWaterUnit]

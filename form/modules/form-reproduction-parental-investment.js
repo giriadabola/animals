@@ -131,6 +131,10 @@
 
         const currentValue = select.value;
         const hasOption = [...select.options].some((option) => option.value === PARENTAL_TYPE || option.textContent.trim() === PARENTAL_TYPE);
+        if (!hasOption && currentValue !== PARENTAL_TYPE) {
+            select.dataset.parentalTypeReady = '1';
+            return;
+        }
         if (!hasOption) {
             const option = document.createElement('option');
             option.value = PARENTAL_TYPE;
@@ -156,9 +160,12 @@
         return [...row.querySelectorAll('select')];
     }
 
-    function getTypeSelect(row) {
-        if (!row) return null;
-        return row.querySelector('.reproduction-type') || row.querySelector('.reproduction-row-mode') || null;
+    function getRowModeSelect(row) {
+        return row?.querySelector('.reproduction-row-mode') || null;
+    }
+
+    function getReproductionTypeSelect(row) {
+        return row?.querySelector('.reproduction-type') || null;
     }
 
     function getEditableFields(row, typeSelect) {
@@ -170,28 +177,25 @@
         };
     }
 
-    function rowContainsMisplacedParentalType(row, typeSelect) {
-        return getRowSelects(row)
-            .filter((select) => select !== typeSelect)
-            .some((select) => select.value === PARENTAL_TYPE || select.textContent.includes(PARENTAL_TYPE));
-    }
-
     function normalizeParentalRow(row) {
         if (!row) return;
-        const typeSelect = getTypeSelect(row);
-        
-        if (typeSelect && typeSelect.classList.contains('reproduction-type')) {
-            ensureTypeOption(typeSelect);
-            if (rowContainsMisplacedParentalType(row, typeSelect)) {
-                typeSelect.value = PARENTAL_TYPE;
+        const rowModeSelect = getRowModeSelect(row);
+        const reproductionTypeSelect = getReproductionTypeSelect(row);
+
+        if (rowModeSelect?.value === 'tipo' && reproductionTypeSelect) {
+            ensureTypeOption(reproductionTypeSelect);
+            if (reproductionTypeSelect.value === PARENTAL_TYPE) {
+                rowModeSelect.value = 'parental_investment';
+                rowModeSelect.dispatchEvent(new Event('change', { bubbles: true }));
+                return;
             }
         }
 
-        const isParental = typeSelect && (typeSelect.value === PARENTAL_TYPE || typeSelect.value === 'parental_investment');
+        const isParental = rowModeSelect?.value === 'parental_investment';
         row.classList.toggle('reproduction-parental-row', Boolean(isParental));
         if (!isParental) return;
 
-        const { minField, maxField, unitField } = getEditableFields(row, typeSelect);
+        const { minField, maxField, unitField } = getEditableFields(row, rowModeSelect);
 
         replaceWithParentalSelect(minField, parentalStages, 'Selecionar fase...', 'parental-stage-select');
         replaceWithParentalSelect(maxField, parentalCareTypes, 'Selecionar cuidado...', 'parental-care-select');
@@ -257,22 +261,28 @@
 
     reproductionRowsContainer?.addEventListener('pointerdown', (event) => {
         const row = event.target?.closest?.('.reproduction-row');
-        const typeSelect = getTypeSelect(row);
-        if (event.target === typeSelect) ensureTypeOption(typeSelect);
+        const reproductionTypeSelect = getReproductionTypeSelect(row);
+        if (event.target === reproductionTypeSelect) ensureTypeOption(reproductionTypeSelect);
     }, true);
 
     reproductionRowsContainer?.addEventListener('focusin', (event) => {
         const row = event.target?.closest?.('.reproduction-row');
-        const typeSelect = getTypeSelect(row);
-        if (event.target === typeSelect) ensureTypeOption(typeSelect);
+        const reproductionTypeSelect = getReproductionTypeSelect(row);
+        if (event.target === reproductionTypeSelect) ensureTypeOption(reproductionTypeSelect);
     });
 
     reproductionRowsContainer?.addEventListener('change', (event) => {
         const row = event.target?.closest?.('.reproduction-row');
         if (!row) return;
-        const typeSelect = getTypeSelect(row);
-        if (event.target === typeSelect || event.target?.classList?.contains('reproduction-type')) {
-            if (typeSelect) typeSelect.dataset.parentalTypeReady = '';
+        const rowModeSelect = getRowModeSelect(row);
+        const reproductionTypeSelect = getReproductionTypeSelect(row);
+        if (event.target === rowModeSelect || event.target === reproductionTypeSelect) {
+            if (reproductionTypeSelect) reproductionTypeSelect.dataset.parentalTypeReady = '';
+            if (event.target === reproductionTypeSelect && reproductionTypeSelect.value === PARENTAL_TYPE && rowModeSelect) {
+                rowModeSelect.value = 'parental_investment';
+                rowModeSelect.dispatchEvent(new Event('change', { bubbles: true }));
+                return;
+            }
             normalizeParentalRow(row);
         }
     });
