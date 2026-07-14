@@ -1,4 +1,4 @@
-const CACHE_NAME = 'animals-app-v20260714-reproduction-preview-selection-1';
+const CACHE_NAME = 'animals-app-v20260715-info-dim-mega-tabs-v11';
 
 const ASSETS_TO_CACHE = [
   './',
@@ -40,6 +40,11 @@ const ASSETS_TO_CACHE = [
   './js/communication-visuals.js',
   './js/communication-type-popup.js',
   './js/distance-filter.js',
+  './js/perception-visuals.js',
+  './js/perception-type-popup.js',
+  './js/social-type-popup.js',
+  './animal-page/animal-page.js',
+  './animal-page/animal-page.css',
 
   './form/form.html',
   './form/form.css',
@@ -173,7 +178,7 @@ self.addEventListener('fetch', (event) => {
   }
 
   event.respondWith(
-    caches.match(event.request, { ignoreSearch: true }).then((cachedResponse) => {
+    caches.match(event.request).then((cachedResponse) => {
       const fetchPromise = fetch(event.request, { cache: 'no-store' })
         .then((response) => {
           if (response && response.status === 200) {

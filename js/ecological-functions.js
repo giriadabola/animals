@@ -101,7 +101,9 @@ export function getEcologicalFunctionSvg(key = 'funcao-ecologica') {
         especie_chave: makeSvg('<circle cx="28" cy="36" r="10"/><path d="M38 36h18"/><path d="M56 36v10"/><path d="M48 46h16"/><path d="M28 46v12"/><path d="M22 58h12"/>'),
         especie_invasora: makeSvg('<circle cx="40" cy="40" r="20"/><path d="M24 56l32-32"/><path d="M44 24h12v12"/><path d="M20 20l10 10"/><path d="M50 50l10 10"/>'),
         migrador: makeSvg('<path d="M14 54c12-20 30-30 52-30"/><path d="M53 16l13 8l-13 8"/><path d="M20 62h24"/><path d="M32 50l12 12l-12 12"/>'),
-        navegador_orientador: makeSvg('<circle cx="40" cy="40" r="22"/><path d="M40 18v8"/><path d="M40 54v8"/><path d="M18 40h8"/><path d="M54 40h8"/><path d="M30 50l8-20l12 12l-20 8Z"/>'),
+        bioerosao: makeSvg('<path d="M16 58h48"/><path d="M18 58c4-12 11-21 22-27c11-6 20-5 24 2c-8 2-14 7-17 15c-6-2-12 1-17 10Z"/><path d="M23 48c7 2 14 2 21-2"/><circle cx="58" cy="25" r="3"/><circle cx="65" cy="34" r="2"/><path d="M54 18l5 5"/>'),
+        controlo_de_populacoes: makeSvg('<path d="M18 22h44"/><path d="M28 22v12"/><path d="M52 22v12"/><circle cx="28" cy="42" r="9"/><circle cx="52" cy="42" r="9"/><circle cx="40" cy="60" r="8"/><path d="M40 34v18"/><path d="M32 43h16"/>'),
+        navegador_orientador: makeSvg('<path d="M18 22l15-5l14 5l15-5v41l-15 5l-14-5l-15 5V22Z"/><path d="M33 17v41M47 22v41"/><path d="M25 46c7-5 10-10 14-16c3-5 7-7 13-6"/><path d="M52 20l2 8l-8-2"/>'),
         construtor_de_bioma: makeSvg('<path d="M18 58h44"/><path d="M24 58V36l16-12l16 12v22"/><path d="M34 58V44h12v14"/><path d="M24 36l-6-6"/><path d="M56 36l6-6"/>')
     };
 

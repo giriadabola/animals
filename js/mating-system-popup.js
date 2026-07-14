@@ -3,7 +3,7 @@ import {
     matingSystemDescriptions,
     getMatingMeta,
     getMatingSystemSvg
-} from './mating-systems.js?v=2';
+} from './mating-systems.js?v=3';
 
 const matingCatalog = [...matingSystems].sort((a, b) => a.localeCompare(b, 'pt-PT', { sensitivity: 'base' }));
 const normalizeMatingSystem = (value = '') => String(value).trim().toLocaleLowerCase('pt-PT').normalize('NFD').replace(/[\u0300-\u036f]/g, '');

@@ -3,12 +3,12 @@ import { db, auth } from "../js/firebase-config.js?v=5";
         import { feedingTypes, feedingTypeDescriptions, getFeedingVisualMeta, getFeedingModelSvg } from "../js/feeding-visuals.js";
         import { feedingAnimalOptions } from "../js/feeding-animal-options.js?v=2";
         import { getFeedingStrategyMeta, getFeedingStrategySvg } from "../js/feeding-strategies.js";
-        import { matingSystems, getMatingMeta, getMatingSystemSvg } from "../js/mating-systems.js";
+        import { matingSystems, getMatingMeta, getMatingSystemSvg } from "../js/mating-systems.js?v=3";
         import { generalVisualOptions as generalVisualCatalogOptions, generalVisualUnits as generalVisualCatalogUnits, getGeneralVisualMeta as getGeneralVisualCatalogMeta, getGeneralVisualOption as getGeneralVisualCatalogOption, getGeneralVisualSelectConfig, getGeneralVisualSelectOptions, getGeneralModelSvg as getGeneralCatalogModelSvg, getActivityMeta, getActivitySvg, getSocialMeta, getSocialSvg, getEcologicalFunctionMeta, getEcologicalFunctionSvg, getLocomotionMeta, getLocomotionSvg, isDropdownOnlyGeneralModel as isGeneralVisualCatalogDropdownOnly } from "../js/general-visual-catalog.js";
         import { GENDER_BOTH, collapseCombinedGenderItems, expandCombinedGenderItems, getGenderUi, getNextGenderValue, normalizeGenderValue } from "../js/gender-utils.js?v=2";
         import { getEcologyVisualMeta as getSharedEcologyVisualMeta, getEcologyModelSvg as getSharedEcologyModelSvg } from "../js/ecology-visuals.js?v=2";
 
-const FORM_JS_VERSION = '49_reproduction_preview_selection';
+const FORM_JS_VERSION = '50_social_habits_fields';
 
 const FORM_MODULE_FILES = [
     './modules/form-dropdown-polish.js',

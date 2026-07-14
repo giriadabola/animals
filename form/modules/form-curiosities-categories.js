@@ -25,7 +25,6 @@
             if (type === 'Estado de Conservação') {
                 return Object.entries(curiosidadesStatusMeta).map(([code, meta]) => ({ value: code, label: `${meta.name} (${code})` }));
             }
-            if (type === 'Tipo de Comunicação') return Object.keys(curiosidadesCommunicationDescriptions).sort((a, b) => a.localeCompare(b));
             if (type === 'Relação com Humanos') return curiosidadesHumanRelationOptions;
             if (type === 'Importância económica para os humanos') return ['Negativo', 'Positivo', 'Negativo/Positivo', 'Neutro'];
             if (type === 'Tendência populacional') return ['A aumentar', 'Estável', 'A diminuir', 'Desconhecida'];
@@ -320,7 +319,7 @@
                     const item = {
                         tipo,
                         valor,
-                        descricao: tipo === 'Tipo de Comunicação' ? (curiosidadesCommunicationDescriptions[valor] || '') : '',
+                        descricao: '',
                         genero: normalizeGenderValue(row.querySelector('.curiosidade-gender-toggle')?.dataset.value, GENDER_BOTH),
                         fase: row.querySelector('.curiosidade-fase-toggle')?.dataset.value || 'Adulto'
                     };
@@ -366,13 +365,14 @@
             if (Array.isArray(curiosidades?.detalhes) && curiosidades.detalhes.length) {
                 return collapseCombinedGenderItems(curiosidades.detalhes)
                     .filter(item => normalizeSearchText(item?.tipo || '') !== 'cor do animal')
+                    .filter(item => normalizeSearchText(item?.tipo || '') !== 'tipo de comunicacao')
                     .map(item => ({
                         tipo: item.tipo || '',
                         valor: item.valor || '',
                         valorMin: item.valorMin || '',
                         valorMax: item.valorMax || '',
                         unidade: item.unidade || (item.tipo === 'Temperatura do Ambiente' ? '°C' : getCuriosidadeDefaultMetricUnit(item.tipo || '')),
-                        descricao: item.descricao || (item.tipo === 'Tipo de Comunicação' ? (curiosidadesCommunicationDescriptions[item.valor] || '') : ''),
+                        descricao: item.descricao || '',
                         genero: item.genero || GENDER_BOTH,
                         fase: item.fase || 'Adulto'
                     }));
@@ -385,13 +385,6 @@
                     .forEach(value => legacyItems.push({ tipo: 'Também conhecido como', valor: value, genero: GENDER_BOTH, fase: 'Adulto' }));
             }
             if (curiosidades?.estadoConservacao) legacyItems.push({ tipo: 'Estado de Conservação', valor: curiosidades.estadoConservacao, genero: GENDER_BOTH, fase: 'Adulto' });
-            if (curiosidades?.tipoComunicacao) legacyItems.push({
-                tipo: 'Tipo de Comunicação',
-                valor: curiosidades.tipoComunicacao,
-                descricao: curiosidades.tipoComunicacaoDescricao || curiosidadesCommunicationDescriptions[curiosidades.tipoComunicacao] || '',
-                genero: GENDER_BOTH,
-                fase: 'Adulto'
-            });
             if (curiosidades?.temperaturaAmbiente) {
                 const parsed = parseCuriosidadeTemperature({ valor: curiosidades.temperaturaAmbiente });
                 legacyItems.push({ tipo: 'Temperatura do Ambiente', valor: curiosidades.temperaturaAmbiente, valorMin: parsed.min, valorMax: parsed.max, unidade: '°C', genero: GENDER_BOTH, fase: 'Adulto' });
@@ -440,7 +433,7 @@
             const preferred = items.find(item => item.tipo === type && item.genero === GENDER_BOTH && item.fase === 'Adulto');
             const selected = preferred || items.find(item => item.tipo === type);
             if (!selected) return '';
-            return selected.descricao || (type === 'Tipo de Comunicação' ? (curiosidadesCommunicationDescriptions[selected.valor] || '') : '');
+            return selected.descricao || '';
         }
 
         function renderCuriosidadeMeta(item) {
@@ -502,19 +495,6 @@
                         <div class="curiosidades-preview-info">
                             <span class="preview-label">Cor do Animal</span>
                             <strong style="font-size: 1.05rem; font-weight: 700; color: var(--text-primary);">${item.valor}</strong>
-                            ${renderCuriosidadeMeta(item)}
-                        </div>
-                    </div>`;
-            }
-
-            if (item.tipo === 'Tipo de Comunicação') {
-                return `
-                    <div class="curiosidades-preview-item communication-preview-item">
-                        <div class="communication-preview-icon"><i class="fa-solid fa-comments"></i></div>
-                        <div class="curiosidades-preview-info">
-                            <span class="preview-label">Tipo de Comunicação</span>
-                            <strong style="font-size: 1.05rem; font-weight: 700; color: var(--text-primary);">${item.valor}</strong>
-                            <div class="communication-preview-desc">A descrição fica guardada para a página do animal.</div>
                             ${renderCuriosidadeMeta(item)}
                         </div>
                     </div>`;
@@ -724,7 +704,6 @@
             'Relação com Humanos',
             'Também conhecido como',
             'Temperatura do Ambiente',
-            'Tipo de Comunicação',
             'Periculosidade',
             'Tipo de toxina',
             'Via de administração da toxina',

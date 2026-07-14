@@ -1,4 +1,4 @@
-import { ecologicalFunctionCatalog, getEcologicalFunctionMeta, getEcologicalFunctionSvg } from "./ecological-functions.js";
+import { ecologicalFunctionCatalog, getEcologicalFunctionMeta, getEcologicalFunctionSvg } from "./ecological-functions.js?v=20260714_ecology_models";
 
 export const ecologyBlockConfigs = [
     {

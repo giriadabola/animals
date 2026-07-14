@@ -3,6 +3,17 @@
             return getGeneralVisualCatalogOption(type);
         }
 
+        const GENERAL_MODEL_ALIASES = new Map([
+            ['vida social', 'Vida social'],
+            ['composicao do grupo social', 'Composição do grupo'],
+            ['tipo de comunicacao', 'Tipo de Comunicação']
+        ]);
+
+        function getCanonicalGeneralModelType(type = '') {
+            const normalized = normalizeSearchText(type);
+            return GENERAL_MODEL_ALIASES.get(normalized) || type;
+        }
+
         const ecologyFunctionLabel = 'Função ecológica';
         function isEcologyFunctionType(type = '') {
             const normalized = normalizeSearchText(type);
@@ -30,7 +41,7 @@
             { tipo: 'Primeira vocalização', unidade: 'meses' },
             { tipo: 'Maturidade física', unidade: 'meses' },
             { tipo: 'Tamanho do grupo social', unidade: 'centenas' },
-            { tipo: 'Composição do grupo social', unidade: 'machos adultos' },
+            { tipo: 'Composição do grupo', unidade: '' },
             { tipo: 'Tamanho do território', unidade: 'km²' },
             { tipo: 'Taxa de sucesso da caça', unidade: 'caça individual' },
             { tipo: 'Taxa de mortalidade', unidade: 'mortalidade adulta' },
@@ -57,6 +68,10 @@
             { tipo: 'Tempo de recuperação entre mergulhos', unidade: 'minutos' },
             { tipo: 'Frequência de mergulho', unidade: 'mergulhos/hora' },
             { tipo: 'Organização social', unidade: '' },
+            { tipo: 'Vida social', unidade: '' },
+            { tipo: 'Liderança e hierarquia', unidade: '' },
+            { tipo: 'Parentesco e linhagem social', unidade: '' },
+            { tipo: 'Tipo de Comunicação', unidade: '' },
             { tipo: 'Construção de local de repouso', unidade: '' },
             { tipo: 'Autoinfeção', unidade: '' },
             { tipo: 'Tipo de perceção', unidade: '' },
@@ -158,7 +173,19 @@
                 key: 'habitos',
                 title: 'Hábitos',
                 icon: 'fa-arrows-spin',
-                models: ['Atividade', 'Comportamento sazonal', 'Locomoção', 'Vida Social', 'Composição do grupo social', 'Organização social', 'Construção de local de repouso', 'Autoinfeção']
+                models: [
+                    'Atividade',
+                    'Autoinfeção',
+                    'Comportamento sazonal',
+                    'Composição do grupo',
+                    'Construção de local de repouso',
+                    'Liderança e hierarquia',
+                    'Locomoção',
+                    'Organização social',
+                    'Parentesco e linhagem social',
+                    'Tipo de Comunicação',
+                    'Vida social'
+                ]
             },
             {
                 key: 'anatomia',
@@ -286,7 +313,53 @@
         }
 
         const CUSTOM_GENERAL_SELECT_OPTIONS = {
-            'Organização social': ['Harém','Colónia','Eusocial','Subsocial','Comunal','Solitário gregário','Grupos de forrageamento','Grupo materno','Hierarquia de dominância','Reprodução cooperativa'],
+            'Organização social': [
+                'Solitário', 'Casal', 'Grupo familiar', 'Família nuclear', 'Família alargada',
+                'Grupo materno', 'Grupo de maternidade', 'Grupo de crias / berçário',
+                'Grupo de forrageamento', 'Grupo de solteiros', 'Grupo de machos', 'Grupo de fêmeas',
+                'Grupo unissexual', 'Grupo misto', 'Alcateia', 'Matilha', 'Manada', 'Bando', 'Cardume',
+                'Enxame', 'Colónia', 'Colónia reprodutiva', 'Supercolónia', 'Comunal', 'Clã',
+                'Comunidade', 'Harém', 'Sociedade de fissão-fusão', 'Sociedade multinível',
+                'Agregação temporária', 'Dormitório comunal', 'Nidificação comunal',
+                'Grupo de reprodução cooperativa'
+            ],
+            'Vida social': [
+                'Solitário', 'Solitário mas social', 'Subsocial', 'Comunal', 'Quasisocial', 'Semissocial',
+                'Parasocial', 'Eusocial', 'Eusocial primitivo', 'Eusocial avançado', 'Gregário', 'Social',
+                'Altamente social', 'Cooperativo', 'Comunitário', 'Familiar', 'Territorial', 'Tolerante',
+                'Agregado', 'Facultativamente social', 'Obrigatoriamente social'
+            ],
+            'Liderança e hierarquia': [
+                'Sem hierarquia definida', 'Hierárquica', 'Hierarquia de dominância', 'Hierarquia linear',
+                'Hierarquia não linear', 'Hierarquia despótica', 'Hierarquia tolerante',
+                'Hierarquia igualitária', 'Hierarquia por idade', 'Hierarquia por tamanho', 'Matriarcal',
+                'Patriarcal', 'Liderança partilhada', 'Liderança temporária', 'Liderança por experiência',
+                'Liderança por reprodução'
+            ],
+            'Parentesco e linhagem social': [
+                'Matrilinear', 'Patrilinear', 'Bilinear', 'Bilateral', 'Matrilocal', 'Patrilocal',
+                'Filopatria feminina', 'Filopatria masculina', 'Dispersão feminina', 'Dispersão masculina',
+                'Grupo de aparentados', 'Grupo de não aparentados', 'Grupo de parentesco misto',
+                'Sem parentesco predominante'
+            ],
+            'Composição do grupo': [
+                'Unimacho–unifêmea', 'Unimacho–multifêmea', 'Multimacho–unifêmea', 'Multimacho–multifêmea',
+                'Multifêmea', 'Multimacho', 'Grupo misto', 'Grupo unissexual', 'Fêmea e crias',
+                'Macho e crias', 'Casal e crias', 'Várias gerações', 'Juvenis apenas', 'Adultos apenas',
+                'Idades mistas', 'Unidade de um macho', 'Unidade de várias fêmeas', 'Unidade familiar',
+                'Unidade reprodutora', 'Unidade não reprodutora'
+            ],
+            'Tipo de Comunicação': [
+                'Vocalizações', 'Sons emitidos', 'Frequência dos sons', 'Intensidade vocal',
+                'Comunicação visual', 'Linguagem corporal', 'Sinais de cor', 'Comunicação química / olfativa',
+                'Marcação de território', 'Comunicação tátil', 'Grooming social', 'Comunicação vibratória',
+                'Comunicação sísmica', 'Comunicação elétrica', 'Bioluminescência comunicativa',
+                'Comunicação acústica não vocal', 'Chamadas de alarme', 'Chamadas de contacto',
+                'Chamadas de acasalamento', 'Sinais de ameaça', 'Sinais de submissão', 'Sinais parentais',
+                'Comunicação social', 'Comunicação territorial', 'Comunicação de cortejo',
+                'Comunicação defensiva', 'Comunicação multimodal', 'Distância da comunicação',
+                'Contexto da comunicação', 'Complexidade comunicativa'
+            ],
             'Construção de local de repouso': ['Escava depressão para repousar','Usa toca abandonada','Constrói toca','Usa cavidade em árvore','Abriga-se sob folhas','Abriga-se em cavernas'],
             'Autoinfeção': ['Ausente','Autoinfeção externa','Autoinfeção interna','Reinfeção'],
             'Tipo de perceção': ['Visual','Tátil','Química','Olfativa','Acústica','Ultravioleta','Elétrica / eletroreceção','Vibrações','Eco-localização','Pressão da água','Temperatura','Magnetorreceção'],
@@ -417,7 +490,8 @@
         }
 
         function isSocialGroupCompositionGeneralModel(type = '') {
-            return normalizeSearchText(type).includes('composicao do grupo social');
+            const normalized = normalizeSearchText(type);
+            return normalized.includes('composicao do grupo social') || normalized === 'composicao do grupo';
         }
 
         function isTerritorySizeGeneralModel(type = '') {
@@ -616,14 +690,20 @@
                 const isSeasonal = isSeasonalBehaviorGeneralModel(selectedType);
                 const isAnatomicalStructure = isMixedDropdownRangeGeneralModel(selectedType);
                 const config = isSeasonal ? { placeholder: 'Escolhe o comportamento sazonal' } : getGeneralVisualSelectConfig(selectedType);
-                const options = isSeasonal
+                const options = (isSeasonal
                     ? getSeasonalBehaviorOptions()
                     : isAnatomicalStructure
                         ? getAnatomicalStructureOptions(selectedType)
-                        : [...(getCustomGeneralSelectOptions(selectedType).length ? getCustomGeneralSelectOptions(selectedType) : getGeneralVisualSelectOptions(selectedType))].sort((a, b) => a.localeCompare(b));
+                        : [...(getCustomGeneralSelectOptions(selectedType).length ? getCustomGeneralSelectOptions(selectedType) : getGeneralVisualSelectOptions(selectedType))])
+                    .sort((a, b) => a.localeCompare(b, 'pt-PT', { sensitivity: 'base' }));
                 const placeholder = isAnatomicalStructure ? 'Escolhe uma estrutura' : (config?.placeholder || 'Escolhe uma opção');
+                const selectedDropdownValue = minValue || optionValue;
+                const hasSelectedDropdownValue = options.some(option => option === selectedDropdownValue);
                 strategySelect.innerHTML = `<option value="">${placeholder}</option>` +
-                    options.map(option => `<option value="${option}">${option}</option>`).join('');
+                    options.map(option => `<option value="${option}">${option}</option>`).join('') +
+                    (selectedDropdownValue && !hasSelectedDropdownValue
+                        ? `<option value="${selectedDropdownValue}">${selectedDropdownValue}</option>`
+                        : '');
             }
             populateDropdownSelect(type);
             if (isDropdownOnlyGeneralModel(type) || isMixedDropdownRangeGeneralModel(type)) {
@@ -743,6 +823,12 @@
                 .filter(item => item.tipo && (item.opcao || item.valorMin || item.valorMax || item.valor));
         }
 
+        function getPreferredGeneralVisualValue(items = [], type = '') {
+            const canonicalType = getCanonicalGeneralModelType(type);
+            const selected = items.find(item => getCanonicalGeneralModelType(item?.tipo || '') === canonicalType);
+            return selected?.valor || selected?.valorMin || selected?.opcao || '';
+        }
+
         function getDefaultGeneralVisualOptions() {
             const hiddenByDefault = new Set([
                 'Velocidade média',
@@ -801,7 +887,8 @@
 
         function setGeneralVisualData(items = []) {
             buildGeneralVisualSections();
-            const normalizedItems = collapseCombinedGenderItems(filterLegacyGeneralMatingItems(items));
+            const normalizedItems = collapseCombinedGenderItems(filterLegacyGeneralMatingItems(items))
+                .map(item => ({ ...item, tipo: getCanonicalGeneralModelType(item.tipo || '') }));
             if (!Array.isArray(normalizedItems) || normalizedItems.length === 0) {
                 GENERAL_VISUAL_SECTIONS.forEach(section => {
                     section.models.forEach(type => {
@@ -1063,4 +1150,3 @@
         }
 
         // --- ALIMENTAÇÃO E MODELO VISUAL ---
-

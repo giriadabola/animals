@@ -3,10 +3,10 @@ import { db } from "../js/firebase-config.js?v=5";
         import { feedingTypeDescriptions, getFeedingVisualMeta, getFeedingModelSvg } from "../js/feeding-visuals.js";
         import { feedingAnimalOptions } from "../js/feeding-animal-options.js?v=2";
         import { feedingStrategyDescriptions, getFeedingStrategyMeta, getFeedingStrategySvg } from "../js/feeding-strategies.js";
-        import { matingSystems, getMatingMeta, getMatingSystemSvg } from "../js/mating-systems.js?v=2";
+        import { matingSystems, getMatingMeta, getMatingSystemSvg } from "../js/mating-systems.js?v=3";
         import { sexualSystems } from "../js/sexual-systems.js?v=1";
-        import { ecologyBlockConfigs, getEcologyBlockSvg } from "../js/ecology-visuals.js?v=1";
-        import { getGeneralVisualMeta as getGeneralVisualCatalogMeta, getGeneralModelSvg as getGeneralCatalogModelSvg, getActivityMeta, getActivitySvg, getSocialMeta, getSocialSvg, getEcologicalFunctionMeta, getEcologicalFunctionSvg, getLocomotionMeta, getLocomotionSvg, isDropdownOnlyGeneralModel as isDropdownOnlyGeneralCatalogModel } from "../js/general-visual-catalog.js";
+        import { ecologyBlockConfigs, getEcologyBlockSvg } from "../js/ecology-visuals.js?v=20260714_ecology_models";
+        import { getGeneralVisualMeta as getGeneralVisualCatalogMeta, getGeneralModelSvg as getGeneralCatalogModelSvg, getActivityMeta, getActivitySvg, getSocialMeta, getSocialSvg, getEcologicalFunctionMeta, getEcologicalFunctionSvg, getLocomotionMeta, getLocomotionSvg, isDropdownOnlyGeneralModel as isDropdownOnlyGeneralCatalogModel } from "../js/general-visual-catalog.js?v=20260714_ecology_models";
         import { collapseCombinedGenderItems, collectConcreteGenders, genderMatchesSelection, normalizeGenderValue } from "../js/gender-utils.js?v=2";
         import { renderAnimalMediaBlock, initAnimalMediaBlock, initFooterAnatomyTabs } from "../js/animal-media-block.js?v=3";
         import { renderAnimalAudioThumbnail, initAnimalAudioControls, pauseAllAnimalAudio } from "../js/animal-audio.js?v=20260710_audio_4";
@@ -14,12 +14,16 @@ import { db } from "../js/firebase-config.js?v=5";
 import { POPULATION_RANKING_KEY } from "../js/ranking-metrics.js?v=1";
 import { getConservationStatusMeta, initConservationStatusPopup } from "../js/conservation-status-popup.js?v=1";
 import { initFeedingTypePopup } from "../js/feeding-type-popup.js?v=2";
+import { initPerceptionTypePopup } from "../js/perception-type-popup.js?v=1";
+import { initSocialTypePopup } from "../js/social-type-popup.js?v=1";
+import { initFeedingStrategyPopup } from "../js/feeding-strategy-popup.js?v=20260714_strategy_popup_layout";
 import { initEcologicalFunctionPopup } from "../js/ecological-function-popup.js?v=2";
-import { initMatingSystemPopup } from "../js/mating-system-popup.js?v=1";
+import { initMatingSystemPopup } from "../js/mating-system-popup.js?v=2";
 import { initSexualSystemPopup } from "../js/sexual-system-popup.js?v=1";
 import { initBiogeographicRegionPopup } from "../js/biogeographic-regions-popup.js?v=1";
 import { getCommunicationGenericModelSvg } from "../js/communication-visuals.js?v=2";
 import { initCommunicationTypePopup } from "../js/communication-type-popup.js?v=1";
+import { initEcologyRelationsPopup } from "../js/ecology-relations-popup.js?v=1";
         
         const mainContent = document.getElementById('main-content-area');
 
@@ -76,6 +80,7 @@ import { initCommunicationTypePopup } from "../js/communication-type-popup.js?v=
                 alimentacao: `<svg class="section-title-icon" viewBox="0 0 64 64" fill="none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><path d="M21 8v20"/><path d="M13 8v17c0 6 4 10 8 10s8-4 8-10V8"/><path d="M21 35v21"/><path d="M44 8c6 7 8 15 8 24c0 8-3 14-8 17v7"/><path d="M44 8v48"/></svg>`,
                 reproducao: `<svg class="section-title-icon" viewBox="0 0 64 64" fill="none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><path d="M32 8c12 10 19 20 19 32c0 10-8 17-19 17s-19-7-19-17C13 28 20 18 32 8Z"/><circle cx="32" cy="39" r="9"/><path d="M32 30v-8"/></svg>`,
                 plumagem: `<svg class="section-title-icon" viewBox="0 0 64 64" fill="none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><path d="M42 6L14 34c-4 4-4 10 0 14s10 4 14 0l28-28c4-4 4-10 0-14s-10-4-14 0Z"/><path d="M28 20l12 12"/><path d="M18 30l10 10"/><path d="M38 10l12 12"/><path d="M14 50l-8 8"/></svg>`,
+                ecologia: `<svg class="section-title-icon" viewBox="0 0 64 64" fill="none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><circle cx="22" cy="23" r="5" fill="currentColor"/><circle cx="32" cy="18" r="5" fill="currentColor"/><circle cx="42" cy="23" r="5" fill="currentColor"/><path d="M32 53c-9 0-16-5-16-12c0-5 3-9 8-9c3 0 5 1 8 4c3-3 5-4 8-4c5 0 8 4 8 9c0 7-7 12-16 12Z" fill="currentColor"/></svg>`,
                 distribuicao: `<svg class="section-title-icon" viewBox="0 0 64 64" fill="none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><circle cx="32" cy="32" r="24" stroke="currentColor" stroke-width="4"/><path d="M10 32h44M32 8v48M14 20h36M14 44h36M22 8c4 8 4 40 0 48M42 8c-4 8-4 40 0 48" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>`,
                 curiosidades: `<svg class="section-title-icon" viewBox="0 0 64 64" fill="none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><path d="M32 10C21 10 16 18 16 26c0 7 4 12 7 15c2 2 3 5 3 8h12c0-3 1-6 3-8c3-3 7-8 7-15c0-8-5-16-16-16Z" stroke="currentColor" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/><path d="M26 55h12M28 60h8" stroke="currentColor" stroke-width="4" stroke-linecap="round"/></svg>`
             };
@@ -318,12 +323,45 @@ import { initCommunicationTypePopup } from "../js/communication-type-popup.js?v=
                 </article>`;
         }
 
+        function getInitialVisualItemVisibility(item, filterContext = {}) {
+            const genders = filterContext.genders || new Set();
+            const phases = filterContext.phases || new Set();
+            const hasBothGenders = genders.has('M') && genders.has('F');
+            const hasCriaPhase = phases.has('Cria');
+            const defaultGender = genders.has('M') ? 'M' : 'F';
+            const itemGender = item.genero || '';
+            const itemPhase = item.fase || 'Adulto';
+
+            return (!hasBothGenders || genderMatchesSelection(itemGender, defaultGender)) &&
+                (!hasCriaPhase || itemPhase === 'Adulto');
+        }
+
+        function renderDimensionModelGroup(items, filterContext = {}) {
+            const firstItem = items[0];
+            const meta = getDimensionVisualMeta(firstItem.tipo);
+            const visible = items.some(item => getInitialVisualItemVisibility(item, filterContext));
+            const rows = items.map(item => `
+                <div class="general-model-value-row" data-gender="${escapeHtml(item.genero || '')}" data-phase="${escapeHtml(item.fase || 'Adulto')}" data-info-group="dimensoes"${getInitialVisualItemVisibility(item, filterContext) ? '' : ' style="display: none;"'}>
+                    ${renderInlineGenderSymbol(item)}${formatDimension(item, '—')}
+                </div>`).join('');
+
+            return `
+                <article class="dimension-model-card visual-model-group-card ${meta.accent}" data-info-group="dimensoes"${visible ? '' : ' style="display: none;"'}>
+                    <div class="dimension-model-icon">${getMetricModelSvg(meta.key)}</div>
+                    <div class="dimension-model-copy">
+                        <div class="dimension-model-label">${escapeHtml(meta.title)}</div>
+                        <div class="general-model-values">${rows}</div>
+                    </div>
+                </article>`;
+        }
+
         function getInfoGroupForGeneralType(type = '') {
             const normalized = String(type || '').trim();
             
             const estiloVidaModels = new Set([
-                'Atividade', 'Comportamento sazonal', 'Locomoção', 'Vida Social', 
-                'Composição do grupo social', 'Organização social', 
+                'Atividade', 'Comportamento sazonal', 'Locomoção', 'Vida social', 'Vida Social',
+                'Composição do grupo social', 'Composição do grupo', 'Organização social',
+                'Liderança e hierarquia', 'Parentesco e linhagem social', 'Tipo de Comunicação',
                 'Construção de local de repouso', 'Autoinfeção'
             ]);
             
@@ -375,7 +413,6 @@ import { initCommunicationTypePopup } from "../js/communication-type-popup.js?v=
             const icons = {
                 'estilo-vida': `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 14c1.2-2.6 3.5-4 6.8-4h1.4c3.3 0 5.6 1.4 6.8 4"/><circle cx="8" cy="8" r="1.5"/><circle cx="12" cy="6.5" r="1.5"/><circle cx="16" cy="8" r="1.5"/><path d="M9 17.5c.9 1 1.9 1.5 3 1.5s2.1-.5 3-1.5"/></svg>`,
                 medidas: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 16h16"/><path d="M7 16V8"/><path d="M12 16V5"/><path d="M17 16v-6"/><path d="M4 20h16"/></svg>`,
-                dimensoes: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 9V5h4"/><path d="M19 15v4h-4"/><path d="M19 9V5h-4"/><path d="M5 15v4h4"/><path d="M7 17L17 7"/></svg>`,
                 anatomia: `<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="6" r="2.5"/><path d="M6 18l12-12" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><circle cx="8" cy="20" r="2.5"/><circle cx="20" cy="8" r="2.5"/></svg>`,
                 fisiologia: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>`,
                 desenvolvimento: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17 8a4 4 0 0 0-4 4v9h2v-9a2 2 0 0 1 2-2h2V8h-2zM7 12a4 4 0 0 0-4 4v5h2v-5a2 2 0 0 1 2-2h2v-2H7zM11 2v20h2V2h-2z"/></svg>`,
@@ -385,14 +422,7 @@ import { initCommunicationTypePopup } from "../js/communication-type-popup.js?v=
         }
 
         function getInfoGroupFiltersHTML(allItems = []) {
-            const activeGroups = new Set();
-            allItems.forEach(item => {
-                const group = item.isDimension
-                    ? 'dimensoes' 
-                    : getInfoGroupForGeneralType(item.tipo);
-                activeGroups.add(group);
-            });
-
+            const activeGroups = new Set(allItems.map(item => item.isDimension ? 'dimensoes' : getInfoGroupForGeneralType(item.tipo)));
             const groups = [
                 { key: 'estilo-vida', label: 'Estilo de Vida' },
                 { key: 'medidas', label: 'Medidas' },
@@ -401,9 +431,9 @@ import { initCommunicationTypePopup } from "../js/communication-type-popup.js?v=
                 { key: 'fisiologia', label: 'Fisiologia' },
                 { key: 'desenvolvimento', label: 'Desenvolvimento' },
                 { key: 'estruturas-anatomicas', label: 'Estruturas anatómicas' }
-            ].filter(g => activeGroups.has(g.key));
+            ].filter(group => activeGroups.has(group.key));
 
-            if (groups.length <= 1) return '';
+            if (groups.length <= 1 && !activeGroups.has('dimensoes')) return '';
 
             return `
                 <div class="info-group-filters" aria-label="Filtrar informações gerais">
@@ -551,6 +581,9 @@ import { initCommunicationTypePopup } from "../js/communication-type-popup.js?v=
             if (normalized.includes('amament')) {
                 return { key: 'amamentacao', title: type || 'Tempo de Amamentação', accent: 'accent-life' };
             }
+            if (normalized.includes('tipo de perce')) {
+                return { key: 'tipo-percecao', title: type || 'Tipo de perceção', accent: 'accent-eye' };
+            }
             return getGeneralVisualCatalogMeta(type);
         }
 
@@ -625,11 +658,164 @@ import { initCommunicationTypePopup } from "../js/communication-type-popup.js?v=
                 .filter(item => item.detalhe);
         }
 
+        function getGeneralVisualCardPresentation(item) {
+            const meta = getGeneralVisualMeta(item.tipo);
+            const normalizedType = normalizeDimensionKey(item.tipo);
+            const value = item.valorMin || item.valor || '';
+            const strategyMeta = normalizedType.includes('estrategia') ? getFeedingStrategyMeta(value) : null;
+            const activityMeta = normalizedType.includes('atividade') ? getActivityMeta(value) : null;
+            const socialMeta = normalizedType.includes('vida social') ? getSocialMeta(value) : null;
+            const ecologicalMeta = normalizedType.includes('funcao ecologica') ? getEcologicalFunctionMeta(value) : null;
+            const locomotionMeta = normalizedType.includes('locomocao') ? getLocomotionMeta(value) : null;
+            const climateMeta = normalizedType.includes('zona') ? getClimateZoneMeta(value) : null;
+            const biomaMeta = normalizedType.includes('bioma') ? getBiomaMeta(value) : null;
+            const icon = climateMeta
+                ? `<img class="climate-zone-model-image" src="${climateMeta.image}" alt="Zona climatica ${escapeHtml(value)}" loading="lazy">`
+                : biomaMeta
+                    ? `<img class="climate-zone-model-image" src="${biomaMeta.image}" alt="Bioma ${escapeHtml(value)}" loading="lazy">`
+                    : ecologicalMeta
+                        ? getEcologicalFunctionSvg(ecologicalMeta.key)
+                    : locomotionMeta
+                        ? getLocomotionSvg(locomotionMeta.key)
+                    : strategyMeta
+                        ? getFeedingStrategySvg(strategyMeta.key)
+                        : activityMeta
+                            ? getActivitySvg(activityMeta.key)
+                            : socialMeta
+                                ? getSocialSvg(socialMeta.key)
+                            : getGeneralModelSvg(meta.key);
+
+            return {
+                meta,
+                icon,
+                accent: climateMeta?.accent || biomaMeta?.accent || ecologicalMeta?.accent || locomotionMeta?.accent || strategyMeta?.accent || activityMeta?.accent || socialMeta?.accent || meta.accent,
+                climateMeta,
+                biomaMeta
+            };
+        }
+
+        function isPerceptionTypeModel(type = '') {
+            const normalized = normalizeDimensionKey(type);
+            return normalized.includes('tipo de perce');
+        }
+
+        function getPerceptionTypesFromItems(items = []) {
+            return [...new Set(items
+                .map(item => item.valorMin || item.valor || item.opcao || '')
+                .map(value => String(value).trim())
+                .filter(Boolean))];
+        }
+
+        function renderPerceptionTypeCard(items, filterContext = {}) {
+            const firstItem = items[0];
+            const meta = getGeneralVisualMeta(firstItem.tipo);
+            const infoGroup = getInfoGroupForGeneralType(firstItem.tipo);
+            const visible = items.some(item => getInitialVisualItemVisibility(item, filterContext));
+            const selectedTypes = getPerceptionTypesFromItems(items);
+            const rows = items.map(item => {
+                const inlineGenderSymbol = renderInlineGenderSymbol(item);
+                const value = item.valorMin || item.valor || item.opcao || '—';
+                const isVisible = getInitialVisualItemVisibility(item, filterContext);
+                return `
+                    <div class="general-model-value-row" data-gender="${escapeHtml(item.genero || '')}" data-phase="${escapeHtml(item.fase || 'Adulto')}" data-info-group="${infoGroup}"${isVisible ? '' : ' style="display: none;"'}>
+                        ${inlineGenderSymbol}${escapeHtml(value)}
+                    </div>`;
+            }).join('');
+
+            const card = `
+                <button type="button" class="dimension-model-card general-model-card visual-model-group-card perception-type-popup-trigger ${meta.accent}" data-info-group="${infoGroup}" data-perception-type-popup data-perception-types="${escapeHtml(JSON.stringify(selectedTypes))}" aria-haspopup="dialog" aria-label="Ver os tipos de perceção e respetivos modelos visuais"${visible ? '' : ' style="display: none;"'}>
+                    <div class="dimension-model-icon">${getGeneralModelSvg(meta.key)}</div>
+                    <div class="dimension-model-copy perception-model-copy">
+                        <div class="dimension-model-label">${escapeHtml(meta.title)}</div>
+                        <div class="general-model-values">${rows}</div>
+                    </div>
+                </button>`;
+            return card;
+        }
+
+        function isSocialLifeModel(type = '') {
+            return normalizeDimensionKey(type).includes('vida social');
+        }
+
+        function getSocialTypesFromItems(items = []) {
+            return [...new Set(items
+                .map(item => item.valorMin || item.valor || item.opcao || '')
+                .map(value => String(value).trim())
+                .filter(Boolean))];
+        }
+
+        function renderSocialTypeCard(items, filterContext = {}) {
+            const firstItem = items[0];
+            const meta = getGeneralVisualMeta(firstItem.tipo);
+            const infoGroup = getInfoGroupForGeneralType(firstItem.tipo);
+            const visible = items.some(item => getInitialVisualItemVisibility(item, filterContext));
+            const selectedTypes = getSocialTypesFromItems(items);
+            const rows = items.map(item => {
+                const inlineGenderSymbol = renderInlineGenderSymbol(item);
+                const value = item.valorMin || item.valor || item.opcao || '—';
+                const isVisible = getInitialVisualItemVisibility(item, filterContext);
+                return `
+                    <div class="general-model-value-row" data-gender="${escapeHtml(item.genero || '')}" data-phase="${escapeHtml(item.fase || 'Adulto')}" data-info-group="${infoGroup}"${isVisible ? '' : ' style="display: none;"'}>
+                        ${inlineGenderSymbol}${escapeHtml(value)}
+                    </div>`;
+            }).join('');
+
+            return `
+                <button type="button" class="dimension-model-card general-model-card visual-model-group-card perception-type-popup-trigger social-type-popup-trigger ${meta.accent}" data-info-group="${infoGroup}" data-social-type-popup data-social-types="${escapeHtml(JSON.stringify(selectedTypes))}" aria-haspopup="dialog" aria-label="Ver os tipos de vida social e respetivos modelos visuais"${visible ? '' : ' style="display: none;"'}>
+                    <div class="dimension-model-icon">${getGeneralModelSvg(meta.key)}</div>
+                    <div class="dimension-model-copy perception-model-copy">
+                        <div class="dimension-model-label">${escapeHtml(meta.title)}</div>
+                        <div class="general-model-values">${rows}</div>
+                    </div>
+                </button>`;
+        }
+
+        function isCommunicationTypeModel(type = '') {
+            return normalizeDimensionKey(type) === 'tipo de comunicacao';
+        }
+
+        function getCommunicationTypesFromItems(items = []) {
+            return [...new Set(items
+                .flatMap(item => item.opcao || item.valorMin || item.valor || '')
+                .flatMap(value => String(value).split(' + '))
+                .map(value => value.trim())
+                .filter(Boolean))];
+        }
+
+        function renderCommunicationTypeCard(items, filterContext = {}) {
+            const firstItem = items[0];
+            const infoGroup = getInfoGroupForGeneralType(firstItem.tipo);
+            const visible = items.some(item => getInitialVisualItemVisibility(item, filterContext));
+            const selectedTypes = getCommunicationTypesFromItems(items);
+            const rows = items.map(item => {
+                const inlineGenderSymbol = renderInlineGenderSymbol(item);
+                const value = item.valorMin || item.valor || item.opcao || '—';
+                const isVisible = getInitialVisualItemVisibility(item, filterContext);
+                return `
+                    <div class="general-model-value-row" data-gender="${escapeHtml(item.genero || '')}" data-phase="${escapeHtml(item.fase || 'Adulto')}" data-info-group="${infoGroup}"${isVisible ? '' : ' style="display: none;"'}>
+                        ${inlineGenderSymbol}${escapeHtml(value)}
+                    </div>`;
+            }).join('');
+
+            return `
+                <button type="button" class="dimension-model-card general-model-card visual-model-group-card communication-type-popup-trigger" data-info-group="${infoGroup}" data-communication-type-popup data-communication-types="${escapeHtml(JSON.stringify(selectedTypes))}" aria-haspopup="dialog" aria-label="Ver os tipos de comunicação e respetivas explicações"${visible ? '' : ' style="display: none;"'}>
+                    <div class="dimension-model-icon">${getCommunicationGenericModelSvg()}</div>
+                    <div class="dimension-model-copy perception-model-copy">
+                        <div class="dimension-model-label">Tipo de Comunicação</div>
+                        <div class="general-model-values">${rows}</div>
+                    </div>
+                </button>`;
+        }
+
         function renderGeneralVisualCard(item) {
             const meta = getGeneralVisualMeta(item.tipo);
             const inlineGenderSymbol = renderInlineGenderSymbol(item);
             const normalizedType = normalizeDimensionKey(item.tipo);
+            if (isPerceptionTypeModel(item.tipo)) return renderPerceptionTypeCard([item]);
+            if (isSocialLifeModel(item.tipo)) return renderSocialTypeCard([item]);
+            if (isCommunicationTypeModel(item.tipo)) return renderCommunicationTypeCard([item]);
             const isStrategy = normalizedType.includes('estrategia');
+            if (isStrategy) return renderFeedingStrategyPopupCard([item]);
             const isActivity = normalizedType.includes('atividade');
             const isSocial = normalizedType.includes('vida social');
             const isEcologicalFunction = normalizedType.includes('funcao ecologica');
@@ -670,8 +856,168 @@ import { initCommunicationTypePopup } from "../js/communication-type-popup.js?v=
                 </article>`;
         }
 
+        function renderGeneralVisualGroup(items, filterContext = {}) {
+            const firstItem = items[0];
+            const presentation = getGeneralVisualCardPresentation(firstItem);
+            const infoGroup = getInfoGroupForGeneralType(firstItem.tipo);
+            const visible = items.some(item => getInitialVisualItemVisibility(item, filterContext));
+            if (isPerceptionTypeModel(firstItem.tipo)) return renderPerceptionTypeCard(items, filterContext);
+            if (isSocialLifeModel(firstItem.tipo)) return renderSocialTypeCard(items, filterContext);
+            if (isCommunicationTypeModel(firstItem.tipo)) return renderCommunicationTypeCard(items, filterContext);
+            if (normalizeDimensionKey(firstItem.tipo).includes('estrategia')) {
+                const strategyCard = renderFeedingStrategyPopupCard(items);
+                return visible
+                    ? strategyCard
+                    : strategyCard.replace(/<(article|button) class="/, '<$1 style="display: none;" class="');
+            }
+            const rows = items.map(item => {
+                const inlineGenderSymbol = renderInlineGenderSymbol(item);
+                const mixedOption = item.opcao || '';
+                const isVisible = getInitialVisualItemVisibility(item, filterContext);
+                return `
+                    <div class="general-model-value-row" data-gender="${escapeHtml(item.genero || '')}" data-phase="${escapeHtml(item.fase || 'Adulto')}" data-info-group="${infoGroup}"${isVisible ? '' : ' style="display: none;"'}>
+                        ${inlineGenderSymbol}${mixedOption ? `${escapeHtml(mixedOption)} &bull; ` : ''}${formatGeneralVisualValue(item)}
+                    </div>`;
+            }).join('');
+
+            return `
+                <article class="dimension-model-card general-model-card visual-model-group-card ${presentation.accent}" data-info-group="${infoGroup}"${visible ? '' : ' style="display: none;"'}>
+                    <div class="dimension-model-icon ${presentation.climateMeta || presentation.biomaMeta ? 'climate-zone-model-icon' : ''}">${presentation.icon}</div>
+                    <div class="dimension-model-copy">
+                        <div class="dimension-model-label">${escapeHtml(presentation.meta.title)}</div>
+                        <div class="general-model-values">${rows}</div>
+                    </div>
+                </article>`;
+        }
+
+        function groupVisualModelItems(items = []) {
+            const groups = new Map();
+            items.forEach(item => {
+                const key = `${item.isDimension ? 'dimension' : 'general'}:${normalizeDimensionKey(item.tipo)}`;
+                if (!groups.has(key)) groups.set(key, []);
+                groups.get(key).push(item);
+            });
+            return Array.from(groups.values());
+        }
+
+        function renderVisualModelCards(items = [], filterContext = {}) {
+            return groupVisualModelItems(items).map(group => {
+                if (group.length > 1) {
+                    return group[0].isDimension
+                        ? renderDimensionModelGroup(group, filterContext)
+                        : renderGeneralVisualGroup(group, filterContext);
+                }
+
+                const item = group[0];
+                const cardHtml = item.isDimension ? renderDimensionModelCard(item) : renderGeneralVisualCard(item);
+                return getInitialVisualItemVisibility(item, filterContext)
+                    ? cardHtml
+                    : cardHtml.replace(/<(article|button) class="/, '<$1 style="display: none;" class="');
+            }).join('');
+        }
+
+        function renderModelSection({ id, title, icon, items = [], filterContext = {}, mobile = false, marginTop = false, showGroupFilters = false }) {
+            if (!items.length) return '';
+
+            const sectionClass = mobile ? 'info-section mobile-only visual-models-info-section' : 'info-section-card visual-models-info-section';
+            const style = mobile
+                ? 'margin-bottom: 20px;'
+                : (marginTop ? 'margin-top: 16px;' : '');
+            const sortedItems = [...items].sort((a, b) => String(a.tipo || '').localeCompare(String(b.tipo || ''), 'pt-PT'));
+            const genderTabs = getGenderTabsHTML(items);
+            const groupFilters = showGroupFilters ? getInfoGroupFiltersHTML(items) : '';
+
+            return `
+                <div class="${sectionClass}" id="${id}"${style ? ` style="${style}"` : ''}>
+                    <h3 class="visual-models-section-heading" style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                        <span class="visual-models-section-title" style="display: flex; align-items: center;"><span class="icon svg-icon">${icon}</span>${title}</span>
+                    </h3>
+                    ${(groupFilters || genderTabs) ? `<div class="visual-models-section-controls">${groupFilters}${genderTabs}</div>` : ''}
+                    <div class="visual-models-grid" style="display: flex; flex-direction: column; gap: 14px;${mobile ? ' margin-top: 15px;' : ''}">
+                        ${renderVisualModelCards(sortedItems, filterContext)}
+                    </div>
+                </div>`;
+        }
+
+        function renderTabbedModelSection({ id, infoItems = [], dimensionItems = [], infoFilterContext = {}, dimensionFilterContext = {}, mobile = false }) {
+            if (!infoItems.length && !dimensionItems.length) return '';
+
+            const sectionClass = mobile ? 'info-section mobile-only visual-models-info-section' : 'info-section-card visual-models-info-section';
+            const style = mobile ? 'margin-bottom: 20px;' : '';
+            const infoSortedItems = [...infoItems].sort((a, b) => String(a.tipo || '').localeCompare(String(b.tipo || ''), 'pt-PT'));
+            const dimensionSortedItems = [...dimensionItems].sort((a, b) => String(a.tipo || '').localeCompare(String(b.tipo || ''), 'pt-PT'));
+            const infoControls = `${getInfoGroupFiltersHTML(infoItems)}${getGenderTabsHTML(infoItems)}`;
+            const dimensionControls = getGenderTabsHTML(dimensionItems);
+
+            return `
+                <div class="${sectionClass} visual-model-tabs" id="${id}" data-visual-model-tabs${style ? ` style="${style}"` : ''}>
+                    <h3 class="visual-models-section-heading" style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                        <span class="visual-model-section-tablist" role="tablist" aria-label="Separadores de informação">
+                            <button type="button" class="visual-model-section-tab is-active" data-visual-model-tab="info" role="tab" aria-selected="true">
+                                <span class="icon svg-icon">${getInfoSectionIconSvg('geral')}</span>Informações
+                            </button>
+                            <button type="button" class="visual-model-section-tab" data-visual-model-tab="dimensions" role="tab" aria-selected="false">
+                                <span class="icon svg-icon">${getInfoSectionIconSvg('dimensoes')}</span>Dimensões
+                            </button>
+                        </span>
+                    </h3>
+                    <div class="visual-model-tab-pane is-active" data-visual-model-pane="info">
+                        ${infoControls ? `<div class="visual-models-section-controls">${infoControls}</div>` : ''}
+                        <div class="visual-models-grid" style="display: flex; flex-direction: column; gap: 14px;${mobile ? ' margin-top: 15px;' : ''}">
+                            ${renderVisualModelCards(infoSortedItems, infoFilterContext)}
+                        </div>
+                    </div>
+                    <div class="visual-model-tab-pane" data-visual-model-pane="dimensions" hidden>
+                        ${dimensionControls ? `<div class="visual-models-section-controls">${dimensionControls}</div>` : ''}
+                        <div class="visual-models-grid" style="display: flex; flex-direction: column; gap: 14px;${mobile ? ' margin-top: 15px;' : ''}">
+                            ${renderVisualModelCards(dimensionSortedItems, dimensionFilterContext)}
+                        </div>
+                    </div>
+                </div>`;
+        }
+
+        function renderEnvironmentVisualCards(items = [], filterContext = {}) {
+            return items.map(item => {
+                const cardHtml = renderGeneralVisualCard(item);
+                return getInitialVisualItemVisibility(item, filterContext)
+                    ? cardHtml
+                    : cardHtml.replace(/<(article|button) class="/, '<$1 style="display: none;" class="');
+            }).join('');
+        }
+
+        function renderEnvironmentSections(items = [], filterContext = {}, { id = 'info-ambiente', mobile = false } = {}) {
+            if (!items.length) return '';
+
+            const wrapperStyle = mobile ? 'margin-bottom: 20px;' : 'margin-top: 20px;';
+
+            return `
+                <div class="info-section-card" id="${id}" style="${wrapperStyle}">
+                    <h3><span class="icon svg-icon">${getInfoSectionIconSvg('distribuicao')}</span>Zona Climática & Bioma</h3>
+                    <div class="visual-models-grid" style="display: flex; flex-direction: column; gap: 14px;">
+                        ${renderEnvironmentVisualCards(
+                            items.map(item => ({ ...item, isDimension: false })),
+                            filterContext
+                        )}
+                    </div>
+                </div>`;
+        }
+
+        function getGeneralVisualModels(animalData = {}) {
+            const models = Array.isArray(animalData.informacao?.geralDetalhada)
+                ? [...animalData.informacao.geralDetalhada]
+                : [];
+            const curiosidades = animalData.informacao?.curiosidades || {};
+            const legacyCommunication = Array.isArray(curiosidades.detalhes)
+                ? curiosidades.detalhes.filter(item => normalizeDimensionKey(item?.tipo || '') === 'tipo de comunicacao' && String(item?.valor || item?.valorMin || '').trim())
+                : [];
+            if (curiosidades.tipoComunicacao && !legacyCommunication.some(item => (item.valor || item.valorMin) === curiosidades.tipoComunicacao)) {
+                legacyCommunication.push({ tipo: 'Tipo de Comunicação', valor: curiosidades.tipoComunicacao, genero: 'MF', fase: 'Adulto' });
+            }
+            return [...models, ...legacyCommunication.map(item => ({ ...item, tipo: 'Tipo de Comunicação' }))];
+        }
+
         function renderGeneralVisual(animalData) {
-            const models = animalData.informacao?.geralDetalhada || [];
+            const models = getGeneralVisualModels(animalData);
             const isEnv = item => normalizeDimensionKey(item.tipo).includes('zona') || normalizeDimensionKey(item.tipo).includes('bioma');
             const valid = collapseCombinedGenderItems(
                 Array.isArray(models) ? models.filter(item => item.tipo && (item.valor || item.valorMin || item.valorMax) && !isEnv(item)) : []
@@ -683,27 +1029,12 @@ import { initCommunicationTypePopup } from "../js/communication-type-popup.js?v=
             const genders = collectConcreteGenders(valid);
             const phases = new Set(valid.map(i => i.fase).filter(Boolean));
             
-            const hasBothGenders = genders.has('M') && genders.has('F');
-            const hasCriaPhase = phases.has('Cria');
-            
-            const defaultGender = genders.has('M') ? 'M' : 'F';
-            const defaultPhase = 'Adulto';
-
             let html = '';
             if (valid.length) {
-                const cardsHTML = valid.map(item => {
-                    const cardHtml = renderGeneralVisualCard(item);
-                    const itemGender = item.genero || '';
-                    const itemPhase = item.fase || 'Adulto';
-                    
-                    const matchesGender = !hasBothGenders || genderMatchesSelection(itemGender, defaultGender);
-                    const matchesPhase = !hasCriaPhase || itemPhase === defaultPhase;
-                    
-                    if (matchesGender && matchesPhase) {
-                        return cardHtml;
-                    }
-                    return cardHtml.replace('<article class="', '<article style="display: none;" class="');
-                }).join('');
+                const cardsHTML = renderVisualModelCards(
+                    valid.map(item => ({ ...item, isDimension: false })),
+                    { genders, phases }
+                );
 
                 html += `
                 <div class="general-visual-card">
@@ -717,15 +1048,7 @@ import { initCommunicationTypePopup } from "../js/communication-type-popup.js?v=
                 </div>`;
             }
             if (envItems.length) {
-                html += `
-                <div class="general-visual-card" style="margin-top: 15px;">
-                    <div class="general-visual-title">
-                        <strong>Zona Climática & Bioma</strong>
-                    </div>
-                    <div class="general-visual-models">
-                        ${envItems.map(renderGeneralVisualCard).join('')}
-                    </div>
-                </div>`;
+                html += renderEnvironmentSections(envItems, { genders, phases }, { id: 'general-environment-sections' });
             }
             return html;
         }
@@ -881,6 +1204,12 @@ import { initCommunicationTypePopup } from "../js/communication-type-popup.js?v=
             return null;
         }
 
+        function getFeedingNutritionModelSvg(nutritionMeta) {
+            return nutritionMeta
+                ? getReproductionModelSvg(nutritionMeta.key)
+                : getFeedingModelSvg('alimentacao');
+        }
+
         function parseFeedingDetail(detail = '') {
             const raw = String(detail || '').trim();
             if (!raw) return { primary: '', secondary: '', display: '' };
@@ -904,10 +1233,7 @@ import { initCommunicationTypePopup } from "../js/communication-type-popup.js?v=
                     .filter(entry => entry.display)
                     .filter((entry, index, list) => list.findIndex(candidate => candidate.display === entry.display) === index);
                 const firstEntry = entries[0] || { primary: '', secondary: '', display: '' };
-                const firstMeta = getFeedingVisualMeta(firstEntry.primary || nutritionMeta.title);
-                const heroIcon = entries.length === 1
-                    ? getFeedingModelSvg(firstMeta.key)
-                    : getReproductionModelSvg(nutritionMeta.key);
+                const heroIcon = getFeedingNutritionModelSvg(nutritionMeta);
                 const valuesHtml = entries.length > 1
                     ? `
                         <div class="feeding-multi-value-list feeding-multi-value-list-visual">
@@ -989,6 +1315,15 @@ import { initCommunicationTypePopup } from "../js/communication-type-popup.js?v=
                 .filter(entry => entry.display)
                 .filter((entry, index, list) => list.findIndex(candidate => candidate.display === entry.display) === index);
 
+            if (normalizedType.includes('estrategia')) {
+                return renderFeedingStrategyPopupCard(
+                    entries.map(entry => ({
+                        tipo: group.type,
+                        detalhe: entry.display
+                    }))
+                );
+            }
+
             if (nutritionMeta && normalizedType.includes('tipo de alimentacao')) {
                 const entryTypes = entries.map(entry => entry.primary || entry.display).filter(Boolean);
                 const fallbackTypes = Array.isArray(group.animals) ? group.animals.map(animal => animal.feedingType).filter(Boolean) : [];
@@ -997,8 +1332,7 @@ import { initCommunicationTypePopup } from "../js/communication-type-popup.js?v=
                     .filter(Boolean))];
                 const selectedFeedingTypesData = JSON.stringify(selectedFeedingTypes);
                 const firstEntry = entries[0] || { primary: '', secondary: '', display: '' };
-                const firstMeta = getFeedingVisualMeta(firstEntry.primary || nutritionMeta.title);
-                const heroIcon = getFeedingModelSvg(entries.length > 1 ? 'alimentacao' : firstMeta.key);
+                const heroIcon = getFeedingNutritionModelSvg(nutritionMeta);
                 const listHtml = entries.length > 1
                     ? `
                         <div class="feeding-multi-value-list feeding-multi-value-list-visual">
@@ -1030,10 +1364,9 @@ import { initCommunicationTypePopup } from "../js/communication-type-popup.js?v=
             if (nutritionMeta) {
                 const detailData = parseFeedingDetail(rawDetails[0] || '');
                 const resolvedValue = detailData.display || rawDetails[0] || 'Modelo visual';
-                const detailMeta = getFeedingVisualMeta(detailData.primary || nutritionMeta.title);
                 return `
                     <article class="dimension-model-card feeding-model-card feeding-type-highlight-card ${nutritionMeta.accent}">
-                        <div class="dimension-model-icon">${getFeedingModelSvg(detailMeta.key)}</div>
+                        <div class="dimension-model-icon">${getFeedingNutritionModelSvg(nutritionMeta)}</div>
                         <div class="dimension-model-copy">
                             <div class="dimension-model-value">${escapeHtml(resolvedValue)}</div>
                             <div class="dimension-model-label">${nutritionMeta.title}</div>
@@ -1091,14 +1424,57 @@ import { initCommunicationTypePopup } from "../js/communication-type-popup.js?v=
             const meta = getFeedingStrategyMeta(strategy);
             const detail = item.detalhe || feedingStrategyDescriptions[strategy] || 'Estratï¿½gia alimentar';
             return `
-                <article class="dimension-model-card feeding-strategy-card ${meta.accent}">
+                <button type="button" class="dimension-model-card feeding-strategy-card feeding-type-popup-trigger feeding-strategy-popup-trigger ${meta.accent}" data-feeding-strategy-popup data-feeding-strategies="${escapeHtml(JSON.stringify([strategy]))}" aria-haspopup="dialog" aria-label="Ver as estratégias para obter alimentos e respetivas explicações" style="width: 100%; box-sizing: border-box; display: flex; align-items: center;">
                     <div class="dimension-model-icon">${getFeedingStrategySvg(meta.key)}</div>
                     <div class="dimension-model-copy">
                         <div class="dimension-model-label">${escapeHtml(strategy)}</div>
                         <div class="dimension-model-value">${escapeHtml(detail)}</div>
                     </div>
-                </article>`;
+                    <span class="feeding-strategy-popup-open-indicator" aria-hidden="true">&#8599;&#65038;</span>
+                    </button>`;
         }
+
+        function renderFeedingStrategyPopupCard(items = []) {
+            const selectedStrategies = items
+                .map(item => {
+                    const normalizedItemType = normalizeDimensionKey(item.tipo);
+                    const name = String(item.estrategia || (normalizedItemType.includes('estrategia')
+                        ? item.valorMin || item.valor || item.detalhe
+                        : item.tipo) || '').trim();
+                    if (!name) return null;
+                    const meta = getFeedingStrategyMeta(name);
+                    return {
+                        name,
+                    detail: String(item.detalhe || feedingStrategyDescriptions[name] || 'Estratégia alimentar').trim(),
+                        meta
+                    };
+                })
+                .filter(Boolean)
+                .filter((item, index, list) => list.findIndex(candidate => normalizeDimensionKey(candidate.name) === normalizeDimensionKey(item.name)) === index);
+            if (!selectedStrategies.length) return '';
+
+            const selectedNames = JSON.stringify(selectedStrategies.map(item => item.name));
+            const heroIcon = selectedStrategies.length === 1
+                ? getFeedingStrategySvg(selectedStrategies[0].meta.key)
+                : getFeedingModelSvg('alimentacao');
+            const valueHtml = selectedStrategies.length === 1
+                ? `<div class="dimension-model-label">${escapeHtml(selectedStrategies[0].name)}</div><div class="dimension-model-value">Estratégia para obter alimentos</div>`
+                : `<div class="feeding-multi-value-list feeding-multi-value-list-visual">${selectedStrategies.map(item => `
+                    <div class="feeding-multi-value-line feeding-multi-value-line-visual">
+                        <span class="feeding-multi-value-icon">${getFeedingStrategySvg(item.meta.key)}</span>
+                        <span class="feeding-multi-value-text">${escapeHtml(item.name)}</span>
+                    </div>`).join('')}</div><div class="dimension-model-value">Estratégias seleccionadas</div>`;
+
+            return `
+                <button type="button" class="dimension-model-card feeding-strategy-card feeding-type-popup-trigger feeding-strategy-popup-trigger ${selectedStrategies[0].meta.accent}" data-feeding-strategy-popup data-feeding-strategies="${escapeHtml(selectedNames)}" aria-haspopup="dialog" aria-label="Ver as estratégias para obter alimentos e respetivas explicações" style="width: 100%; box-sizing: border-box; display: flex; align-items: center;">
+                    <div class="dimension-model-icon">${heroIcon}</div>
+                    <div class="dimension-model-copy">
+                        ${valueHtml}
+                    </div>
+                    <span class="feeding-strategy-popup-open-indicator" aria-hidden="true">&#8599;&#65038;</span>
+                </button>`;
+        }
+
         function renderFeedingVisual(animalData) {
             const feeding = animalData.informacao?.alimentacaoDetalhada || [];
             const valid = Array.isArray(feeding) ? feeding.filter(item => item.tipo || item.detalhe) : [];
@@ -1110,7 +1486,7 @@ import { initCommunicationTypePopup } from "../js/communication-type-popup.js?v=
                 <div class="reproduction-visual-card feeding-animal-visual-card">
                     <div class="reproduction-model-grid feeding-model-grid">
                         ${groupFeedingItems(valid).map(renderFeedingGroup).join('')}
-                        ${validStrategies.map(renderFeedingStrategyCard).join('')}
+                        ${renderFeedingStrategyPopupCard(validStrategies)}
                     </div>
                 </div>`;
         }
@@ -1141,31 +1517,6 @@ import { initCommunicationTypePopup } from "../js/communication-type-popup.js?v=
                 seen.add(key);
                 return true;
             });
-        }
-
-        function renderEcologyAnimalLink(item = {}) {
-            const normalized = normalizeEcologyAnimalEntry(item);
-            const label = getEcologyAnimalLabel(normalized);
-            if (normalized.id) {
-                return `<a class="ecology-animal-link" href="animal.html?id=${encodeURIComponent(normalized.id)}">${escapeHtml(label)}</a>`;
-            }
-            return `<span class="ecology-animal-link ecology-animal-link-static">${escapeHtml(label)}</span>`;
-        }
-
-        function renderEcologyAnimalLinks(items = []) {
-            const valid = normalizeEcologyList(items);
-            if (!valid.length) return '';
-            return `<div class="ecology-linked-animals">${valid.map(renderEcologyAnimalLink).join('')}</div>`;
-        }
-
-        function renderEcologyAnimalChips(items = []) {
-            const valid = normalizeEcologyList(items);
-            if (!valid.length) return '<span class="ecology-empty-pill">Sem animais adicionados.</span>';
-            return valid.map(item => `
-                <span class="country-tag ecology-tag">
-                    ${escapeHtml(getEcologyAnimalLabel(item))}
-                </span>
-            `).join('');
         }
 
         function normalizeEcologyLabel(value = '') {
@@ -1205,24 +1556,27 @@ import { initCommunicationTypePopup } from "../js/communication-type-popup.js?v=
 
         function renderEcologyRelationCard(config, refs = [], freeText = '') {
             const validRefs = normalizeEcologyList(refs);
+            const isInteractive = validRefs.length > 0;
+            const tagName = isInteractive ? 'button' : 'article';
+            const interactiveClass = isInteractive ? ' ecology-relation-popup-trigger' : '';
+            const interactiveAttributes = isInteractive
+                ? ` type="button" data-ecology-relations="${escapeHtml(JSON.stringify(validRefs))}" data-ecology-relation-key="${escapeHtml(config.key)}" data-ecology-relation-title="${escapeHtml(config.label)}" aria-haspopup="dialog" aria-label="Ver ${escapeHtml(config.label.toLowerCase())}"`
+                : '';
             const countLabel = validRefs.length
-                ? `${config.label} (${validRefs.length} ${validRefs.length === 1 ? 'animal' : 'animais'})`
-                : config.label;
-            const valueHtml = validRefs.length
-                ? renderEcologyAnimalLinks(validRefs)
-                : `<span class="ecology-animal-link ecology-animal-link-static">${escapeHtml(freeText || 'Por preencher')}</span>`;
+                ? `${validRefs.length} ${validRefs.length === 1 ? 'animal' : 'animais'}`
+                : (freeText || 'Por preencher');
             const metaHtml = freeText && validRefs.length
                 ? `<div class="dimension-model-meta">${escapeHtml(freeText)}</div>`
                 : '';
             return `
-                <article class="dimension-model-card ecology-model-card ${config.accent}">
+                <${tagName} class="dimension-model-card ecology-model-card ${config.accent}${interactiveClass}"${interactiveAttributes}>
                     <div class="dimension-model-icon">${getEcologyBlockSvg(config.key)}</div>
                     <div class="dimension-model-copy">
-                        <div class="dimension-model-label">${valueHtml}</div>
-                        <div class="dimension-model-value">${escapeHtml(countLabel)}</div>
+                        <div class="dimension-model-label">${escapeHtml(countLabel)}</div>
+                        <div class="dimension-model-value">${escapeHtml(config.label)}</div>
                         ${metaHtml}
                     </div>
-                </article>
+                </${tagName}>
             `;
         }
 
@@ -1718,7 +2072,7 @@ import { initCommunicationTypePopup } from "../js/communication-type-popup.js?v=
 
             const detailItems = Array.isArray(curiosidades.detalhes) && curiosidades.detalhes.length
                 ? curiosidades.detalhes.filter(item => {
-                    if (!item?.tipo) return false;
+                    if (!item?.tipo || normalizeDimensionKey(item.tipo) === 'tipo de comunicacao') return false;
                     const hasValue = item.valor !== undefined && item.valor !== null && String(item.valor).trim() !== '' && (item.unidade ? String(item.valor).trim() !== String(item.unidade).trim() : true);
                     const hasMin = item.valorMin !== undefined && item.valorMin !== null && String(item.valorMin).trim() !== '';
                     const hasMax = item.valorMax !== undefined && item.valorMax !== null && String(item.valorMax).trim() !== '';
@@ -1846,7 +2200,7 @@ import { initCommunicationTypePopup } from "../js/communication-type-popup.js?v=
                             <div class="curiosidades-card-head">
                                 <span class="dimension-model-label">${escapeHtml(status.name)}</span>
                                 ${renderMetaSymbols(item)}
-                                <span class="curiosidades-card-open-indicator" aria-hidden="true">↗</span>
+                                <span class="curiosidades-card-open-indicator" aria-hidden="true">↗︎</span>
                             </div>
                             <strong class="dimension-model-value">Estado de Conservação</strong>
                         </div>
@@ -1956,7 +2310,7 @@ import { initCommunicationTypePopup } from "../js/communication-type-popup.js?v=
                                 <div class="curiosidades-card-head">
                                 <span class="dimension-model-label">${valuesHtml}</span>
                                 ${renderMetaSymbols(item)}
-                                <span class="curiosidades-card-open-indicator" aria-hidden="true">↗</span>
+                                <span class="curiosidades-card-open-indicator" aria-hidden="true">↗︎</span>
                                 </div>
                                 <strong class="dimension-model-value">Tipo de Comunicação</strong>
                             </div>
@@ -2005,11 +2359,16 @@ import { initCommunicationTypePopup } from "../js/communication-type-popup.js?v=
                     return `<article class="dimension-model-card curiosidades-model-card" style="width:100%;box-sizing:border-box;display:flex;align-items:center;"><div class="dimension-model-icon" style="flex-shrink:0;color:#fb7185;background:rgba(251,113,133,.16);"><svg class="record-custom-svg" viewBox="0 0 64 64" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M32 32c-7-9-15-14-25-15c4 10 11 17 21 21"/><path d="M32 32c7-9 15-14 25-15c-4 10-11 17-21 21"/><path d="M32 26v22"/><path d="M8 52h48"/><path d="m8 52 6-5M8 52l6 5M56 52l-6-5M56 52l-6 5"/></svg></div><div class="dimension-model-copy"><div class="curiosidades-card-head"><span class="dimension-model-label" style="color:#fda4af;font-weight:800;">${valuesHtml}</span>${renderMetaSymbols(item)}</div><strong class="dimension-model-value" style="color:#fb7185;">Maior envergadura registada</strong></div></article>`;
                 }
 
-                if (item.tipo === 'Distância Percorrida') {
+                if (normalizeDimensionKey(item.tipo) === 'distancia percorrida') {
                     return `
                         <article class="dimension-model-card curiosidades-model-card" style="width: 100%; box-sizing: border-box; display: flex; align-items: center;">
                             <div class="dimension-model-icon" style="flex-shrink: 0; background: rgba(14, 165, 233, 0.18); color: #7dd3fc; display: flex; align-items: center; justify-content: center;">
-                                <i class="fa-solid fa-route"></i>
+                                <svg class="record-custom-svg distance-route-svg" viewBox="0 0 64 64" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M12 48c8-14 14-24 26-24c8 0 10 8 16 8c4 0 7-3 10-8"/>
+                                    <path d="M48 16h16v16"/>
+                                    <path d="M12 48h10"/>
+                                    <circle cx="12" cy="48" r="4"/>
+                                </svg>
                             </div>
                             <div class="dimension-model-copy" style="display: flex; flex-direction: column; align-items: flex-start; text-align: left;">
                                 <div class="curiosidades-card-head">
@@ -2119,7 +2478,7 @@ import { initCommunicationTypePopup } from "../js/communication-type-popup.js?v=
                             <div class="curiosidades-card-head">
                                 <span class="dimension-model-label">${escapeHtml(sColor.name)}</span>
                                 ${renderMetaSymbols(item)}
-                                <span class="curiosidades-card-open-indicator" aria-hidden="true">↗</span>
+                                <span class="curiosidades-card-open-indicator" aria-hidden="true">↗︎</span>
                             </div>
                             <strong class="dimension-model-value">Estado de Conservação</strong>
                         </div>
@@ -2417,10 +2776,10 @@ import { initCommunicationTypePopup } from "../js/communication-type-popup.js?v=
             thumbnailsHTML += renderAnimalAudioThumbnail(animalData);
 
             const hasGeralText = animalData.informacao && animalData.informacao.geral && animalData.informacao.geral.trim() !== "";
-            const hasGeralVisual = Array.isArray(animalData.informacao?.geralDetalhada) && animalData.informacao.geralDetalhada.some(item => item?.tipo && (item?.valor || item?.valorMin || item?.valorMax) && !isLegacyGeneralMatingItem(item));
+            const hasGeralVisual = getGeneralVisualModels(animalData).some(item => item?.tipo && (item?.valor || item?.valorMin || item?.valorMax) && !isLegacyGeneralMatingItem(item));
             const hasGeral = hasGeralText || hasGeralVisual;
             const hasDimensoesText = animalData.informacao?.dimensoes && animalData.informacao.dimensoes.trim() !== "";
-            const hasDimensoesVisual = Array.isArray(animalData.informacao?.dimensoesDetalhadas) && animalData.informacao.dimensoesDetalhadas.length > 0;
+            const hasDimensoesVisual = Array.isArray(animalData.informacao?.dimensoesDetalhadas) && animalData.informacao.dimensoesDetalhadas.some(item => item?.tipo && [item?.valor, item?.valorMin, item?.valorMax].some(value => String(value ?? '').trim() !== ''));
             const hasDimensoes = hasDimensoesText || hasDimensoesVisual;
 
             const hasAlimentacaoText = animalData.informacao?.alimentacao && animalData.informacao.alimentacao.trim() !== "";
@@ -2513,29 +2872,12 @@ import { initCommunicationTypePopup } from "../js/communication-type-popup.js?v=
                 hasCuriosidades
             });
 
-            const navItems = [];
-            if (hasGeralText) navItems.push({ desktopHref: '#info-geral', mobileHref: '#info-geral-mobile', label: 'Geral' });
-            if (hasDimensoesText) navItems.push({ href: '#info-dimensoes', label: 'Dimensões' });
-            if (hasAlimentacao) navItems.push({ href: '#info-alimentacao', label: 'Alimentação' });
-            if (hasEcologia) navItems.push({ href: '#info-ecologia', label: 'Ecologia' });
-            if (hasReproducao) navItems.push({ href: '#info-reproducao', label: 'Reprodução' });
-            if (hasPlumagem) navItems.push({ href: '#info-plumagem', label: getBodyCoveringTitle(animalData) });
-            if (hasDistribicao) navItems.push({ href: '#info-distribuicao', label: 'Distribuição' });
-            if (hasCuriosidades) navItems.push({ href: '#info-curiosidades', label: 'Curiosidades' });
-            const navHTMLDesktop = navItems.map((item, idx) => {
-                const desktopHref = item.desktopHref || item.href;
-                return `<a href="${desktopHref}" class="nav-anchor ${idx === 0 ? 'active' : ''}">${item.label}</a>`;
-            }).join('');
-            const navHTMLMobile = navItems.map((item, idx) => {
-                const desktopHref = item.desktopHref || item.href;
-                const mobileHref = item.mobileHref || `${desktopHref}-mobile`;
-                return `<a href="${mobileHref}" class="nav-anchor ${idx === 0 ? 'active' : ''}">${item.label}</a>`;
-            }).join('');
-
-            // Build horizontal metrics bar for desktop
+            // Preparar as estatísticas da secção de dimensões
             const dimensoes = animalData.informacao?.dimensoesDetalhadas || [];
+            const hasMetricValue = item => [item?.valor, item?.valorMin, item?.valorMax]
+                .some(value => String(value ?? '').trim() !== '');
             const validDimensoes = collapseCombinedGenderItems(
-                Array.isArray(dimensoes) ? dimensoes.filter(item => item.tipo && (item.valor || item.valorMin || item.valorMax)) : []
+                Array.isArray(dimensoes) ? dimensoes.filter(item => item.tipo && hasMetricValue(item)) : []
             );
 
             const models = animalData.informacao?.geralDetalhada || [];
@@ -2548,20 +2890,39 @@ import { initCommunicationTypePopup } from "../js/communication-type-popup.js?v=
             );
 
             const allItems = [...validDimensoes, ...validQuickData];
-            const genderIconsHTML = getGenderTabsHTML(allItems);
-
             const genders = collectConcreteGenders(allItems);
             const phases = new Set(allItems.map(i => i.fase).filter(Boolean));
-            const hasBothGenders = genders.has('M') && genders.has('F');
-            const hasCriaPhase = phases.has('Cria');
-            const defaultGender = genders.has('M') ? 'M' : 'F';
-            const defaultPhase = 'Adulto';
+            const useDimensionsTab = validDimensoes.length > 0 && (validDimensoes.length + validQuickData.length > 25);
+            const infoModelItems = validQuickData.map(item => ({ ...item, isDimension: false }));
+            const dimensionModelItems = validDimensoes.map(item => ({ ...item, isDimension: true }));
 
-            const horizontalMetricsHTML = (validDimensoes.length > 0 || validQuickData.length > 0) ? `
-                <div class="metrics-horizontal-bar desktop-only">
-                    ${validDimensoes.map(renderDimensionModelCard).join('')}
-                    ${validQuickData.map(renderGeneralVisualCard).join('')}
-                </div>` : '';
+            const navItems = [];
+            if (hasGeralText) navItems.push({ desktopHref: '#info-geral', mobileHref: '#info-geral-mobile', label: 'Geral' });
+            if (hasDimensoesText || hasDimensoesVisual) {
+                navItems.push({
+                    desktopHref: hasDimensoesVisual ? '#info-modelos-visuais' : '#info-dimensoes',
+                    mobileHref: hasDimensoesVisual ? '#info-modelos-visuais-mobile' : '#info-dimensoes-mobile',
+                    visualTab: useDimensionsTab ? 'dimensions' : '',
+                    label: 'Dimensões'
+                });
+            }
+            if (hasAlimentacao) navItems.push({ href: '#info-alimentacao', label: 'Alimentação' });
+            if (hasEcologia) navItems.push({ href: '#info-ecologia', label: 'Ecologia' });
+            if (hasReproducao) navItems.push({ href: '#info-reproducao', label: 'Reprodução' });
+            if (hasPlumagem) navItems.push({ href: '#info-plumagem', label: getBodyCoveringTitle(animalData) });
+            if (hasDistribicao) navItems.push({ href: '#info-distribuicao', label: 'Distribuição' });
+            if (hasCuriosidades) navItems.push({ href: '#info-curiosidades', label: 'Curiosidades' });
+            const navHTMLDesktop = navItems.map((item, idx) => {
+                const desktopHref = item.desktopHref || item.href;
+                const tabAttribute = item.visualTab ? ` data-visual-model-tab-target="${item.visualTab}"` : '';
+                return `<a href="${desktopHref}" class="nav-anchor ${idx === 0 ? 'active' : ''}"${tabAttribute}>${item.label}</a>`;
+            }).join('');
+            const navHTMLMobile = navItems.map((item, idx) => {
+                const desktopHref = item.desktopHref || item.href;
+                const mobileHref = item.mobileHref || `${desktopHref}-mobile`;
+                const tabAttribute = item.visualTab ? ` data-visual-model-tab-target="${item.visualTab}"` : '';
+                return `<a href="${mobileHref}" class="nav-anchor ${idx === 0 ? 'active' : ''}"${tabAttribute}>${item.label}</a>`;
+            }).join('');
 
             const hasScientificClassification = Boolean(
                 animalData.reino ||
@@ -2701,7 +3062,7 @@ import { initCommunicationTypePopup } from "../js/communication-type-popup.js?v=
 
                         ${hasEcologia ? `
                         <div class="info-section-card" id="info-ecologia">
-                            <h3><span class="icon svg-icon">${getEcologicalFunctionSvg('funcao-ecologica')}</span>Ecologia</h3>
+                            <h3><span class="icon svg-icon">${getInfoSectionIconSvg('ecologia')}</span>Ecologia</h3>
                             ${renderEcologyVisual(animalData)}
                         </div>` : ''}
 
@@ -2743,51 +3104,26 @@ import { initCommunicationTypePopup } from "../js/communication-type-popup.js?v=
 
                     <!-- Column 3: Visual Models & Climate Zone -->
                     <div class="column-3 desktop-only">
-                        ${(validDimensoes.length > 0 || validQuickData.length > 0) ? (() => {
-                            const combined = [
-                                ...validDimensoes.map(item => ({ ...item, isDimension: true })),
-                                ...validQuickData.map(item => ({ ...item, isDimension: false }))
-                            ];
-                            const sorted = combined.sort((a, b) => a.tipo.localeCompare(b.tipo));
-                            const genders = collectConcreteGenders(allItems);
-                            const phases = new Set(allItems.map(i => i.fase).filter(Boolean));
-                            
-                            const hasBothGenders = genders.has('M') && genders.has('F');
-                            const hasCriaPhase = phases.has('Cria');
-                            
-                            const defaultGender = genders.has('M') ? 'M' : 'F';
-                            const defaultPhase = 'Adulto';
-                            
-                            const cardsHTML = sorted.map(item => {
-                                const cardHtml = item.isDimension ? renderDimensionModelCard(item) : renderGeneralVisualCard(item);
-                                const itemGender = item.genero || '';
-                                const itemPhase = item.fase || 'Adulto';
-                                
-                                const matchesGender = !hasBothGenders || genderMatchesSelection(itemGender, defaultGender);
-                                const matchesPhase = !hasCriaPhase || itemPhase === defaultPhase;
-                                
-                                if (matchesGender && matchesPhase) {
-                                    return cardHtml;
-                                }
-                                return cardHtml.replace('<article class="', '<article style="display: none;" class="');
-                            }).join('');
-                            return `
-                            <div class="info-section-card" id="info-modelos-visuais">
-                                <h3 style="display: flex; align-items: center; justify-content: space-between; width: 100%;"><span style="display: flex; align-items: center;"><span class="icon svg-icon">${getInfoSectionIconSvg('geral')}</span>Infos</span>${genderIconsHTML}</h3>
-                                ${getInfoGroupFiltersHTML(combined)}
-                                <div class="visual-models-grid" style="display: flex; flex-direction: column; gap: 14px;">
-                                    ${cardsHTML}
-                                </div>
-                            </div>`;
-                        })() : ''}
+                        ${useDimensionsTab
+                            ? renderTabbedModelSection({
+                                id: 'info-modelos-visuais',
+                                infoItems: infoModelItems,
+                                dimensionItems: dimensionModelItems,
+                                infoFilterContext: { genders: collectConcreteGenders(infoModelItems), phases: new Set(infoModelItems.map(item => item.fase).filter(Boolean)) },
+                                dimensionFilterContext: { genders: collectConcreteGenders(dimensionModelItems), phases: new Set(dimensionModelItems.map(item => item.fase).filter(Boolean)) }
+                            })
+                            : renderModelSection({
+                                id: 'info-modelos-visuais',
+                                title: 'Infos',
+                                icon: getInfoSectionIconSvg('geral'),
+                                items: [...infoModelItems, ...dimensionModelItems],
+                                filterContext: { genders, phases },
+                                showGroupFilters: true
+                            })}
 
-                        ${envQuickData.length > 0 ? `
-                        <div class="info-section-card" id="info-ambiente" style="margin-top: 20px;">
-                            <h3><span class="icon svg-icon">${getInfoSectionIconSvg('distribuicao')}</span>Zona Climática & Bioma</h3>
-                            <div class="visual-models-grid" style="display: flex; flex-direction: column; gap: 14px;">
-                                ${envQuickData.map(renderGeneralVisualCard).join('')}
-                            </div>
-                        </div>` : ''}
+                        ${envQuickData.length > 0
+                            ? renderEnvironmentSections(envQuickData, { genders, phases }, { id: 'info-ambiente' })
+                            : ''}
                     </div>
                 </div>
 
@@ -2801,42 +3137,27 @@ import { initCommunicationTypePopup } from "../js/communication-type-popup.js?v=
                             ${navHTMLMobile}
                         </nav>
                         <div class="info-sections">
-                            ${(validDimensoes.length > 0 || validQuickData.length > 0) ? (() => {
-                                const combined = [
-                                    ...validDimensoes.map(item => ({ ...item, isDimension: true })),
-                                    ...validQuickData.map(item => ({ ...item, isDimension: false }))
-                                ];
-                                const sorted = combined.sort((a, b) => a.tipo.localeCompare(b.tipo));
-                                const cardsHTML = sorted.map(item => {
-                                    const cardHtml = item.isDimension ? renderDimensionModelCard(item) : renderGeneralVisualCard(item);
-                                    const itemGender = item.genero || '';
-                                    const itemPhase = item.fase || 'Adulto';
-                                    
-                                    const matchesGender = !hasBothGenders || genderMatchesSelection(itemGender, defaultGender);
-                                    const matchesPhase = !hasCriaPhase || itemPhase === defaultPhase;
-                                    
-                                    if (matchesGender && matchesPhase) {
-                                        return cardHtml;
-                                    }
-                                    return cardHtml.replace('<article class="', '<article style="display: none;" class="');
-                                }).join('');
-                                
-                                return `
-                                <div class="info-section mobile-only" id="info-modelos-visuais-mobile" style="margin-bottom: 20px;">
-                                    <h3 style="display: flex; align-items: center; justify-content: space-between; width: 100%;"><span style="display: flex; align-items: center;"><span class="icon svg-icon">${getInfoSectionIconSvg('geral')}</span>Infos</span>${genderIconsHTML}</h3>
-                                    ${getInfoGroupFiltersHTML(combined)}
-                                    <div class="visual-models-grid" style="display: flex; flex-direction: column; gap: 14px; margin-top: 15px;">
-                                        ${cardsHTML}
-                                    </div>
-                                </div>`;
-                            })() : ''}
-                            ${envQuickData.length > 0 ? `
-                            <div class="info-section mobile-only" id="info-ambiente-mobile" style="margin-bottom: 20px;">
-                                <h3><span class="icon svg-icon">${getInfoSectionIconSvg('distribuicao')}</span>Zona Climática & Bioma</h3>
-                                <div class="visual-models-grid" style="display: flex; flex-direction: column; gap: 14px; margin-top: 15px;">
-                                    ${envQuickData.map(renderGeneralVisualCard).join('')}
-                                </div>
-                            </div>` : ''}
+                            ${useDimensionsTab
+                                ? renderTabbedModelSection({
+                                    id: 'info-modelos-visuais-mobile',
+                                    infoItems: infoModelItems,
+                                    dimensionItems: dimensionModelItems,
+                                    infoFilterContext: { genders: collectConcreteGenders(infoModelItems), phases: new Set(infoModelItems.map(item => item.fase).filter(Boolean)) },
+                                    dimensionFilterContext: { genders: collectConcreteGenders(dimensionModelItems), phases: new Set(dimensionModelItems.map(item => item.fase).filter(Boolean)) },
+                                    mobile: true
+                                })
+                                : renderModelSection({
+                                    id: 'info-modelos-visuais-mobile',
+                                    title: 'Infos',
+                                    icon: getInfoSectionIconSvg('geral'),
+                                    items: [...infoModelItems, ...dimensionModelItems],
+                                    filterContext: { genders, phases },
+                                    mobile: true,
+                                    showGroupFilters: true
+                                })}
+                            ${envQuickData.length > 0
+                                ? renderEnvironmentSections(envQuickData, { genders, phases }, { id: 'info-ambiente-mobile', mobile: true })
+                                : ''}
 
                             ${hasGeralText ? `
                             <div class="info-section" id="info-geral-mobile">
@@ -2857,7 +3178,7 @@ import { initCommunicationTypePopup } from "../js/communication-type-popup.js?v=
                             </div>` : ''}
                             ${hasEcologia ? `
                             <div class="info-section" id="info-ecologia-mobile">
-                                <h3><span class="icon svg-icon">${getEcologicalFunctionSvg('funcao-ecologica')}</span>Ecologia</h3>
+                                <h3><span class="icon svg-icon">${getInfoSectionIconSvg('ecologia')}</span>Ecologia</h3>
                                 ${renderEcologyVisual(animalData)}
                             </div>` : ''}
                             ${hasReproducao ? `
@@ -3189,11 +3510,15 @@ import { initCommunicationTypePopup } from "../js/communication-type-popup.js?v=
             initAnimalProfileActions({ animalId });
             initConservationStatusPopup(mainContent);
             initFeedingTypePopup(mainContent);
+            initPerceptionTypePopup(mainContent);
+            initSocialTypePopup(mainContent);
+            initFeedingStrategyPopup(mainContent);
             initEcologicalFunctionPopup(mainContent);
             initMatingSystemPopup(mainContent);
             initSexualSystemPopup(mainContent);
             initBiogeographicRegionPopup(mainContent);
             initCommunicationTypePopup(mainContent);
+            initEcologyRelationsPopup(mainContent);
             
             if (hasDistribicao) {
                 const selectedCodes = (animalData.informacao.distribuicao.paises || [])
@@ -3460,7 +3785,25 @@ import { initCommunicationTypePopup } from "../js/communication-type-popup.js?v=
                 const selectedPhase = activePhaseBtn ? activePhaseBtn.dataset.phase : 'Adulto';
                 const selectedGroup = activeGroupBtn ? activeGroupBtn.dataset.group : '';
                 
-                const cards = container.querySelectorAll('.dimension-model-card');
+                const groupedCards = container.querySelectorAll('.visual-model-group-card');
+                groupedCards.forEach(groupCard => {
+                    const groupRows = groupCard.querySelectorAll('.general-model-value-row');
+                    let visibleRows = 0;
+                    groupRows.forEach(row => {
+                        const rowGender = row.dataset.gender || '';
+                        const rowPhase = row.dataset.phase || 'Adulto';
+                        const rowGroup = row.dataset.infoGroup || groupCard.dataset.infoGroup || '';
+                        const matchesGender = genderMatchesSelection(rowGender, selectedGender);
+                        const matchesPhase = rowPhase === selectedPhase;
+                        const matchesGroup = !selectedGroup || rowGroup === selectedGroup;
+                        const isVisible = matchesGender && matchesPhase && matchesGroup;
+                        row.style.display = isVisible ? '' : 'none';
+                        if (isVisible) visibleRows += 1;
+                    });
+                    groupCard.style.display = visibleRows > 0 ? '' : 'none';
+                });
+
+                const cards = container.querySelectorAll('.dimension-model-card:not(.visual-model-group-card)');
                 cards.forEach(card => {
                     const cardGender = card.dataset.gender || '';
                     const cardPhase = card.dataset.phase || 'Adulto';
@@ -3484,11 +3827,26 @@ import { initCommunicationTypePopup } from "../js/communication-type-popup.js?v=
                     btn.parentElement.querySelectorAll('.info-group-filter-btn').forEach(button => {
                         button.classList.remove('active');
                     });
-                    if (!isActive) {
-                        btn.classList.add('active');
-                    }
-                    const container = btn.closest('.info-section-card') || btn.closest('.info-section');
+                    if (!isActive) btn.classList.add('active');
+                    const container = btn.closest('.visual-model-tab-pane') || btn.closest('.info-section-card') || btn.closest('.info-section');
                     applyCombinedFilters(container);
+                });
+            });
+
+            document.querySelectorAll('[data-visual-model-tab]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const section = btn.closest('[data-visual-model-tabs]');
+                    if (!section) return;
+
+                    const showDimensions = btn.dataset.visualModelTab === 'dimensions';
+                    section.classList.toggle('is-dimensions-active', showDimensions);
+                    section.querySelector('[data-visual-model-pane="info"]')?.toggleAttribute('hidden', showDimensions);
+                    section.querySelector('[data-visual-model-pane="dimensions"]')?.toggleAttribute('hidden', !showDimensions);
+                    section.querySelectorAll('[data-visual-model-tab]').forEach(tab => {
+                        const isActive = tab.dataset.visualModelTab === btn.dataset.visualModelTab;
+                        tab.classList.toggle('is-active', isActive);
+                        tab.setAttribute('aria-selected', String(isActive));
+                    });
                 });
             });
 
@@ -3506,7 +3864,7 @@ import { initCommunicationTypePopup } from "../js/communication-type-popup.js?v=
                     btn.style.background = btn.dataset.gender === 'M' ? 'rgba(59, 130, 246, 0.12)' : 'rgba(236, 72, 153, 0.12)';
                     btn.style.borderColor = btn.dataset.gender === 'M' ? 'rgba(59, 130, 246, 0.15)' : 'rgba(236, 72, 153, 0.15)';
                     
-                    const container = btn.closest('.info-section-card') || btn.closest('.general-visual-card') || btn.closest('.dimensions-visual-card') || btn.closest('.info-section');
+                    const container = btn.closest('.visual-model-tab-pane') || btn.closest('.info-section-card') || btn.closest('.general-visual-card') || btn.closest('.dimensions-visual-card') || btn.closest('.info-section');
                     applyCombinedFilters(container);
                 });
             });
@@ -3525,7 +3883,7 @@ import { initCommunicationTypePopup } from "../js/communication-type-popup.js?v=
                     btn.style.background = btn.dataset.phase === 'Adulto' ? 'rgba(16, 185, 129, 0.12)' : 'rgba(245, 158, 11, 0.12)';
                     btn.style.borderColor = btn.dataset.phase === 'Adulto' ? 'rgba(16, 185, 129, 0.15)' : 'rgba(245, 158, 11, 0.15)';
                     
-                    const container = btn.closest('.info-section-card') || btn.closest('.general-visual-card') || btn.closest('.dimensions-visual-card') || btn.closest('.info-section');
+                    const container = btn.closest('.visual-model-tab-pane') || btn.closest('.info-section-card') || btn.closest('.general-visual-card') || btn.closest('.dimensions-visual-card') || btn.closest('.info-section');
                     applyCombinedFilters(container);
                 });
             });
@@ -3544,6 +3902,10 @@ import { initCommunicationTypePopup } from "../js/communication-type-popup.js?v=
                     e.preventDefault();
                     const targetId = anchor.getAttribute('href');
                     const targetSection = targetId ? document.querySelector(targetId) : null;
+                    if (anchor.dataset.visualModelTabTarget === 'dimensions') {
+                        const dimensionTab = targetSection?.querySelector('[data-visual-model-tab="dimensions"]');
+                        if (dimensionTab && !targetSection.classList.contains('is-dimensions-active')) dimensionTab.click();
+                    }
                     makeActive(anchor);
                     if (targetSection) {
                         targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });

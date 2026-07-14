@@ -1,0 +1,256 @@
+.ecology-relation-popup-trigger {
+    appearance: none;
+    position: relative;
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid color-mix(in srgb, var(--model-accent) 45%, var(--border-color)) !important;
+    color: inherit;
+    cursor: pointer;
+    font: inherit;
+    text-align: left;
+    transition: border-color 0.2s ease, transform 0.2s ease, background 0.2s ease;
+}
+
+.ecology-relation-popup-trigger::after {
+    position: absolute;
+    top: 10px;
+    right: 12px;
+    display: grid;
+    width: 22px;
+    height: 22px;
+    place-items: center;
+    border: 1px solid color-mix(in srgb, var(--model-accent) 45%, transparent);
+    border-radius: 7px;
+    background: color-mix(in srgb, var(--model-accent) 12%, transparent);
+    color: var(--model-accent);
+    content: '\2197\FE0E';
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 0.82rem;
+    font-weight: 900;
+    line-height: 1;
+}
+
+.ecology-relation-popup-trigger:hover,
+.ecology-relation-popup-trigger:focus-visible {
+    border-color: color-mix(in srgb, var(--model-accent) 75%, #ffffff) !important;
+    background: color-mix(in srgb, var(--model-accent) 10%, transparent) !important;
+    outline: none;
+    transform: translateY(-1px);
+}
+
+.ecology-relations-modal {
+    width: min(720px, 100%);
+}
+
+.ecology-relations-panel {
+    order: 1;
+    margin-top: 20px;
+}
+
+.ecology-relations-section-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 10px;
+}
+
+.ecology-relations-section-heading h3 {
+    margin: 0;
+}
+
+.ecology-relations-view-toggle {
+    display: grid;
+    flex: 0 0 38px;
+    width: 38px;
+    height: 38px;
+    place-items: center;
+    padding: 0;
+    border: 1px solid rgba(148, 163, 184, 0.28);
+    border-radius: 10px;
+    background: rgba(148, 163, 184, 0.08);
+    color: #cbd5e1;
+    cursor: pointer;
+    transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.ecology-relations-view-toggle:hover,
+.ecology-relations-view-toggle:focus-visible {
+    border-color: rgba(52, 211, 153, 0.62);
+    background: rgba(52, 211, 153, 0.14);
+    color: #6ee7b7;
+    outline: none;
+    transform: translateY(-1px);
+}
+
+.ecology-relations-view-toggle svg {
+    width: 20px;
+    height: 20px;
+}
+
+.ecology-relations-list {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+}
+
+.ecology-relations-list.is-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.ecology-relations-item {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    gap: 13px;
+    padding: 12px 14px;
+    border: 1px solid rgba(52, 211, 153, 0.28);
+    border-radius: 14px;
+    background: linear-gradient(100deg, rgba(16, 185, 129, 0.12), rgba(255, 255, 255, 0.035));
+    color: inherit;
+    text-decoration: none;
+    transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s ease;
+}
+
+.ecology-relations-item-image {
+    display: none;
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    flex: 0 0 auto;
+    overflow: hidden;
+    border-bottom: 1px solid rgba(52, 211, 153, 0.24);
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.18), rgba(15, 23, 42, 0.8));
+}
+
+.ecology-relations-item-image img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.ecology-relations-item-image-placeholder {
+    display: grid;
+    width: 100%;
+    height: 100%;
+    place-items: center;
+    color: #6ee7b7;
+}
+
+.ecology-relations-item-image-placeholder svg {
+    width: 48px;
+    height: 48px;
+    opacity: 0.78;
+}
+
+.ecology-relations-item:hover,
+.ecology-relations-item:focus-visible {
+    border-color: rgba(52, 211, 153, 0.72);
+    background: linear-gradient(100deg, rgba(16, 185, 129, 0.2), rgba(255, 255, 255, 0.06));
+    outline: none;
+    transform: translateY(-1px);
+}
+
+.ecology-relations-item-static {
+    cursor: default;
+}
+
+.ecology-relations-list.is-grid .ecology-relations-item {
+    align-items: flex-start;
+    flex-direction: column;
+    min-height: 135px;
+    gap: 0;
+    padding: 0;
+}
+
+.ecology-relations-list.is-grid .ecology-relations-item-image {
+    display: block;
+    aspect-ratio: 16 / 9;
+    max-height: 96px;
+}
+
+.ecology-relations-list.is-grid .ecology-relations-item-icon {
+    display: none;
+}
+
+.ecology-relations-list.is-grid .ecology-relations-item-copy {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 9px 10px 8px;
+    gap: 2px;
+}
+
+.ecology-relations-list.is-grid .ecology-relations-item-copy strong {
+    font-size: 0.86rem;
+}
+
+.ecology-relations-list.is-grid .ecology-relations-item-copy span {
+    font-size: 0.75rem;
+}
+
+.ecology-relations-list.is-grid .ecology-relations-item-arrow {
+    align-self: flex-end;
+    margin: 0 10px 7px;
+}
+
+.ecology-relations-item-icon {
+    display: grid;
+    flex: 0 0 42px;
+    width: 42px;
+    height: 42px;
+    place-items: center;
+    border: 1px solid rgba(52, 211, 153, 0.3);
+    border-radius: 12px;
+    background: rgba(52, 211, 153, 0.12);
+    color: #6ee7b7;
+}
+
+.ecology-relations-item-icon svg {
+    width: 25px;
+    height: 25px;
+}
+
+.ecology-relations-item-copy {
+    display: flex;
+    min-width: 0;
+    flex: 1;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.ecology-relations-item-copy strong {
+    overflow-wrap: anywhere;
+    color: #ffffff;
+    font-size: 1rem;
+    line-height: 1.25;
+}
+
+.ecology-relations-item-copy span {
+    overflow-wrap: anywhere;
+    color: rgba(238, 241, 250, 0.68);
+    font-size: 0.86rem;
+    line-height: 1.3;
+}
+
+.ecology-relations-item-arrow {
+    align-self: flex-start;
+    color: rgba(110, 231, 183, 0.8) !important;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 1rem !important;
+    font-variant-emoji: text;
+}
+
+@media (max-width: 640px) {
+    .ecology-relations-modal {
+        padding: 20px;
+    }
+
+    .ecology-relations-list.is-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .ecology-relation-popup-trigger::after {
+        top: 9px;
+        right: 10px;
+    }
+}

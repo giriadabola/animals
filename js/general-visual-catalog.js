@@ -1,4 +1,4 @@
-import { ecologicalFunctionCatalog, getEcologicalFunctionMeta, getEcologicalFunctionSvg } from "./ecological-functions.js";
+import { ecologicalFunctionCatalog, getEcologicalFunctionMeta, getEcologicalFunctionSvg } from "./ecological-functions.js?v=20260714_ecology_models";
 import { locomotionCatalog, getLocomotionMeta, getLocomotionSvg } from "./locomotion-visuals.js";
 
 export const generalVisualOptions = [
@@ -25,6 +25,7 @@ export const generalVisualOptions = [
     { tipo: 'Maturidade física', unidade: 'meses' },
     { tipo: 'Tamanho do grupo social', unidade: 'centenas' },
     { tipo: 'Composição do grupo social', unidade: 'machos adultos' },
+    { tipo: 'Composição do grupo', unidade: '' },
     { tipo: 'Tamanho do território', unidade: 'km²' },
     { tipo: 'Taxa de sucesso da caça', unidade: 'caça individual' },
     { tipo: 'Taxa de mortalidade', unidade: 'mortalidade adulta' },
@@ -44,7 +45,11 @@ export const generalVisualOptions = [
     { tipo: 'Tamanho da População', unidade: 'milhares' },
     { tipo: 'Estratégia para obter alimento', unidade: '' },
     { tipo: 'Atividade', unidade: '' },
-    { tipo: 'Vida Social', unidade: '' },
+    { tipo: 'Vida social', unidade: '' },
+    { tipo: 'Organização social', unidade: '' },
+    { tipo: 'Liderança e hierarquia', unidade: '' },
+    { tipo: 'Parentesco e linhagem social', unidade: '' },
+    { tipo: 'Tipo de Comunicação', unidade: '' },
     { tipo: 'Função ecológica', unidade: '' },
     { tipo: 'Locomoção', unidade: '' },
     { tipo: 'Zona Climática', unidade: '' },
@@ -104,37 +109,20 @@ const activityCatalog = [
 
 const socialCatalog = [
     { label: 'Solitária', key: 'solitaria' },
-    { label: 'Gregária', key: 'gregaria' },
     { label: 'Social', key: 'social' },
     { label: 'Altamente social', key: 'altamente_social' },
-    { label: 'Eussocial', key: 'eussocial' },
-    { label: 'Colonial', key: 'colonial' },
+    { label: 'Gregária', key: 'gregaria' },
+    { label: 'Semi-social', key: 'semi_social' },
+    { label: 'Cooperativa', key: 'cooperativa' },
     { label: 'Comunitária', key: 'comunitaria' },
     { label: 'Familiar', key: 'familiar' },
-    { label: 'Monogâmica', key: 'monogamica' },
-    { label: 'Poligâmica', key: 'poligamica' },
-    { label: 'Poligínica', key: 'poliginica' },
-    { label: 'Poliândrica', key: 'poliandrica' },
-    { label: 'Cooperativa', key: 'cooperativa' },
-    { label: 'Hierárquica', key: 'hierarquica' },
     { label: 'Territorial', key: 'territorial' },
-    { label: 'Semi-social', key: 'semi_social' },
-    { label: 'Subsocial', key: 'subsocial' },
     { label: 'Tolerante', key: 'tolerante' },
     { label: 'Agregada', key: 'agregada' },
-    { label: 'Migratória em grupo', key: 'migratoria_em_grupo' },
-    { label: 'Reprodutiva em grupo', key: 'reprodutiva_em_grupo' },
-    { label: 'De casal', key: 'casal' },
-    { label: 'De bando', key: 'bando' },
-    { label: 'De manada', key: 'manada' },
-    { label: 'De alcateia', key: 'alcateia' },
-    { label: 'De cardume', key: 'cardume' },
-    { label: 'De colmeia', key: 'colmeia' },
-    { label: 'De formigueiro', key: 'formigueiro' },
-    { label: 'De harém', key: 'harem' },
-    { label: 'Matriarcal', key: 'matriarcal' },
-    { label: 'Patriarcal', key: 'patriarcal' }
+    { label: 'Migratória em grupo', key: 'migratoria_em_grupo' }
 ];
+
+export const socialTypes = socialCatalog;
 
 const climateZoneOptions = [
     'Tropical',
@@ -241,6 +229,10 @@ const uniqueGeneralVisualMeta = {
     'alcance de detecao': { key: 'alcance-detecao', accent: 'accent-eye' },
     'taxa de emissao de sinais': { key: 'emissao-sinais', accent: 'accent-climate' },
     'organizacao social': { key: 'organizacao-social', accent: 'accent-mating-polygamy' },
+    'composicao do grupo': { key: 'composicao-grupo', accent: 'accent-mating-polygamy' },
+    'lideranca e hierarquia': { key: 'lideranca-hierarquia', accent: 'accent-mating-polygamy' },
+    'parentesco e linhagem social': { key: 'parentesco-linhagem', accent: 'accent-mating-polygamy' },
+    'tipo de comunicacao': { key: 'tipo-comunicacao', accent: 'accent-mating-polygamy' },
     'autoinfeccao': { key: 'autoinfeccao', accent: 'accent-generic' },
     'construcao de local de repouso': { key: 'local-repouso', accent: 'accent-bioma' },
     'presenca ausencia de sistema digestivo': { key: 'sistema-digestivo', accent: 'accent-life' },
@@ -340,7 +332,7 @@ export function getGeneralVisualMeta(type = '') {
     if (normalized.includes('desmame')) return { key: 'desmame', title: type || 'Desmame', accent: 'accent-life' };
     if (normalized.includes('primeira vocalizacao')) return { key: 'primeira-vocalizacao', title: type || 'Primeira vocalização', accent: 'accent-climate' };
     if (normalized.includes('maturidade fisica')) return { key: 'maturidade-fisica', title: type || 'Maturidade física', accent: 'accent-maturity' };
-    if (normalized.includes('composicao do grupo social')) return { key: 'composicao-grupo-social', title: type || 'Composição do grupo social', accent: 'accent-mating-polygamy' };
+    if (normalized.includes('composicao do grupo social')) return { key: 'composicao-grupo', title: 'Composição do grupo', accent: 'accent-mating-polygamy' };
     if (normalized.includes('tamanho do grupo social')) return { key: 'tamanho-grupo-social', title: type || 'Tamanho do grupo social', accent: 'accent-mating-polygamy' };
     if (normalized.includes('taxa de sucesso da caca')) return { key: 'sucesso-caca', title: type || 'Taxa de sucesso da caça', accent: 'accent-speed-max' };
     if (normalized.includes('taxa de mortalidade') && normalized.includes('cativeiro')) return { key: 'mortalidade-cativeiro', title: type || 'Taxa de mortalidade (cativeiro)', accent: 'accent-life' };
@@ -349,7 +341,7 @@ export function getGeneralVisualMeta(type = '') {
     if (normalized.includes('tamanho') && normalized.includes('popul')) return { key: 'populacao', title: type || 'Tamanho da População', accent: 'accent-generic' };
     if (normalized.includes('estrategia')) return { key: 'estrategia', title: type || 'Estratégia para obter alimento', accent: 'accent-generic' };
     if (normalized.includes('atividade')) return { key: 'atividade', title: type || 'Atividade', accent: 'accent-climate' };
-    if (normalized.includes('vida social')) return { key: 'vida-social', title: type || 'Vida Social', accent: 'accent-mating-polygamy' };
+    if (normalized.includes('vida social')) return { key: 'vida-social', title: 'Vida social', accent: 'accent-mating-polygamy' };
     if (normalized.includes('funcao ecologica')) return { key: 'funcao-ecologica', title: type || 'Função ecológica', accent: 'accent-bioma' };
     if (normalized.includes('locomocao')) return { key: 'locomocao', title: type || 'Locomoção', accent: 'accent-climate' };
     if (normalized.includes('zona')) return { key: 'zona-climatica', title: type || 'Zona Climática', accent: 'accent-climate' };
@@ -495,7 +487,7 @@ export function getActivitySvg(key = 'atividade') {
 export function getSocialMeta(value = '') {
     const match = socialMap.get(normalizeGeneralVisualKey(value));
     if (match) return { key: match.key, title: match.label, accent: 'accent-mating-polygamy' };
-    return { key: 'social', title: value || 'Vida Social', accent: 'accent-mating-polygamy' };
+    return { key: 'social', title: value || 'Vida social', accent: 'accent-mating-polygamy' };
 }
 
 export function getSocialSvg(key = 'social') {

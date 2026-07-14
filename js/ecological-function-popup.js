@@ -4,7 +4,7 @@ import {
     getEcologicalFunctionMeta,
     getEcologicalFunctionSvg,
     normalizeEcologicalFunctionKey
-} from './ecological-functions.js?v=2';
+} from './ecological-functions.js?v=20260714_ecology_models';
 
 const ecologicalCatalog = [...ecologicalFunctionCatalog].sort((a, b) => a.label.localeCompare(b.label, 'pt-PT', { sensitivity: 'base' }));
 const escapeHtml = (value = '') => String(value).replace(/[&<>"']/g, character => ({

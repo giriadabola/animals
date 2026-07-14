@@ -824,13 +824,35 @@
             selectedSubespecies = animal.subespeciesDe || [];
             renderSubespeciesTags();
 
+            const curiData = animal.informacao.curiosidades || { cor: '', estadoConservacao: '', texto: '' };
+            const legacyCommunicationItems = [];
+            if (Array.isArray(curiData.detalhes)) {
+                curiData.detalhes
+                    .filter(item => normalizeSearchText(item?.tipo || '') === 'tipo de comunicacao' && String(item?.valor || '').trim())
+                    .forEach(item => legacyCommunicationItems.push({
+                        ...item,
+                        tipo: 'Tipo de Comunicação',
+                        valorMin: item.valorMin || item.valor,
+                        unidade: ''
+                    }));
+            }
+            if (curiData.tipoComunicacao && !legacyCommunicationItems.some(item => item.valor === curiData.tipoComunicacao)) {
+                legacyCommunicationItems.push({ tipo: 'Tipo de Comunicação', valor: curiData.tipoComunicacao, unidade: '' });
+            }
+
             const generalVisualData = animal.informacao.geralDetalhada || [];
             const legacyMatingItems = extractLegacyGeneralMatingItems(generalVisualData);
             const legacyEcologyItems = extractLegacyEcologyItems(generalVisualData);
             const cleanGeneralVisualData = filterLegacyEcologyItems(generalVisualData);
 
             document.getElementById('infoGeral').value = animal.informacao.geral || '';
-            setGeneralVisualData(cleanGeneralVisualData);
+            const newCommunicationItems = legacyCommunicationItems.filter(legacyItem =>
+                !cleanGeneralVisualData.some(item =>
+                    normalizeSearchText(item?.tipo || '') === 'tipo de comunicacao' &&
+                    String(item?.valor || item?.valorMin || '').trim() === String(legacyItem?.valor || legacyItem?.valorMin || '').trim()
+                )
+            );
+            setGeneralVisualData([...cleanGeneralVisualData, ...newCommunicationItems]);
             document.getElementById('infoDimensoes').value = animal.informacao.dimensoes || '';
             setDimensionData(animal.informacao.dimensoesDetalhadas || []);
             document.getElementById('infoAlimentacao').value = animal.informacao.alimentacao || '';
@@ -879,7 +901,6 @@
                 }, 100);
             }
 
-            const curiData = animal.informacao.curiosidades || { cor: '', estadoConservacao: '', texto: '' };
             const ecologyLegacyImportance = animal.informacao.ecologia?.importanciaEconomicaHumanos || '';
             const normalizedCuriData = {
                 ...curiData,
@@ -1375,7 +1396,6 @@
             'Relação com Humanos',
             'Também conhecido como',
             'Temperatura do Ambiente',
-            'Tipo de Comunicação',
             'Periculosidade',
             'Tipo de toxina',
             'Via de administração da toxina',
