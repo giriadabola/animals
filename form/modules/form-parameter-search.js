@@ -84,7 +84,15 @@
                         action: () => createGeneralTarget(parameter, '', section.key)
                     });
                     let options = [];
-                    try { options = getGeneralVisualSelectOptions(parameter) || []; } catch (_) {}
+                    try {
+                        if (typeof getCustomGeneralSelectOptions === 'function') {
+                            options = getCustomGeneralSelectOptions(parameter) || [];
+                        }
+                        if (!options.length && typeof isSeasonalBehaviorGeneralModel === 'function' && isSeasonalBehaviorGeneralModel(parameter) && typeof getSeasonalBehaviorOptions === 'function') {
+                            options = getSeasonalBehaviorOptions() || [];
+                        }
+                        if (!options.length) options = getGeneralVisualSelectOptions(parameter) || [];
+                    } catch (_) {}
                     optionValues(options).forEach(value => addEntry(entries, {
                         section: 'geral', label: value, parent: parameter,
                         keywords: [section.title],
@@ -129,6 +137,12 @@
             section: 'alimentacao', label: value, parent: 'Estratégia para obter alimentos',
             action: () => createFeedingTarget('Estratégia para obter alimentos', value)
         }));
+        let ingestionOptions = [];
+        try { ingestionOptions = getFeedingStrategyOptions('Mecanismo de ingestão') || []; } catch (_) {}
+        optionValues(ingestionOptions).forEach(value => addEntry(entries, {
+            section: 'alimentacao', label: value, parent: 'Mecanismo de ingestão',
+            action: () => createFeedingTarget('Mecanismo de ingestão', value)
+        }));
 
         // Ecologia.
         (typeof ecologyModelOptions !== 'undefined' ? ecologyModelOptions : []).forEach(parameter => {
@@ -140,10 +154,14 @@
             section: 'ecologia', label: value, parent: 'Função Ecológica',
             action: () => createEcologyTarget('Função Ecológica', value)
         }));
-        ['Negativa', 'Positiva', 'Neutra'].forEach(value => addEntry(entries, {
-            section: 'ecologia', label: value, parent: 'Relações Simbióticas',
-            action: () => createEcologyTarget('Relações Simbióticas', value)
-        }));
+        if (typeof ECOLOGY_ADVANCED_OPTIONS !== 'undefined') {
+            Object.entries(ECOLOGY_ADVANCED_OPTIONS).forEach(([parameter, values]) => {
+                optionValues(values).forEach(value => addEntry(entries, {
+                    section: 'ecologia', label: value, parent: parameter,
+                    action: () => createEcologyTarget(parameter, value)
+                }));
+            });
+        }
 
         // Reprodução.
         (typeof reproductionDefaultModels !== 'undefined' ? reproductionDefaultModels : []).forEach(parameter => {
@@ -161,6 +179,11 @@
         reproductionSecondary.forEach((values, parent) => values.forEach(value => addEntry(entries, {
             section: 'reproducao', label: value, parent,
             action: () => createReproductionTarget(parent, value)
+        })));
+        const parentalSearchCatalog = globalThis.formParentalInvestmentSearchCatalog || {};
+        Object.entries(parentalSearchCatalog).forEach(([field, values]) => optionValues(values).forEach(value => addEntry(entries, {
+            section: 'reproducao', label: value, parent: `Investimento Parental › ${field}`,
+            action: () => createParentalInvestmentTarget(field, value)
         })));
 
         // Revestimento corporal: todos os grupos e opções de todas as categorias.
@@ -246,6 +269,31 @@
         switchTab('dimensoes');
         createDimensionRow(parameter);
         finishTarget(dimensionRowsContainer.querySelector('.dimension-row:last-child'));
+    }
+
+    function createParentalInvestmentTarget(field, value) {
+        switchTab('reproducao');
+        createReproductionRow('Investimento Parental');
+        const row = reproductionRowsContainer.querySelector('.reproduction-row:last-child');
+        const selectors = {
+            'Fase': '.parental-stage-select',
+            'Tipo de cuidado': '.parental-care-select',
+            'Responsável': '.parental-actor-select'
+        };
+        const applyValue = () => {
+            const select = row?.querySelector(selectors[field]);
+            if (!select) return false;
+            select.value = value;
+            select.dispatchEvent(new Event('change', { bubbles: true }));
+            return true;
+        };
+        let attempts = 0;
+        const applyWhenReady = () => {
+            if (applyValue() || attempts++ >= 10) return;
+            window.setTimeout(applyWhenReady, 25);
+        };
+        applyWhenReady();
+        finishTarget(row);
     }
 
     function createFeedingTarget(parameter, value) {

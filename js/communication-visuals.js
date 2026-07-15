@@ -1,4 +1,4 @@
-import { communicationTypeCatalog } from './communication-catalog.js';
+import { communicationTypeCatalog, getCanonicalCommunicationType } from './communication-catalog.js?v=2';
 
 const svg = content => `<svg class="metric-model-svg communication-model-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true">${content}</svg>`;
 
@@ -11,6 +11,7 @@ const communicationModels = {
     body: svg('<circle cx="40" cy="19" r="7"/><path d="M40 26v23M40 32 22 42M40 32l18 10M40 49l-12 17M40 49l12 17"/><path d="M16 25l-7 9 9 4M64 25l7 9-9 4"/>'),
     colour: svg('<circle cx="40" cy="39" r="18"/><circle cx="24" cy="25" r="6"/><circle cx="56" cy="25" r="6"/><path d="M40 21v36M22 39h36"/><circle cx="40" cy="39" r="5" fill="currentColor" stroke="none"/>'),
     chemical: svg('<path d="M31 14h18M36 14v19L20 57c-3 5 1 9 7 9h26c6 0 10-4 7-9L44 33V14"/><path d="M27 52c9-5 17 6 26 0"/><circle cx="33" cy="45" r="3" fill="currentColor" stroke="none"/>'),
+    olfactory: svg('<path d="M40 16c-9 0-15 7-15 16v13c0 8 5 13 13 13h4c8 0 13-5 13-13V32c0-9-6-16-15-16Z"/><path d="M31 43c3 3 5 3 9 0c4 3 6 3 9 0"/><path d="M18 26c-5-4-5-9 0-13M62 26c5-4 5-9 0-13"/>'),
     territory: svg('<path d="M21 30c0-11 8-19 19-19s19 8 19 19c0 14-19 33-19 33S21 44 21 30Z"/><circle cx="40" cy="30" r="6"/><path d="M13 64h54"/>'),
     tactile: svg('<path d="M28 58c-8-7-13-15-13-23 0-4 3-6 6-4l8 8V20c0-4 6-4 6 0v16V16c0-4 6-4 6 0v20V19c0-4 6-4 6 0v18l3-8c2-5 8-3 7 2l-4 17c-3 12-12 18-25 10Z"/>'),
     grooming: svg('<path d="M22 18h36v16H22Z"/><path d="M26 34v24M34 34v24M42 34v24M50 34v24"/><path d="M16 18h48"/><path d="M18 63h44"/>'),
@@ -39,29 +40,30 @@ const modelKeyByLabel = {
     'Sons emitidos': 'sound',
     'Frequência dos sons': 'frequency',
     'Intensidade vocal': 'intensity',
-    'Comunicação visual': 'visual',
+    'Visual': 'visual',
     'Linguagem corporal': 'body',
     'Sinais de cor': 'colour',
-    'Comunicação química / olfativa': 'chemical',
+    'Química': 'chemical',
+    'Olfativa': 'olfactory',
     'Marcação de território': 'territory',
-    'Comunicação tátil': 'tactile',
+    'Tátil': 'tactile',
     'Grooming social': 'grooming',
-    'Comunicação vibratória': 'vibratory',
-    'Comunicação sísmica': 'seismic',
-    'Comunicação elétrica': 'electric',
+    'Vibratória': 'vibratory',
+    'Sísmica': 'seismic',
+    'Elétrica': 'electric',
     'Bioluminescência comunicativa': 'light',
-    'Comunicação acústica não vocal': 'acoustic',
+    'Acústica não vocal': 'acoustic',
     'Chamadas de alarme': 'alarm',
     'Chamadas de contacto': 'contact',
     'Chamadas de acasalamento': 'mating',
     'Sinais de ameaça': 'threat',
     'Sinais de submissão': 'submission',
     'Sinais parentais': 'parental',
-    'Comunicação social': 'social',
-    'Comunicação territorial': 'territory',
-    'Comunicação de cortejo': 'courtship',
-    'Comunicação defensiva': 'defensive',
-    'Comunicação multimodal': 'multimodal',
+    'Social': 'social',
+    'Territorial': 'territory',
+    'Cortejo': 'courtship',
+    'Defensiva': 'defensive',
+    'Multimodal': 'multimodal',
     'Distância da comunicação': 'distance',
     'Contexto da comunicação': 'context',
     'Complexidade comunicativa': 'complexity'
@@ -70,7 +72,8 @@ const modelKeyByLabel = {
 const normalizeCommunicationType = value => String(value).trim().toLocaleLowerCase('pt-PT').normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
 export function getCommunicationModelSvg(value = '') {
-    const catalogItem = communicationTypeCatalog.find(item => normalizeCommunicationType(item.label) === normalizeCommunicationType(value));
+    const canonicalValue = getCanonicalCommunicationType(value);
+    const catalogItem = communicationTypeCatalog.find(item => normalizeCommunicationType(item.label) === normalizeCommunicationType(canonicalValue));
     const key = modelKeyByLabel[catalogItem?.label] || 'visual';
     return communicationModels[key];
 }

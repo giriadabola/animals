@@ -374,7 +374,6 @@
             { tipo: 'Estratégia para obter alimento', unidade: '' },
             { tipo: 'Tamanho da População', unidade: 'milhares' },
             { tipo: 'Atividade', unidade: '' },
-            { tipo: 'Vida Social', unidade: '' },
             { tipo: 'Função ecológica', unidade: '' },
             { tipo: 'Locomoção', unidade: '' },
             { tipo: 'Zona Climática', unidade: '' },
@@ -382,4 +381,3 @@
         ];
 
         const generalVisualUnits = ['', 'dias', 'meses', 'anos', 'km/h', 'm/s', 'PSI', 'indivíduos', 'dezenas', 'centenas', 'milhares', 'milhões'];
-

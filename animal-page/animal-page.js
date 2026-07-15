@@ -21,9 +21,10 @@ import { initEcologicalFunctionPopup } from "../js/ecological-function-popup.js?
 import { initMatingSystemPopup } from "../js/mating-system-popup.js?v=2";
 import { initSexualSystemPopup } from "../js/sexual-system-popup.js?v=1";
 import { initBiogeographicRegionPopup } from "../js/biogeographic-regions-popup.js?v=1";
-import { getCommunicationGenericModelSvg } from "../js/communication-visuals.js?v=2";
+import { getCommunicationGenericModelSvg } from "../js/communication-visuals.js?v=3";
 import { initCommunicationTypePopup } from "../js/communication-type-popup.js?v=1";
 import { initEcologyRelationsPopup } from "../js/ecology-relations-popup.js?v=1";
+import { initScientificClassificationToggles } from "./scientific-classification-toggle.js?v=1";
         
         const mainContent = document.getElementById('main-content-area');
 
@@ -413,6 +414,7 @@ import { initEcologyRelationsPopup } from "../js/ecology-relations-popup.js?v=1"
             const icons = {
                 'estilo-vida': `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 14c1.2-2.6 3.5-4 6.8-4h1.4c3.3 0 5.6 1.4 6.8 4"/><circle cx="8" cy="8" r="1.5"/><circle cx="12" cy="6.5" r="1.5"/><circle cx="16" cy="8" r="1.5"/><path d="M9 17.5c.9 1 1.9 1.5 3 1.5s2.1-.5 3-1.5"/></svg>`,
                 medidas: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 16h16"/><path d="M7 16V8"/><path d="M12 16V5"/><path d="M17 16v-6"/><path d="M4 20h16"/></svg>`,
+                dimensoes: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 17L17 5l3 3L8 20H5v-3Z"/><path d="M14 8l2 2M11 11l2 2M8 14l2 2"/></svg>`,
                 anatomia: `<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="6" r="2.5"/><path d="M6 18l12-12" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><circle cx="8" cy="20" r="2.5"/><circle cx="20" cy="8" r="2.5"/></svg>`,
                 fisiologia: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>`,
                 desenvolvimento: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17 8a4 4 0 0 0-4 4v9h2v-9a2 2 0 0 1 2-2h2V8h-2zM7 12a4 4 0 0 0-4 4v5h2v-5a2 2 0 0 1 2-2h2v-2H7zM11 2v20h2V2h-2z"/></svg>`,
@@ -2929,13 +2931,17 @@ import { initEcologyRelationsPopup } from "../js/ecology-relations-popup.js?v=1"
                 animalData.filo ||
                 animalData.subfilo ||
                 animalData.classe ||
+                animalData.subclasse ||
                 animalData.infraclasse ||
+                animalData.magnordem ||
                 animalData.superordem ||
                 animalData.ordem ||
                 animalData.subordem ||
                 animalData.infraordem ||
+                animalData.parvordem ||
                 animalData.familia ||
                 animalData.subfamilia ||
+                animalData.tribo ||
                 animalData.genero ||
                 animalData.subgenero ||
                 animalData.especie ||
@@ -2945,50 +2951,80 @@ import { initEcologyRelationsPopup } from "../js/ecology-relations-popup.js?v=1"
 
             const classificationRow = (filterType, label, value, options = {}) =>
                 value
-                    ? `<div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px;"><strong style="color: var(--text-secondary);">${label}</strong> <span>${renderClassificationFilterValue(filterType, value, options)}</span></div>`
+                    ? `<div class="scientific-classification-row"><strong>${label}</strong><span>${renderClassificationFilterValue(filterType, value, options)}</span></div>`
                     : '';
 
-            const scientificClassificationRowsLinkedHTML = hasScientificClassification ? [
+            const classificationEntries = [
                 ['reino', 'Reino:', animalData.reino],
                 ['filo', 'Filo:', animalData.filo],
                 ['subfilo', 'Subfilo:', animalData.subfilo],
                 ['classe', 'Classe:', animalData.classe],
+                ['subclasse', 'Subclasse:', animalData.subclasse],
                 ['infraclasse', 'Infraclasse:', animalData.infraclasse],
+                ['magnordem', 'Magnordem:', animalData.magnordem],
                 ['superordem', 'Superordem:', animalData.superordem],
                 ['ordem', 'Ordem:', animalData.ordem],
                 ['subordem', 'Subordem:', animalData.subordem],
                 ['infraordem', 'Infraordem:', animalData.infraordem],
+                ['parvordem', 'Parvordem:', animalData.parvordem],
                 ['familia', 'Família:', animalData.familia],
                 ['subfamilia', 'Subfamília:', animalData.subfamilia],
+                ['tribo', 'Tribo:', animalData.tribo],
                 ['genero', 'Género:', animalData.genero, { italic: true }],
                 ['subgenero', 'Subgénero:', animalData.subgenero, { italic: true }],
                 ['especie', 'Espécie:', animalData.especie, { italic: true }],
                 ['autoridadeTaxonomica', 'Autoridade taxonómica:', animalData.autoridadeTaxonomica]
-            ].map(([filterType, label, value, options]) => {
-                return classificationRow(filterType, label, value, options);
-            }).join('') + ((Array.isArray(animalData.subespeciesDe) && animalData.subespeciesDe.length > 0) ? `
-                <div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px;">
-                    <strong style="color: var(--text-secondary);">Subespécie de:</strong>
-                    <span class="subespecies-names" style="color: var(--text-primary); font-weight: 500;">Carregando...</span>
-                </div>` : '') : '';
+            ];
+            const primaryClassificationTypes = new Set([
+                'reino', 'filo', 'subfilo', 'classe', 'infraclasse',
+                'ordem', 'familia', 'subfamilia', 'genero', 'especie'
+            ]);
+            const renderClassificationEntries = entries => entries
+                .map(([filterType, label, value, options]) => classificationRow(filterType, label, value, options))
+                .join('');
+            const scientificClassificationPrimaryRowsLinkedHTML = renderClassificationEntries(
+                classificationEntries.filter(([filterType]) => primaryClassificationTypes.has(filterType))
+            );
+            const scientificClassificationRowsLinkedHTML = renderClassificationEntries(classificationEntries) + ((Array.isArray(animalData.subespeciesDe) && animalData.subespeciesDe.length > 0) ? `
+                <div class="scientific-classification-row">
+                    <strong>Subespécie de:</strong>
+                    <span class="subespecies-names">Carregando...</span>
+                </div>` : '');
+            const hasExpandedClassification = classificationEntries.some(([filterType, , value]) =>
+                value && !primaryClassificationTypes.has(filterType)
+            ) || (Array.isArray(animalData.subespeciesDe) && animalData.subespeciesDe.length > 0);
+
+            const classificationToggleHTML = detailsId => hasExpandedClassification ? `
+                <button type="button" class="scientific-classification-toggle" data-classification-toggle aria-expanded="false" aria-label="Ver classificação completa" title="Ver classificação completa" aria-controls="${detailsId}">
+                    <span class="scientific-classification-toggle-label" data-classification-toggle-label>Ver classificação completa</span>
+                    <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+                </button>` : '';
 
             const scientificClassificationSectionDesktopHTML = hasScientificClassification ? `
-                <div class="info-section-card desktop-only" id="info-classificacao" style="margin-top: 24px; border-color: rgba(139, 92, 246, 0.3); background: linear-gradient(135deg, rgba(6, 182, 212, 0.04), rgba(236, 72, 153, 0.04), rgba(9, 9, 20, 0.85)); padding: 24px; box-shadow: 0 8px 32px rgba(139, 92, 246, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.02);">
+                <div class="info-section-card desktop-only scientific-classification-card" id="info-classificacao" style="margin-top: 24px; border-color: rgba(139, 92, 246, 0.3); background: linear-gradient(135deg, rgba(6, 182, 212, 0.04), rgba(236, 72, 153, 0.04), rgba(9, 9, 20, 0.85)); padding: 24px; box-shadow: 0 8px 32px rgba(139, 92, 246, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.02);">
                     <h3 style="font-size: 1.25rem; margin-bottom: 14px; padding-bottom: 8px; display: flex; align-items: center; border-bottom: 1px solid var(--border-color); color: var(--text-primary);">
                         <span class="icon" style="margin-right: 10px; display: inline-flex;"><i class="fa-solid fa-dna" style="font-size: 1.1rem; background: linear-gradient(135deg, #06b6d4, #ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"></i></span>Classificação científica
                     </h3>
-                    <div class="classification-grid" style="display: flex; flex-direction: column; gap: 8px; font-size: 0.95rem;">
+                    <div class="classification-grid scientific-classification-primary" style="display: flex; flex-direction: column; gap: 8px; font-size: 0.95rem;">
+                        ${scientificClassificationPrimaryRowsLinkedHTML}
+                    </div>
+                    <div class="classification-grid scientific-classification-expanded" id="scientific-classification-details-desktop" data-classification-details hidden>
                         ${scientificClassificationRowsLinkedHTML}
                     </div>
+                    ${classificationToggleHTML('scientific-classification-details-desktop')}
                 </div>
             ` : '';
 
             const scientificClassificationSectionMobileHTML = hasScientificClassification ? `
-                <div class="info-section" id="info-classificacao-mobile">
+                <div class="info-section scientific-classification-card" id="info-classificacao-mobile">
                     <h3><span class="icon" style="margin-right: 10px; display: inline-flex;"><i class="fa-solid fa-dna" style="font-size: 1.1rem; background: linear-gradient(135deg, #06b6d4, #ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"></i></span>Classificação científica</h3>
-                    <div class="classification-grid" style="display: flex; flex-direction: column; gap: 8px; font-size: 0.95rem; margin-top: 15px;">
+                    <div class="classification-grid scientific-classification-primary" style="display: flex; flex-direction: column; gap: 8px; font-size: 0.95rem; margin-top: 15px;">
+                        ${scientificClassificationPrimaryRowsLinkedHTML}
+                    </div>
+                    <div class="classification-grid scientific-classification-expanded" id="scientific-classification-details-mobile" data-classification-details hidden>
                         ${scientificClassificationRowsLinkedHTML}
                     </div>
+                    ${classificationToggleHTML('scientific-classification-details-mobile')}
                 </div>
             ` : '';
 
@@ -3503,6 +3539,7 @@ import { initEcologyRelationsPopup } from "../js/ecology-relations-popup.js?v=1"
                 })()}
             `;
 
+            initScientificClassificationToggles(mainContent);
             initAnimalMediaBlock(mainContent);
             initFooterAnatomyTabs(mainContent);
             initFooterBiomaSlider(mainContent);

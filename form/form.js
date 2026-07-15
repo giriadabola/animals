@@ -8,7 +8,7 @@ import { db, auth } from "../js/firebase-config.js?v=5";
         import { GENDER_BOTH, collapseCombinedGenderItems, expandCombinedGenderItems, getGenderUi, getNextGenderValue, normalizeGenderValue } from "../js/gender-utils.js?v=2";
         import { getEcologyVisualMeta as getSharedEcologyVisualMeta, getEcologyModelSvg as getSharedEcologyModelSvg } from "../js/ecology-visuals.js?v=2";
 
-const FORM_JS_VERSION = '50_social_habits_fields';
+const FORM_JS_VERSION = '54_sort_general_model_rows';
 
 const FORM_MODULE_FILES = [
     './modules/form-dropdown-polish.js',
@@ -29,6 +29,7 @@ const FORM_MODULE_FILES = [
     './modules/form-statistics-counter.js',
     './modules/form-parameter-search.js',
     './modules/form-text-import-popup.js',
+    './modules/form-taxonomy-source-import.js',
     './modules/form-distribution-submit.js',
     './modules/form-rodape-tab.js'
 ];

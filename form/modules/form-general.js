@@ -4,10 +4,14 @@
         }
 
         const GENERAL_MODEL_ALIASES = new Map([
-            ['vida social', 'Vida social'],
             ['composicao do grupo social', 'Composição do grupo'],
             ['tipo de comunicacao', 'Tipo de Comunicação']
         ]);
+
+        const REMOVED_GENERAL_MODEL_KEYS = new Set(['vida social', 'organizacao social']);
+        function isRemovedGeneralModel(type = '') {
+            return REMOVED_GENERAL_MODEL_KEYS.has(normalizeSearchText(type));
+        }
 
         function getCanonicalGeneralModelType(type = '') {
             const normalized = normalizeSearchText(type);
@@ -25,6 +29,7 @@
             .filter(option => !isEcologyFunctionType(option.tipo))
             .filter(option => !isBaseLifeExpectancyGeneralModel(option.tipo))
             .filter(option => !isFeedingStrategyGeneralModel(option.tipo))
+            .filter(option => !isRemovedGeneralModel(option.tipo))
         );
         generalVisualOptions.unshift({ tipo: 'Expetativa média de vida', unidade: 'anos' });
         [
@@ -67,8 +72,6 @@
             { tipo: 'Tempo à superfície', unidade: 'minutos' },
             { tipo: 'Tempo de recuperação entre mergulhos', unidade: 'minutos' },
             { tipo: 'Frequência de mergulho', unidade: 'mergulhos/hora' },
-            { tipo: 'Organização social', unidade: '' },
-            { tipo: 'Vida social', unidade: '' },
             { tipo: 'Liderança e hierarquia', unidade: '' },
             { tipo: 'Parentesco e linhagem social', unidade: '' },
             { tipo: 'Tipo de Comunicação', unidade: '' },
@@ -181,10 +184,8 @@
                     'Construção de local de repouso',
                     'Liderança e hierarquia',
                     'Locomoção',
-                    'Organização social',
                     'Parentesco e linhagem social',
-                    'Tipo de Comunicação',
-                    'Vida social'
+                    'Tipo de Comunicação'
                 ]
             },
             {
@@ -220,6 +221,20 @@
         ];
 
         const generalVisualSectionRows = new Map();
+        const ALPHABETICAL_GENERAL_MODEL_SECTIONS = new Set(['geral', 'anatomia', 'crias', 'estruturas_anatomicas']);
+        const GENERAL_MODEL_COLLATOR = new Intl.Collator('pt-PT', { sensitivity: 'base' });
+
+        function sortGeneralVisualSectionRows(sectionKey = '') {
+            if (!ALPHABETICAL_GENERAL_MODEL_SECTIONS.has(sectionKey)) return;
+            const rows = generalVisualSectionRows.get(sectionKey);
+            if (!rows) return;
+            [...rows.querySelectorAll('.general-visual-row')]
+                .sort((a, b) => GENERAL_MODEL_COLLATOR.compare(
+                    a.querySelector('.general-visual-type')?.value || '',
+                    b.querySelector('.general-visual-type')?.value || ''
+                ))
+                .forEach(row => rows.appendChild(row));
+        }
 
         function getGeneralVisualSectionForType(type = '') {
             const normalized = normalizeSearchText(type);
@@ -302,9 +317,9 @@
 
         function fillGeneralVisualTypeSelect(select, selectedValue = '', sectionKey = '') {
             const section = getGeneralVisualSectionByKey(sectionKey || getGeneralVisualSectionForType(selectedValue).key);
-            const options = section.models.filter(model =>
-                generalVisualOptions.some(option => normalizeSearchText(option.tipo) === normalizeSearchText(model))
-            );
+            const options = section.models
+                .filter(model => generalVisualOptions.some(option => normalizeSearchText(option.tipo) === normalizeSearchText(model)))
+                .sort((a, b) => a.localeCompare(b, 'pt-PT', { sensitivity: 'base' }));
             const hasSelected = selectedValue && options.some(option => normalizeSearchText(option) === normalizeSearchText(selectedValue));
             select.innerHTML = `<option value="">Escolhe um modelo</option>` +
                 options.map(option => `<option value="${option}">${option}</option>`).join('') +
@@ -313,22 +328,6 @@
         }
 
         const CUSTOM_GENERAL_SELECT_OPTIONS = {
-            'Organização social': [
-                'Solitário', 'Casal', 'Grupo familiar', 'Família nuclear', 'Família alargada',
-                'Grupo materno', 'Grupo de maternidade', 'Grupo de crias / berçário',
-                'Grupo de forrageamento', 'Grupo de solteiros', 'Grupo de machos', 'Grupo de fêmeas',
-                'Grupo unissexual', 'Grupo misto', 'Alcateia', 'Matilha', 'Manada', 'Bando', 'Cardume',
-                'Enxame', 'Colónia', 'Colónia reprodutiva', 'Supercolónia', 'Comunal', 'Clã',
-                'Comunidade', 'Harém', 'Sociedade de fissão-fusão', 'Sociedade multinível',
-                'Agregação temporária', 'Dormitório comunal', 'Nidificação comunal',
-                'Grupo de reprodução cooperativa'
-            ],
-            'Vida social': [
-                'Solitário', 'Solitário mas social', 'Subsocial', 'Comunal', 'Quasisocial', 'Semissocial',
-                'Parasocial', 'Eusocial', 'Eusocial primitivo', 'Eusocial avançado', 'Gregário', 'Social',
-                'Altamente social', 'Cooperativo', 'Comunitário', 'Familiar', 'Territorial', 'Tolerante',
-                'Agregado', 'Facultativamente social', 'Obrigatoriamente social'
-            ],
             'Liderança e hierarquia': [
                 'Sem hierarquia definida', 'Hierárquica', 'Hierarquia de dominância', 'Hierarquia linear',
                 'Hierarquia não linear', 'Hierarquia despótica', 'Hierarquia tolerante',
@@ -351,13 +350,13 @@
             ],
             'Tipo de Comunicação': [
                 'Vocalizações', 'Sons emitidos', 'Frequência dos sons', 'Intensidade vocal',
-                'Comunicação visual', 'Linguagem corporal', 'Sinais de cor', 'Comunicação química / olfativa',
-                'Marcação de território', 'Comunicação tátil', 'Grooming social', 'Comunicação vibratória',
-                'Comunicação sísmica', 'Comunicação elétrica', 'Bioluminescência comunicativa',
-                'Comunicação acústica não vocal', 'Chamadas de alarme', 'Chamadas de contacto',
+                'Visual', 'Linguagem corporal', 'Sinais de cor', 'Química', 'Olfativa',
+                'Marcação de território', 'Tátil', 'Grooming social', 'Vibratória',
+                'Sísmica', 'Elétrica', 'Bioluminescência comunicativa',
+                'Acústica não vocal', 'Chamadas de alarme', 'Chamadas de contacto',
                 'Chamadas de acasalamento', 'Sinais de ameaça', 'Sinais de submissão', 'Sinais parentais',
-                'Comunicação social', 'Comunicação territorial', 'Comunicação de cortejo',
-                'Comunicação defensiva', 'Comunicação multimodal', 'Distância da comunicação',
+                'Social', 'Territorial', 'Cortejo',
+                'Defensiva', 'Multimodal', 'Distância da comunicação',
                 'Contexto da comunicação', 'Complexidade comunicativa'
             ],
             'Construção de local de repouso': ['Escava depressão para repousar','Usa toca abandonada','Constrói toca','Usa cavidade em árvore','Abriga-se sob folhas','Abriga-se em cavernas'],
@@ -371,11 +370,13 @@
         function getCustomGeneralSelectOptions(type = '') { return CUSTOM_GENERAL_SELECT_OPTIONS[type] || []; }
 
         function isDropdownOnlyGeneralModel(type = '') {
-            return isSeasonalBehaviorGeneralModel(type) || getCustomGeneralSelectOptions(type).length > 0 || isGeneralVisualCatalogDropdownOnly(type);
+            return !isSocialGroupCompositionGeneralModel(type)
+                && (isSeasonalBehaviorGeneralModel(type) || getCustomGeneralSelectOptions(type).length > 0 || isGeneralVisualCatalogDropdownOnly(type));
         }
 
         function isMixedDropdownRangeGeneralModel(type = '') {
-            return Object.prototype.hasOwnProperty.call(ANATOMICAL_STRUCTURE_DEFINITIONS, type);
+            return isSocialGroupCompositionGeneralModel(type)
+                || Object.prototype.hasOwnProperty.call(ANATOMICAL_STRUCTURE_DEFINITIONS, type);
         }
 
         function isUnitlessGeneralModel(type = '') {
@@ -530,6 +531,7 @@
         }
 
         function getGeneralUnitOptions(type = '') {
+            if (isSocialGroupCompositionGeneralModel(type)) return ['machos adultos', 'fêmeas adultas', 'subadultos', 'juvenis', 'crias'];
             if (isMixedDropdownRangeGeneralModel(type)) return ['mm', 'cm', 'm'];
             if (normalizeSearchText(type).includes('percentagem de gordura')) return ['%'];
             if (normalizeSearchText(type).includes('duracao do mergulho') || normalizeSearchText(type).includes('tempo a superficie') || normalizeSearchText(type).includes('tempo de recuperacao')) return ['segundos','minutos','horas'];
@@ -543,7 +545,6 @@
             if (isNursingGeneralModel(type)) return ['dias', 'meses', 'anos'];
             if (isDevelopmentMilestoneGeneralModel(type)) return ['minutos', 'horas', 'dias', 'semanas', 'meses', 'anos'];
             if (isSocialGroupSizeGeneralModel(type)) return ['indivíduos', 'dezenas', 'centenas', 'milhares', 'milhões'];
-            if (isSocialGroupCompositionGeneralModel(type)) return ['machos adultos', 'fêmeas adultas', 'subadultos', 'juvenis', 'crias'];
             if (isTerritorySizeGeneralModel(type)) return ['m²', 'hectares', 'km²'];
             if (isHuntingSuccessGeneralModel(type)) return ['caça individual', 'caça em grupo'];
             if (isMortalityRateGeneralModel(type)) return ['mortalidade adulta', 'mortalidade das crias'];
@@ -554,6 +555,7 @@
         }
 
         function getGeneralDefaultUnit(type = '') {
+            if (isSocialGroupCompositionGeneralModel(type)) return '';
             if (isMixedDropdownRangeGeneralModel(type)) return 'cm';
             if (normalizeSearchText(type).includes('percentagem de gordura')) return '%';
             if (normalizeSearchText(type).includes('duracao do mergulho') || normalizeSearchText(type).includes('tempo a superficie') || normalizeSearchText(type).includes('tempo de recuperacao')) return 'minutos';
@@ -621,6 +623,7 @@
         function configureGeneralVisualRowControls(type, minInput, maxInput, unitSelect, strategySelect) {
             const isStrategy = isDropdownOnlyGeneralModel(type);
             const isMixedStrategy = isMixedDropdownRangeGeneralModel(type);
+            const isGroupComposition = isSocialGroupCompositionGeneralModel(type);
             const isUnitless = isUnitlessGeneralModel(type);
             
             if (isStrategy) {
@@ -636,16 +639,17 @@
             } else if (isMixedStrategy) {
                 minInput.style.display = '';
                 maxInput.style.display = '';
-                unitSelect.style.display = '';
+                unitSelect.style.display = isGroupComposition ? 'none' : '';
                 unitSelect.style.visibility = 'visible';
-                unitSelect.style.pointerEvents = '';
-                unitSelect.tabIndex = 0;
+                unitSelect.style.pointerEvents = isGroupComposition ? 'none' : '';
+                unitSelect.tabIndex = isGroupComposition ? -1 : 0;
                 if (strategySelect) {
                     strategySelect.style.display = '';
                     strategySelect.style.gridColumn = '';
                 }
-                minInput.step = '0.01';
+                minInput.step = isGroupComposition ? '1' : '0.01';
                 minInput.min = '0';
+                if (isGroupComposition) unitSelect.value = '';
             } else {
                 minInput.style.display = '';
                 maxInput.style.display = '';
@@ -668,6 +672,7 @@
         function createGeneralVisualRow(type = '', minValue = '', unit = '', maxValue = '', gender = GENDER_BOTH, fase = 'Adulto', optionValue = '', sectionKey = '') {
             const row = document.createElement('div');
             row.className = 'general-visual-row';
+            if (isSocialGroupCompositionGeneralModel(type)) row.classList.add('composition-group-row');
             const section = getGeneralVisualSectionByKey(sectionKey || getGeneralVisualSectionForType(type).key);
             row.dataset.section = section.key;
 
@@ -697,7 +702,9 @@
                         : [...(getCustomGeneralSelectOptions(selectedType).length ? getCustomGeneralSelectOptions(selectedType) : getGeneralVisualSelectOptions(selectedType))])
                     .sort((a, b) => a.localeCompare(b, 'pt-PT', { sensitivity: 'base' }));
                 const placeholder = isAnatomicalStructure ? 'Escolhe uma estrutura' : (config?.placeholder || 'Escolhe uma opção');
-                const selectedDropdownValue = minValue || optionValue;
+                const selectedDropdownValue = isSocialGroupCompositionGeneralModel(selectedType)
+                    ? optionValue
+                    : (minValue || optionValue);
                 const hasSelectedDropdownValue = options.some(option => option === selectedDropdownValue);
                 strategySelect.innerHTML = `<option value="">${placeholder}</option>` +
                     options.map(option => `<option value="${option}">${option}</option>`).join('') +
@@ -707,7 +714,9 @@
             }
             populateDropdownSelect(type);
             if (isDropdownOnlyGeneralModel(type) || isMixedDropdownRangeGeneralModel(type)) {
-                strategySelect.value = minValue || optionValue;
+                strategySelect.value = isSocialGroupCompositionGeneralModel(type)
+                    ? optionValue
+                    : (minValue || optionValue);
             }
 
             const maxInput = document.createElement('input');
@@ -762,6 +771,7 @@
                 updateGeneralUnitSelect(unitSelect, typeSelect.value, previousUnit, unitSelect.dataset.userChanged === 'true');
                 populateDropdownSelect(typeSelect.value);
                 configureGeneralVisualRowControls(typeSelect.value, minInput, maxInput, unitSelect, strategySelect);
+                sortGeneralVisualSectionRows(section.key);
                 updateGeneralVisualPreview();
             });
             minInput.addEventListener('input', updateGeneralVisualPreview);
@@ -787,13 +797,16 @@
                 updateGeneralVisualPreview();
             });
 
-            if (section.key === 'estruturas_anatomicas') {
+            if (isSocialGroupCompositionGeneralModel(type)) {
+                row.append(typeSelect, maxInput, minInput, strategySelect, genderBtn, faseBtn, removeBtn);
+            } else if (section.key === 'estruturas_anatomicas') {
                 row.append(typeSelect, strategySelect, minInput, maxInput, unitSelect, genderBtn, faseBtn, removeBtn);
             } else {
                 row.append(typeSelect, minInput, strategySelect, maxInput, unitSelect, genderBtn, faseBtn, removeBtn);
             }
             const sectionRows = generalVisualSectionRows.get(section.key) || generalVisualRowsContainer;
             sectionRows.appendChild(row);
+            sortGeneralVisualSectionRows(section.key);
             updateGeneralVisualSectionCounts();
             updateGeneralVisualPreview();
         }
@@ -815,7 +828,7 @@
                         valorMin: min,
                         valorMax: max,
                         opcao: isMixedStrategy ? optionValue : '',
-                        unidade: (isStrategy || isUnitlessGeneralModel(type)) ? '' : (row.querySelector('.general-visual-unit')?.value || ''),
+                        unidade: (isStrategy || isUnitlessGeneralModel(type) || isSocialGroupCompositionGeneralModel(type)) ? '' : (row.querySelector('.general-visual-unit')?.value || ''),
                         genero: normalizeGenderValue(row.querySelector('.general-visual-gender-toggle')?.dataset.value, GENDER_BOTH),
                         fase: row.querySelector('.general-visual-fase-toggle')?.dataset.value || 'Adulto'
                     };

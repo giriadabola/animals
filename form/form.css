@@ -4315,3 +4315,157 @@ body.form-text-import-open { overflow: hidden; }
         padding: 16px;
     }
 }
+.taxonomy-source-import-panel {
+    display: grid;
+    gap: 7px;
+    margin: 0 0 15px;
+    padding: 12px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-sm);
+    background: rgba(255, 255, 255, 0.025);
+}
+
+.taxonomy-source-import-title {
+    color: var(--primary-color);
+    font-size: 0.88rem;
+    font-weight: 700;
+}
+
+.taxonomy-source-import-hint,
+.taxonomy-source-status {
+    margin: 0 0 4px;
+    color: var(--text-secondary);
+    font-size: 0.78rem;
+    line-height: 1.4;
+}
+
+.taxonomy-source-animal-label {
+    padding: 8px 10px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-sm);
+    background: rgba(255, 255, 255, 0.03);
+    color: var(--text-primary);
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.taxonomy-source-import-panel label:not(.taxonomy-source-close-option) {
+    color: var(--text-secondary);
+    font-size: 0.76rem;
+    font-weight: 600;
+}
+
+.taxonomy-source-import-panel input[type="url"] {
+    width: 100%;
+    min-height: 34px;
+    box-sizing: border-box;
+    padding: 7px 9px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-sm);
+    background: var(--bg-card);
+    color: var(--text-primary);
+    font-size: 0.8rem;
+}
+
+.taxonomy-source-close-option {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin-top: 4px;
+    color: var(--text-secondary);
+    font-size: 0.78rem;
+    cursor: pointer;
+}
+
+.taxonomy-source-open-button {
+    justify-content: center;
+    margin: 4px 0 0;
+    background: var(--primary-color);
+    color: var(--bg-primary);
+    border: none;
+}
+
+.taxonomy-source-open-button:disabled {
+    cursor: wait;
+    opacity: 0.65;
+}
+
+.taxonomy-source-status:empty {
+    display: none;
+}
+
+.taxonomy-text-import-area {
+    margin-bottom: 15px;
+}
+
+#importTaxTextarea {
+    display: block;
+    width: 100%;
+    min-height: 140px;
+    height: clamp(140px, 28vh, 220px);
+    box-sizing: border-box;
+    padding: 12px;
+    background: var(--bg-card);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-sm);
+    font-family: monospace;
+    resize: vertical;
+}
+
+.taxonomy-import-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: flex-end;
+}
+
+#importTaxModalOverlay {
+    box-sizing: border-box;
+    padding: 12px;
+    overflow-y: auto;
+}
+
+#importTaxModalOverlay > .modal {
+    width: min(500px, 100%);
+    max-width: 500px !important;
+    max-height: calc(100vh - 24px);
+    box-sizing: border-box;
+    overflow-y: auto;
+    padding: clamp(16px, 4vw, 28px);
+}
+
+@media (max-width: 480px) {
+    #importTaxModalOverlay {
+        padding: 8px;
+    }
+
+    #importTaxModalOverlay > .modal {
+        width: 100%;
+        max-height: calc(100vh - 16px);
+        padding: 16px 12px;
+    }
+
+    #importTaxModalOverlay > .modal h2 {
+        font-size: clamp(1.15rem, 6vw, 1.5rem);
+    }
+
+    #importTaxModalOverlay > .modal > p {
+        font-size: 0.82rem !important;
+        line-height: 1.4;
+    }
+
+    .taxonomy-source-import-panel {
+        padding: 10px;
+    }
+
+    .taxonomy-source-open-button,
+    .taxonomy-import-actions .menu-button {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .taxonomy-import-actions {
+        justify-content: stretch;
+    }
+}

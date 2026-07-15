@@ -101,6 +101,101 @@
             font-size: 0.83rem !important;
             color: rgba(255, 255, 255, 0.7) !important;
         }
+
+        .scientific-classification-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: 6px;
+        }
+
+        .scientific-classification-card h3 {
+            font-size: 1.15rem !important;
+            white-space: nowrap;
+            gap: 0;
+        }
+
+        .scientific-classification-card h3 .icon {
+            flex: 0 0 auto;
+            margin-right: 8px !important;
+        }
+
+        .scientific-classification-row strong {
+            color: var(--text-secondary);
+        }
+
+        .scientific-classification-row > span {
+            text-align: right;
+        }
+
+        .scientific-classification-expanded {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .scientific-classification-expanded[hidden] {
+            display: none;
+        }
+
+        .scientific-classification-primary[hidden] {
+            display: none !important;
+        }
+
+        .scientific-classification-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            margin-top: 14px;
+            padding: 8px 10px;
+            border: 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            background: transparent;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font: inherit;
+            font-size: 0.82rem;
+        }
+
+        .scientific-classification-toggle:hover,
+        .scientific-classification-toggle:focus-visible {
+            color: var(--primary-color);
+        }
+
+        .scientific-classification-toggle i {
+            transition: transform 180ms ease;
+        }
+
+        .scientific-classification-toggle-label {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        .scientific-classification-toggle.is-expanded i {
+            transform: rotate(180deg);
+        }
+
+        @media (max-width: 640px) {
+            .scientific-classification-row {
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .scientific-classification-row > span {
+                max-width: 60%;
+            }
+        }
         #info-ambiente .dimension-model-card .dimension-model-label,
         #info-ambiente-mobile .dimension-model-card .dimension-model-label {
             font-size: 0.8rem !important;
@@ -109,6 +204,14 @@
 
         .visual-model-group-card {
             align-items: flex-start;
+        }
+
+        #info-modelos-visuais .communication-type-popup-trigger,
+        #info-modelos-visuais-mobile .communication-type-popup-trigger {
+            border: none !important;
+            border-radius: 0 !important;
+            background: none !important;
+            box-shadow: none !important;
         }
 
         .visual-model-group-card .dimension-model-copy {
@@ -552,18 +655,18 @@
         }
 
         /* Os cards interativos devem manter o contorno em qualquer viewport. */
-        button.dimension-model-card:not(.perception-type-popup-trigger),
-        a.dimension-model-card:not(.perception-type-popup-trigger),
-        [role="button"].dimension-model-card:not(.perception-type-popup-trigger) {
+        button.dimension-model-card:not(.perception-type-popup-trigger):not(.communication-type-popup-trigger),
+        a.dimension-model-card:not(.perception-type-popup-trigger):not(.communication-type-popup-trigger),
+        [role="button"].dimension-model-card:not(.perception-type-popup-trigger):not(.communication-type-popup-trigger) {
             border: 1px solid color-mix(in srgb, var(--model-accent, #cbd5e1) 35%, var(--border-color)) !important;
         }
 
         /* A lista de modelos visuais remove as bordas dos cards informativos,
            mas os que abrem um popup continuam claramente identificáveis. */
-        #info-modelos-visuais button.dimension-model-card:not(.perception-type-popup-trigger),
-        #info-modelos-visuais a.dimension-model-card:not(.perception-type-popup-trigger),
-        #info-modelos-visuais-mobile button.dimension-model-card:not(.perception-type-popup-trigger),
-        #info-modelos-visuais-mobile a.dimension-model-card:not(.perception-type-popup-trigger) {
+        #info-modelos-visuais button.dimension-model-card:not(.perception-type-popup-trigger):not(.communication-type-popup-trigger),
+        #info-modelos-visuais a.dimension-model-card:not(.perception-type-popup-trigger):not(.communication-type-popup-trigger),
+        #info-modelos-visuais-mobile button.dimension-model-card:not(.perception-type-popup-trigger):not(.communication-type-popup-trigger),
+        #info-modelos-visuais-mobile a.dimension-model-card:not(.perception-type-popup-trigger):not(.communication-type-popup-trigger) {
             border: 1px solid color-mix(in srgb, var(--model-accent, #cbd5e1) 35%, var(--border-color)) !important;
             border-radius: 14px !important;
         }
@@ -743,14 +846,49 @@
             }
 
             .visual-model-tabs .visual-model-section-tab {
-                padding: 10px 8px;
-                font-size: 1rem;
+                gap: 7px;
+                min-width: 0;
+                padding: 10px 6px;
+                font-size: clamp(0.88rem, 4vw, 1rem);
+                letter-spacing: -0.35px;
+                white-space: nowrap;
             }
 
             .visual-model-tabs .visual-model-section-tab .icon,
             .visual-model-tabs .visual-model-section-tab .svg-icon {
-                width: 22px;
-                height: 22px;
+                flex: 0 0 30px;
+                width: 30px;
+                height: 30px;
+                min-width: 30px;
+                margin: 0;
+                border-radius: 10px;
+            }
+
+            .visual-model-tabs .visual-model-section-tab .section-title-icon {
+                width: 19px;
+                height: 19px;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .visual-model-tabs .visual-model-section-tab {
+                gap: 4px;
+                padding-inline: 3px;
+                font-size: 0.82rem;
+            }
+
+            .visual-model-tabs .visual-model-section-tab .icon,
+            .visual-model-tabs .visual-model-section-tab .svg-icon {
+                flex-basis: 27px;
+                width: 27px;
+                height: 27px;
+                min-width: 27px;
+                border-radius: 9px;
+            }
+
+            .visual-model-tabs .visual-model-section-tab .section-title-icon {
+                width: 17px;
+                height: 17px;
             }
         }
 
@@ -2967,9 +3105,51 @@
     padding: 16px;
 }
 
-.svg-loading-placeholder {
-    color: var(--text-secondary);
-    padding: 40px;
-    text-align: center;
-    font-style: italic;
-}
+        .svg-loading-placeholder {
+            color: var(--text-secondary);
+            padding: 40px;
+            text-align: center;
+            font-style: italic;
+        }
+
+        /* As estatísticas de Infos são linhas do cartão principal, não cartões autónomos. */
+        .visual-models-info-section .dimension-model-card {
+            border: none !important;
+            border-radius: 0 !important;
+            background: transparent !important;
+            box-shadow: none !important;
+            padding: 10px 0 !important;
+        }
+
+        .visual-models-info-section .dimension-model-card + .dimension-model-card {
+            border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
+            padding-top: 14px !important;
+        }
+
+        .visual-models-info-section .dimension-model-card:hover,
+        .visual-models-info-section .dimension-model-card:focus-visible {
+            border-color: transparent !important;
+            background: transparent !important;
+            box-shadow: none !important;
+            transform: none !important;
+        }
+
+        /* Na aba Informações, as opções são linhas do painel e não cards autónomos. */
+        .visual-models-info-section .visual-model-tab-pane[data-visual-model-pane="info"] .dimension-model-card,
+        .visual-models-info-section:not(.visual-model-tabs) .dimension-model-card {
+            border: none !important;
+            border-radius: 0 !important;
+            background: transparent !important;
+            box-shadow: none !important;
+        }
+
+        .visual-models-info-section .visual-model-tab-pane[data-visual-model-pane="info"] .dimension-model-card:hover,
+        .visual-models-info-section .visual-model-tab-pane[data-visual-model-pane="info"] .dimension-model-card:focus-visible,
+        .visual-models-info-section:not(.visual-model-tabs) .dimension-model-card:hover,
+        .visual-models-info-section:not(.visual-model-tabs) .dimension-model-card:focus-visible {
+            border: none !important;
+            border-radius: 0 !important;
+            background: transparent !important;
+            box-shadow: none !important;
+            transform: none !important;
+        }

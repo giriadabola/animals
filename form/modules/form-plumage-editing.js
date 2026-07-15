@@ -808,19 +808,26 @@
             document.getElementById('filo').value = animal.filo || '';
             document.getElementById('subfilo').value = animal.subfilo || '';
             document.getElementById('classe').value = animal.classe || '';
+            if (document.getElementById('subclasse')) document.getElementById('subclasse').value = animal.subclasse || '';
             if (typeof window.syncCategoryFromScientificClass === 'function') {
                 window.syncCategoryFromScientificClass();
             }
             if (document.getElementById('infraclasse')) document.getElementById('infraclasse').value = animal.infraclasse || '';
+            if (document.getElementById('magnordem')) document.getElementById('magnordem').value = animal.magnordem || '';
             document.getElementById('superordem').value = animal.superordem || '';
             document.getElementById('ordem').value = animal.ordem || '';
             document.getElementById('subordem').value = animal.subordem || '';
             document.getElementById('infraordem').value = animal.infraordem || '';
+            if (document.getElementById('parvordem')) document.getElementById('parvordem').value = animal.parvordem || '';
             if (document.getElementById('subfamilia')) document.getElementById('subfamilia').value = animal.subfamilia || '';
+            if (document.getElementById('tribo')) document.getElementById('tribo').value = animal.tribo || '';
             document.getElementById('genero').value = animal.genero || '';
             if (document.getElementById('subgenero')) document.getElementById('subgenero').value = animal.subgenero || '';
             document.getElementById('especies').value = animal.especie || '';
             if (document.getElementById('autoridadeTaxonomica')) document.getElementById('autoridadeTaxonomica').value = animal.autoridadeTaxonomica || '';
+            if (typeof window.setTaxonomySourceUrls === 'function') {
+                window.setTaxonomySourceUrls(animal.taxonomiaFontes || {});
+            }
             selectedSubespecies = animal.subespeciesDe || [];
             renderSubespeciesTags();
 
@@ -1163,20 +1170,29 @@
                 }
 
                 const parsed = parseClassificationText(rawText);
+
+                if (!Object.keys(parsed).length) {
+                    window.alert('Não foram encontrados campos taxonómicos no texto. Verifica se o texto contém, por exemplo, “Class: Mammalia” ou “Class\\tMammalia”.');
+                    return;
+                }
                 
                 const keyToDomId = {
                     'reino': 'reino',
                     'filo': 'filo',
                     'subfilo': 'subfilo',
                     'classe': 'classe',
+                    'subclasse': 'subclasse',
                     'infraclasse': 'infraclasse',
+                    'magnordem': 'magnordem',
                     'superordem': 'superordem',
                     'ordem': 'ordem',
                     'subordem': 'subordem',
                     'infraordem': 'infraordem',
+                    'parvordem': 'parvordem',
                     'família': 'familia',
                     'familia': 'familia',
                     'subfamilia': 'subfamilia',
+                    'tribo': 'tribo',
                     'género': 'genero',
                     'genero': 'genero',
                     'subgenero': 'subgenero',
@@ -1191,6 +1207,7 @@
                     'authority': 'autoridadeTaxonomica'
                 };
 
+                let filledFields = 0;
                 for (const [key, value] of Object.entries(parsed)) {
                     const domId = keyToDomId[key.toLowerCase()];
                     if (domId) {
@@ -1198,8 +1215,14 @@
                         if (el) {
                             el.value = value;
                             el.dispatchEvent(new Event('input', { bubbles: true }));
+                            filledFields++;
                         }
                     }
+                }
+
+                if (!filledFields) {
+                    window.alert('Foram reconhecidos ranks, mas não foi possível localizar os campos do formulário. Recarrega a página e tenta novamente.');
+                    return;
                 }
 
                 closeImportTaxModal();
@@ -1219,20 +1242,27 @@
                 filo: 'filo', phylum: 'filo',
                 subfilo: 'subfilo', subphylum: 'subfilo',
                 classe: 'classe', class: 'classe',
+                subclasse: 'subclasse', subclass: 'subclasse',
                 infraclasse: 'infraclasse', infraclass: 'infraclasse',
+                magnordem: 'magnordem', magnorder: 'magnordem',
                 superordem: 'superordem', superorder: 'superordem',
                 ordem: 'ordem', order: 'ordem',
                 subordem: 'subordem', suborder: 'subordem',
                 infraordem: 'infraordem', infraorder: 'infraordem',
+                parvordem: 'parvordem', parvorder: 'parvordem',
                 familia: 'familia', family: 'familia',
                 subfamilia: 'subfamilia', subfamily: 'subfamilia',
+                tribo: 'tribo', tribe: 'tribo',
                 genero: 'genero', genus: 'genero',
                 subgenero: 'subgenero', subgenus: 'subgenero',
                 especie: 'especies', especies: 'especies', species: 'especies',
-                autoridadetaxonomica: 'autoridadeTaxonomica', taxonomicauthority: 'autoridadeTaxonomica', authority: 'autoridadeTaxonomica'
+                autoridadetaxonomica: 'autoridadeTaxonomica', taxonomicauthority: 'autoridadeTaxonomica', authority: 'autoridadeTaxonomica', binomialauthority: 'autoridadeTaxonomica'
             };
 
             const normalizeKey = (value = '') => String(value)
+                .replace(/[ *_`]/g, '')
+                .replace(/^\s*[#>]+\s*/, '')
+                .replace(/\s*\[[^\]]+\]\s*$/g, '')
                 .toLowerCase()
                 .normalize('NFD')
                 .replace(/[\u0300-\u036f]/g, '')
@@ -1242,10 +1272,61 @@
 
             const savePair = (rawKey, rawValue) => {
                 const key = aliases[normalizeKey(rawKey)];
-                const value = String(rawValue || '').replace(/^[:\-–—\t\s]+/, '').trim();
+                const value = String(rawValue || '')
+                    .replace(/^[:\-–—\t\s]+/, '')
+                    .replace(/^[* _`]+|[* _`]+$/g, '')
+                    .trim();
                 if (key && value) result[key] = value;
                 return !!(key && value);
             };
+
+            const cleanRankValue = (rawValue) => {
+                let value = String(rawValue || '')
+                    .replace(/[ᵀ†]/g, '')
+                    .replace(/\s+-\s+.*$/, '')
+                    .replace(/\s+auct\.\s*$/i, '')
+                    .trim();
+
+                // Retira a autoridade que aparece depois do nome do táxon.
+                value = value
+                    .replace(/\s+\([^)]*\b\d{4}\b[^)]*\)\s*$/u, '')
+                    .replace(/\s+[A-ZÀ-Ý][\p{L}'’.-]*(?:,\s*[A-ZÀ-Ý][\p{L}'’.-]*)*(?:\s+(?:and|&|et al\.)\s*[A-ZÀ-Ý][\p{L}'’.-]*)*,?\s+\d{4}\s*$/u, '')
+                    .trim();
+
+                const authorityStart = value.match(/\s+[A-ZÀ-Ý][\p{L}'’.-]*(?=,|\s+[A-ZÀ-Ý][\p{L}'’.-]*,)/u);
+                if (authorityStart) value = value.slice(0, authorityStart.index).trim();
+
+                return value;
+            };
+
+            // Aceita tabelas copiadas das fontes (Rank<TAB>Name<TAB>Author)
+            // e linhas compactas separadas por dois hífens.
+            for (const line of lines) {
+                const fragments = line.split(/\s+--\s+/).map(fragment => fragment.trim()).filter(Boolean);
+                for (const fragment of fragments) {
+                    const tabMatch = fragment.match(/^([^\t]+)\t([^\t]+)(?:\t(.*))?$/);
+                    if (tabMatch) {
+                        savePair(tabMatch[1], tabMatch[2]);
+                        if (tabMatch[3] && aliases[normalizeKey(tabMatch[1])] === 'especies') {
+                            savePair('authority', tabMatch[3]);
+                        }
+                        continue;
+                    }
+
+                    const inlineMatch = fragment.match(/^(.+?)\s*:\s*(.+)$/);
+                    if (inlineMatch) {
+                        savePair(inlineMatch[1], inlineMatch[2]);
+                        continue;
+                    }
+
+                    // O Taxonomicon também apresenta linhas como
+                    // "Class Mammalia Linnaeus, 1758 - mammals".
+                    const rankedLineMatch = fragment.match(/^([^\s:]+)\s+(.+)$/);
+                    if (rankedLineMatch && aliases[normalizeKey(rankedLineMatch[1])]) {
+                        savePair(rankedLineMatch[1], cleanRankValue(rankedLineMatch[2]));
+                    }
+                }
+            }
 
             // Formatos "Kingdom: Animalia", com dois-pontos, hífen ou tabulação.
             for (const line of lines) {
@@ -1272,6 +1353,22 @@
                 if (abbreviated && result.genero.charAt(0).toLowerCase() === abbreviated[1].toLowerCase()) {
                     result.especies = `${result.genero} ${abbreviated[2].trim()}`;
                 }
+            }
+
+            // Quando a fonte não escreve literalmente "Species:", procura o
+            // primeiro nome binomial não numerado depois do género.
+            if (!result.especies && result.genero) {
+                const escapedGenus = result.genero.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                const speciesPattern = new RegExp(`^${escapedGenus}(?:\\s+\\([^)]*\\))?\\s+([a-z][a-z-]+)\\b`);
+                const speciesLine = lines.find(line => !/^\d+\s+/.test(line) && speciesPattern.test(line));
+                const speciesMatch = speciesLine?.match(speciesPattern);
+                if (speciesMatch) result.especies = `${result.genero} ${speciesMatch[1]}`;
+            }
+
+            if (!result.autoridadeTaxonomica) {
+                const taxonLine = lines.find(line => /^Taxon:\s+/i.test(line));
+                const authorityMatch = taxonLine?.match(/\b[A-ZÀ-Ý][\p{L}'’.-]+(?:\s+(?:and|&)\s+[A-ZÀ-Ý][\p{L}'’.-]+)?,?\s+(?:1[5-9]\d{2}|20\d{2})\b/u);
+                if (authorityMatch) savePair('authority', authorityMatch[0]);
             }
 
             return result;
@@ -1424,29 +1521,30 @@
             'Sons emitidos': 'Lista concreta dos sons conhecidos da espécie. Ex.: guinchos, estalos, zumbidos, roncos, chiados, uivos.',
             'Frequência dos sons': 'Tipo de frequência sonora usada: audível, infrassónica, ultrassónica ou baixa frequência.',
             'Intensidade vocal': 'Indica se o animal é silencioso, pouco vocal, moderadamente vocal ou muito vocal.',
-            'Comunicação visual': 'Uso de sinais visíveis, como cores, padrões, posturas, movimentos, exibições ou mudanças corporais.',
+            'Visual': 'Uso de sinais visíveis, como cores, padrões, posturas, movimentos, exibições ou mudanças corporais.',
             'Linguagem corporal': 'Posturas e movimentos usados para comunicar intenção, ameaça, submissão, cortejo, medo ou dominância.',
             'Sinais de cor': 'Cores ou padrões corporais usados como aviso, camuflagem, atração sexual ou reconhecimento entre indivíduos.',
-            'Comunicação química / olfativa': 'Comunicação através de cheiros, feromonas, urina, fezes ou secreções glandulares.',
+            'Química': 'Comunicação através de substâncias químicas, feromonas, urina, fezes ou secreções glandulares.',
+            'Olfativa': 'Comunicação através de cheiros detetados pelo sistema olfativo.',
             'Marcação de território': 'Uso de cheiro, urina, fezes, arranhões, vocalizações ou sinais visuais para indicar posse de território.',
-            'Comunicação tátil': 'Comunicação por contacto físico. Ex.: toques, lambidelas, grooming, roçar o corpo, antenas ou bicadas suaves.',
+            'Tátil': 'Comunicação por contacto físico. Ex.: toques, lambidelas, grooming, roçar o corpo, antenas ou bicadas suaves.',
             'Grooming social': 'Limpeza ou cuidado corporal entre indivíduos, muitas vezes usado para reforçar laços sociais.',
-            'Comunicação vibratória': 'Uso de vibrações transmitidas pelo solo, água, folhas, troncos ou teias.',
-            'Comunicação sísmica': 'Tipo específico de comunicação vibratória feita através do solo. Ex.: elefantes, insetos e alguns roedores.',
-            'Comunicação elétrica': 'Uso de campos ou impulsos elétricos para orientação, reconhecimento ou comunicação. Comum em alguns peixes.',
+            'Vibratória': 'Uso de vibrações transmitidas pelo solo, água, folhas, troncos ou teias.',
+            'Sísmica': 'Tipo específico de comunicação vibratória feita através do solo. Ex.: elefantes, insetos e alguns roedores.',
+            'Elétrica': 'Uso de campos ou impulsos elétricos para orientação, reconhecimento ou comunicação. Comum em alguns peixes.',
             'Bioluminescência comunicativa': 'Produção de luz para atrair parceiros, confundir predadores, sinalizar ou reconhecer indivíduos.',
-            'Comunicação acústica não vocal': 'Sons produzidos sem vocalização direta. Ex.: bater asas, tamborilar, estalar mandíbulas, bater cauda.',
+            'Acústica não vocal': 'Sons produzidos sem vocalização direta. Ex.: bater asas, tamborilar, estalar mandíbulas, bater cauda.',
             'Chamadas de alarme': 'Sinais usados para avisar outros indivíduos sobre predadores ou perigo.',
             'Chamadas de contacto': 'Sinais usados para manter ligação entre membros do grupo, crias e progenitores ou parceiros.',
             'Chamadas de acasalamento': 'Sinais usados para atrair parceiros durante a época reprodutiva.',
             'Sinais de ameaça': 'Comportamentos usados para intimidar rivais ou predadores. Ex.: eriçar pelo, abrir asas, mostrar dentes.',
             'Sinais de submissão': 'Posturas ou sons usados para reduzir conflito e mostrar que o animal não representa ameaça.',
             'Sinais parentais': 'Comunicação entre progenitores e crias, incluindo chamamentos, toques, alimentação ou proteção.',
-            'Comunicação social': 'Sinais usados para coordenar o grupo, manter hierarquias ou reforçar relações sociais.',
-            'Comunicação territorial': 'Sinais usados para defender área, ninho, toca, recursos ou parceiro.',
-            'Comunicação de cortejo': 'Danças, cantos, cores, ofertas, exibições ou movimentos usados para atrair parceiro.',
-            'Comunicação defensiva': 'Sinais usados para afastar predadores. Ex.: cores de aviso, silvos, bufos, fingir ser maior.',
-            'Comunicação multimodal': 'Uso de vários tipos de comunicação ao mesmo tempo. Ex.: canto + dança + cores + cheiro.',
+            'Social': 'Sinais usados para coordenar o grupo, manter hierarquias ou reforçar relações sociais.',
+            'Territorial': 'Sinais usados para defender área, ninho, toca, recursos ou parceiro.',
+            'Cortejo': 'Danças, cantos, cores, ofertas, exibições ou movimentos usados para atrair parceiro.',
+            'Defensiva': 'Sinais usados para afastar predadores. Ex.: cores de aviso, silvos, bufos, fingir ser maior.',
+            'Multimodal': 'Uso de vários tipos de comunicação ao mesmo tempo. Ex.: canto + dança + cores + cheiro.',
             'Distância da comunicação': 'Indica se os sinais funcionam a curta, média ou longa distância.',
             'Contexto da comunicação': 'Situação em que a comunicação ocorre: alarme, acasalamento, alimentação, território, cuidado parental ou vida social.',
             'Complexidade comunicativa': 'Grau de variedade e sofisticação dos sinais: simples, moderada ou complexa.'

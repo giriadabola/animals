@@ -1,5 +1,5 @@
-import { communicationTypeCatalog } from './communication-catalog.js?v=1';
-import { getCommunicationModelSvg } from './communication-visuals.js?v=2';
+import { communicationTypeCatalog, getCanonicalCommunicationType } from './communication-catalog.js?v=2';
+import { getCommunicationModelSvg } from './communication-visuals.js?v=3';
 
 const communicationCatalog = [...communicationTypeCatalog].sort((a, b) => a.label.localeCompare(b.label, 'pt-PT', { sensitivity: 'base' }));
 const normalizeCommunicationType = value => String(value).trim().toLocaleLowerCase('pt-PT').normalize('NFD').replace(/[\u0300-\u036f]/g, '');
@@ -13,8 +13,9 @@ const escapeHtml = (value = '') => String(value).replace(/[&<>"']/g, character =
 
 function resolveCommunicationType(value) {
     const label = String(value || '').trim();
-    const catalogItem = communicationCatalog.find(item => normalizeCommunicationType(item.label) === normalizeCommunicationType(label));
-    const canonical = catalogItem?.label || label;
+    const canonicalInput = getCanonicalCommunicationType(label);
+    const catalogItem = communicationCatalog.find(item => normalizeCommunicationType(item.label) === normalizeCommunicationType(canonicalInput));
+    const canonical = catalogItem?.label || canonicalInput;
     return {
         label: canonical || 'Tipo de Comunicação',
         description: catalogItem?.description || 'Tipo de comunicação específico deste animal.',

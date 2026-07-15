@@ -28,6 +28,7 @@
     <script src="https://cdn.jsdelivr.net/npm/jsvectormap/dist/maps/world.js"></script>
     <script src="./form-cache.js?v=20260709_portfolio_1"></script>
     <link rel="stylesheet" href="./form.css?v=20260714_reproduction_preview_selection">
+    <link rel="stylesheet" href="./form-responsive.css?v=20260715_mobile_1">
 
     <style id="form-auth-critical-css">
         /* Evita flash do formulário antes de confirmar login. */
@@ -210,10 +211,18 @@
                         <input type="text" id="classe" autocomplete="off" placeholder="Ex: Mammalia">
                         <div class="autocomplete-results" id="classeResults"></div>
                     </div>
+                    <div class="form-group">
+                        <label for="subclasse">Subclasse</label>
+                        <input type="text" id="subclasse" autocomplete="off" placeholder="Ex: Theria">
+                    </div>
                     <div class="form-group autocomplete-container">
                         <label for="infraclasse">Infraclasse</label>
                         <input type="text" id="infraclasse" autocomplete="off" placeholder="Ex: Placentalia">
                         <div class="autocomplete-results" id="infraclasseResults"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="magnordem">Magnordem</label>
+                        <input type="text" id="magnordem" autocomplete="off" placeholder="Ex: Atlantogenata">
                     </div>
                     <div class="form-group autocomplete-container">
                         <label for="superordem">Superordem</label>
@@ -235,6 +244,10 @@
                         <input type="text" id="infraordem" autocomplete="off" placeholder="Ex: Simiiformes">
                         <div class="autocomplete-results" id="infraordemResults"></div>
                     </div>
+                    <div class="form-group">
+                        <label for="parvordem">Parvordem</label>
+                        <input type="text" id="parvordem" autocomplete="off" placeholder="Ex: Elephantida">
+                    </div>
                     <div class="form-group autocomplete-container">
                         <label for="familia">Família</label>
                         <input type="text" id="familia" autocomplete="off" placeholder="Ex: Felidae">
@@ -244,6 +257,10 @@
                         <label for="subfamilia">Subfamília</label>
                         <input type="text" id="subfamilia" autocomplete="off" placeholder="Ex: Bovinae">
                         <div class="autocomplete-results" id="subfamiliaResults"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="tribo">Tribo</label>
+                        <input type="text" id="tribo" autocomplete="off" placeholder="Ex: Loxodontini">
                     </div>
                     <div class="form-group autocomplete-container">
                         <label for="genero">Género</label>
@@ -413,7 +430,7 @@
                                             <option value="Zona úmida"></option>
                                         </datalist>
                                         <button type="button" id="addGeneralVisualBtn" class="secondary-action-btn">+ Adicionar modelo</button>
-                                        <p class="form-hint">Usa esta área para dados gerais com modelo visual: vida útil, velocidades, força da mordida, tamanho da população, tempo de amamentação, atividade, vida social, função ecológica, locomoção, estratégia para obter alimento, zona climática e bioma.</p>
+                                        <p class="form-hint">Usa esta área para dados gerais com modelo visual: vida útil, velocidades, força da mordida, tamanho da população, tempo de amamentação, atividade, função ecológica, locomoção, estratégia para obter alimento, zona climática e bioma.</p>
                                     </div>
 
                                     <div class="general-visual-preview" aria-live="polite">
@@ -919,10 +936,18 @@
         <div class="modal" style="max-width: 500px;">
             <h2>Importar Classificação Científica</h2>
             <p style="color: var(--text-secondary); margin-top: -10px; font-size: 0.9rem; margin-bottom: 15px;">Cole o texto de classificação (ex: Wikipédia) para preencher os campos automaticamente.</p>
-            <div style="margin-bottom: 15px;">
-                <textarea id="importTaxTextarea" placeholder="Cole o texto aqui...&#10;&#10;Aceita formatos como:&#10;Kingdom&#10;Animalia&#10;Phylum&#10;Chordata&#10;&#10;ou:&#10;Kingdom: Animalia&#10;Phylum: Chordata" style="width: 100%; height: 200px; padding: 12px; background: var(--bg-card); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--border-radius-sm); font-family: monospace; resize: vertical; box-sizing: border-box;"></textarea>
+            <div class="taxonomy-source-import-panel" aria-labelledby="taxonomySourcesTitle">
+                <div class="taxonomy-source-import-title" id="taxonomySourcesTitle"><i class="fa-solid fa-globe" aria-hidden="true"></i> Importar directamente das fontes</div>
+                <p class="taxonomy-source-import-hint">A pesquisa é automática: usa o nome científico e o nome comum preenchidos no animal para encontrar as páginas certas.</p>
+                <div id="taxonomySourceAnimalLabel" class="taxonomy-source-animal-label" aria-live="polite"></div>
+                <label class="taxonomy-source-close-option"><input type="checkbox" id="taxonomyCloseTabs" checked> Fechar os separadores depois da importação</label>
+                <button type="button" id="taxonomyOpenSourcesBtn" class="menu-button taxonomy-source-open-button"><i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i> Pesquisar e importar automaticamente</button>
+                <small id="taxonomySourceStatus" class="taxonomy-source-status" role="status" aria-live="polite"></small>
             </div>
-            <div style="display: flex; gap: 10px; justify-content: flex-end;">
+            <div class="taxonomy-text-import-area">
+                <textarea id="importTaxTextarea" placeholder="Cole o texto aqui...&#10;&#10;Aceita formatos como:&#10;Kingdom&#10;Animalia&#10;Phylum&#10;Chordata&#10;&#10;ou:&#10;Kingdom: Animalia&#10;Phylum: Chordata"></textarea>
+            </div>
+            <div class="taxonomy-import-actions">
                 <button type="button" id="closeImportTaxModalBtn" class="menu-button" style="background: transparent; border: 1px solid var(--border-color); color: var(--text-secondary); margin: 0;">Cancelar</button>
                 <button type="button" id="confirmImportTaxBtn" class="menu-button" style="background: var(--primary-color); color: var(--bg-primary); border: none; margin: 0;">Importar</button>
             </div>

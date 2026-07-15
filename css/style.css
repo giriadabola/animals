@@ -4182,6 +4182,10 @@ button[type="submit"]:hover {
     align-items: center;
 }
 
+.general-visual-row.composition-group-row {
+    grid-template-columns: minmax(110px, 1.4fr) minmax(50px, 0.8fr) minmax(50px, 0.8fr) minmax(150px, 1.4fr) minmax(50px, 0.7fr) minmax(50px, 0.7fr) 42px;
+}
+
 .general-visual-row-header {
     color: var(--text-secondary);
     font-size: 0.72rem;
@@ -4295,6 +4299,10 @@ button[type="submit"]:hover {
     .general-visual-row-header,
     .general-visual-row {
         grid-template-columns: minmax(110px, 1.2fr) repeat(4, minmax(44px, 0.6fr)) 42px;
+    }
+
+    .general-visual-row.composition-group-row {
+        grid-template-columns: minmax(110px, 1.2fr) repeat(2, minmax(44px, 0.6fr)) minmax(120px, 1fr) repeat(2, minmax(44px, 0.6fr)) 42px;
     }
 
     .ecology-layout {
@@ -4697,7 +4705,8 @@ button[type="submit"]:hover {
     box-shadow: 0 8px 32px rgba(14, 165, 233, 0.03), inset 0 1px 0 rgba(255, 255, 255, 0.02) !important;
 }
 
-#info-modelos-visuais .dimension-model-card {
+#info-modelos-visuais .dimension-model-card,
+#info-modelos-visuais-mobile .dimension-model-card {
     background: none !important;
     border: none !important;
     box-shadow: none !important;
@@ -4706,7 +4715,8 @@ button[type="submit"]:hover {
     border-radius: 0 !important;
 }
 
-#info-modelos-visuais .dimension-model-card:last-child {
+#info-modelos-visuais .dimension-model-card:last-child,
+#info-modelos-visuais-mobile .dimension-model-card:last-child {
     border-bottom: none !important;
 }
 
@@ -4972,6 +4982,12 @@ button[type="submit"]:hover {
 .plumage-model-value,
 #info-modelos-visuais .dimension-model-card .dimension-model-value,
 #info-modelos-visuais-mobile .dimension-model-card .dimension-model-value {
+    font-size: 1.39rem !important;
+}
+
+/* Segunda linha uniforme na coluna de Informações e Dimensões */
+#info-modelos-visuais .dimension-model-value,
+#info-modelos-visuais-mobile .dimension-model-value {
     font-size: 1.39rem !important;
 }
 
