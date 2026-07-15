@@ -225,6 +225,14 @@
             .continent-map-panel .jvm-container { min-height: 300px; }
             .continent-map-countries { max-height: 340px; }
         }
+        .visual-all-parameters { margin: 24px 0; padding: 24px; border: 1px solid rgba(110,231,183,.34); border-radius: 22px; background: linear-gradient(135deg, rgba(15,35,49,.52), rgba(17,24,39,.28)); }
+        .visual-all-parameters[hidden] { display: none; }
+        .visual-all-parameters-grid { display: grid; grid-template-columns: repeat(auto-fill, 62px); justify-content: center; gap: 18px 24px; }
+        .visual-all-parameter { width: 62px; height: 62px; display: flex; align-items: center; justify-content: center; border-radius: 18px; color: var(--model-accent); text-decoration: none; transition: transform .2s ease, filter .2s ease, box-shadow .2s ease; }
+        .visual-all-parameter:hover { transform: translateY(-3px) scale(1.06); filter: saturate(1.15); box-shadow: 0 0 0 3px var(--model-accent-soft), 0 10px 22px rgba(0,0,0,.25); }
+        .visual-all-parameter .dimension-model-icon { width: 62px; height: 62px; }
+        .visual-all-parameter .dimension-model-icon img { width: 48px; height: 48px; object-fit: contain; border-radius: 10px; }
+        @media (max-width: 600px) { .visual-all-parameters { padding: 18px 10px; } .visual-all-parameters-grid { gap: 14px 16px; } }
     </style>
 </head>
 <body>
@@ -238,6 +246,9 @@
             </div>
         </div>
         <section id="distance-filter-panel" hidden aria-label="Filtro de distância percorrida"></section>
+        <section id="visual-all-parameters" class="visual-all-parameters" hidden aria-label="Todos os parâmetros visuais">
+            <div id="visual-all-parameters-grid" class="visual-all-parameters-grid"></div>
+        </section>
         <section id="continent-map-panel" class="continent-map-panel" aria-hidden="true">
             <div class="continent-map-panel-header">
                 <div>
@@ -278,6 +289,7 @@
         import { hideLoadingOverlay } from "./js/loader.js?v=2";
         import { extractPopulationMetric, isPopulationRankingFilter, POPULATION_RANKING_KEY } from "./js/ranking-metrics.js?v=1";
         import { getDistanceMetricFromAnimal, initDistanceFilterPanel } from "./js/distance-filter.js?v=20260714_distance_filter";
+        import { visualFilterPool, getVisualFilterUrl, renderVisualFilterIcon } from "./js/visual-filter-catalog.js?v=20260715_visual_catalog";
 
         const categoryTitle = document.getElementById('category-title');
         const listContainer = document.getElementById('animal-list-container');
@@ -288,6 +300,8 @@
         const clearSearch = document.getElementById('clear-search');
         const subfamilyFilterNav = document.getElementById('subfamily-filter-nav');
         const subfamilyFilterTrack = document.getElementById('subfamily-filter-track');
+        const visualAllParameters = document.getElementById('visual-all-parameters');
+        const visualAllParametersGrid = document.getElementById('visual-all-parameters-grid');
 
         const itemsPerPage = 50;
         let currentPage = 1;
@@ -314,6 +328,7 @@
             subordem: 'Subordem: ',
             infraordem: 'Infraordem: ',
             parvordem: 'Parvordem: ',
+            superfamilia: 'Superfamília: ',
             subfamilia: 'Subfamília: ',
             tribo: 'Tribo: ',
             subgenero: 'Subgénero: ',
@@ -335,6 +350,7 @@
             subordem: 'subordem',
             infraordem: 'infraordem',
             parvordem: 'parvordem',
+            superfamilia: 'superfamilia',
             subfamilia: 'subfamilia',
             tribo: 'tribo',
             familia: 'familia',
@@ -540,6 +556,46 @@
             return String(value).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
         }
 
+        function normalizeFilterTypeKey(value = '') {
+            return normalizeFilterText(value).replace(/[^a-z0-9]+/g, '');
+        }
+
+        function canonicalFilterType(value = '') {
+            const raw = String(value || '').trim();
+            const key = normalizeFilterTypeKey(raw);
+            const aliases = {
+                estrategiaalimentar: 'estrategia-alimento',
+                estrategiaparaobteralimento: 'estrategia-alimento',
+                estrategiaalimento: 'estrategia-alimento',
+                zonaclimatica: 'zona-climatica',
+                zonaclima: 'zona-climatica',
+                vidasocial: 'vida social',
+                funcaoecologica: 'função ecológica',
+                locomocao: 'locomoção',
+                tipodealimentacao: 'tipo de alimentação',
+                tipodepercecao: 'tipo de perceção'
+            };
+            return aliases[key] || raw;
+        }
+
+        function renderAllVisualParameters() {
+            document.title = 'Todos os parâmetros visuais - Grandes Projetos';
+            categoryTitle.textContent = 'Todos os parâmetros visuais';
+            visualAllParameters.hidden = false;
+            visualAllParametersGrid.innerHTML = visualFilterPool.map(item => `
+                <a class="dimension-model-card visual-all-parameter ${item.accent}" href="${getVisualFilterUrl(item)}" title="Filtrar por ${item.name}" aria-label="Filtrar por ${item.name}">
+                    <div class="dimension-model-icon" aria-hidden="true">${renderVisualFilterIcon(item)}</div>
+                </a>
+            `).join('');
+            document.getElementById('distance-filter-panel').hidden = true;
+            document.getElementById('continent-map-panel').classList.remove('is-open');
+            document.getElementById('subfamily-filter-nav').classList.remove('visible');
+            listContainer.style.display = 'none';
+            paginationContainer.style.display = 'none';
+            loadingMessage.style.display = 'none';
+            hideLoadingOverlay();
+        }
+
         function getDistributionCountryCode(country) {
             return String(typeof country === 'object'
                 ? (country.codigo || country.code || country.id || '')
@@ -730,7 +786,11 @@
 
         async function loadFilteredPage() {
             const params = new URLSearchParams(window.location.search);
-            let filterType = params.get('tipo') || 'estrategia-alimento';
+            if (params.get('tipo') === 'todos-parametros') {
+                renderAllVisualParameters();
+                return;
+            }
+            let filterType = canonicalFilterType(params.get('tipo') || 'estrategia-alimento');
             let filterValue = params.get('valor') || params.get('estrategia');
             const isDistanceFilter = normalizeFilterText(filterType) === 'distancia percorrida';
 
@@ -1013,6 +1073,7 @@
                             const isStandardType = ['estrategia-alimento', 'acasalamento', 'zona-climatica', 'bioma'].includes(filterType);
                             if (isStandardType) {
                                 const details = animalData.informacao?.geralDetalhada || [];
+                                const isWildcard = filterValue === '*' || normalizeFilterText(filterValue) === 'todos';
                                 match = details.some(item => {
                                     if (!item.tipo) return false;
                                     const normalizedType = item.tipo.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
@@ -1026,7 +1087,7 @@
                                      if (filterType === 'bioma') {
                                          const valLower = item.valor ? item.valor.trim().toLowerCase() : '';
                                          const filterLower = filterValue ? filterValue.trim().toLowerCase() : '';
-                                         return isTypeMatch && valLower && (
+                                         return isTypeMatch && valLower && (isWildcard ||
                                              valLower.includes(filterLower) || 
                                              filterLower.includes(valLower) ||
                                              (valLower === 'marinho' && filterLower.includes('ocean')) ||
@@ -1034,9 +1095,9 @@
                                          );
                                      }
 
-                                     return isTypeMatch && 
-                                            item.valor && 
-                                            item.valor.trim().toLowerCase() === filterValue.trim().toLowerCase();
+                                    return isTypeMatch && 
+                                           item.valor && 
+                                           (isWildcard || item.valor.trim().toLowerCase() === filterValue.trim().toLowerCase());
                                 });
                             } else {
                                 const allDetails = [];
@@ -1045,12 +1106,34 @@
                                         allDetails.push(...arr.filter(Boolean));
                                     }
                                 };
+
+                                const collectUnknownDetails = (value, fallbackType = '') => {
+                                    if (Array.isArray(value)) {
+                                        value.forEach(item => collectUnknownDetails(item, fallbackType));
+                                        return;
+                                    }
+                                    if (!value || typeof value !== 'object') {
+                                        if (fallbackType && value !== '') allDetails.push({ tipo: fallbackType, valor: value });
+                                        return;
+                                    }
+
+                                    const label = value.tipo || value.type || value.label || value.categoria || fallbackType;
+                                    const hasValue = value.valor || value.detalhe || value.texto || value.valorMin || value.valorMax || value.opcao;
+                                    if (label && hasValue) allDetails.push(value.tipo || value.type || value.label || value.categoria ? value : { tipo: label, ...value });
+
+                                    Object.entries(value).forEach(([key, child]) => {
+                                        if (!['tipo', 'type', 'label', 'categoria', 'valor', 'detalhe', 'texto', 'valorMin', 'valorMax', 'opcao', 'unidade'].includes(key)) {
+                                            collectUnknownDetails(child, key);
+                                        }
+                                    });
+                                };
                                 
                                 addSafe(animalData.informacao?.geralDetalhada);
                                 addSafe(animalData.informacao?.dimensoesDetalhadas);
                                 addSafe(animalData.informacao?.alimentacaoDetalhada);
                                 addSafe(animalData.informacao?.reproducaoDetalhada);
                                 addSafe(animalData.informacao?.plumagemDetalhada);
+                                collectUnknownDetails(animalData.informacao);
                                 
                                 const cur = animalData.informacao?.curiosidades;
                                 if (cur) {
@@ -1095,20 +1178,20 @@
                                     return '';
                                 };
 
-                                const targetTypeNormalized = filterType.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
-                                const targetValNormalized = filterValue.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+                                const targetTypeNormalized = normalizeFilterTypeKey(filterType);
+                                const targetValNormalized = normalizeFilterText(filterValue);
 
                                 match = allDetails.some(item => {
                                     if (!item) return false;
                                     const label = item.tipo || item.type || item.label || item.categoria || '';
                                     if (!label) return false;
-                                    const labelNormalized = label.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+                                    const labelNormalized = normalizeFilterTypeKey(label);
                                     
                                     if (labelNormalized === targetTypeNormalized) {
                                         const valStr = getDisplayVal(item);
                                         if (valStr) {
-                                            const valNormalized = valStr.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
-                                            return valNormalized === targetValNormalized || valNormalized.includes(targetValNormalized) || targetValNormalized.includes(valNormalized);
+                                            const valNormalized = normalizeFilterText(valStr);
+                                            return targetValNormalized === '*' || targetValNormalized === 'todos' || valNormalized === targetValNormalized || valNormalized.includes(targetValNormalized) || targetValNormalized.includes(valNormalized);
                                         }
                                     }
                                     return false;

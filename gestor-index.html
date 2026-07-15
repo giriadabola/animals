@@ -460,6 +460,10 @@
                 title: "Explorar por Biomas",
                 desc: "Card grande com abas e cenários para descobrir e filtrar animais por biomas terrestres, aquáticos ou de transição."
             },
+            "parametros-visuais": {
+                title: "Parâmetros visuais",
+                desc: "Tabela periódica com modelos visuais aleatórios. Permite mostrar/ocultar a tabela e alterar a sua posição no Index."
+            },
             "explorar-continentes": {
                 title: "Explorar Continentes",
                 desc: "Apresenta círculos ilustrados de cada continente. Ao clicar, abre os animais distribuídos nesse continente."
@@ -524,10 +528,11 @@
             "especie": { title: "Espécie", icon: "fa-dna" }
         };
 
-        let currentOrder = ["pesquisa-globo", "explorar-biomas", "explorar-continentes", "estrategia-alimento", "acasalamento", "zona-climatica", "categoria", "familia", "classificacao-cientifica-niveis", "estatisticas"];
+        let currentOrder = ["pesquisa-globo", "explorar-biomas", "parametros-visuais", "explorar-continentes", "estrategia-alimento", "acasalamento", "zona-climatica", "categoria", "familia", "classificacao-cientifica-niveis", "estatisticas"];
         let currentActive = {
             "pesquisa-globo": true,
             "explorar-biomas": true,
+            "parametros-visuais": true,
             "explorar-continentes": true,
             "estrategia-alimento": true,
             "acasalamento": false,
@@ -1001,5 +1006,3 @@
     </script>
 </body>
 </html>
-
-

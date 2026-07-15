@@ -22,6 +22,7 @@
     <link rel="stylesheet" href="css/style.css?v=1.0.9">
     <link rel="stylesheet" href="index/globe-search.css?v=1.0.7">
     <link rel="stylesheet" href="index/bioma-explorer.css?v=1.0.28">
+    <link rel="stylesheet" href="index/visual-periodic-table.css?v=20260715_visual_periodic_table">
     <script src="js/runtime-guard.js"></script>
     <script>
         // Forçar limpeza de cache e service workers se houver atualização
@@ -151,6 +152,14 @@
             </div>
         </div>
 
+        <!-- Tabela periódica de modelos visuais -->
+        <section class="visual-periodic-card" aria-label="Modelos visuais filtráveis">
+            <div class="visual-periodic-frame">
+                <div class="visual-periodic-grid" id="visualPeriodicGrid" aria-label="Filtros visuais disponíveis"></div>
+                <a class="visual-periodic-all-link" href="filtros.html?tipo=todos-parametros" aria-label="Ver todos os parâmetros visuais">Ver tudo <span aria-hidden="true">&gt;</span></a>
+            </div>
+        </section>
+
         <div id="dynamic-sections-container">
             <!-- All sections (full-width or internal list panels) will be rendered dynamically here in exact order -->
         </div>
@@ -158,6 +167,7 @@
 
     <!-- Componentes e Lógica -->
     <script type="module" src="js/components.js?v=5"></script>
+    <script type="module" src="index/visual-periodic-table.js?v=20260715_visual_periodic_table"></script>
     <script type="module" src="index/main.js?v=1.0.73"></script>
     <!-- Service Worker PWA -->
     <script>

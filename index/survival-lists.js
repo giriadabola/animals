@@ -32,12 +32,13 @@ export async function populateSurvivalLists(allAnimals, db, searchResultsContain
     if (!container) return;
     container.innerHTML = '';
 
-    let order = ["pesquisa-globo", "explorar-biomas", "explorar-continentes", "estrategia-alimento", "acasalamento", "zona-climatica", "categoria", "familia", "classificacao-cientifica-niveis", "estatisticas"];
+    let order = ["pesquisa-globo", "explorar-biomas", "parametros-visuais", "explorar-continentes", "estrategia-alimento", "acasalamento", "zona-climatica", "categoria", "familia", "classificacao-cientifica-niveis", "estatisticas"];
     let subClassificationOrder = ["reino", "filo", "subfilo", "classe", "superordem", "subordem", "ordem", "familia-sub", "genero", "especie"];
     let subStatsOrder = ["mais-velozes", "mais-vida-util", "mais-altos", "mais-pesados", "mais-largo", "mais-espesso", "maior-envergadura", "gestacao-longa", "mais-crias", "mais-longos", "forca-mordida", "maior-populacao"];
     let active = {
         "pesquisa-globo": true,
         "explorar-biomas": true,
+        "parametros-visuais": true,
         "explorar-continentes": true,
         "estrategia-alimento": true,
         "acasalamento": false,
@@ -100,7 +101,7 @@ export async function populateSurvivalLists(allAnimals, db, searchResultsContain
         if (settingsSnap.exists()) {
             const data = settingsSnap.data();
             if (data.order) {
-                const defaultOrder = ["pesquisa-globo", "explorar-biomas", "explorar-continentes", "estrategia-alimento", "acasalamento", "zona-climatica", "categoria", "familia", "classificacao-cientifica-niveis", "estatisticas"];
+                const defaultOrder = ["pesquisa-globo", "explorar-biomas", "parametros-visuais", "explorar-continentes", "estrategia-alimento", "acasalamento", "zona-climatica", "categoria", "familia", "classificacao-cientifica-niveis", "estatisticas"];
                 order = data.order.filter(key => defaultOrder.includes(key));
                 defaultOrder.forEach(key => {
                     if (!order.includes(key)) order.push(key);
@@ -190,6 +191,7 @@ export async function populateSurvivalLists(allAnimals, db, searchResultsContain
 
     const globeCard = document.getElementById('globeSearchCard');
     const biomaExplorerCard = document.getElementById('biomaExplorerCard');
+    const visualPeriodicCard = document.querySelector('.visual-periodic-card');
 
     order.forEach(key => {
         if (!active[key]) {
@@ -198,6 +200,9 @@ export async function populateSurvivalLists(allAnimals, db, searchResultsContain
             }
             if (key === 'explorar-biomas' && biomaExplorerCard) {
                 biomaExplorerCard.style.display = 'none';
+            }
+            if (key === 'parametros-visuais' && visualPeriodicCard) {
+                visualPeriodicCard.style.display = 'none';
             }
             return;
         }
@@ -217,6 +222,14 @@ export async function populateSurvivalLists(allAnimals, db, searchResultsContain
             if (biomaExplorerCard) {
                 biomaExplorerCard.style.display = 'flex';
                 container.appendChild(biomaExplorerCard);
+            }
+            return;
+        }
+
+        if (key === 'parametros-visuais') {
+            if (visualPeriodicCard) {
+                visualPeriodicCard.style.display = '';
+                container.appendChild(visualPeriodicCard);
             }
             return;
         }
