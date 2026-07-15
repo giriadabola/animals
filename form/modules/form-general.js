@@ -4,11 +4,10 @@
         }
 
         const GENERAL_MODEL_ALIASES = new Map([
-            ['composicao do grupo social', 'Composição do grupo'],
             ['tipo de comunicacao', 'Tipo de Comunicação']
         ]);
 
-        const REMOVED_GENERAL_MODEL_KEYS = new Set(['vida social', 'organizacao social']);
+        const REMOVED_GENERAL_MODEL_KEYS = new Set(['organizacao social']);
         function isRemovedGeneralModel(type = '') {
             return REMOVED_GENERAL_MODEL_KEYS.has(normalizeSearchText(type));
         }
@@ -181,10 +180,14 @@
                     'Autoinfeção',
                     'Comportamento sazonal',
                     'Composição do grupo',
+                    'Composição do grupo social',
                     'Construção de local de repouso',
                     'Liderança e hierarquia',
                     'Locomoção',
+                    'Organização social',
                     'Parentesco e linhagem social',
+                    'Vida social',
+                    'Tipo de agrupamento social',
                     'Tipo de Comunicação'
                 ]
             },
@@ -342,11 +345,31 @@
                 'Sem parentesco predominante'
             ],
             'Composição do grupo': [
+                'Solitário', 'Casal', 'Casal com crias', 'Mãe e crias', 'Pai e crias', 'Adulto e crias',
+                'Grupo familiar', 'Grupo familiar alargado', 'Grupo multigeracional', 'Grupo maternal',
+                'Grupo paternal', 'Grupo de irmãos / ninhada', 'Grupo apenas de juvenis',
+                'Grupo apenas de subadultos', 'Grupo apenas de adultos', 'Grupo apenas de machos',
+                'Grupo apenas de fêmeas', 'Grupo de machos adultos', 'Grupo de fêmeas adultas',
+                'Grupo de crias', 'Grupo de idade mista', 'Grupo misto — machos e fêmeas',
+                'Grupo misto — sexo e idade variados', 'Grupo de fêmeas com crias', 'Grupo de machos com crias',
+                'Grupo de solteiros / bachelor group', 'Harém', 'Harém com crias', 'Harém invertido',
+                'Grupo reprodutor', 'Grupo não reprodutor', 'Colónia reprodutora', 'Colónia não reprodutora',
+                'Colónia mista', 'Colónia maternal', 'Colónia com castas', 'Enxame',
+                'Agregação temporária', 'Agregação sazonal', 'Dormitório comunal', 'Berçário / creche',
+                'Subgrupo dentro de sociedade maior', 'Composição variável', 'Composição variável sazonalmente',
                 'Unimacho–unifêmea', 'Unimacho–multifêmea', 'Multimacho–unifêmea', 'Multimacho–multifêmea',
                 'Multifêmea', 'Multimacho', 'Grupo misto', 'Grupo unissexual', 'Fêmea e crias',
                 'Macho e crias', 'Casal e crias', 'Várias gerações', 'Juvenis apenas', 'Adultos apenas',
                 'Idades mistas', 'Unidade de um macho', 'Unidade de várias fêmeas', 'Unidade familiar',
                 'Unidade reprodutora', 'Unidade não reprodutora'
+            ],
+            'Tipo de agrupamento social': [
+                'Manada', 'Bando', 'Cardume', 'Alcateia', 'Tropa', 'Clã', 'Banda', 'Harém',
+                'Colónia', 'Enxame', 'Colmeia', 'Formigueiro', 'Cupinzeiro', 'Ninhada',
+                'Agregação', 'Dormitório comunal', 'Berçário / creche'
+            ],
+            'Composição do grupo social': [
+                'Fêmeas adultas', 'Machos adultos', 'Subadultos', 'Juvenis', 'Crias', 'Indivíduos'
             ],
             'Tipo de Comunicação': [
                 'Vocalizações', 'Sons emitidos', 'Frequência dos sons', 'Intensidade vocal',
@@ -492,7 +515,7 @@
 
         function isSocialGroupCompositionGeneralModel(type = '') {
             const normalized = normalizeSearchText(type);
-            return normalized.includes('composicao do grupo social') || normalized === 'composicao do grupo';
+            return normalized.includes('composicao do grupo social');
         }
 
         function isTerritorySizeGeneralModel(type = '') {
@@ -531,7 +554,7 @@
         }
 
         function getGeneralUnitOptions(type = '') {
-            if (isSocialGroupCompositionGeneralModel(type)) return ['machos adultos', 'fêmeas adultas', 'subadultos', 'juvenis', 'crias'];
+            if (isSocialGroupCompositionGeneralModel(type)) return ['machos adultos', 'fêmeas adultas', 'subadultos', 'juvenis', 'crias', 'indivíduos'];
             if (isMixedDropdownRangeGeneralModel(type)) return ['mm', 'cm', 'm'];
             if (normalizeSearchText(type).includes('percentagem de gordura')) return ['%'];
             if (normalizeSearchText(type).includes('duracao do mergulho') || normalizeSearchText(type).includes('tempo a superficie') || normalizeSearchText(type).includes('tempo de recuperacao')) return ['segundos','minutos','horas'];
@@ -693,13 +716,16 @@
             strategySelect.style.display = 'none';
             function populateDropdownSelect(selectedType) {
                 const isSeasonal = isSeasonalBehaviorGeneralModel(selectedType);
-                const isAnatomicalStructure = isMixedDropdownRangeGeneralModel(selectedType);
+                const isAnatomicalStructure = Object.prototype.hasOwnProperty.call(ANATOMICAL_STRUCTURE_DEFINITIONS, selectedType);
                 const config = isSeasonal ? { placeholder: 'Escolhe o comportamento sazonal' } : getGeneralVisualSelectConfig(selectedType);
                 const options = (isSeasonal
                     ? getSeasonalBehaviorOptions()
                     : isAnatomicalStructure
                         ? getAnatomicalStructureOptions(selectedType)
                         : [...(getCustomGeneralSelectOptions(selectedType).length ? getCustomGeneralSelectOptions(selectedType) : getGeneralVisualSelectOptions(selectedType))])
+                    // "Tátil" é o rótulo único; não mostrar a designação antiga
+                    // "Comunicação Tátil" no dropdown de Tipo de Comunicação.
+                    .filter(option => normalizeSearchText(option) !== 'comunicacao tatil')
                     .sort((a, b) => a.localeCompare(b, 'pt-PT', { sensitivity: 'base' }));
                 const placeholder = isAnatomicalStructure ? 'Escolhe uma estrutura' : (config?.placeholder || 'Escolhe uma opção');
                 const selectedDropdownValue = isSocialGroupCompositionGeneralModel(selectedType)

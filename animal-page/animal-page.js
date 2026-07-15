@@ -16,6 +16,11 @@ import { getConservationStatusMeta, initConservationStatusPopup } from "../js/co
 import { initFeedingTypePopup } from "../js/feeding-type-popup.js?v=2";
 import { initPerceptionTypePopup } from "../js/perception-type-popup.js?v=1";
 import { initSocialTypePopup } from "../js/social-type-popup.js?v=1";
+import { initSkeletonTypePopup } from "../js/skeleton-type-popup.js?v=1";
+import { initThermoregulationPopup } from "../js/thermoregulation-popup.js?v=1";
+import { initBodySymmetryPopup } from "../js/body-symmetry-popup.js?v=1";
+import { initActivityPopup } from "../js/activity-popup.js?v=1";
+import { initTerritorySizePopup } from "../js/territory-size-popup.js?v=1";
 import { initFeedingStrategyPopup } from "../js/feeding-strategy-popup.js?v=20260714_strategy_popup_layout";
 import { initEcologicalFunctionPopup } from "../js/ecological-function-popup.js?v=2";
 import { initMatingSystemPopup } from "../js/mating-system-popup.js?v=2";
@@ -739,6 +744,26 @@ import { initScientificClassificationToggles } from "./scientific-classification
             return normalizeDimensionKey(type).includes('vida social');
         }
 
+        function isSkeletonTypeModel(type = '') {
+            return normalizeDimensionKey(type).includes('tipo de esqueleto');
+        }
+
+        function isThermoregulationModel(type = '') {
+            return normalizeDimensionKey(type).includes('termorregulacao');
+        }
+
+        function isBodySymmetryModel(type = '') {
+            return normalizeDimensionKey(type).includes('simetria corporal');
+        }
+
+        function isActivityModel(type = '') {
+            return normalizeDimensionKey(type) === 'atividade';
+        }
+
+        function isTerritorySizeModel(type = '') {
+            return normalizeDimensionKey(type).includes('tamanho do territorio');
+        }
+
         function getSocialTypesFromItems(items = []) {
             return [...new Set(items
                 .map(item => item.valorMin || item.valor || item.opcao || '')
@@ -770,6 +795,89 @@ import { initScientificClassificationToggles } from "./scientific-classification
                         <div class="general-model-values">${rows}</div>
                     </div>
                 </button>`;
+        }
+
+        function renderSkeletonTypeCard(items, filterContext = {}) {
+            const firstItem = items[0];
+            const meta = getGeneralVisualMeta(firstItem.tipo);
+            const infoGroup = getInfoGroupForGeneralType(firstItem.tipo);
+            const visible = items.some(item => getInitialVisualItemVisibility(item, filterContext));
+            const selectedTypes = [...new Set(items.map(item => item.valorMin || item.valor || item.opcao || '').map(value => String(value).trim()).filter(Boolean))];
+            const rows = items.map(item => {
+                const value = item.valorMin || item.valor || item.opcao || '—';
+                const isVisible = getInitialVisualItemVisibility(item, filterContext);
+                return `<div class="general-model-value-row" data-gender="${escapeHtml(item.genero || '')}" data-phase="${escapeHtml(item.fase || 'Adulto')}" data-info-group="${infoGroup}"${isVisible ? '' : ' style="display: none;"'}>${renderInlineGenderSymbol(item)}${escapeHtml(value)}</div>`;
+            }).join('');
+            return `<button type="button" class="dimension-model-card general-model-card visual-model-group-card perception-type-popup-trigger ${meta.accent}" data-info-group="${infoGroup}" data-skeleton-type-popup data-skeleton-types="${escapeHtml(JSON.stringify(selectedTypes))}" aria-haspopup="dialog" aria-label="Ver os tipos de esqueleto e respetivas explicações"${visible ? '' : ' style="display: none;"'}>
+                <div class="dimension-model-icon">${getGeneralModelSvg(meta.key)}</div>
+                <div class="dimension-model-copy perception-model-copy"><div class="dimension-model-label">${escapeHtml(meta.title)}</div><div class="general-model-values">${rows}</div></div>
+            </button>`;
+        }
+
+        function renderThermoregulationCard(items, filterContext = {}) {
+            const firstItem = items[0];
+            const meta = getGeneralVisualMeta(firstItem.tipo);
+            const infoGroup = getInfoGroupForGeneralType(firstItem.tipo);
+            const visible = items.some(item => getInitialVisualItemVisibility(item, filterContext));
+            const selectedTypes = [...new Set(items.map(item => item.valorMin || item.valor || item.opcao || '').map(value => String(value).trim()).filter(Boolean))];
+            const rows = items.map(item => {
+                const value = item.valorMin || item.valor || item.opcao || '—';
+                const isVisible = getInitialVisualItemVisibility(item, filterContext);
+                return `<div class="general-model-value-row" data-gender="${escapeHtml(item.genero || '')}" data-phase="${escapeHtml(item.fase || 'Adulto')}" data-info-group="${infoGroup}"${isVisible ? '' : ' style="display: none;"'}>${renderInlineGenderSymbol(item)}${escapeHtml(value)}</div>`;
+            }).join('');
+            return `<button type="button" class="dimension-model-card general-model-card visual-model-group-card perception-type-popup-trigger ${meta.accent}" data-info-group="${infoGroup}" data-thermoregulation-popup data-thermoregulation-types="${escapeHtml(JSON.stringify(selectedTypes))}" aria-haspopup="dialog" aria-label="Ver os tipos de termorregulação e respetivas explicações"${visible ? '' : ' style="display: none;"'}>
+                <div class="dimension-model-icon">${getGeneralModelSvg(meta.key)}</div>
+                <div class="dimension-model-copy perception-model-copy"><div class="dimension-model-label">${escapeHtml(meta.title)}</div><div class="general-model-values">${rows}</div></div>
+            </button>`;
+        }
+
+        function renderBodySymmetryCard(items, filterContext = {}) {
+            const firstItem = items[0];
+            const meta = getGeneralVisualMeta(firstItem.tipo);
+            const infoGroup = getInfoGroupForGeneralType(firstItem.tipo);
+            const visible = items.some(item => getInitialVisualItemVisibility(item, filterContext));
+            const selectedTypes = [...new Set(items.map(item => item.valorMin || item.valor || item.opcao || '').map(value => String(value).trim()).filter(Boolean))];
+            const rows = items.map(item => {
+                const value = item.valorMin || item.valor || item.opcao || '—';
+                const isVisible = getInitialVisualItemVisibility(item, filterContext);
+                return `<div class="general-model-value-row" data-gender="${escapeHtml(item.genero || '')}" data-phase="${escapeHtml(item.fase || 'Adulto')}" data-info-group="${infoGroup}"${isVisible ? '' : ' style="display: none;"'}>${renderInlineGenderSymbol(item)}${escapeHtml(value)}</div>`;
+            }).join('');
+            return `<button type="button" class="dimension-model-card general-model-card visual-model-group-card perception-type-popup-trigger ${meta.accent}" data-info-group="${infoGroup}" data-body-symmetry-popup data-body-symmetry-types="${escapeHtml(JSON.stringify(selectedTypes))}" aria-haspopup="dialog" aria-label="Ver os tipos de simetria corporal e respetivas explicações"${visible ? '' : ' style="display: none;"'}>
+                <div class="dimension-model-icon">${getGeneralModelSvg(meta.key)}</div>
+                <div class="dimension-model-copy perception-model-copy"><div class="dimension-model-label">${escapeHtml(meta.title)}</div><div class="general-model-values">${rows}</div></div>
+            </button>`;
+        }
+
+        function renderActivityCard(items, filterContext = {}) {
+            const firstItem = items[0];
+            const meta = getGeneralVisualMeta(firstItem.tipo);
+            const infoGroup = getInfoGroupForGeneralType(firstItem.tipo);
+            const visible = items.some(item => getInitialVisualItemVisibility(item, filterContext));
+            const selectedTypes = [...new Set(items.map(item => item.valorMin || item.valor || item.opcao || '').map(value => String(value).trim()).filter(Boolean))];
+            const rows = items.map(item => {
+                const value = item.valorMin || item.valor || item.opcao || '—';
+                const isVisible = getInitialVisualItemVisibility(item, filterContext);
+                return `<div class="general-model-value-row" data-gender="${escapeHtml(item.genero || '')}" data-phase="${escapeHtml(item.fase || 'Adulto')}" data-info-group="${infoGroup}"${isVisible ? '' : ' style="display: none;"'}>${renderInlineGenderSymbol(item)}${escapeHtml(value)}</div>`;
+            }).join('');
+            return `<button type="button" class="dimension-model-card general-model-card visual-model-group-card perception-type-popup-trigger ${meta.accent}" data-info-group="${infoGroup}" data-activity-popup data-activity-types="${escapeHtml(JSON.stringify(selectedTypes))}" aria-haspopup="dialog" aria-label="Ver os tipos de atividade e respetivas explicações"${visible ? '' : ' style="display: none;"'}>
+                <div class="dimension-model-icon">${getGeneralModelSvg(meta.key)}</div>
+                <div class="dimension-model-copy perception-model-copy"><div class="dimension-model-label">${escapeHtml(meta.title)}</div><div class="general-model-values">${rows}</div></div>
+            </button>`;
+        }
+
+        function renderTerritorySizeCard(items, filterContext = {}) {
+            const firstItem = items[0];
+            const meta = getGeneralVisualMeta(firstItem.tipo);
+            const infoGroup = getInfoGroupForGeneralType(firstItem.tipo);
+            const visible = items.some(item => getInitialVisualItemVisibility(item, filterContext));
+            const values = items.map(item => ({ valor: item.valor, valorMin: item.valorMin, valorMax: item.valorMax, unidade: item.unidade || 'km²' }));
+            const rows = items.map(item => {
+                const isVisible = getInitialVisualItemVisibility(item, filterContext);
+                return `<div class="general-model-value-row" data-gender="${escapeHtml(item.genero || '')}" data-phase="${escapeHtml(item.fase || 'Adulto')}" data-info-group="${infoGroup}"${isVisible ? '' : ' style="display: none;"'}>${renderInlineGenderSymbol(item)}${formatGeneralVisualValue(item)}</div>`;
+            }).join('');
+            return `<button type="button" class="dimension-model-card general-model-card visual-model-group-card perception-type-popup-trigger territory-size-popup-trigger ${meta.accent}" data-info-group="${infoGroup}" data-territory-size-popup data-territory-values="${escapeHtml(JSON.stringify(values))}" aria-haspopup="dialog" aria-label="Comparar o tamanho do território com um campo de futebol"${visible ? '' : ' style="display: none;"'}>
+                <div class="dimension-model-icon">${getGeneralModelSvg(meta.key)}</div><div class="dimension-model-copy perception-model-copy"><div class="dimension-model-label">${escapeHtml(meta.title)}</div><div class="general-model-values">${rows}</div></div>
+            </button>`;
         }
 
         function isCommunicationTypeModel(type = '') {
@@ -815,6 +923,11 @@ import { initScientificClassificationToggles } from "./scientific-classification
             const normalizedType = normalizeDimensionKey(item.tipo);
             if (isPerceptionTypeModel(item.tipo)) return renderPerceptionTypeCard([item]);
             if (isSocialLifeModel(item.tipo)) return renderSocialTypeCard([item]);
+            if (isSkeletonTypeModel(item.tipo)) return renderSkeletonTypeCard([item]);
+            if (isThermoregulationModel(item.tipo)) return renderThermoregulationCard([item]);
+            if (isBodySymmetryModel(item.tipo)) return renderBodySymmetryCard([item]);
+            if (isActivityModel(item.tipo)) return renderActivityCard([item]);
+            if (isTerritorySizeModel(item.tipo)) return renderTerritorySizeCard([item]);
             if (isCommunicationTypeModel(item.tipo)) return renderCommunicationTypeCard([item]);
             const isStrategy = normalizedType.includes('estrategia');
             if (isStrategy) return renderFeedingStrategyPopupCard([item]);
@@ -865,6 +978,11 @@ import { initScientificClassificationToggles } from "./scientific-classification
             const visible = items.some(item => getInitialVisualItemVisibility(item, filterContext));
             if (isPerceptionTypeModel(firstItem.tipo)) return renderPerceptionTypeCard(items, filterContext);
             if (isSocialLifeModel(firstItem.tipo)) return renderSocialTypeCard(items, filterContext);
+            if (isSkeletonTypeModel(firstItem.tipo)) return renderSkeletonTypeCard(items, filterContext);
+            if (isThermoregulationModel(firstItem.tipo)) return renderThermoregulationCard(items, filterContext);
+            if (isBodySymmetryModel(firstItem.tipo)) return renderBodySymmetryCard(items, filterContext);
+            if (isActivityModel(firstItem.tipo)) return renderActivityCard(items, filterContext);
+            if (isTerritorySizeModel(firstItem.tipo)) return renderTerritorySizeCard(items, filterContext);
             if (isCommunicationTypeModel(firstItem.tipo)) return renderCommunicationTypeCard(items, filterContext);
             if (normalizeDimensionKey(firstItem.tipo).includes('estrategia')) {
                 const strategyCard = renderFeedingStrategyPopupCard(items);
@@ -2894,7 +3012,10 @@ import { initScientificClassificationToggles } from "./scientific-classification
             const allItems = [...validDimensoes, ...validQuickData];
             const genders = collectConcreteGenders(allItems);
             const phases = new Set(allItems.map(i => i.fase).filter(Boolean));
-            const useDimensionsTab = validDimensoes.length > 0 && (validDimensoes.length + validQuickData.length > 25);
+            // Quando existem dimensões, mantém-se sempre a estrutura com as abas
+            // "Informações" e "Dimensões". O número total de parâmetros não
+            // deve decidir a apresentação; sem dimensões, a aba não é criada.
+            const useDimensionsTab = validDimensoes.length > 0;
             const infoModelItems = validQuickData.map(item => ({ ...item, isDimension: false }));
             const dimensionModelItems = validDimensoes.map(item => ({ ...item, isDimension: true }));
 
@@ -3549,6 +3670,11 @@ import { initScientificClassificationToggles } from "./scientific-classification
             initFeedingTypePopup(mainContent);
             initPerceptionTypePopup(mainContent);
             initSocialTypePopup(mainContent);
+            initSkeletonTypePopup(mainContent);
+            initThermoregulationPopup(mainContent);
+            initBodySymmetryPopup(mainContent);
+            initActivityPopup(mainContent);
+            initTerritorySizePopup(mainContent);
             initFeedingStrategyPopup(mainContent);
             initEcologicalFunctionPopup(mainContent);
             initMatingSystemPopup(mainContent);
@@ -3890,38 +4016,82 @@ import { initScientificClassificationToggles } from "./scientific-classification
             // Registrar cliques nas abas de género
             document.querySelectorAll('.gender-tab-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
-                    btn.parentElement.querySelectorAll('.gender-tab-btn').forEach(b => {
-                        b.classList.remove('active');
-                        b.style.background = 'transparent';
-                        b.style.borderColor = 'transparent';
-                        b.style.color = 'rgba(255, 255, 255, 0.4)';
-                    });
-                    btn.classList.add('active');
-                    btn.style.color = btn.dataset.gender === 'M' ? '#3b82f6' : '#ec4899';
-                    btn.style.background = btn.dataset.gender === 'M' ? 'rgba(59, 130, 246, 0.12)' : 'rgba(236, 72, 153, 0.12)';
-                    btn.style.borderColor = btn.dataset.gender === 'M' ? 'rgba(59, 130, 246, 0.15)' : 'rgba(236, 72, 153, 0.15)';
+                    const selectedGender = btn.dataset.gender;
+                    const tabbedSection = btn.closest('.visual-model-tabs');
                     
-                    const container = btn.closest('.visual-model-tab-pane') || btn.closest('.info-section-card') || btn.closest('.general-visual-card') || btn.closest('.dimensions-visual-card') || btn.closest('.info-section');
-                    applyCombinedFilters(container);
+                    if (tabbedSection) {
+                        const matchingButtons = tabbedSection.querySelectorAll(`.gender-tab-btn[data-gender="${selectedGender}"]`);
+                        matchingButtons.forEach(mBtn => {
+                            mBtn.parentElement.querySelectorAll('.gender-tab-btn').forEach(b => {
+                                b.classList.remove('active');
+                                b.style.background = 'transparent';
+                                b.style.borderColor = 'transparent';
+                                b.style.color = 'rgba(255, 255, 255, 0.4)';
+                            });
+                            mBtn.classList.add('active');
+                            mBtn.style.color = selectedGender === 'M' ? '#3b82f6' : '#ec4899';
+                            mBtn.style.background = selectedGender === 'M' ? 'rgba(59, 130, 246, 0.12)' : 'rgba(236, 72, 153, 0.12)';
+                            mBtn.style.borderColor = selectedGender === 'M' ? 'rgba(59, 130, 246, 0.15)' : 'rgba(236, 72, 153, 0.15)';
+                            
+                            const container = mBtn.closest('.visual-model-tab-pane') || mBtn.closest('.info-section-card') || mBtn.closest('.general-visual-card') || mBtn.closest('.dimensions-visual-card') || mBtn.closest('.info-section');
+                            applyCombinedFilters(container);
+                        });
+                    } else {
+                        btn.parentElement.querySelectorAll('.gender-tab-btn').forEach(b => {
+                            b.classList.remove('active');
+                            b.style.background = 'transparent';
+                            b.style.borderColor = 'transparent';
+                            b.style.color = 'rgba(255, 255, 255, 0.4)';
+                        });
+                        btn.classList.add('active');
+                        btn.style.color = selectedGender === 'M' ? '#3b82f6' : '#ec4899';
+                        btn.style.background = selectedGender === 'M' ? 'rgba(59, 130, 246, 0.12)' : 'rgba(236, 72, 153, 0.12)';
+                        btn.style.borderColor = selectedGender === 'M' ? 'rgba(59, 130, 246, 0.15)' : 'rgba(236, 72, 153, 0.15)';
+                        
+                        const container = btn.closest('.visual-model-tab-pane') || btn.closest('.info-section-card') || btn.closest('.general-visual-card') || btn.closest('.dimensions-visual-card') || btn.closest('.info-section');
+                        applyCombinedFilters(container);
+                    }
                 });
             });
 
             // Registrar cliques nas abas de fase
             document.querySelectorAll('.phase-tab-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
-                    btn.parentElement.querySelectorAll('.phase-tab-btn').forEach(b => {
-                        b.classList.remove('active');
-                        b.style.background = 'transparent';
-                        b.style.borderColor = 'transparent';
-                        b.style.color = 'rgba(255, 255, 255, 0.4)';
-                    });
-                    btn.classList.add('active');
-                    btn.style.color = btn.dataset.phase === 'Adulto' ? '#10b981' : '#f59e0b';
-                    btn.style.background = btn.dataset.phase === 'Adulto' ? 'rgba(16, 185, 129, 0.12)' : 'rgba(245, 158, 11, 0.12)';
-                    btn.style.borderColor = btn.dataset.phase === 'Adulto' ? 'rgba(16, 185, 129, 0.15)' : 'rgba(245, 158, 11, 0.15)';
+                    const selectedPhase = btn.dataset.phase;
+                    const tabbedSection = btn.closest('.visual-model-tabs');
                     
-                    const container = btn.closest('.visual-model-tab-pane') || btn.closest('.info-section-card') || btn.closest('.general-visual-card') || btn.closest('.dimensions-visual-card') || btn.closest('.info-section');
-                    applyCombinedFilters(container);
+                    if (tabbedSection) {
+                        const matchingButtons = tabbedSection.querySelectorAll(`.phase-tab-btn[data-phase="${selectedPhase}"]`);
+                        matchingButtons.forEach(mBtn => {
+                            mBtn.parentElement.querySelectorAll('.phase-tab-btn').forEach(b => {
+                                b.classList.remove('active');
+                                b.style.background = 'transparent';
+                                b.style.borderColor = 'transparent';
+                                b.style.color = 'rgba(255, 255, 255, 0.4)';
+                            });
+                            mBtn.classList.add('active');
+                            mBtn.style.color = selectedPhase === 'Adulto' ? '#10b981' : '#f59e0b';
+                            mBtn.style.background = selectedPhase === 'Adulto' ? 'rgba(16, 185, 129, 0.12)' : 'rgba(245, 158, 11, 0.12)';
+                            mBtn.style.borderColor = selectedPhase === 'Adulto' ? 'rgba(16, 185, 129, 0.15)' : 'rgba(245, 158, 11, 0.15)';
+                            
+                            const container = mBtn.closest('.visual-model-tab-pane') || mBtn.closest('.info-section-card') || mBtn.closest('.general-visual-card') || mBtn.closest('.dimensions-visual-card') || mBtn.closest('.info-section');
+                            applyCombinedFilters(container);
+                        });
+                    } else {
+                        btn.parentElement.querySelectorAll('.phase-tab-btn').forEach(b => {
+                            b.classList.remove('active');
+                            b.style.background = 'transparent';
+                            b.style.borderColor = 'transparent';
+                            b.style.color = 'rgba(255, 255, 255, 0.4)';
+                        });
+                        btn.classList.add('active');
+                        btn.style.color = selectedPhase === 'Adulto' ? '#10b981' : '#f59e0b';
+                        btn.style.background = selectedPhase === 'Adulto' ? 'rgba(16, 185, 129, 0.12)' : 'rgba(245, 158, 11, 0.12)';
+                        btn.style.borderColor = selectedPhase === 'Adulto' ? 'rgba(16, 185, 129, 0.15)' : 'rgba(245, 158, 11, 0.15)';
+                        
+                        const container = btn.closest('.visual-model-tab-pane') || btn.closest('.info-section-card') || btn.closest('.general-visual-card') || btn.closest('.dimensions-visual-card') || btn.closest('.info-section');
+                        applyCombinedFilters(container);
+                    }
                 });
             });
 
