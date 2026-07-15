@@ -732,6 +732,7 @@
                     nome: document.getElementById('nomeAnimal').value,
                     nomeCientifico: document.getElementById('nomeCientifico').value,
                     familia: document.getElementById('familia').value.trim(),
+                    superfamilia: document.getElementById('superfamilia')?.value.trim() || '',
                     reino: document.getElementById('reino').value.trim(),
                     filo: document.getElementById('filo').value.trim(),
                     subfilo: document.getElementById('subfilo').value.trim(),

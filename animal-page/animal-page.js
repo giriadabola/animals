@@ -29,6 +29,8 @@ import { initBiogeographicRegionPopup } from "../js/biogeographic-regions-popup.
 import { getCommunicationGenericModelSvg } from "../js/communication-visuals.js?v=3";
 import { initCommunicationTypePopup } from "../js/communication-type-popup.js?v=1";
 import { initEcologyRelationsPopup } from "../js/ecology-relations-popup.js?v=1";
+import { initEnvironmentVisualPopup } from "../js/environment-visual-popup.js?v=1";
+import { initClimateZoneMapPopup } from "../js/climate-zone-map-popup.js?v=1";
 import { initScientificClassificationToggles } from "./scientific-classification-toggle.js?v=1";
         
         const mainContent = document.getElementById('main-content-area');
@@ -597,20 +599,20 @@ import { initScientificClassificationToggles } from "./scientific-classification
         function getClimateZoneMeta(value = '') {
             const normalized = normalizeDimensionKey(value).replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
             const zones = {
-                tropical: { image: 'assets/zonas-climaticas/01_Tropical.png', accent: 'accent-climate-tropical' },
-                subtropical: { image: 'assets/zonas-climaticas/02_Subtropical.png', accent: 'accent-climate-subtropical' },
-                arido: { image: 'assets/zonas-climaticas/07_Desertica.png', accent: 'accent-climate-desertica' },
-                temperado: { image: 'assets/zonas-climaticas/03_Temperada.png', accent: 'accent-climate-temperada' },
-                temperada: { image: 'assets/zonas-climaticas/03_Temperada.png', accent: 'accent-climate-temperada' },
-                continental: { image: 'assets/zonas-climaticas/03_Temperada.png', accent: 'accent-climate-temperada' },
-                polar: { image: 'assets/zonas-climaticas/04_Polar.png', accent: 'accent-climate-polar' },
-                artica: { image: 'assets/zonas-climaticas/05_Artica.png', accent: 'accent-climate-artica' },
-                antartica: { image: 'assets/zonas-climaticas/06_Antartica.png', accent: 'accent-climate-antartica' },
-                desertica: { image: 'assets/zonas-climaticas/07_Desertica.png', accent: 'accent-climate-desertica' },
-                semiarida: { image: 'assets/zonas-climaticas/08_Semiarida.png', accent: 'accent-climate-semiarida' },
-                mediterranica: { image: 'assets/zonas-climaticas/09_Mediterranica.png', accent: 'accent-climate-mediterranica' },
-                montanhoso: { image: 'assets/zonas-climaticas/10_Montanhosa_Alpina.png', accent: 'accent-climate-montanhosa' },
-                montanhosa_alpina: { image: 'assets/zonas-climaticas/10_Montanhosa_Alpina.png', accent: 'accent-climate-montanhosa' }
+                tropical: { image: 'assets/zonas-climaticas/Tropical.png', accent: 'accent-climate-tropical' },
+                subtropical: { image: 'assets/zonas-climaticas/Tropical.png', accent: 'accent-climate-subtropical' },
+                arido: { image: 'assets/zonas-climaticas/Árido.png', accent: 'accent-climate-desertica' },
+                temperado: { image: 'assets/zonas-climaticas/Temperado.png', accent: 'accent-climate-temperada' },
+                temperada: { image: 'assets/zonas-climaticas/Temperado.png', accent: 'accent-climate-temperada' },
+                continental: { image: 'assets/zonas-climaticas/Continental.png', accent: 'accent-climate-temperada' },
+                polar: { image: 'assets/zonas-climaticas/Polar.png', accent: 'accent-climate-polar' },
+                artica: { image: 'assets/zonas-climaticas/Polar.png', accent: 'accent-climate-artica' },
+                antartica: { image: 'assets/zonas-climaticas/Polar.png', accent: 'accent-climate-antartica' },
+                desertica: { image: 'assets/zonas-climaticas/Árido.png', accent: 'accent-climate-desertica' },
+                semiarida: { image: 'assets/zonas-climaticas/Árido.png', accent: 'accent-climate-semiarida' },
+                mediterranica: { image: 'assets/zonas-climaticas/Temperado.png', accent: 'accent-climate-temperada' },
+                montanhoso: { image: 'assets/zonas-climaticas/Montanhoso.png', accent: 'accent-climate-montanhosa' },
+                montanhosa_alpina: { image: 'assets/zonas-climaticas/Montanhoso.png', accent: 'accent-climate-montanhosa' }
             };
             if (normalized.includes('montanhos') || normalized.includes('alpina')) return zones.montanhoso;
             return zones[normalized] || null;
@@ -618,6 +620,8 @@ import { initScientificClassificationToggles } from "./scientific-classification
 
         function getBiomaMeta(value = '') {
             const normalized = normalizeDimensionKey(value).replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
+            const habitatMeta = getHabitatMeta(value);
+            if (habitatMeta) return habitatMeta;
             const biomas = {
                 bosque: { image: 'assets/bioma/03_Bosque.png', accent: 'accent-bioma-bosque' },
                 calota_de_gelo: { image: 'assets/bioma/07_Calota_de_Gelo.png', accent: 'accent-bioma-calota-gelo' },
@@ -638,6 +642,65 @@ import { initScientificClassificationToggles } from "./scientific-classification
                 marinho_corais: { image: 'assets/bioma/13_Marinho_corais.png', accent: 'accent-bioma-marinho-corais' }
             };
             return biomas[normalized] || null;
+        }
+
+        function getHabitatMeta(value = '') {
+            const normalized = normalizeDimensionKey(value).replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
+            const habitatImages = {
+                agricola: 'Agrícola.png',
+                ambiente_domestico: 'Ambiente doméstico.png',
+                ambiente_subterraneo: 'Ambiente subterrâneo.png',
+                area_degradada: 'Área degradada.png',
+                area_industrial: 'Área industrial.png',
+                areas_rochosas: 'Áreas rochosas.png',
+                baia: 'Baía.png',
+                bioma_antropogenico: 'Bioma antropogénico.png',
+                bosque: 'Bosque.png',
+                campo_bioma: 'Campo (bioma).png',
+                canal: 'Canal.png',
+                canal_ou_reservatorio_artificial: 'Canal ou reservatório artificial.png',
+                caverna: 'Caverna.png',
+                charco: 'Charco.png',
+                costa: 'Costa.png',
+                costa_rochosa: 'Costa rochosa.png',
+                costeiro: 'Costa.png',
+                deserto_polar: 'Deserto polar.png',
+                duna: 'Duna.png',
+                estuario: 'Estuário.png',
+                fauna_urbana: 'Fauna urbana.png',
+                fiorde: 'Fiorde.png',
+                floresta: 'Floresta.png',
+                floresta_de_kelp: 'Floresta de kelp.png',
+                jardim_parque: 'Jardim - Parque.png',
+                lagoa: 'Lagoa.png',
+                lagoa_costeira: 'Lagoa costeira.png',
+                marinho: 'Marinho.png',
+                marisma_salgada: 'Marisma salgada.png',
+                matagal: 'Matagal mediterrânico.png',
+                mina_pedreira: 'Mina - Pedreira.png',
+                montanha: '11_Montanha.png',
+                nascente: 'Nascente.png',
+                oasis: 'Oásis.png',
+                oceanico: 'Marinho.png',
+                pantano: '04_Pantano.png',
+                pastagem: 'Pastagem.png',
+                planalto: 'Planalto.png',
+                plantacao_florestal: 'Plantação florestal.png',
+                pradaria_marinha: 'Pradaria marinha.png',
+                praia_arenosa: 'Praia arenosa.png',
+                recife_rochoso: 'Recife rochoso.png',
+                reservatorio: 'Reservatório.png',
+                rural: 'Rural.png',
+                suburbano: 'Suburbano.png',
+                suburbio: 'Subúrbio.png',
+                urbano: 'Urbano.png',
+                vale: 'Vale.png',
+                zona_entremares: 'Zona entremarés.png',
+                zona_humida: 'Zona húmida.png',
+                zona_riparia: 'Zona ripária.png'
+            };
+            const filename = habitatImages[normalized];
+            return filename ? { image: `assets/habitat/${filename}`, accent: 'accent-bioma' } : null;
         }
 
         function getGeneralModelSvg(key = 'geral') {
@@ -675,9 +738,13 @@ import { initScientificClassificationToggles } from "./scientific-classification
             const ecologicalMeta = normalizedType.includes('funcao ecologica') ? getEcologicalFunctionMeta(value) : null;
             const locomotionMeta = normalizedType.includes('locomocao') ? getLocomotionMeta(value) : null;
             const climateMeta = normalizedType.includes('zona') ? getClimateZoneMeta(value) : null;
-            const biomaMeta = normalizedType.includes('bioma') ? getBiomaMeta(value) : null;
+            const habitatMeta = (normalizedType.includes('habitat') || normalizedType.includes('bioma')) ? getHabitatMeta(value) : null;
+            const biomaMeta = normalizedType.includes('bioma') && !habitatMeta ? getBiomaMeta(value) : null;
+            const displayMeta = habitatMeta ? { ...meta, title: 'Habitats' } : meta;
             const icon = climateMeta
                 ? `<img class="climate-zone-model-image" src="${climateMeta.image}" alt="Zona climatica ${escapeHtml(value)}" loading="lazy">`
+                : habitatMeta
+                    ? `<img class="climate-zone-model-image" src="${habitatMeta.image}" alt="Habitat ${escapeHtml(value)}" loading="lazy">`
                 : biomaMeta
                     ? `<img class="climate-zone-model-image" src="${biomaMeta.image}" alt="Bioma ${escapeHtml(value)}" loading="lazy">`
                     : ecologicalMeta
@@ -695,9 +762,11 @@ import { initScientificClassificationToggles } from "./scientific-classification
             return {
                 meta,
                 icon,
-                accent: climateMeta?.accent || biomaMeta?.accent || ecologicalMeta?.accent || locomotionMeta?.accent || strategyMeta?.accent || activityMeta?.accent || socialMeta?.accent || meta.accent,
+                accent: climateMeta?.accent || habitatMeta?.accent || biomaMeta?.accent || ecologicalMeta?.accent || locomotionMeta?.accent || strategyMeta?.accent || activityMeta?.accent || socialMeta?.accent || displayMeta.accent,
                 climateMeta,
-                biomaMeta
+                biomaMeta,
+                habitatMeta,
+                meta: displayMeta
             };
         }
 
@@ -937,6 +1006,7 @@ import { initScientificClassificationToggles } from "./scientific-classification
             const isLocomotion = normalizedType.includes('locomocao');
             const isClimateZone = normalizedType.includes('zona');
             const isBioma = normalizedType.includes('bioma');
+            const isHabitat = normalizedType.includes('habitat');
             const value = item.valorMin || item.valor || '';
             const mixedOption = item.opcao || '';
             const strategyMeta = isStrategy ? getFeedingStrategyMeta(value) : null;
@@ -945,9 +1015,13 @@ import { initScientificClassificationToggles } from "./scientific-classification
             const ecologicalMeta = isEcologicalFunction ? getEcologicalFunctionMeta(value) : null;
             const locomotionMeta = isLocomotion ? getLocomotionMeta(value) : null;
             const climateMeta = isClimateZone ? getClimateZoneMeta(value) : null;
-            const biomaMeta = isBioma ? getBiomaMeta(value) : null;
+            const habitatMeta = (isHabitat || isBioma) ? getHabitatMeta(value) : null;
+            const biomaMeta = isBioma && !habitatMeta ? getBiomaMeta(value) : null;
+            const displayMeta = habitatMeta ? { ...meta, title: 'Habitats' } : meta;
             const icon = climateMeta
                 ? `<img class="climate-zone-model-image" src="${climateMeta.image}" alt="Zona climática ${escapeHtml(value)}" loading="lazy">`
+                : habitatMeta
+                    ? `<img class="climate-zone-model-image" src="${habitatMeta.image}" alt="Habitat ${escapeHtml(value)}" loading="lazy">`
                 : biomaMeta
                     ? `<img class="climate-zone-model-image" src="${biomaMeta.image}" alt="Bioma ${escapeHtml(value)}" loading="lazy">`
                     : ecologicalMeta
@@ -962,10 +1036,10 @@ import { initScientificClassificationToggles } from "./scientific-classification
                                 ? getSocialSvg(socialMeta.key)
                             : getGeneralModelSvg(meta.key);
             return `
-                <article class="dimension-model-card general-model-card ${climateMeta?.accent || biomaMeta?.accent || ecologicalMeta?.accent || locomotionMeta?.accent || strategyMeta?.accent || activityMeta?.accent || socialMeta?.accent || meta.accent}" data-gender="${item.genero || ''}" data-phase="${item.fase || 'Adulto'}" data-info-group="${getInfoGroupForGeneralType(item.tipo)}">
-                    <div class="dimension-model-icon ${climateMeta || biomaMeta ? 'climate-zone-model-icon' : ''}">${icon}</div>
+                <article class="dimension-model-card general-model-card ${climateMeta?.accent || habitatMeta?.accent || biomaMeta?.accent || ecologicalMeta?.accent || locomotionMeta?.accent || strategyMeta?.accent || activityMeta?.accent || socialMeta?.accent || displayMeta.accent}" data-gender="${item.genero || ''}" data-phase="${item.fase || 'Adulto'}" data-info-group="${getInfoGroupForGeneralType(item.tipo)}">
+                    <div class="dimension-model-icon ${climateMeta || habitatMeta || biomaMeta ? 'climate-zone-model-icon' : ''}">${icon}</div>
                     <div class="dimension-model-copy">
-                        <div class="dimension-model-label${inlineGenderSymbol ? ' with-gender' : ''}">${escapeHtml(meta.title)}${inlineGenderSymbol}</div>
+                        <div class="dimension-model-label${inlineGenderSymbol ? ' with-gender' : ''}">${escapeHtml(displayMeta.title)}${inlineGenderSymbol}</div>
                         <div class="dimension-model-value">${mixedOption ? `${escapeHtml(mixedOption)} • ` : ''}${formatGeneralVisualValue(item)}</div>
                     </div>
                 </article>`;
@@ -1098,26 +1172,108 @@ import { initScientificClassificationToggles } from "./scientific-classification
 
         function renderEnvironmentVisualCards(items = [], filterContext = {}) {
             return items.map(item => {
-                const cardHtml = renderGeneralVisualCard(item);
+                const value = item.valorMin || item.valor || item.opcao || '';
+                const type = normalizeDimensionKey(item.tipo);
+                const isBiome = type === 'bioma' || type.includes('habitat');
+                const meta = isBiome ? getBiomaMeta(value) : null;
+                const popupAttributes = isBiome
+                    ? ` data-environment-visual-popup data-popup-kind="biome" data-popup-label="${escapeHtml(value)}" data-popup-image="${escapeHtml(meta?.image || '')}"`
+                    : '';
+                const cardHtml = renderGeneralVisualCard(item).replace('<article ', `<article${popupAttributes} `);
                 return getInitialVisualItemVisibility(item, filterContext)
                     ? cardHtml
                     : cardHtml.replace(/<(article|button) class="/, '<$1 style="display: none;" class="');
             }).join('');
         }
 
+        const CLIMATE_BIOME_GROUPS = {
+            tropical: ['Floresta tropical pluvial', 'Floresta tropical e subtropical húmida', 'Floresta tropical seca', 'Bosque tropical seco', 'Florestas tropicais de coníferas', 'Campos tropicais', 'Savana', 'Savana tropical', 'Matagal tropical'],
+            arido: ['Deserto quente', 'Deserto frio', 'Semi-deserto', 'Matagal xerófilo', 'Estepe'],
+            temperado: ['Floresta decídua temperada', 'Bosque temperado', 'Floresta temperada pluvial', 'Floresta temperada de coníferas', 'Pradaria', 'Campos temperados', 'Floresta mediterrânica', 'Matagal mediterrânico', 'Chaparral'],
+            continental: ['Taiga', 'Bosque de coníferas'],
+            polar: ['Tundra', 'Tundra ártica', 'Tundra alpina', 'Calota de gelo']
+        };
+
+        function getClimateBiomeItems(primaryValue = '', biomeItems = []) {
+            const climateKey = normalizeDimensionKey(primaryValue).replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
+            return biomeItems.filter(item => {
+                const value = item.valorMin || item.valor || item.opcao || '';
+                return (CLIMATE_BIOME_GROUPS[climateKey] || []).some(label => normalizeDimensionKey(label) === normalizeDimensionKey(value));
+            });
+        }
+
+        function renderClimateZoneEnvironmentCard(items = [], biomeItems = [], filterContext = {}) {
+            const primaryItems = items.filter(item => normalizeDimensionKey(item.tipo) === 'zona climatica');
+            const secondaryItems = items.filter(item => normalizeDimensionKey(item.tipo) === 'zona climatica secundaria');
+            const secondaryToPrimary = {
+                equatorial: 'Tropical', moncao: 'Tropical', savana: 'Tropical',
+                deserticos: 'Árido', semiaridos: 'Árido',
+                subtropical_humido: 'Tropical', oceanico: 'Tropical', mediterranico: 'Tropical',
+                continental_humido: 'Continental', subartico: 'Continental',
+                tundra: 'Polar', glacial: 'Polar'
+            };
+            const fallbackSecondary = secondaryItems[0]?.valorMin || secondaryItems[0]?.valor || secondaryItems[0]?.opcao || '';
+            const fallbackPrimary = secondaryToPrimary[normalizeDimensionKey(fallbackSecondary).replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '')];
+            const primary = primaryItems[0] || (fallbackPrimary ? { valor: fallbackPrimary } : null);
+            if (!primary) return '';
+
+            const primaryValue = primary.valorMin || primary.valor || primary.opcao || '';
+            const climateMeta = getClimateZoneMeta(primaryValue);
+            if (!climateMeta) return '';
+
+            const matchingBiomes = getClimateBiomeItems(primaryValue, biomeItems);
+            const visible = [...items, ...matchingBiomes].some(item => getInitialVisualItemVisibility(item, filterContext));
+            const secondaryRows = secondaryItems.map(item => {
+                const isVisible = getInitialVisualItemVisibility(item, filterContext);
+                const value = item.valorMin || item.valor || item.opcao || '—';
+                return `<div class="general-model-value-row secondary-climate-zone-row" data-environment-visual-popup data-popup-kind="secondary-climate" data-popup-label="${escapeHtml(value)}" data-popup-image="assets/zonas-climaticas-secundario/${escapeHtml(value)}.png" data-gender="${escapeHtml(item.genero || '')}" data-phase="${escapeHtml(item.fase || 'Adulto')}"${isVisible ? '' : ' style="display: none;"'}>${renderInlineGenderSymbol(item)}${escapeHtml(value)}</div>`;
+            }).join('');
+            const biomeRows = matchingBiomes.map(item => {
+                const isVisible = getInitialVisualItemVisibility(item, filterContext);
+                const value = item.valorMin || item.valor || item.opcao || '—';
+                const biomeMeta = getBiomaMeta(value);
+                const biomeIcon = biomeMeta ? `<img class="climate-biome-model-image" src="${biomeMeta.image}" alt="Bioma ${escapeHtml(value)}" loading="lazy">` : '';
+                return `<div class="climate-biome-mini-card ${biomeMeta?.accent || ''}" data-environment-visual-popup data-popup-kind="biome" data-popup-label="${escapeHtml(value)}" data-popup-image="${escapeHtml(biomeMeta?.image || '')}" data-gender="${escapeHtml(item.genero || '')}" data-phase="${escapeHtml(item.fase || 'Adulto')}"${isVisible ? '' : ' style="display: none;"'}>
+                    <div class="climate-biome-mini-icon">${biomeIcon}</div>
+                    <div class="climate-biome-mini-copy"><div class="climate-biome-mini-label">Bioma</div><div class="climate-biome-mini-value">${escapeHtml(value)}</div></div>
+                </div>`;
+            }).join('');
+
+            return `<article class="dimension-model-card general-model-card climate-zone-summary-card ${climateMeta.accent}" data-climate-zone-map-popup data-popup-label="${escapeHtml(primaryValue)}" data-info-group="habitat"${visible ? '' : ' style="display: none;"'}>
+                <div class="dimension-model-icon climate-zone-model-icon"><img class="climate-zone-model-image" src="${climateMeta.image}" alt="Zona climática ${escapeHtml(primaryValue)}" loading="lazy"></div>
+                <div class="dimension-model-copy">
+                    <div class="dimension-model-label">Zona Climática</div>
+                    <div class="dimension-model-value">${escapeHtml(primaryValue)}</div>
+                    ${secondaryRows ? `<div class="secondary-climate-zone-list"><div class="secondary-climate-zone-heading">Zonas Climáticas Secundárias</div>${secondaryRows}</div>` : ''}
+                    ${biomeRows ? `<div class="secondary-climate-zone-list climate-biome-list">${biomeRows}</div>` : ''}
+                </div>
+            </article>`;
+        }
+
         function renderEnvironmentSections(items = [], filterContext = {}, { id = 'info-ambiente', mobile = false } = {}) {
             if (!items.length) return '';
 
             const wrapperStyle = mobile ? 'margin-bottom: 20px;' : 'margin-top: 20px;';
+            const climateItems = items.filter(item => {
+                const type = normalizeDimensionKey(item.tipo);
+                return type === 'zona climatica' || type === 'zona climatica secundaria';
+            });
+            const biomeItems = items.filter(item => normalizeDimensionKey(item.tipo) === 'bioma');
+            const habitatItems = items.filter(item => normalizeDimensionKey(item.tipo).includes('habitat'));
+            const otherEnvironmentItems = items.filter(item => !climateItems.includes(item) && !biomeItems.includes(item) && !habitatItems.includes(item));
+            const primaryClimate = climateItems.find(item => normalizeDimensionKey(item.tipo) === 'zona climatica');
+            const primaryClimateValue = primaryClimate?.valorMin || primaryClimate?.valor || primaryClimate?.opcao || '';
+            const climateBiomes = getClimateBiomeItems(primaryClimateValue, biomeItems);
+            const remainingBiomes = biomeItems.filter(item => !climateBiomes.includes(item));
 
             return `
                 <div class="info-section-card" id="${id}" style="${wrapperStyle}">
-                    <h3><span class="icon svg-icon">${getInfoSectionIconSvg('distribuicao')}</span>Zona Climática & Bioma</h3>
+                    <h3><span class="icon svg-icon">${getInfoSectionIconSvg('distribuicao')}</span>Zona Climática, Biomas &amp; Habitats</h3>
                     <div class="visual-models-grid" style="display: flex; flex-direction: column; gap: 14px;">
-                        ${renderEnvironmentVisualCards(
-                            items.map(item => ({ ...item, isDimension: false })),
-                            filterContext
-                        )}
+                        ${renderClimateZoneEnvironmentCard(climateItems, biomeItems, filterContext)}
+                        ${remainingBiomes.length ? `<div class="environment-subsection-heading">Biomas</div>${renderEnvironmentVisualCards(remainingBiomes.map(item => ({ ...item, isDimension: false })), filterContext)}` : ''}
+                        ${otherEnvironmentItems.length ? renderEnvironmentVisualCards(otherEnvironmentItems.map(item => ({ ...item, isDimension: false })), filterContext) : ''}
+                        ${habitatItems.length ? `<div class="environment-subsection-heading">Habitats</div>${renderEnvironmentVisualCards(habitatItems.map(item => ({ ...item, isDimension: false })), filterContext)}` : ''}
                     </div>
                 </div>`;
         }
@@ -1138,7 +1294,7 @@ import { initScientificClassificationToggles } from "./scientific-classification
 
         function renderGeneralVisual(animalData) {
             const models = getGeneralVisualModels(animalData);
-            const isEnv = item => normalizeDimensionKey(item.tipo).includes('zona') || normalizeDimensionKey(item.tipo).includes('bioma');
+            const isEnv = item => normalizeDimensionKey(item.tipo).includes('zona') || normalizeDimensionKey(item.tipo).includes('bioma') || normalizeDimensionKey(item.tipo).includes('habitat');
             const valid = collapseCombinedGenderItems(
                 Array.isArray(models) ? models.filter(item => item.tipo && (item.valor || item.valorMin || item.valorMax) && !isEnv(item)) : []
             );
@@ -1175,7 +1331,7 @@ import { initScientificClassificationToggles } from "./scientific-classification
 
         function renderClimateZoneBadge(animalData) {
             const models = animalData.informacao?.geralDetalhada || [];
-            const climateItem = Array.isArray(models) ? models.find(item => item.tipo && normalizeDimensionKey(item.tipo).includes('zona')) : null;
+            const climateItem = Array.isArray(models) ? models.find(item => item.tipo && normalizeDimensionKey(item.tipo) === 'zona climatica') : null;
             if (!climateItem || !climateItem.valor) return '';
 
             const value = climateItem.valor;
@@ -3001,7 +3157,7 @@ import { initScientificClassificationToggles } from "./scientific-classification
             );
 
             const models = animalData.informacao?.geralDetalhada || [];
-            const isEnv = item => normalizeDimensionKey(item.tipo).includes('zona') || normalizeDimensionKey(item.tipo).includes('bioma');
+            const isEnv = item => normalizeDimensionKey(item.tipo).includes('zona') || normalizeDimensionKey(item.tipo).includes('bioma') || normalizeDimensionKey(item.tipo).includes('habitat');
             const validQuickData = collapseCombinedGenderItems(
                 Array.isArray(models) ? models.filter(item => item.tipo && (item.valor || item.valorMin || item.valorMax) && !isEnv(item) && !isLegacyGeneralMatingItem(item)) : []
             );
@@ -3060,6 +3216,7 @@ import { initScientificClassificationToggles } from "./scientific-classification
                 animalData.subordem ||
                 animalData.infraordem ||
                 animalData.parvordem ||
+                animalData.superfamilia ||
                 animalData.familia ||
                 animalData.subfamilia ||
                 animalData.tribo ||
@@ -3088,6 +3245,7 @@ import { initScientificClassificationToggles } from "./scientific-classification
                 ['subordem', 'Subordem:', animalData.subordem],
                 ['infraordem', 'Infraordem:', animalData.infraordem],
                 ['parvordem', 'Parvordem:', animalData.parvordem],
+                ['superfamilia', 'Superfamília:', animalData.superfamilia],
                 ['familia', 'Família:', animalData.familia],
                 ['subfamilia', 'Subfamília:', animalData.subfamilia],
                 ['tribo', 'Tribo:', animalData.tribo],
@@ -3384,13 +3542,46 @@ import { initScientificClassificationToggles } from "./scientific-classification
 
                     const models = animalData.informacao?.geralDetalhada || [];
                     const footerBiomaBackgroundFiles = {
+                        agricola: 'Agrícola.png',
+                        areas_rochosas: 'Áreas rochosas.png',
+                        bioma_antropogenico: 'Bioma antropogénico.png',
                         bosque: 'bosque.png',
                         floresta: 'floresta.png',
+                        campo_bioma: 'Campo (bioma).png',
+                        campos_temperados: 'Campos temperados.png',
+                        calota_de_gelo: 'calota de gelo.png',
+                        caverna: 'caverna.png',
+                        chaparral: 'chaparral.png',
+                        costa: 'costa.png',
+                        duna: 'duna.png',
+                        estuario: 'Estuário.png',
+                        estepe: 'estepe.png',
+                        fauna_urbana: 'fauna urbana.png',
+                        floresta_decidua_temperada: 'Floresta decídua temperada.png',
+                        floresta_temperada_de_coniferas: 'Floresta temperada de coníferas.png',
+                        floresta_tropical_e_subtropical_humida: 'Floresta tropical e subtropical húmida.png',
+                        floresta_tropical_seca: 'Floresta tropical seca.png',
+                        florestas_tropicais_de_coniferas: 'Florestas tropicais de coníferas.png',
+                        lago: 'Lago.png',
+                        manguezal: 'Manguezal.png',
                         marinho: 'marinho.png',
+                        marinho_corais: 'Marinho (corais).png',
                         matagal: 'matagal.png',
                         montanha: 'montanha.png',
                         pantano: 'pântano.png',
-                        savana: 'savana.png'
+                        pradaria: 'pradaria.png',
+                        rio: 'Rio.png',
+                        savana: 'savana.png',
+                        savana_tropical: 'Savana tropical.png',
+                        suburbio: 'Subúrbio.png',
+                        taiga: 'Taiga.png',
+                        tundra: 'Tundra.png',
+                        zona_entremareas: 'Zona entremarés.png',
+                        zona_entremare_s: 'Zona entremarés.png',
+                        zona_humida: 'Zona húmida.png',
+                        zona_neritica: 'Zona nerítica.png',
+                        zona_pelagica: 'Zona pelágica.png',
+                        zona_riparia: 'Zona ripária.png'
                     };
                     const biomaValues = [];
                     if (Array.isArray(models)) {
@@ -3414,7 +3605,7 @@ import { initScientificClassificationToggles } from "./scientific-classification
                             const key = normalizeDimensionKey(value).replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
                             return { value, meta: getBiomaMeta(value), backgroundFile: footerBiomaBackgroundFiles[key] };
                         })
-                        .filter(item => item.meta && item.backgroundFile);
+                        .filter(item => item.backgroundFile);
                     const rodapeParamsOn = animalData.rodapeParamsOn || [];
                     const footerCards = [];
                     
@@ -3682,6 +3873,8 @@ import { initScientificClassificationToggles } from "./scientific-classification
             initBiogeographicRegionPopup(mainContent);
             initCommunicationTypePopup(mainContent);
             initEcologyRelationsPopup(mainContent);
+            initEnvironmentVisualPopup(mainContent);
+            initClimateZoneMapPopup(mainContent);
             
             if (hasDistribicao) {
                 const selectedCodes = (animalData.informacao.distribuicao.paises || [])

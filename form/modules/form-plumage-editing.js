@@ -790,6 +790,7 @@
             document.getElementById('nomeAnimal').value = animal.nome || '';
             document.getElementById('nomeCientifico').value = animal.nomeCientifico || '';
             document.getElementById('familia').value = animal.familia || '';
+            if (document.getElementById('superfamilia')) document.getElementById('superfamilia').value = animal.superfamilia || '';
             document.getElementById('imagemUrl').value = animal.imagemUrl || '';
             document.getElementById('imagemObjectPosition').value = animal.imagemObjectPosition || 'center center';
             document.getElementById('imagemRodape').value = animal.imagemRodape || '';
@@ -1191,6 +1192,7 @@
                     'parvordem': 'parvordem',
                     'família': 'familia',
                     'familia': 'familia',
+                    'superfamilia': 'superfamilia',
                     'subfamilia': 'subfamilia',
                     'tribo': 'tribo',
                     'género': 'genero',
@@ -1251,6 +1253,7 @@
                 infraordem: 'infraordem', infraorder: 'infraordem',
                 parvordem: 'parvordem', parvorder: 'parvordem',
                 familia: 'familia', family: 'familia',
+                superfamília: 'superfamilia', superfamilia: 'superfamilia', superfamily: 'superfamilia',
                 subfamilia: 'subfamilia', subfamily: 'subfamilia',
                 tribo: 'tribo', tribe: 'tribo',
                 genero: 'genero', genus: 'genero',

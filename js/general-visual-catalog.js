@@ -54,7 +54,9 @@ export const generalVisualOptions = [
     { tipo: 'Função ecológica', unidade: '' },
     { tipo: 'Locomoção', unidade: '' },
     { tipo: 'Zona Climática', unidade: '' },
+    { tipo: 'Zona Climática Secundária', unidade: '' },
     { tipo: 'Bioma', unidade: '' },
+    { tipo: 'Habitats', unidade: '' },
     { tipo: 'Estrato ecológico', unidade: '' }
 ];
 
@@ -134,25 +136,142 @@ const climateZoneOptions = [
     'Montanhoso'
 ];
 
+const secondaryClimateZoneOptions = [
+    'Equatorial',
+    'Monção',
+    'Savana',
+    'Desérticos',
+    'Semiáridos',
+    'Subtropical Húmido',
+    'Oceânico',
+    'Mediterrânico',
+    'Continental Húmido',
+    'Subártico',
+    'Tundra',
+    'Glacial'
+];
+
 const biomaOptions = [
+    'Agrícola',
     'Áreas rochosas',
+    'Área degradada',
+    'Área industrial',
+    'Ambiente doméstico',
+    'Ambiente subterrâneo',
+    'Baía',
+    'Bioma antropogénico',
     'Bosque',
+    'Bosque de coníferas',
+    'Bosque temperado',
+    'Bosque tropical seco',
+    'Brejo',
     'Calota de gelo',
+    'Campo (bioma)',
+    'Campos temperados',
+    'Campos inundáveis',
+    'Campos tropicais',
     'Caverna',
     'Chaparral',
+    'Charco',
+    'Canal',
+    'Canal ou reservatório artificial',
     'Costa',
+    'Costa rochosa',
+    'Delta',
+    'Deserto frio',
+    'Deserto polar',
+    'Deserto quente',
     'Duna',
+    'Floresta de kelp',
+    'Floresta inundável',
+    'Floresta mediterrânica',
+    'Floresta montana',
+    'Floresta nublada',
+    'Floresta temperada pluvial',
+    'Estuário',
     'Estepe',
+    'Fiorde',
     'Fauna urbana',
     'Floresta',
+    'Floresta decídua temperada',
+    'Floresta tropical pluvial',
+    'Floresta temperada de coníferas',
+    'Floresta tropical e subtropical húmida',
+    'Floresta tropical seca',
+    'Florestas tropicais de coníferas',
+    'Jardim / Parque',
+    'Lagoa',
+    'Lagoa costeira',
+    'Lago',
+    'Mar profundo',
+    'Marisma salgada',
+    'Manguezal',
     'Marinho',
     'Marinho (corais)',
     'Matagal',
+    'Matagal mediterrânico',
+    'Matagal tropical',
+    'Matagal xerófilo',
     'Montanha',
+    'Mina / Pedreira',
+    'Nascente',
+    'Oásis',
+    'Oceano aberto',
+    'Pântano de água doce',
     'Pântano',
+    'Pastagem',
+    'Planalto',
+    'Plantação florestal',
+    'Plataforma continental',
     'Pradaria',
-    'Savana'
+    'Praia arenosa',
+    'Pradaria marinha',
+    'Riacho',
+    'Recife de coral',
+    'Recife rochoso',
+    'Reservatório',
+    'Rio',
+    'Rural',
+    'Savana',
+    'Savana tropical',
+    'Semi-deserto',
+    'Suburbano',
+    'Subúrbio',
+    'Taiga',
+    'Tundra',
+    'Tundra alpina',
+    'Tundra ártica',
+    'Turfeira',
+    'Urbano',
+    'Vale',
+    'Várzea / Planície aluvial',
+    'Zona entremarés',
+    'Zona abissal',
+    'Zona batial',
+    'Zona bentónica',
+    'Zona húmida',
+    'Zona nerítica',
+    'Zona pelágica',
+    'Zona ripária'
 ];
+
+const habitatOptions = [
+    'Água doce', 'Agrícola', 'Ambiente doméstico', 'Ambiente subterrâneo',
+    'Área degradada', 'Área industrial', 'Áreas rochosas', 'Baía',
+    'Bioma antropogénico', 'Bosque', 'Campo (bioma)', 'Canal',
+    'Canal ou reservatório artificial', 'Caverna', 'Charco', 'Costa',
+    'Costa rochosa', 'Costeiro', 'Deserto polar', 'Duna', 'Estuário',
+    'Fauna urbana', 'Fiorde', 'Floresta', 'Floresta de kelp',
+    'Jardim / Parque', 'Lagoa', 'Lagoa costeira', 'Marinho',
+    'Marisma salgada', 'Matagal', 'Mina / Pedreira', 'Montanha',
+    'Nascente', 'Oásis', 'Oceânico', 'Pântano', 'Pastagem', 'Planalto',
+    'Plantação florestal', 'Pradaria marinha', 'Praia arenosa',
+    'Recife rochoso', 'Reservatório', 'Rural', 'Suburbano', 'Subúrbio',
+    'Urbano', 'Vale', 'Zona entremarés', 'Zona húmida', 'Zona ripária'
+];
+
+const habitatOptionKeys = new Set(habitatOptions.map(normalizeGeneralVisualKey));
+const filteredBiomaOptions = biomaOptions.filter(option => !habitatOptionKeys.has(normalizeGeneralVisualKey(option)));
 
 const thermoregulationOptions = ['Endotérmico', 'Ectotérmico', 'Heterotérmico', 'Homeotérmico', 'Poiquilotérmico', 'Regionalmente endotérmico'];
 const bodySymmetryOptions = ['Bilateral', 'Radial', 'Birradial', 'Assimétrica', 'Pentarradial'];
@@ -178,7 +297,9 @@ const selectGroups = {
     ecologicalFunction: ecologicalFunctionCatalog.map(item => item.label),
     locomotion: locomotionCatalog.map(item => item.label),
     climateZone: climateZoneOptions,
-    bioma: biomaOptions,
+    secondaryClimateZone: secondaryClimateZoneOptions,
+    bioma: filteredBiomaOptions,
+    habitats: habitatOptions,
     thermoregulation: thermoregulationOptions,
     bodySymmetry: bodySymmetryOptions,
     developmentTransformation: developmentTransformationOptions,
@@ -267,8 +388,10 @@ export function getGeneralVisualSelectConfig(type = '') {
     if (normalized.includes('vida social')) return { group: 'social', placeholder: 'Escolhe um tipo de vida social' };
     if (normalized.includes('funcao ecologica')) return { group: 'ecologicalFunction', placeholder: 'Escolhe uma função ecológica' };
     if (normalized.includes('locomocao')) return { group: 'locomotion', placeholder: 'Escolhe um tipo de locomoção' };
+    if (normalized.includes('zona climatica secundaria')) return { group: 'secondaryClimateZone', placeholder: 'Escolhe uma zona climática secundária' };
     if (normalized.includes('zona climatica')) return { group: 'climateZone', placeholder: 'Escolhe uma zona climática' };
     if (normalized.includes('bioma')) return { group: 'bioma', placeholder: 'Escolhe um bioma' };
+    if (normalized.includes('habitats')) return { group: 'habitats', placeholder: 'Escolhe um habitat' };
     if (normalized.includes('termorregulacao')) return { group: 'thermoregulation', placeholder: 'Escolhe a termorregulação' };
     if (normalized.includes('simetria corporal')) return { group: 'bodySymmetry', placeholder: 'Escolhe a simetria corporal' };
     if (normalized.includes('transformacoes do desenvolvimento')) return { group: 'developmentTransformation', placeholder: 'Escolhe a transformação do desenvolvimento' };
@@ -347,6 +470,7 @@ export function getGeneralVisualMeta(type = '') {
     if (normalized.includes('funcao ecologica')) return { key: 'funcao-ecologica', title: type || 'Função ecológica', accent: 'accent-bioma' };
     if (normalized.includes('locomocao')) return { key: 'locomocao', title: type || 'Locomoção', accent: 'accent-climate' };
     if (normalized.includes('zona')) return { key: 'zona-climatica', title: type || 'Zona Climática', accent: 'accent-climate' };
+    if (normalized.includes('habitats')) return { key: 'habitats', title: type || 'Habitats', accent: 'accent-bioma' };
     if (normalized.includes('bioma')) return { key: 'bioma', title: type || 'Bioma', accent: 'accent-bioma' };
     return { key: 'geral', title: type || 'Modelo geral', accent: 'accent-generic' };
 }
@@ -409,7 +533,7 @@ export function getGeneralModelSvg(key = 'geral') {
         'transformacoes-desenvolvimento': makeSvg('<path d="M18 48c8-15 20-22 36-19"/><path d="M49 22l8 7l-9 5"/><circle cx="23" cy="25" r="7"/><path d="M43 52c6 9 16 11 24 4"/><path d="M50 61l-8 5"/><path d="M31 43c4 4 8 7 13 8"/>'),
         'numero-segmentos': makeSvg('<path d="M14 40h52"/><path d="M20 28v24M30 25v30M40 23v34M50 25v30M60 28v24"/><path d="M14 34c8-10 44-10 52 0M14 46c8 10 44 10 52 0"/>'),
         'numero-patas': makeSvg('<path d="M30 22h20l7 18l-7 18H30l-7-18Z"/><path d="M28 30L14 18M25 40H10M28 50L14 62M52 30l14-12M55 40h15M52 50l14 12"/>'),
-        'numero-poros': makeSvg('<circle cx="40" cy="40" r="25"/><circle cx="29" cy="29" r="3"/><circle cx="45" cy="27" r="3"/><circle cx="54" cy="40" r="3"/><circle cx="42" cy="48" r="3"/><circle cx="27" cy="49" r="3"/>'),
+        'numero-poros': makeSvg('<path d="M18 24c5-8 15-12 25-10c11 2 20 9 21 20c1 8-3 18-10 24c-7 6-18 9-28 6c-9-3-15-10-16-19c-1-8 3-15 8-21Z"/><ellipse cx="29" cy="29" rx="4" ry="3"/><ellipse cx="44" cy="25" rx="3" ry="4"/><ellipse cx="55" cy="36" rx="4" ry="3"/><ellipse cx="35" cy="42" rx="3" ry="4"/><ellipse cx="50" cy="50" rx="3" ry="4"/><ellipse cx="23" cy="51" rx="4" ry="3"/><path d="M29 27c1-2 3-3 5-3M43 23c1-2 3-2 5-1M53 34c2-1 4 0 5 1M33 40c1-2 3-3 5-2M48 48c1-2 3-2 5-1M21 49c1-2 3-2 5-1"/>'),
         'numero-branquias': makeSvg('<path d="M18 40c9-14 24-20 40-12c-8 4-12 12-12 24c-12 4-22 0-28-12Z"/><path d="M46 31c7 3 12 8 16 15M42 36c7 3 12 8 15 14M40 43c6 2 10 6 13 11"/>'),
         'numero-barbatanas': makeSvg('<path d="M13 40c14-16 33-20 48-7l7-10v34l-7-10c-15 13-34 9-48-7Z"/><path d="M35 31l5-13l8 15M36 49l5 13l8-15"/>'),
         'numero-vertebras': makeSvg('<path d="M16 40h48"/><rect x="18" y="32" width="8" height="16" rx="3"/><rect x="29" y="31" width="8" height="18" rx="3"/><rect x="40" y="31" width="8" height="18" rx="3"/><rect x="51" y="32" width="8" height="16" rx="3"/>'),
@@ -456,6 +580,7 @@ export function getGeneralModelSvg(key = 'geral') {
         'tipo-comunicacao': makeSvg('<path d="M14 25c0-6 5-10 11-10h30c6 0 11 4 11 10v19c0 6-5 10-11 10H35l-11 9v-9h-1c-5 0-9-4-9-10Z"/><path d="M27 34h26M27 43h16"/>'),
         'zona-climatica': makeSvg('<circle cx="40" cy="40" r="27"/><path d="M13 40h54M40 13c8 8 12 17 12 27s-4 19-12 27M40 13c-8 8-12 17-12 27s4 19 12 27M18 25c13 6 31 6 44 0M18 55c13-6 31-6 44 0"/>'),
         bioma: makeSvg('<path d="M12 62h56"/><path d="M18 62V40l10-10l10 10v22M42 62V27l10-11l10 11v35"/><path d="M28 30V18M52 16V8M22 48h12M46 38h12"/>'),
+        habitats: makeSvg('<path d="M12 62h56"/><path d="M18 62V40l10-10l10 10v22M42 62V27l10-11l10 11v35"/><path d="M28 30V18M52 16V8M22 48h12M46 38h12"/>'),
         locomocao: makeSvg('<path d="M16 58h48"/><path d="M22 46c8-10 18-16 30-18"/><path d="M28 58l8-12"/><path d="M46 58l8-12"/><path d="M58 30l8-6"/>', 'general-model-svg locomotion-model-svg'),
         geral: makeSvg('<circle cx="40" cy="40" r="25"/><path d="M40 25v18"/><path d="M40 53v2"/>')
     };

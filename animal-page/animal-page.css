@@ -202,6 +202,176 @@
             line-height: 1.2;
         }
 
+        .climate-zone-summary-card .dimension-model-copy {
+            flex: 1 1 auto;
+            min-width: 0;
+            align-items: flex-start;
+            text-align: left;
+        }
+
+        .climate-zone-summary-card {
+            align-items: flex-start;
+        }
+
+        .climate-zone-summary-card > .dimension-model-icon {
+            flex: 0 0 auto;
+            align-self: flex-start;
+        }
+
+        .secondary-climate-zone-list {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            margin-top: 10px;
+            padding-top: 8px;
+            border-top: 1px solid rgba(148, 163, 184, 0.22);
+        }
+
+        .secondary-climate-zone-heading {
+            color: #94a3b8;
+            font-size: 0.72rem;
+            font-weight: 800;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+
+        .secondary-climate-zone-row {
+            color: #dbeafe;
+            font-size: 0.9rem;
+        }
+
+        .climate-biome-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #d1fae5;
+            font-size: 0.9rem;
+        }
+
+        .climate-biome-list {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr);
+            gap: 8px;
+            width: 100%;
+        }
+
+        .climate-biome-mini-card {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-height: 54px;
+            width: 100%;
+            box-sizing: border-box;
+            padding: 6px 10px;
+            border: 1px solid rgba(245, 158, 11, 0.52);
+            border-radius: 16px;
+            background: linear-gradient(105deg, rgba(30, 41, 59, 0.88), rgba(68, 53, 29, 0.72));
+            color: #fef3c7;
+        }
+
+        .climate-biome-mini-icon {
+            display: grid;
+            place-items: center;
+            width: 38px;
+            height: 38px;
+            flex: 0 0 38px;
+            border: 1px solid rgba(245, 158, 11, 0.48);
+            border-radius: 11px;
+            background: rgba(15, 23, 42, 0.58);
+        }
+
+        .climate-biome-mini-copy {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            min-width: 0;
+        }
+
+        .climate-biome-mini-label {
+            color: #cbd5e1;
+            font-size: 0.7rem;
+            font-weight: 700;
+        }
+
+        .climate-biome-mini-value {
+            color: #f59e0b;
+            font-size: 1rem;
+            font-weight: 900;
+        }
+
+        [data-environment-visual-popup] {
+            cursor: pointer;
+        }
+
+        [data-environment-visual-popup]:hover,
+        [data-environment-visual-popup]:focus-visible {
+            filter: brightness(1.08);
+            outline: 2px solid rgba(125, 211, 252, 0.7);
+            outline-offset: 2px;
+        }
+
+        .environment-visual-modal-image-wrap {
+            display: grid;
+            place-items: center;
+            min-height: 230px;
+            margin: 8px 0 18px;
+            border-radius: 16px;
+            background: rgba(15, 23, 42, 0.55);
+            overflow: hidden;
+        }
+
+        .environment-visual-modal-image-wrap img {
+            display: block;
+            width: min(100%, 420px);
+            max-height: 390px;
+            object-fit: contain;
+            user-select: none;
+            -webkit-user-drag: none;
+            pointer-events: none;
+        }
+
+        .environment-visual-modal-copy strong {
+            color: #7dd3fc;
+            font-size: 0.78rem;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+
+        .environment-visual-modal-copy p {
+            margin: 8px 0 0;
+            color: #cbd5e1;
+            line-height: 1.6;
+        }
+
+        .climate-zone-map-modal .biogeographic-region-map {
+            min-height: 300px;
+        }
+
+        .climate-zone-map-dot {
+            background: #f59e0b;
+        }
+
+        .climate-zone-map-description {
+            margin-top: 16px;
+        }
+
+        .climate-biome-model-image {
+            width: 28px;
+            height: 28px;
+            flex: 0 0 28px;
+            object-fit: contain;
+            border-radius: 7px;
+        }
+
+        .environment-subsection-heading {
+            margin: 6px 0 -2px;
+            color: #94a3b8;
+            font-size: 0.75rem;
+            font-weight: 800;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+
         .info-group-filters {
             display: flex;
             align-items: center;
@@ -3238,4 +3408,136 @@ body.conservation-status-modal-open {
         .communication-type-popup-trigger,
         .perception-type-popup-trigger {
             box-shadow: 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+        }
+
+        /* Organização responsiva da secção Informações / Dimensões. */
+        .visual-model-tabs,
+        .visual-model-tabs .visual-model-tab-pane,
+        .visual-model-tabs .visual-models-grid,
+        .visual-model-tabs .dimension-model-card {
+            box-sizing: border-box;
+            min-width: 0;
+            max-width: 100%;
+        }
+
+        .visual-model-tabs {
+            overflow: hidden;
+        }
+
+        .visual-model-tabs .dimension-model-copy {
+            min-width: 0;
+            overflow: hidden;
+        }
+
+        .visual-model-tabs .dimension-model-label,
+        .visual-model-tabs .dimension-model-value,
+        .visual-model-tabs .general-model-values {
+            max-width: 100%;
+            overflow-wrap: anywhere;
+        }
+
+        @media (max-width: 640px) {
+            .visual-model-tabs {
+                width: 100%;
+                margin-inline: 0;
+                padding: 0 12px 14px;
+                border: 1px solid rgba(148, 163, 184, 0.2);
+                border-radius: 22px;
+                background: linear-gradient(180deg, rgba(24, 29, 52, 0.86), rgba(12, 16, 31, 0.94));
+            }
+
+            .visual-model-tabs > .visual-models-section-heading {
+                width: 100% !important;
+                margin: 0 0 12px !important;
+            }
+
+            .visual-model-tabs > .visual-models-section-heading .visual-model-section-tablist {
+                min-height: 56px;
+                border-radius: 16px;
+                background: rgba(7, 11, 25, 0.64);
+            }
+
+            .visual-model-tabs .visual-model-section-tab {
+                min-height: 56px;
+                padding: 10px 7px;
+                gap: 6px;
+                font-size: clamp(0.86rem, 4vw, 1rem);
+                letter-spacing: -0.2px;
+            }
+
+            .visual-model-tabs .visual-model-section-tab .icon,
+            .visual-model-tabs .visual-model-section-tab .svg-icon {
+                width: 24px;
+                height: 24px;
+                flex-basis: 24px;
+                min-width: 24px;
+            }
+
+            .visual-model-tabs .visual-models-section-controls {
+                display: flex;
+                flex-direction: row;
+                flex-wrap: wrap;
+                justify-content: space-between;
+                align-items: center;
+                gap: 8px;
+                min-height: 0;
+                padding: 8px 10px;
+                margin: 0 0 8px;
+                border: 1px solid rgba(148, 163, 184, 0.16);
+                border-radius: 14px;
+                background: rgba(15, 23, 42, 0.58);
+            }
+
+            .visual-model-tabs .visual-models-section-controls > .info-gender-tabs {
+                margin: 0;
+                padding: 3px;
+                border: 0;
+                border-radius: 10px;
+                background: rgba(255, 255, 255, 0.06);
+                box-shadow: none;
+            }
+
+            .visual-model-tabs .visual-models-section-controls .gender-tab-btn,
+            .visual-model-tabs .visual-models-section-controls .phase-tab-btn {
+                width: 28px !important;
+                height: 28px !important;
+            }
+
+            .visual-model-tabs .visual-models-grid {
+                gap: 0 !important;
+                margin-top: 0 !important;
+            }
+
+            .visual-model-tabs .dimension-model-card {
+                display: grid;
+                grid-template-columns: 42px minmax(0, 1fr);
+                align-items: center;
+                gap: 12px;
+                width: 100%;
+                padding: 12px 2px !important;
+            }
+
+            .visual-model-tabs .dimension-model-card .dimension-model-icon {
+                width: 42px !important;
+                height: 42px !important;
+                min-width: 42px !important;
+                border-radius: 12px !important;
+            }
+
+            .visual-model-tabs .dimension-model-card .dimension-model-icon svg,
+            .visual-model-tabs .dimension-model-card .dimension-model-icon img {
+                width: 24px !important;
+                height: 24px !important;
+            }
+
+            .visual-model-tabs .dimension-model-card .dimension-model-label {
+                font-size: 0.8rem !important;
+                line-height: 1.2;
+            }
+
+            .visual-model-tabs .dimension-model-card .dimension-model-value {
+                font-size: 1.12rem !important;
+                line-height: 1.18;
+                white-space: normal;
+            }
         }
