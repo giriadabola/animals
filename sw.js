@@ -1,4 +1,4 @@
-const CACHE_NAME = 'animals-app-v20260715-info-dim-mega-tabs-v15';
+const CACHE_NAME = 'animals-app-v20260715-info-dim-mega-tabs-v18';
 
 const ASSETS_TO_CACHE = [
   './',
@@ -43,6 +43,11 @@ const ASSETS_TO_CACHE = [
   './js/perception-visuals.js',
   './js/perception-type-popup.js',
   './js/social-type-popup.js',
+  './js/skeleton-type-popup.js',
+  './js/thermoregulation-popup.js',
+  './js/body-symmetry-popup.js',
+  './js/activity-popup.js',
+  './js/territory-size-popup.js',
   './animal-page/animal-page.js',
   './animal-page/animal-page.css',
 

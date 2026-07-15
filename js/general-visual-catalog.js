@@ -24,8 +24,9 @@ export const generalVisualOptions = [
     { tipo: 'Primeira vocalização', unidade: 'meses' },
     { tipo: 'Maturidade física', unidade: 'meses' },
     { tipo: 'Tamanho do grupo social', unidade: 'centenas' },
-    { tipo: 'Composição do grupo social', unidade: 'machos adultos' },
+    { tipo: 'Composição do grupo social', unidade: '' },
     { tipo: 'Composição do grupo', unidade: '' },
+    { tipo: 'Tipo de agrupamento social', unidade: '' },
     { tipo: 'Tamanho do território', unidade: 'km²' },
     { tipo: 'Taxa de sucesso da caça', unidade: 'caça individual' },
     { tipo: 'Taxa de mortalidade', unidade: 'mortalidade adulta' },
@@ -332,7 +333,8 @@ export function getGeneralVisualMeta(type = '') {
     if (normalized.includes('desmame')) return { key: 'desmame', title: type || 'Desmame', accent: 'accent-life' };
     if (normalized.includes('primeira vocalizacao')) return { key: 'primeira-vocalizacao', title: type || 'Primeira vocalização', accent: 'accent-climate' };
     if (normalized.includes('maturidade fisica')) return { key: 'maturidade-fisica', title: type || 'Maturidade física', accent: 'accent-maturity' };
-    if (normalized.includes('composicao do grupo social')) return { key: 'composicao-grupo', title: 'Composição do grupo', accent: 'accent-mating-polygamy' };
+    if (normalized.includes('composicao do grupo social')) return { key: 'composicao-grupo-social', title: 'Composição do grupo social', accent: 'accent-mating-polygamy' };
+    if (normalized.includes('tipo de agrupamento social')) return { key: 'tipo-agrupamento-social', title: 'Tipo de agrupamento social', accent: 'accent-mating-polygamy' };
     if (normalized.includes('tamanho do grupo social')) return { key: 'tamanho-grupo-social', title: type || 'Tamanho do grupo social', accent: 'accent-mating-polygamy' };
     if (normalized.includes('taxa de sucesso da caca')) return { key: 'sucesso-caca', title: type || 'Taxa de sucesso da caça', accent: 'accent-speed-max' };
     if (normalized.includes('taxa de mortalidade') && normalized.includes('cativeiro')) return { key: 'mortalidade-cativeiro', title: type || 'Taxa de mortalidade (cativeiro)', accent: 'accent-life' };
@@ -446,6 +448,14 @@ export function getGeneralModelSvg(key = 'geral') {
         atividade: makeSvg('<circle cx="28" cy="29" r="9"/><path d="M52 24c8 0 14 6 14 14c0 7-5 13-12 14"/><path d="M20 57h40"/><path d="M40 14v8"/><path d="M14 29h8"/>', 'general-model-svg activity-model-svg'),
         'vida-social': makeSvg('<circle cx="24" cy="32" r="7"/><circle cx="40" cy="24" r="7"/><circle cx="56" cy="32" r="7"/><path d="M18 58c2-8 8-13 14-13s12 5 14 13"/><path d="M34 58c2-8 8-13 14-13s12 5 14 13"/><path d="M31 29l9-5l9 5"/>', 'general-model-svg social-model-svg'),
         'funcao-ecologica': makeSvg('<circle cx="40" cy="40" r="18"/><path d="M40 22v36"/><path d="M22 40h36"/><path d="M28 28c6 8 18 8 24 0"/><path d="M28 52c6-8 18-8 24 0"/>', 'general-model-svg ecological-model-svg'),
+        'composicao-grupo': makeSvg('<circle cx="40" cy="20" r="7"/><circle cx="22" cy="38" r="6"/><circle cx="58" cy="38" r="6"/><circle cx="40" cy="58" r="6"/><path d="M40 27v8M28 38h24M27 42l9 11M53 42l-9 11"/>'),
+        'tipo-agrupamento-social': makeSvg('<circle cx="25" cy="28" r="6"/><circle cx="40" cy="20" r="7"/><circle cx="55" cy="28" r="6"/><circle cx="32" cy="51" r="6"/><circle cx="48" cy="51" r="6"/><path d="M31 30l5 3M49 30l-5 3M32 45l5-11M48 45l-5-11"/>'),
+        estrategia: makeSvg('<circle cx="40" cy="40" r="22"/><circle cx="40" cy="40" r="10"/><path d="M40 12v10M40 58v10M12 40h10M58 40h10M40 40l14-14"/>'),
+        'lideranca-hierarquia': makeSvg('<circle cx="40" cy="17" r="7"/><circle cx="22" cy="53" r="6"/><circle cx="40" cy="53" r="6"/><circle cx="58" cy="53" r="6"/><path d="M40 24v14M22 38h36M22 38v9M40 38v9M58 38v9"/>'),
+        'parentesco-linhagem': makeSvg('<circle cx="40" cy="18" r="7"/><circle cx="24" cy="56" r="6"/><circle cx="40" cy="56" r="6"/><circle cx="56" cy="56" r="6"/><path d="M40 25v14M24 39h32M24 39v11M40 39v11M56 39v11"/>'),
+        'tipo-comunicacao': makeSvg('<path d="M14 25c0-6 5-10 11-10h30c6 0 11 4 11 10v19c0 6-5 10-11 10H35l-11 9v-9h-1c-5 0-9-4-9-10Z"/><path d="M27 34h26M27 43h16"/>'),
+        'zona-climatica': makeSvg('<circle cx="40" cy="40" r="27"/><path d="M13 40h54M40 13c8 8 12 17 12 27s-4 19-12 27M40 13c-8 8-12 17-12 27s4 19 12 27M18 25c13 6 31 6 44 0M18 55c13-6 31-6 44 0"/>'),
+        bioma: makeSvg('<path d="M12 62h56"/><path d="M18 62V40l10-10l10 10v22M42 62V27l10-11l10 11v35"/><path d="M28 30V18M52 16V8M22 48h12M46 38h12"/>'),
         locomocao: makeSvg('<path d="M16 58h48"/><path d="M22 46c8-10 18-16 30-18"/><path d="M28 58l8-12"/><path d="M46 58l8-12"/><path d="M58 30l8-6"/>', 'general-model-svg locomotion-model-svg'),
         geral: makeSvg('<circle cx="40" cy="40" r="25"/><path d="M40 25v18"/><path d="M40 53v2"/>')
     };

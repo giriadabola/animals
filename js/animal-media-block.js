@@ -90,11 +90,12 @@ function getProfileImageBadges(animalData = {}) {
     if (genders.has('F')) {
         badges.push(`<button type="button" class="profile-image-badge female" data-profile-badge-key="gender:F" data-profile-badge-url="${escapeHtml(findProfileImageForBadge(entries, 'gender', 'F', originalUrl))}" title="Ver imagem de fêmea" aria-label="Ver imagem de fêmea">♀</button>`);
     }
-    if (phases.has('Adulto')) {
-        badges.push(`<button type="button" class="profile-image-badge phase adult" data-profile-badge-key="phase:Adulto" data-profile-badge-url="${escapeHtml(findProfileImageForBadge(entries, 'phase', 'Adulto', originalUrl))}" title="Ver imagem de adulto" aria-label="Ver imagem de adulto"><i class="fa-solid fa-paw" aria-hidden="true"></i></button>`);
-    }
-    if (phases.has('Cria')) {
-        badges.push(`<button type="button" class="profile-image-badge phase young" data-profile-badge-key="phase:Cria" data-profile-badge-url="${escapeHtml(findProfileImageForBadge(entries, 'phase', 'Cria', originalUrl))}" title="Ver imagem de cria" aria-label="Ver imagem de cria"><i class="fa-solid fa-baby" aria-hidden="true"></i></button>`);
+    // Quando existe uma imagem de cria, a imagem principal representa o adulto
+    // mesmo que não tenha uma fase preenchida nos metadados da galeria.
+    if (phases.has('Adulto') || phases.has('Cria')) {
+        const adultImageUrl = findProfileImageForBadge(entries, 'phase', 'Adulto', originalUrl) || originalUrl;
+        const youngImageUrl = findProfileImageForBadge(entries, 'phase', 'Cria', originalUrl) || originalUrl;
+        badges.push(`<button type="button" class="profile-image-badge phase-switch" data-profile-phase-switch data-profile-adult-url="${escapeHtml(adultImageUrl)}" data-profile-young-url="${escapeHtml(youngImageUrl)}" data-profile-active-phase="Adulto" title="Mudar entre imagem de adulto e cria" aria-label="Mudar entre imagem de adulto e cria"><span class="phase-switch-option adult active" data-phase-option="Adulto" title="Adulto"><i class="fa-solid fa-paw" aria-hidden="true"></i></span><span class="phase-switch-option young" data-phase-option="Cria" title="Cria"><i class="fa-solid fa-baby" aria-hidden="true"></i></span></button>`);
     }
 
     return badges.length ? `<div class="profile-image-badges" data-profile-image-badges>${badges.join('')}</div>` : '';
@@ -106,6 +107,21 @@ function toggleProfileImageByBadge(widget, button) {
 
     const originalSrc = image.dataset.originalSrc || image.getAttribute('src') || '';
     image.dataset.originalSrc = originalSrc;
+
+    if (button.hasAttribute('data-profile-phase-switch')) {
+        const currentPhase = button.dataset.profileActivePhase || 'Adulto';
+        const nextPhase = currentPhase === 'Adulto' ? 'Cria' : 'Adulto';
+        const targetUrl = nextPhase === 'Adulto' ? button.dataset.profileAdultUrl : button.dataset.profileYoungUrl;
+        image.src = targetUrl || originalSrc;
+        button.dataset.profileActivePhase = nextPhase;
+        button.classList.toggle('is-young-active', nextPhase === 'Cria');
+        button.querySelectorAll('[data-phase-option]').forEach(option => {
+            option.classList.toggle('active', option.dataset.phaseOption === nextPhase);
+        });
+        button.title = nextPhase === 'Adulto' ? 'Mudar para imagem de cria' : 'Mudar para imagem de adulto';
+        button.setAttribute('aria-label', button.title);
+        return;
+    }
 
     const targetUrl = button.dataset.profileBadgeUrl || '';
     const badgeKey = button.dataset.profileBadgeKey || '';
@@ -165,7 +181,7 @@ export function initAnimalMediaBlock(root = document) {
         if (widget.dataset.ready === 'true') return;
         widget.dataset.ready = 'true';
 
-        widget.querySelectorAll('[data-profile-badge-key]').forEach(button => {
+        widget.querySelectorAll('[data-profile-badge-key], [data-profile-phase-switch]').forEach(button => {
             button.addEventListener('click', () => toggleProfileImageByBadge(widget, button));
         });
     });

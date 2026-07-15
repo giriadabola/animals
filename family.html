@@ -50,13 +50,13 @@ body{background:#090a14;color:#fff;min-height:100vh}
 </style>
 </head>
 <body><main class="family-page"><a class="family-back" href="javascript:history.back()"><i class="fa-solid fa-arrow-left"></i> Voltar</a><section id="hero" class="family-hero"><div class="family-hero-content"><span class="family-kicker">Bem-vindo à subfamília</span><h1 id="familyName">A carregar...</h1></div></section><p id="familyIntro" class="family-intro"></p><section><h2 class="section-title">Árvore da subfamília</h2><div id="familyTree" class="family-tree"><div class="empty-state">A carregar animais...</div></div></section><section id="animalDetails" class="animal-details"></section><section class="table-panel"><div class="table-panel-head"><h2 class="section-title">Comparação da subfamília</h2><div class="table-panel-actions"><button id="showStatsChart" class="panel-action stats-chart-button" type="button" title="Ver gráfico de barras" aria-label="Ver gráfico de barras" hidden><i class="fa-solid fa-chart-column"></i></button><button id="exportPdf" class="panel-action pdf-export" type="button" title="Exportar tabela em PDF" aria-label="Exportar tabela em PDF"><i class="fa-solid fa-file-pdf"></i></button></div></div><div id="metricFilters" class="metric-filters"></div><div class="table-wrap"><table class="family-table"><thead id="tableHead"></thead><tbody id="tableBody"></tbody></table></div><section id="statsChartPanel" class="chart-panel" aria-live="polite"><div class="chart-panel-head"><h3 id="statsChartTitle">Gráfico de barras</h3><button id="closeStatsChart" class="chart-close" type="button" title="Fechar gráfico" aria-label="Fechar gráfico"><i class="fa-solid fa-xmark"></i></button></div><div id="statsChartWrap" class="chart-wrap"><canvas id="statsChart"></canvas></div><div id="statsChartEmpty" class="chart-empty" hidden>Não existem valores numéricos suficientes para criar o gráfico.</div></section></section></main>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
 <script type="module" src="js/components.js?v=5"></script>
 <script type="module">
 import {db} from './js/firebase-config.js?v=5';
-import {hideLoadingOverlay,waitForPageImages} from './js/loader.js?v=2';
+import {hideLoadingOverlay} from './js/loader.js?v=2';
 import {collection,query,where,getDocs,doc,getDoc} from 'https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js';
 const esc=v=>String(v??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
 const family=new URLSearchParams(location.search).get('subfamilia')?.trim()||new URLSearchParams(location.search).get('familia')?.trim()||'';
@@ -201,7 +201,6 @@ async function load(){
     renderTree();renderTable();
   }catch(e){console.error(e);tree.innerHTML='<div class="empty-state">Não foi possível carregar os animais desta subfamília.</div>';renderTable()}
  }finally{
-  await waitForPageImages({root:document,timeoutMs:12000});
   hideLoadingOverlay();
  }
 }
