@@ -1,0 +1,210 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 560" width="900" height="560" role="img" aria-labelledby="title desc">
+  <title id="title">Coruja a escolher um livro de uma estante de biblioteca antiga</title>
+  <desc id="desc">Animação SVG 2D em loop de uma coruja a olhar, puxar e escolher um livro de uma estante de biblioteca antiga, com fundo transparente.</desc>
+  <style>
+    .line { stroke: #5f4638; stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; }
+    .softline { stroke: #72564a; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+    .owlBob { transform-origin: 250px 318px; animation: owlBob 3s ease-in-out infinite; }
+    .blinkL { transform-origin: 235px 267px; animation: blink 5s infinite; }
+    .blinkR { transform-origin: 290px 267px; animation: blink 5s .15s infinite; }
+    .headTilt { transform-origin: 262px 275px; animation: headTilt 3s ease-in-out infinite; }
+    .wingReach { transform-origin: 292px 334px; animation: wingReach 3s ease-in-out infinite; }
+    .bookPull { transform-origin: 0px 0px; animation: bookPull 3s ease-in-out infinite; }
+    .spark1 { animation: twinkle 3s ease-in-out infinite; }
+    .spark2 { animation: twinkle 3s .3s ease-in-out infinite; }
+    .spark3 { animation: twinkle 3s .6s ease-in-out infinite; }
+    .dust1 { animation: float1 3s ease-in-out infinite; }
+    .dust2 { animation: float2 3s .7s ease-in-out infinite; }
+    .dust3 { animation: float1 3s 1.2s ease-in-out infinite; }
+    .dust4 { animation: float2 3s 1.8s ease-in-out infinite; }
+
+    @keyframes owlBob {
+      0%,100% { transform: translateY(0px); }
+      35% { transform: translateY(-5px); }
+      65% { transform: translateY(2px); }
+    }
+    @keyframes blink {
+      0%, 92%, 100% { transform: scaleY(1); }
+      94%, 98% { transform: scaleY(0.08); }
+    }
+    @keyframes headTilt {
+      0%, 18%, 100% { transform: rotate(0deg); }
+      28% { transform: rotate(-6deg); }
+      42% { transform: rotate(5deg); }
+      58% { transform: rotate(0deg); }
+      72% { transform: rotate(4deg); }
+      84% { transform: rotate(0deg); }
+    }
+    @keyframes wingReach {
+      0%, 22%, 100% { transform: rotate(0deg) translate(0px,0px); }
+      32% { transform: rotate(-14deg) translate(8px,-2px); }
+      44% { transform: rotate(-18deg) translate(18px,-8px); }
+      58% { transform: rotate(-8deg) translate(10px,-4px); }
+      72% { transform: rotate(0deg) translate(0px,0px); }
+    }
+    @keyframes bookPull {
+      0%, 24%, 100% { transform: translateX(0px) translateY(0px) rotate(0deg); }
+      36% { transform: translateX(-6px) translateY(0px) rotate(-1deg); }
+      46% { transform: translateX(-22px) translateY(3px) rotate(-4deg); }
+      56% { transform: translateX(-30px) translateY(8px) rotate(-8deg); }
+      70% { transform: translateX(-12px) translateY(2px) rotate(-2deg); }
+      82% { transform: translateX(0px) translateY(0px) rotate(0deg); }
+    }
+    @keyframes twinkle {
+      0%,100% { opacity: 0; transform: scale(.4); }
+      46%,68% { opacity: .95; transform: scale(1); }
+    }
+    @keyframes float1 {
+      0%,100% { opacity: 0.2; transform: translateY(0px) translateX(0px); }
+      50% { opacity: 0.65; transform: translateY(-8px) translateX(3px); }
+    }
+    @keyframes float2 {
+      0%,100% { opacity: 0.15; transform: translateY(0px) translateX(0px); }
+      50% { opacity: 0.6; transform: translateY(-6px) translateX(-4px); }
+    }
+  </style>
+
+  <!-- soft floor shadow -->
+  <ellipse cx="450" cy="500" rx="335" ry="28" fill="#000" opacity="0.08"/>
+
+  <!-- antique bookshelf -->
+  <g>
+    <rect x="410" y="70" width="355" height="392" rx="18" fill="#8e5c3d" class="line"/>
+    <rect x="432" y="92" width="311" height="348" rx="10" fill="#d8b08a" opacity="0.25"/>
+    <rect x="438" y="126" width="300" height="14" rx="7" fill="#6f432d" class="line"/>
+    <rect x="438" y="228" width="300" height="14" rx="7" fill="#6f432d" class="line"/>
+    <rect x="438" y="330" width="300" height="14" rx="7" fill="#6f432d" class="line"/>
+    <rect x="438" y="432" width="300" height="14" rx="7" fill="#6f432d" class="line"/>
+    <rect x="505" y="92" width="10" height="348" rx="5" fill="#6f432d" opacity="0.6"/>
+    <rect x="611" y="92" width="10" height="348" rx="5" fill="#6f432d" opacity="0.6"/>
+  </g>
+
+  <!-- books row 1 -->
+  <g>
+    <rect x="450" y="144" width="22" height="78" rx="5" fill="#3d7b87" class="line"/>
+    <rect x="476" y="134" width="28" height="88" rx="5" fill="#b75d3f" class="line"/>
+    <rect x="510" y="146" width="23" height="76" rx="5" fill="#7a5c9a" class="line"/>
+    <rect x="537" y="138" width="21" height="84" rx="5" fill="#4b8a52" class="line"/>
+    <rect x="564" y="149" width="19" height="73" rx="5" fill="#d0a542" class="line"/>
+    <rect x="587" y="136" width="24" height="86" rx="5" fill="#a53b4f" class="line"/>
+    <rect x="617" y="142" width="25" height="80" rx="5" fill="#46689b" class="line"/>
+    <rect x="648" y="150" width="22" height="72" rx="5" fill="#8a6a49" class="line"/>
+    <rect x="675" y="139" width="27" height="83" rx="5" fill="#4a926c" class="line"/>
+  </g>
+
+  <!-- books row 2 with animated target book -->
+  <g>
+    <rect x="448" y="246" width="20" height="82" rx="5" fill="#9a4d67" class="line"/>
+    <rect x="472" y="256" width="25" height="72" rx="5" fill="#5d7c97" class="line"/>
+    <rect x="502" y="244" width="29" height="84" rx="5" fill="#d18f47" class="line"/>
+    <rect x="536" y="252" width="21" height="76" rx="5" fill="#62874a" class="line"/>
+    <rect x="562" y="246" width="24" height="82" rx="5" fill="#a54a41" class="line"/>
+    <g class="bookPull">
+      <rect x="592" y="240" width="31" height="88" rx="5" fill="#8a4fa3" class="line"/>
+      <rect x="600" y="249" width="6" height="70" rx="3" fill="#e3c789" opacity="0.7"/>
+      <circle cx="608" cy="316" r="3.5" fill="#f2ddb0"/>
+    </g>
+    <rect x="628" y="250" width="24" height="78" rx="5" fill="#4a8566" class="line"/>
+    <rect x="658" y="242" width="28" height="86" rx="5" fill="#3c6484" class="line"/>
+    <rect x="691" y="249" width="19" height="79" rx="5" fill="#bb6e49" class="line"/>
+  </g>
+
+  <!-- books row 3 -->
+  <g>
+    <rect x="450" y="348" width="23" height="82" rx="5" fill="#496c9d" class="line"/>
+    <rect x="478" y="356" width="27" height="74" rx="5" fill="#6a9655" class="line"/>
+    <rect x="510" y="346" width="20" height="84" rx="5" fill="#a84d58" class="line"/>
+    <rect x="535" y="354" width="28" height="76" rx="5" fill="#d0a14f" class="line"/>
+    <rect x="568" y="347" width="25" height="83" rx="5" fill="#7c5b8f" class="line"/>
+    <rect x="599" y="359" width="19" height="71" rx="5" fill="#3e7d8a" class="line"/>
+    <rect x="624" y="349" width="23" height="81" rx="5" fill="#8d6144" class="line"/>
+    <rect x="653" y="357" width="29" height="73" rx="5" fill="#4c8c65" class="line"/>
+    <rect x="687" y="345" width="20" height="85" rx="5" fill="#b65e41" class="line"/>
+  </g>
+
+  <!-- ladder -->
+  <g>
+    <path d="M114 462 L180 144" fill="none" class="line"/>
+    <path d="M206 462 L272 144" fill="none" class="line"/>
+    <path d="M147 402 L218 402" fill="none" class="line"/>
+    <path d="M154 364 L226 364" fill="none" class="line"/>
+    <path d="M163 325 L234 325" fill="none" class="line"/>
+    <path d="M171 286 L242 286" fill="none" class="line"/>
+    <path d="M179 247 L251 247" fill="none" class="line"/>
+    <path d="M188 208 L259 208" fill="none" class="line"/>
+  </g>
+
+  <!-- stool/shelf ledge for owl -->
+  <g>
+    <rect x="252" y="378" width="142" height="18" rx="9" fill="#b27a53" class="line"/>
+    <rect x="268" y="392" width="14" height="54" rx="7" fill="#8a5a3c" class="line"/>
+    <rect x="364" y="392" width="14" height="54" rx="7" fill="#8a5a3c" class="line"/>
+  </g>
+
+  <!-- floating dust / old library mood -->
+  <g fill="#e9d7a9" opacity="0.55">
+    <circle class="dust1" cx="397" cy="160" r="3.8"/>
+    <circle class="dust2" cx="375" cy="260" r="3.1"/>
+    <circle class="dust3" cx="745" cy="190" r="3.4"/>
+    <circle class="dust4" cx="731" cy="352" r="3.6"/>
+  </g>
+
+  <!-- sparkles near selected book -->
+  <g fill="#ffdf8c">
+    <path class="spark1" d="M642 226 l5 10 l10 5 l-10 5 l-5 10 l-5 -10 l-10 -5 l10 -5z"/>
+    <path class="spark2" d="M658 212 l3 7 l7 3 l-7 3 l-3 7 l-3 -7 l-7 -3 l7 -3z"/>
+    <path class="spark3" d="M678 228 l4 8 l8 4 l-8 4 l-4 8 l-4 -8 l-8 -4 l8 -4z"/>
+  </g>
+
+  <!-- owl -->
+  <g class="owlBob">
+    <!-- feet on stool -->
+    <ellipse cx="233" cy="379" rx="18" ry="8" fill="#d99d44"/>
+    <ellipse cx="291" cy="379" rx="18" ry="8" fill="#d99d44"/>
+
+    <!-- body -->
+    <ellipse cx="260" cy="326" rx="84" ry="98" fill="#9a6b4c" class="line"/>
+    <ellipse cx="260" cy="344" rx="62" ry="72" fill="#caa176" opacity="0.92"/>
+    <path d="M217 360 Q260 385 303 360" fill="none" class="softline"/>
+
+    <!-- tail feathers -->
+    <path d="M229 395 Q244 421 260 400" fill="#876048" class="line"/>
+    <path d="M261 400 Q278 421 294 395" fill="#876048" class="line"/>
+
+    <!-- left wing -->
+    <path d="M181 320 Q146 348 166 386 Q190 394 208 372 Q210 348 203 330 Z" fill="#875d46" class="line"/>
+
+    <!-- right wing animated reach -->
+    <g class="wingReach">
+      <path d="M313 319 Q351 301 364 321 Q367 346 344 355 Q320 348 304 334 Z" fill="#875d46" class="line"/>
+      <path d="M349 320 Q370 311 380 323 Q382 335 370 341 Q357 338 347 330 Z" fill="#d99d44" class="line"/>
+    </g>
+
+    <!-- head -->
+    <g class="headTilt">
+      <circle cx="260" cy="277" r="65" fill="#a97853" class="line"/>
+      <path d="M221 228 L237 250 L213 252 Z" fill="#875d46" class="line"/>
+      <path d="M299 228 L307 252 L283 250 Z" fill="#875d46" class="line"/>
+
+      <!-- face discs -->
+      <ellipse cx="236" cy="274" rx="28" ry="34" fill="#f8ebce" class="line"/>
+      <ellipse cx="288" cy="274" rx="28" ry="34" fill="#f8ebce" class="line"/>
+
+      <!-- eyes -->
+      <g class="blinkL">
+        <ellipse cx="235" cy="268" rx="13" ry="16" fill="#2c2a2c"/>
+        <circle cx="239" cy="263" r="3.5" fill="#fff"/>
+      </g>
+      <g class="blinkR">
+        <ellipse cx="290" cy="268" rx="13" ry="16" fill="#2c2a2c"/>
+        <circle cx="294" cy="263" r="3.5" fill="#fff"/>
+      </g>
+
+      <!-- beak -->
+      <path d="M252 285 Q260 298 268 285 Q260 278 252 285 Z" fill="#d3902f" class="line"/>
+      <path d="M244 302 Q260 312 276 302" fill="none" class="softline"/>
+      <circle cx="214" cy="289" r="4" fill="#e5b08f" opacity="0.75"/>
+      <circle cx="306" cy="289" r="4" fill="#e5b08f" opacity="0.75"/>
+    </g>
+  </g>
+</svg>

@@ -1,0 +1,201 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 620 650" role="img" aria-labelledby="title desc">
+  <title id="title">Macaco 2D a trepar uma árvore</title>
+  <desc id="desc">Animação em loop de um macaco castanho a subir pelo tronco de uma árvore.</desc>
+
+  <defs>
+    <linearGradient id="trunkGradient" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#6f351b"/>
+      <stop offset="0.28" stop-color="#9a5329"/>
+      <stop offset="0.62" stop-color="#74401f"/>
+      <stop offset="1" stop-color="#4f2817"/>
+    </linearGradient>
+    <linearGradient id="bodyGradient" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#6d371e"/>
+      <stop offset="1" stop-color="#3f2115"/>
+    </linearGradient>
+    <linearGradient id="faceGradient" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f2bd7a"/>
+      <stop offset="1" stop-color="#d98c4e"/>
+    </linearGradient>
+  </defs>
+
+  <style>
+
+    .climber {
+      transform-origin: 0 0;
+      animation: climb 5.4s cubic-bezier(.45,.03,.42,.98) infinite;
+    }
+
+    .monkey-bob {
+      transform-origin: 315px 360px;
+      animation: bob .68s ease-in-out infinite alternate;
+    }
+
+    .arm, .leg, .tail, .head, .body, .hand, .foot {
+      transform-box: fill-box;
+    }
+
+    .arm.front { transform-origin: 83% 82%; animation: armFront .68s ease-in-out infinite alternate; }
+    .arm.back  { transform-origin: 82% 82%; animation: armBack  .68s ease-in-out infinite alternate; }
+    .leg.front { transform-origin: 78% 18%; animation: legFront .68s ease-in-out infinite alternate; }
+    .leg.back  { transform-origin: 78% 18%; animation: legBack  .68s ease-in-out infinite alternate; }
+    .tail      { transform-origin: 90% 45%; animation: tailSwing 1.1s ease-in-out infinite alternate; }
+    .head      { transform-origin: 52% 72%; animation: headNod 1.36s ease-in-out infinite; }
+    .eye-shine { animation: blink 4.2s linear infinite; transform-origin: center; }
+    .speed-line { animation: linePulse .68s ease-in-out infinite alternate; }
+    .leaf-a { animation: leafSway 2.2s ease-in-out infinite alternate; transform-origin: 50% 100%; }
+    .leaf-b { animation: leafSway 2.6s ease-in-out -.7s infinite alternate-reverse; transform-origin: 50% 100%; }
+
+    @keyframes climb {
+      0%   { transform: translateY(170px); opacity: 0; }
+      6%   { opacity: 1; }
+      18%  { transform: translateY(135px); }
+      40%  { transform: translateY(55px); }
+      63%  { transform: translateY(-35px); }
+      84%  { transform: translateY(-125px); opacity: 1; }
+      94%  { transform: translateY(-165px); opacity: 0; }
+      100% { transform: translateY(170px); opacity: 0; }
+    }
+
+    @keyframes bob {
+      from { transform: translate(-2px, 4px) rotate(-1.5deg); }
+      to   { transform: translate(3px, -5px) rotate(1.8deg); }
+    }
+
+    @keyframes armFront { from { transform: rotate(17deg); } to { transform: rotate(-22deg); } }
+    @keyframes armBack  { from { transform: rotate(-24deg); } to { transform: rotate(20deg); } }
+    @keyframes legFront { from { transform: rotate(-18deg); } to { transform: rotate(21deg); } }
+    @keyframes legBack  { from { transform: rotate(24deg); } to { transform: rotate(-17deg); } }
+    @keyframes tailSwing { from { transform: rotate(-8deg); } to { transform: rotate(11deg); } }
+    @keyframes headNod {
+      0%,100% { transform: rotate(-2deg); }
+      50% { transform: rotate(4deg); }
+    }
+    @keyframes blink {
+      0%, 45%, 49%, 100% { transform: scaleY(1); }
+      47% { transform: scaleY(.08); }
+    }
+    @keyframes linePulse { from { opacity: .1; transform: translateY(3px); } to { opacity: .46; transform: translateY(-3px); } }
+    @keyframes leafSway { from { transform: rotate(-4deg); } to { transform: rotate(5deg); } }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { animation-duration: 1ms !important; animation-iteration-count: 1 !important; }
+    }
+  </style>
+
+  <!-- folhagem superior -->
+  <g>
+    <path class="leaf-a" d="M356 68 C328 15 377 3 398 46 C402 17 449 18 441 65 C471 36 514 69 478 95 C518 100 510 144 466 137 C450 173 400 153 405 118 C372 146 338 115 356 68Z" fill="#2f965a"/>
+    <path class="leaf-b" d="M470 90 C484 45 534 51 526 94 C554 71 587 103 562 127 C593 136 577 176 541 160 C528 190 486 176 492 145 C461 163 446 121 470 90Z" fill="#256f48"/>
+  </g>
+
+  <!-- árvore -->
+  <g>
+    <path d="M402 36 C389 155 390 307 400 452 C406 535 422 589 451 631 L585 631 C550 570 535 512 533 427 C530 281 542 160 557 36Z" fill="url(#trunkGradient)" stroke="#3b2014" stroke-width="8"/>
+    <path d="M449 77 C435 192 439 327 452 525" fill="none" stroke="#c2743b" stroke-opacity=".46" stroke-width="7" stroke-linecap="round"/>
+    <path d="M493 67 C479 207 485 348 499 573" fill="none" stroke="#3e2114" stroke-opacity=".55" stroke-width="8" stroke-linecap="round"/>
+    <path d="M536 85 C517 231 521 382 533 518" fill="none" stroke="#bb6d36" stroke-opacity=".36" stroke-width="6" stroke-linecap="round"/>
+    <path d="M425 203 C448 192 467 194 489 207" fill="none" stroke="#4a2817" stroke-opacity=".48" stroke-width="5" stroke-linecap="round"/>
+    <path d="M476 364 C497 351 519 354 539 368" fill="none" stroke="#d28849" stroke-opacity=".32" stroke-width="5" stroke-linecap="round"/>
+  </g>
+
+  <!-- base -->
+  <ellipse cx="477" cy="632" rx="137" ry="18" fill="#000" opacity=".12"/>
+  <g fill="#2b7f4c">
+    <path d="M363 628 C363 598 379 584 393 622 C400 591 421 591 418 629Z"/>
+    <path d="M546 630 C543 597 564 586 568 623 C580 594 599 604 594 632Z"/>
+  </g>
+
+  <!-- linhas de movimento discretas -->
+  <g class="speed-line" fill="none" stroke="#865333" stroke-width="5" stroke-linecap="round" opacity=".32">
+    <path d="M184 489 C153 501 138 518 126 541"/>
+    <path d="M196 515 C167 531 153 551 148 572"/>
+    <path d="M212 537 C192 553 181 570 178 590"/>
+  </g>
+
+  <!-- macaco -->
+  <g class="climber">
+    <g class="monkey-bob">
+      <!-- cauda longa em espiral -->
+      <path class="tail" d="M258 436 C181 462 145 414 169 366 C187 332 229 343 224 376 C221 397 192 401 186 382" fill="none" stroke="#3a1e13" stroke-width="24" stroke-linecap="round"/>
+      <path class="tail" d="M258 436 C181 462 145 414 169 366 C187 332 229 343 224 376 C221 397 192 401 186 382" fill="none" stroke="#754024" stroke-width="14" stroke-linecap="round"/>
+
+      <!-- braço traseiro -->
+      <g class="arm back">
+        <path d="M306 334 C340 311 363 286 388 249" fill="none" stroke="#2a1710" stroke-width="39" stroke-linecap="round"/>
+        <path d="M306 334 C340 311 363 286 388 249" fill="none" stroke="url(#bodyGradient)" stroke-width="28" stroke-linecap="round"/>
+        <g class="hand">
+          <ellipse cx="393" cy="241" rx="18" ry="22" transform="rotate(30 393 241)" fill="#e9a861" stroke="#2a1710" stroke-width="5"/>
+          <path d="M393 225 l6 -15 M400 229 l11 -12 M405 236 l14 -6" stroke="#2a1710" stroke-width="4" stroke-linecap="round"/>
+        </g>
+      </g>
+
+      <!-- perna traseira -->
+      <g class="leg back">
+        <path d="M296 424 C334 436 359 456 389 483" fill="none" stroke="#2a1710" stroke-width="42" stroke-linecap="round"/>
+        <path d="M296 424 C334 436 359 456 389 483" fill="none" stroke="url(#bodyGradient)" stroke-width="30" stroke-linecap="round"/>
+        <g class="foot">
+          <ellipse cx="400" cy="490" rx="25" ry="16" transform="rotate(20 400 490)" fill="#e9a861" stroke="#2a1710" stroke-width="5"/>
+          <path d="M409 482 l14 -2 M411 489 l15 3 M407 496 l13 7" stroke="#2a1710" stroke-width="4" stroke-linecap="round"/>
+        </g>
+      </g>
+
+      <!-- corpo -->
+      <g class="body">
+        <ellipse cx="286" cy="387" rx="76" ry="91" transform="rotate(-12 286 387)" fill="#2a1710"/>
+        <ellipse cx="286" cy="387" rx="67" ry="82" transform="rotate(-12 286 387)" fill="url(#bodyGradient)"/>
+        <ellipse cx="305" cy="397" rx="35" ry="49" transform="rotate(-12 305 397)" fill="#9d6038" opacity=".55"/>
+      </g>
+
+      <!-- perna da frente -->
+      <g class="leg front">
+        <path d="M278 437 C306 458 335 469 369 466" fill="none" stroke="#2a1710" stroke-width="43" stroke-linecap="round"/>
+        <path d="M278 437 C306 458 335 469 369 466" fill="none" stroke="#5a2d1b" stroke-width="31" stroke-linecap="round"/>
+        <g class="foot">
+          <ellipse cx="385" cy="465" rx="26" ry="16" transform="rotate(-8 385 465)" fill="#e9a861" stroke="#2a1710" stroke-width="5"/>
+          <path d="M394 456 l15 -5 M397 464 l16 0 M394 472 l14 5" stroke="#2a1710" stroke-width="4" stroke-linecap="round"/>
+        </g>
+      </g>
+
+      <!-- braço da frente -->
+      <g class="arm front">
+        <path d="M302 350 C337 358 359 343 389 318" fill="none" stroke="#2a1710" stroke-width="40" stroke-linecap="round"/>
+        <path d="M302 350 C337 358 359 343 389 318" fill="none" stroke="#61321e" stroke-width="28" stroke-linecap="round"/>
+        <g class="hand">
+          <ellipse cx="402" cy="309" rx="18" ry="23" transform="rotate(48 402 309)" fill="#e9a861" stroke="#2a1710" stroke-width="5"/>
+          <path d="M399 293 l3 -16 M407 296 l10 -14 M413 303 l14 -8" stroke="#2a1710" stroke-width="4" stroke-linecap="round"/>
+        </g>
+      </g>
+
+      <!-- cabeça -->
+      <g class="head">
+        <circle cx="270" cy="285" r="70" fill="#2a1710"/>
+        <circle cx="270" cy="285" r="61" fill="#6d3a21"/>
+        <circle cx="218" cy="291" r="29" fill="#2a1710"/>
+        <circle cx="218" cy="291" r="22" fill="#e9a861"/>
+        <circle cx="218" cy="291" r="10" fill="#b96e3c"/>
+
+        <!-- topete -->
+        <path d="M242 232 C251 204 267 205 270 225 C283 199 301 207 294 231 C311 214 324 229 308 247Z" fill="#4b2617" stroke="#2a1710" stroke-width="5" stroke-linejoin="round"/>
+
+        <!-- face clara -->
+        <path d="M246 258 C263 238 293 240 309 260 C325 279 320 312 300 326 C278 342 247 329 236 305 C229 287 234 271 246 258Z" fill="url(#faceGradient)" stroke="#2a1710" stroke-width="5"/>
+        <ellipse cx="309" cy="302" rx="34" ry="27" fill="#f0b46f" stroke="#2a1710" stroke-width="5"/>
+
+        <!-- olhos -->
+        <ellipse cx="267" cy="273" rx="13" ry="17" fill="#fff" stroke="#2a1710" stroke-width="4"/>
+        <ellipse cx="294" cy="276" rx="13" ry="17" fill="#fff" stroke="#2a1710" stroke-width="4"/>
+        <circle cx="272" cy="278" r="6.5" fill="#17110e"/>
+        <circle cx="299" cy="281" r="6.5" fill="#17110e"/>
+        <circle class="eye-shine" cx="274" cy="275" r="2.2" fill="#fff"/>
+        <circle class="eye-shine" cx="301" cy="278" r="2.2" fill="#fff"/>
+
+        <!-- focinho e sorriso -->
+        <ellipse cx="321" cy="298" rx="8" ry="6" fill="#2d1711"/>
+        <path d="M318 311 C309 321 297 322 289 315" fill="none" stroke="#52251a" stroke-width="4" stroke-linecap="round"/>
+        <path d="M325 310 C329 315 334 316 339 313" fill="none" stroke="#52251a" stroke-width="3.5" stroke-linecap="round"/>
+        <path d="M246 253 C263 243 284 244 300 254" fill="none" stroke="#3d2117" stroke-width="5" stroke-linecap="round" opacity=".7"/>
+      </g>
+    </g>
+  </g>
+</svg>

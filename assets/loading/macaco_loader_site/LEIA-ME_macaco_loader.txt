@@ -1,0 +1,23 @@
+LOADER — MACACO A TREPAR UMA ÁRVORE
+
+Ficheiros:
+- macaco_trepar_arvore.svg: animação transparente e reutilizável.
+- macaco_loader_demo.html: demonstração completa com fundo escuro e barra de carregamento.
+
+UTILIZAÇÃO MAIS SIMPLES
+
+1. Coloca macaco_trepar_arvore.svg na pasta do teu site.
+2. No HTML, adiciona:
+
+<img src="macaco_trepar_arvore.svg" alt="A carregar" style="width:320px;height:auto;">
+
+ALTERAR A VELOCIDADE
+
+Abre o SVG e altera esta linha:
+--speed: 5.4s;
+
+Um valor menor torna a subida mais rápida. Exemplo: 3.8s.
+
+FUNDO
+
+O SVG tem fundo transparente. O fundo escuro presente no ficheiro de demonstração pertence apenas ao HTML.
