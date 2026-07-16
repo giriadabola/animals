@@ -672,6 +672,7 @@ import { initAnimalComparison } from "../js/animal-comparison.js?v=2";
         function getHabitatMeta(value = '') {
             const normalized = normalizeDimensionKey(value).replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
             const habitatImages = {
+                agua_salobra: 'Água salobra.png',
                 agricola: 'Agrícola.png',
                 ambiente_domestico: 'Ambiente doméstico.png',
                 ambiente_subterraneo: 'Ambiente subterrâneo.png',

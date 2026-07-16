@@ -1085,6 +1085,7 @@
         function getHabitatMeta(value = '') {
             const normalized = normalizeSearchText(value);
             const habitatImages = {
+                agua_salobra: 'Água salobra.png',
                 agricola: 'Agrícola.png',
                 ambiente_domestico: 'Ambiente doméstico.png',
                 ambiente_subterraneo: 'Ambiente subterrâneo.png',

@@ -493,15 +493,50 @@
         };
 
 
+        const birdEggColorLabels = [
+            'Transparente', 'Translúcido', 'Incolor', 'Branco', 'Branco-puro', 'Branco-giz', 'Branco-creme',
+            'Marfim', 'Creme', 'Bege', 'Areia', 'Amarelo-pálido', 'Amarelo', 'Amarelo-dourado', 'Amarelo-alaranjado',
+            'Dourado', 'Laranja', 'Laranja-avermelhado', 'Rosa-pálido', 'Rosa', 'Rosa-salmão', 'Salmão', 'Coral',
+            'Vermelho', 'Vermelho-alaranjado', 'Vermelho-acastanhado', 'Bordô', 'Castanho-avermelhado', 'Castanho-claro',
+            'Castanho', 'Castanho-escuro', 'Chocolate', 'Bronze', 'Cobre', 'Ocre', 'Ferrugem', 'Terracota',
+            'Verde-pálido', 'Verde', 'Verde-amarelado', 'Verde-azeitona', 'Verde-acinzentado', 'Verde-azulado',
+            'Azul-pálido', 'Azul', 'Azul-celeste', 'Azul-esverdeado', 'Turquesa', 'Ciano', 'Cinzento-azulado',
+            'Lilás', 'Lavanda', 'Violeta', 'Roxo', 'Púrpura', 'Cinzento-claro', 'Cinzento', 'Cinzento-escuro',
+            'Preto', 'Negro-acastanhado'
+        ];
+
+        function getBirdEggColorHex(label = '') {
+            const value = String(label).toLowerCase();
+            if (value.includes('transparente')) return 'rgba(255,255,255,0.22)';
+            if (value.includes('translúcido')) return 'rgba(186,230,253,0.55)';
+            if (value === 'incolor') return '#f8fafc';
+            if (value.includes('branco') || value === 'marfim') return value.includes('creme') ? '#f5e7c8' : '#f8fafc';
+            if (value.includes('creme') || value.includes('bege') || value.includes('areia')) return '#d8bd91';
+            if (value.includes('amarelo') || value === 'dourado') return value.includes('dourado') || value === 'dourado' ? '#d4a017' : '#facc15';
+            if (value.includes('laranja')) return value.includes('avermelhado') ? '#ea580c' : '#f97316';
+            if (value.includes('rosa') || value === 'salmão' || value === 'coral') return value === 'coral' ? '#f97373' : '#f59bb3';
+            if (value.includes('vermelho') || value === 'bordô') return value.includes('bordô') ? '#7f1d1d' : '#dc2626';
+            if (value.includes('castanho') || value === 'chocolate' || value === 'bronze' || value === 'cobre' || value === 'ocre' || value === 'ferrugem' || value === 'terracota') return value.includes('escuro') || value === 'chocolate' ? '#6b351d' : '#a16207';
+            if (value.includes('verde')) return value.includes('azeitona') ? '#667a28' : '#4d9f65';
+            if (value.includes('azul') || value === 'ciano' || value === 'turquesa') return value === 'turquesa' || value === 'ciano' ? '#22b8c7' : '#5b9bd5';
+            if (value.includes('lilás') || value === 'lavanda' || value === 'violeta' || value === 'roxo' || value === 'púrpura') return value === 'lavanda' ? '#b8a1d9' : '#8b5cf6';
+            if (value.includes('cinzento')) return value.includes('escuro') ? '#4b5563' : '#9ca3af';
+            if (value === 'preto' || value.includes('negro')) return '#171717';
+            return '#cbd5e1';
+        }
+
         const birdEggVisuals = [
-            { label: 'Branco', image: '../assets/ovos/ovo_branco.png', average: '2-5 ovos' },
-            { label: 'Creme', image: '../assets/ovos/ovo_creme.png', average: '2-5 ovos' },
-            { label: 'Bege salpicado', image: '../assets/ovos/ovo_bege_salpicado.png', average: '2-5 ovos' },
-            { label: 'Castanho', image: '../assets/ovos/ovo_castanho.png', average: '2-5 ovos' },
-            { label: 'Azul claro', image: '../assets/ovos/ovo_azul_claro.png', average: '2-5 ovos' },
-            { label: 'Azul-esverdeado', image: '../assets/ovos/ovo_azul_esverdeado_salpicado.png', average: '2-5 ovos' },
+            { label: 'Branco', image: '../assets/ovos/ovo_branco.png', color: '#f8fafc', average: '2-5 ovos' },
+            { label: 'Creme', image: '../assets/ovos/ovo_creme.png', color: '#f5e7c8', average: '2-5 ovos' },
+            { label: 'Bege salpicado', image: '../assets/ovos/ovo_bege_salpicado.png', color: '#d8bd91', average: '2-5 ovos' },
+            { label: 'Castanho', image: '../assets/ovos/ovo_castanho.png', color: '#8b5a2b', average: '2-5 ovos' },
+            { label: 'Azul claro', image: '../assets/ovos/ovo_azul_claro.png', color: '#93c5fd', average: '2-5 ovos' },
+            { label: 'Azul-esverdeado', image: '../assets/ovos/ovo_azul_esverdeado_salpicado.png', color: '#67c7bf', average: '2-5 ovos' },
             { label: 'Manchado', image: '../assets/ovos/ovo_manchado_escuro.png', average: '2-5 ovos' },
-            { label: 'Camuflado', image: '../assets/ovos/ovo_camuflado_moteado.png', average: '2-5 ovos' }
+            { label: 'Camuflado', image: '../assets/ovos/ovo_camuflado_moteado.png', average: '2-5 ovos' },
+            ...birdEggColorLabels
+                .filter(label => !['Branco', 'Creme', 'Castanho', 'Azul-esverdeado'].includes(label))
+                .map(label => ({ label, color: getBirdEggColorHex(label), average: '2-5 ovos' }))
         ];
 
         function getBirdEggVisualByLabel(label = '') {

@@ -4,21 +4,25 @@
         }
 
         function getReproductionOptionsForCategory(category = getSelectedCategory()) {
-            const options = [...(reproductionTypesByCategory[category] || [])];
-            if (isBirdCategory(category)) {
-                options.push(...birdEggVisuals.map(egg => egg.label));
-            }
-            return [...new Set(options)];
+            return [...(reproductionTypesByCategory[category] || [])];
         }
 
         function fillReproductionTypeSelect(select, selectedValue = '') {
             const options = [...getReproductionOptionsForCategory()].sort((a, b) => a.localeCompare(b));
             const hasSelected = selectedValue && options.includes(selectedValue);
-            const placeholder = isBirdCategory() ? 'Escolhe um tipo ou cor/padrão do ovo' : 'Escolhe um tipo';
+            const placeholder = 'Escolhe um tipo de reprodução';
             select.innerHTML = `<option value="">${placeholder}</option>` +
                 options.map(option => `<option value="${option}">${option}</option>`).join('') +
                 (selectedValue && !hasSelected ? `<option value="${selectedValue}">${selectedValue} — fora desta categoria</option>` : '');
             select.value = selectedValue;
+        }
+
+        function fillBirdEggColorSelect(select, selectedValue = '') {
+            const options = isBirdCategory() ? birdEggVisuals.map(egg => egg.label).sort((a, b) => a.localeCompare(b)) : [];
+            select.innerHTML = '<option value="">Escolhe a cor dos ovos</option>' +
+                options.map(option => `<option value="${option}">${option}</option>`).join('');
+            select.value = selectedValue || '';
+            select.disabled = !isBirdCategory();
         }
 
         function fillMatingTypeSelect(select, selectedValue = '') {
@@ -59,6 +63,10 @@
                 const matingSelect = row.querySelector('.reproduction-mating-type');
                 if (rowModeSelect && rowModeSelect.value === 'acasalamento' && matingSelect) {
                     fillMatingTypeSelect(matingSelect, matingSelect.value);
+                }
+                const eggColorSelect = row.querySelector('.reproduction-egg-color');
+                if (rowModeSelect && rowModeSelect.value === 'numero_ovos' && eggColorSelect) {
+                    fillBirdEggColorSelect(eggColorSelect, eggColorSelect.value);
                 }
             });
         }
@@ -151,6 +159,9 @@
             const typeSelect = document.createElement('select');
             typeSelect.className = 'reproduction-type';
 
+            const eggColorSelect = document.createElement('select');
+            eggColorSelect.className = 'reproduction-egg-color';
+
             const matingSelect = document.createElement('select');
             matingSelect.className = 'reproduction-mating-type';
 
@@ -239,8 +250,11 @@
             const isAlimentoMedio = typeStr === 'Alimento Ingerido em Média';
             const isAguaMedia = typeStr === 'Água bebida em Média';
             const normalizedReproductionType = normalizeSearchText(typeStr);
-            const isEpocaReproducao = normalizedReproductionType.includes('epoca de reproducao') || normalizedReproductionType.includes('época de reprodução');
             const isNumeroOvos = normalizedReproductionType.includes('numero de ovos') || normalizedReproductionType.includes('número de ovos');
+            const isEpocaReproducao = normalizedReproductionType.includes('epoca de reproducao') || normalizedReproductionType.includes('época de reprodução');
+            
+            const eggColorValue = birdEggVisuals.find(egg => normalizeSearchText(egg.label) === normalizeSearchText(typeStr))?.label || '';
+            const isEggColor = !!eggColorValue;
             const isTempoEclosao = normalizedReproductionType.includes('tempo ate a eclosao') || normalizedReproductionType.includes('tempo até à eclosão') || normalizedReproductionType.includes('eclosao');
             const isDuracaoEstro = normalizedReproductionType.includes('duracao do estro');
             const isFrequenciaAcasalamentoEstro = normalizedReproductionType.includes('frequencia de acasalamento durante o estro');
@@ -493,9 +507,12 @@
                     const parts = detailStr.split(/\s*(?:[-–—]|\ba\b)\s*/i).map(part => part.trim()).filter(Boolean);
                     fillReproductionSeasonSelect(seasonStartSelect, parts[0] || '', 'Início');
                     fillReproductionSeasonSelect(seasonEndSelect, parts[1] || parts[0] || '', 'Fim');
-                }
-            } else if (isNumeroOvos) {
+                }            } else if (isNumeroOvos || isEggColor) {
                 rowModeSelect.value = 'numero_ovos';
+                const savedEggColor = isEggColor
+                    ? eggColorValue
+                    : birdEggVisuals.find(egg => detailStr.includes(egg.label))?.label || '';
+                eggColorSelect.dataset.selected = savedEggColor;
                 if (detailStr) {
                     const numbers = detailStr.match(/\d+(?:[.,]\d+)?/g);
                     if (numbers) {
@@ -583,98 +600,17 @@
                     minInput.placeholder = 'Mín: 1';
                     maxInput.placeholder = 'Máx: 5';
                     const spacer = document.createElement('div');
-                    row.append(minInput, maxInput, spacer, genderBtn, faseBtn, removeBtn);
-                } else if (rowModeSelect.value === 'epoca_reproducao') {
-                    fillReproductionSeasonSelect(seasonStartSelect, seasonStartSelect.value, 'Início');
+                    row.append(minInput, maxInput, spacer, genderBtn, faseBtn, removeBtn);                } else if (rowModeSelect.value === 'epoca_reproducao') {
+                    fillReproductionSeasonSelect(seasonStartSelect, seasonStartSelect.value, 'In\u00edcio');
                     fillReproductionSeasonSelect(seasonEndSelect, seasonEndSelect.value, 'Fim');
                     row.append(seasonStartSelect, seasonEndSelect, genderBtn, faseBtn, removeBtn);
                 } else if (rowModeSelect.value === 'numero_ovos') {
                     minInput.className = 'reproduction-gestation-min';
                     maxInput.className = 'reproduction-gestation-max';
-                    minInput.placeholder = 'Mín: 1';
-                    maxInput.placeholder = 'Máx: 5';
-                    const spacer = document.createElement('div');
-                    row.append(minInput, maxInput, spacer, genderBtn, faseBtn, removeBtn);
-                } else if (rowModeSelect.value === 'intervalo_nascimentos') {
-                    minInput.className = 'reproduction-gestation-min reproduction-birth-interval-min';
-                    maxInput.className = 'reproduction-gestation-max reproduction-birth-interval-max';
-                    minInput.placeholder = 'Mín: 1';
-                    maxInput.placeholder = 'Máx: 3';
-                    const previousUnit = unitSelect.dataset.intervaloNascimentosUnit || unitSelect.value;
-                    const birthIntervalUnits = ['minutos', 'horas', 'dias', 'semanas', 'meses', 'anos'];
-                    unitSelect.innerHTML = '';
-                    birthIntervalUnits.forEach(u => {
-                        const opt = document.createElement('option');
-                        opt.value = u;
-                        opt.textContent = u;
-                        unitSelect.append(opt);
-                    });
-                    unitSelect.value = birthIntervalUnits.includes(previousUnit) ? previousUnit : 'meses';
-                    row.append(minInput, maxInput, unitSelect, genderBtn, faseBtn, removeBtn);
-                } else if (rowModeSelect.value === 'idade_metamorfose') {
-                    minInput.className = 'reproduction-gestation-min reproduction-metamorphosis-age-min';
-                    maxInput.className = 'reproduction-gestation-max reproduction-metamorphosis-age-max';
-                    minInput.placeholder = 'Mín: 1';
-                    maxInput.placeholder = 'Máx: 6';
-                    const previousUnit = unitSelect.dataset.idadeMetamorfoseUnit || unitSelect.value;
-                    const metamorphosisUnits = ['dias', 'semanas', 'meses', 'anos'];
-                    unitSelect.innerHTML = '';
-                    metamorphosisUnits.forEach(u => {
-                        const opt = document.createElement('option');
-                        opt.value = u;
-                        opt.textContent = u;
-                        unitSelect.append(opt);
-                    });
-                    unitSelect.value = metamorphosisUnits.includes(previousUnit) ? previousUnit : 'meses';
-                    row.append(minInput, maxInput, unitSelect, genderBtn, faseBtn, removeBtn);
-                } else if (rowModeSelect.value === 'numero_mudas') {
-                    minInput.className = 'reproduction-gestation-min reproduction-moults-min';
-                    maxInput.className = 'reproduction-gestation-max reproduction-moults-max';
-                    minInput.placeholder = 'Mín: 1';
-                    maxInput.placeholder = 'Máx: 5';
-                    const previousUnit = unitSelect.dataset.numeroMudasUnit || unitSelect.value;
-                    const moultUnits = ['unidade', 'centenas', 'milhares', 'milhões'];
-                    unitSelect.innerHTML = '';
-                    moultUnits.forEach(u => {
-                        const opt = document.createElement('option');
-                        opt.value = u;
-                        opt.textContent = u;
-                        unitSelect.append(opt);
-                    });
-                    unitSelect.value = moultUnits.includes(previousUnit) ? previousUnit : 'centenas';
-                    row.append(minInput, maxInput, unitSelect, genderBtn, faseBtn, removeBtn);
-                } else if (rowModeSelect.value === 'numero_estadios_larvais') {
-                    minInput.className = 'reproduction-gestation-min reproduction-larval-stages-min';
-                    maxInput.className = 'reproduction-gestation-max reproduction-larval-stages-max';
-                    minInput.placeholder = 'Mín: 1';
-                    maxInput.placeholder = 'Máx: 5';
-                    const previousUnit = unitSelect.dataset.numeroEstadiosLarvaisUnit || unitSelect.value;
-                    const larvalStageUnits = ['unidade', 'centenas', 'milhares', 'milhões'];
-                    unitSelect.innerHTML = '';
-                    larvalStageUnits.forEach(u => {
-                        const opt = document.createElement('option');
-                        opt.value = u;
-                        opt.textContent = u;
-                        unitSelect.append(opt);
-                    });
-                    unitSelect.value = larvalStageUnits.includes(previousUnit) ? previousUnit : 'unidade';
-                    row.append(minInput, maxInput, unitSelect, genderBtn, faseBtn, removeBtn);
-                } else if (rowModeSelect.value === 'duracao_estro') {
-                    minInput.className = 'reproduction-gestation-min reproduction-estrus-min';
-                    maxInput.className = 'reproduction-gestation-max reproduction-estrus-max';
-                    minInput.placeholder = 'Mín: 1';
-                    maxInput.placeholder = 'Máx: 5';
-                    const previousUnit = unitSelect.dataset.estroUnit || unitSelect.value;
-                    const estrusUnits = ['horas', 'dias', 'semanas'];
-                    unitSelect.innerHTML = '';
-                    estrusUnits.forEach(u => {
-                        const opt = document.createElement('option');
-                        opt.value = u;
-                        opt.textContent = u;
-                        unitSelect.append(opt);
-                    });
-                    unitSelect.value = estrusUnits.includes(previousUnit) ? previousUnit : 'dias';
-                    row.append(minInput, maxInput, unitSelect, genderBtn, faseBtn, removeBtn);
+                    minInput.placeholder = 'M\u00edn: 1';
+                    maxInput.placeholder = 'M\u00e1x: 5';
+                    fillBirdEggColorSelect(eggColorSelect, eggColorSelect.value || eggColorSelect.dataset.selected || '');
+                    row.append(minInput, maxInput, eggColorSelect, genderBtn, faseBtn, removeBtn);
                 } else if (rowModeSelect.value === 'frequencia_acasalamento_estro') {
                     minInput.className = 'reproduction-gestation-min reproduction-mating-frequency-min';
                     maxInput.className = 'reproduction-gestation-max reproduction-mating-frequency-max';
@@ -711,23 +647,23 @@
                         unitSelect.append(opt);
                     });
                     unitSelect.value = hatchUnits.includes(previousUnit) ? previousUnit : 'dias';
-                    row.append(minInput, maxInput, unitSelect, genderBtn, faseBtn, removeBtn);
-                } else if (rowModeSelect.value === 'alimento_medio') {
-                    minInput.className = 'reproduction-gestation-min nutrition-amount-min';
-                    maxInput.className = 'reproduction-gestation-max nutrition-amount-max';
-                    minInput.placeholder = 'Mín: 0.1';
-                    maxInput.placeholder = 'Máx: 5';
-                    const previousUnit = unitSelect.value;
-                    const foodUnits = ['g/dia', 'g/semana', 'g/mes', 'g/ano', 'kg/dia', 'kg/semana', 'kg/mes', 'kg/ano'];
-                    unitSelect.innerHTML = '';
-                    foodUnits.forEach(u => {
-                        const opt = document.createElement('option');
-                        opt.value = u;
-                        opt.textContent = u;
-                        unitSelect.append(opt);
-                    });
-                    unitSelect.value = foodUnits.includes(previousUnit) ? previousUnit : 'kg/dia';
-                    row.append(minInput, maxInput, unitSelect, genderBtn, faseBtn, removeBtn);
+                    row.append(minInput, maxInput, unitSelect, genderBtn, faseBtn, removeBtn);                    } else if (rowModeSelect.value === 'alimento_medio') {
+                        const min = row.querySelector('.reproduction-gestation-min')?.value || '';
+                        const max = row.querySelector('.reproduction-gestation-max')?.value || '';
+                        const unit = row.querySelector('.reproduction-gestation-unit')?.value || 'kg/dia';
+                        let detail = '';
+                        if (min && max) {
+                            detail = `${min}-${max} ${unit}`;
+                        } else if (min) {
+                            detail = `${min} ${unit}`;
+                        } else if (max) {
+                            detail = `${max} ${unit}`;
+                        }
+                        return {
+                            ...rowMeta,
+                            tipo: 'Alimento Ingerido em M\u00e9dia',
+                            detalhe: detail
+                        };
                 } else if (rowModeSelect.value === 'agua_media') {
                     minInput.className = 'reproduction-gestation-min nutrition-water-min';
                     maxInput.className = 'reproduction-gestation-max nutrition-water-max';
@@ -762,6 +698,7 @@
             typeSelect.addEventListener('change', updateReproductionPreview);
             matingSelect.addEventListener('change', updateReproductionPreview);
             feedingTypeSelect.addEventListener('change', updateReproductionPreview);
+            eggColorSelect.addEventListener('change', updateReproductionPreview);
             sexualSystemSelect.addEventListener('change', updateReproductionPreview);
             feedingDetailInput.addEventListener('input', updateReproductionPreview);
             minInput.addEventListener('input', updateReproductionPreview);
@@ -951,8 +888,7 @@
                             ...rowMeta,
                             tipo: 'Tipo de Alimentação',
                             detalhe: `${feedingTypeVal} | ${feedingDetailVal}`
-                        };
-                    } else if (rowModeSelect.value === 'alimento_medio') {
+                        };                    } else if (rowModeSelect.value === 'alimento_medio') {
                         const min = row.querySelector('.reproduction-gestation-min')?.value || '';
                         const max = row.querySelector('.reproduction-gestation-max')?.value || '';
                         const unit = row.querySelector('.reproduction-gestation-unit')?.value || 'kg/dia';
@@ -966,7 +902,7 @@
                         }
                         return {
                             ...rowMeta,
-                            tipo: 'Alimento Ingerido em Média',
+                            tipo: 'Alimento Ingerido em M\u00e9dia',
                             detalhe: detail
                         };
                     } else if (rowModeSelect.value === 'agua_media') {
@@ -1012,30 +948,27 @@
                             ...rowMeta,
                             tipo: 'Número de Crias',
                             detalhe: detail
-                        };
-                    } else if (rowModeSelect.value === 'epoca_reproducao') {
+                        };                    } else if (rowModeSelect.value === 'epoca_reproducao') {
                         const inicio = row.querySelector('.reproduction-season-start')?.value || '';
                         const fim = row.querySelector('.reproduction-season-end')?.value || '';
                         const detail = inicio && fim ? `${inicio}-${fim}` : (inicio || fim);
                         return {
                             ...rowMeta,
-                            tipo: 'Época de reprodução',
+                            tipo: '\u00c9poca de reprodu\u00e7\u00e3o',
                             detalhe: detail
                         };
                     } else if (rowModeSelect.value === 'numero_ovos') {
                         const min = row.querySelector('.reproduction-gestation-min')?.value || '';
                         const max = row.querySelector('.reproduction-gestation-max')?.value || '';
                         let detail = '';
-                        if (min && max) {
-                            detail = `${min}-${max} ovos`;
-                        } else if (min) {
-                            detail = `${min} ovos`;
-                        } else if (max) {
-                            detail = `${max} ovos`;
-                        }
+                        if (min && max) detail = `${min}-${max} ovos`;
+                        else if (min) detail = `${min} ovos`;
+                        else if (max) detail = `${max} ovos`;
+                        const eggColor = row.querySelector('.reproduction-egg-color')?.value || '';
+                        if (eggColor) detail = detail ? `${detail} | ${eggColor}` : eggColor;
                         return {
                             ...rowMeta,
-                            tipo: 'Número de ovos',
+                            tipo: 'N\u00famero de ovos',
                             detalhe: detail
                         };
                     } else if (rowModeSelect.value === 'frequencia_acasalamento_estro') {
@@ -1287,20 +1220,30 @@
         }
 
         function renderReproductionModelCard(item, isSuggestion = false) {
+            const detailText = String(item.detalhe || '');
+            const detailParts = detailText.split('|').map(part => part.trim()).filter(Boolean);
             const egg = getBirdEggVisualByLabel(item.tipo || item);
-            if (isBirdCategory() && egg) {
-                const numberOfEggs = item.detalhe || 'Indica o n.º de ovos';
+            const selectedEggColor = birdEggVisuals.find(candidate => detailParts.includes(candidate.label));
+            const eggVisual = selectedEggColor || egg;
+            const isEggCountModel = normalizeSearchText(item.tipo || '').includes('numero de ovos');
+            if (isBirdCategory() && eggVisual && (eggVisual.image || eggVisual.color) && (egg || selectedEggColor)) {
+                const numberOfEggs = detailParts.filter(part => part !== eggVisual.label).join(' | ') || 'Indica o n.º de ovos';
+                const visual = isEggCountModel
+                    ? `<div class="bird-egg-original-model" style="--egg-color: ${eggVisual.color || '#cbd5e1'}" role="img" aria-label="Modelo de ovos ${eggVisual.label}">${getReproductionModelSvg('numeroOvos')}</div>`
+                    : eggVisual.color
+                        ? `<div class="bird-egg-painted" style="--egg-color: ${eggVisual.color}" role="img" aria-label="Ovo ${eggVisual.label}"></div>`
+                        : `<img src="${eggVisual.image}" alt="Ovo ${eggVisual.label}" loading="lazy">`;
+                const label = isEggCountModel ? 'Número de ovos' : eggVisual.label;
                 return `
                     <article class="dimension-model-card reproduction-model-card bird-egg-selected-card ${isSuggestion ? 'is-suggestion' : ''}">
-                        <div class="bird-egg-selected-image"><img src="${egg.image}" alt="Ovo ${egg.label}" loading="lazy"></div>
+                        <div class="bird-egg-selected-image">${visual}</div>
                         <div class="dimension-model-copy">
-                            <div class="dimension-model-label">${egg.label}</div>
+                            <div class="dimension-model-label">${label}</div>
                             <div class="dimension-model-value">${numberOfEggs}</div>
-                            <div class="dimension-model-meta">Ovo escolhido</div>
+                            <div class="dimension-model-meta">${eggVisual.label}</div>
                         </div>
                     </article>`;
             }
-
             const matingValue = normalizeSearchText(item.tipo || '').includes('acasalamento')
                 ? (item.detalhe || '')
                 : (isMatingReproductionItem(item.tipo || '') ? (item.tipo || '') : '');

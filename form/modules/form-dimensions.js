@@ -1,6 +1,8 @@
 // Modelo visual de dimensões
         function getSelectedCategory() {
-            return document.getElementById('categoria').value || '';
+            return document.querySelector('.categoria-checkbox:checked')?.value
+                || document.getElementById('categoria')?.value
+                || '';
         }
 
         function getDimensionOptionsForCategory(category = getSelectedCategory()) {

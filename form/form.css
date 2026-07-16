@@ -1109,7 +1109,53 @@
             background: linear-gradient(135deg, rgba(168, 85, 247, 0.14), rgba(255, 255, 255, 0.025));
         }
 
-        .reproduction-model-card.accent-maturity {
+        
+.bird-egg-selected-image {
+    display: grid;
+    place-items: center;
+    min-height: 86px;
+    border-radius: 14px;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.bird-egg-selected-image img {
+    width: 74px;
+    height: 86px;
+    object-fit: cover;
+}
+
+.bird-egg-painted {
+    width: 74px;
+    height: 86px;
+    object-fit: cover;
+}
+
+.bird-egg-original-model {
+    display: grid;
+    place-items: center;
+    width: 74px;
+    height: 86px;
+    color: var(--egg-color);
+}
+
+.bird-egg-original-model .metric-model-svg {
+    width: 74px;
+    height: 86px;
+    stroke: currentColor;
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+.bird-egg-painted {
+    position: relative;
+    border: 2px solid rgba(255, 255, 255, 0.46);
+    border-radius: 52% 48% 48% 52% / 58% 58% 42% 42%;
+    background: radial-gradient(circle at 34% 25%, rgba(255, 255, 255, 0.78), transparent 18%),
+        linear-gradient(145deg, color-mix(in srgb, var(--egg-color) 78%, white), var(--egg-color) 58%, color-mix(in srgb, var(--egg-color) 72%, black));
+    box-shadow: inset -8px -10px 14px rgba(0, 0, 0, 0.2), 0 8px 18px rgba(0, 0, 0, 0.18);
+}
+.reproduction-model-card.accent-maturity {
             border-color: rgba(244, 114, 182, 0.34);
             background: linear-gradient(135deg, rgba(244, 114, 182, 0.13), rgba(255, 255, 255, 0.025));
         }
