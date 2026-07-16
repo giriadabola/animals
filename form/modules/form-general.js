@@ -1078,6 +1078,7 @@
         }
 
         function getHabitatMeta(value = '') {
+            const normalized = normalizeSearchText(value);
             const habitatImages = {
                 agricola: 'Agrícola.png',
                 ambiente_domestico: 'Ambiente doméstico.png',
