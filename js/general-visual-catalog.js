@@ -278,7 +278,7 @@ const bodySymmetryOptions = ['Bilateral', 'Radial', 'Birradial', 'Assimétrica',
 const developmentTransformationOptions = ['Muda', 'Metamorfose', 'Neotenia', 'Hermafroditismo sequencial', 'Troca de plumagem', 'Troca de pelagem'];
 const skeletonTypeOptions = ['Ósseo', 'Cartilagíneo', 'Exoesqueleto', 'Hidroesqueleto', 'Ausente'];
 
-const ecologicalStratumOptions = [
+export const ecologicalStratumOptions = [
     'Arbustivo',
     'Bentónico',
     'Copa',
@@ -289,6 +289,18 @@ const ecologicalStratumOptions = [
     'Solo',
     'Subterrâneo'
 ];
+
+const ecologicalStratumVisuals = {
+    Arbustivo: '<path d="M14 64h52"/><path d="M25 64V43M40 64V32M55 64V43"/><circle cx="25" cy="34" r="9"/><circle cx="40" cy="23" r="11"/><circle cx="55" cy="34" r="9"/>',
+    Bentónico: '<path d="M12 58c10-6 18-6 28 0s18 6 28 0"/><path d="M12 68c10-6 18-6 28 0s18 6 28 0"/><path d="M28 48v-18M28 30l-7-8M28 30l8-7M52 48V24M52 24l-8-8M52 24l8-6"',
+    Copa: '<path d="M40 68V39"/><path d="M40 48L24 35M40 48l16-13"/><circle cx="25" cy="29" r="12"/><circle cx="40" cy="20" r="14"/><circle cx="55" cy="29" r="12"/>',
+    Litoral: '<path d="M10 52c8-6 16-6 24 0s16 6 24 0s14-6 22 0"/><path d="M10 64c8-6 16-6 24 0s16 6 24 0s14-6 22 0"/><path d="M18 29c8-8 16-8 24 0s16 8 24 0"/><path d="M40 12v19"',
+    Nerítico: '<path d="M12 58h56"/><path d="M20 58V39l12-8l12 8v19"/><path d="M44 58V25l12-8l12 8v33"/><path d="M18 68c8-5 16-5 24 0s16 5 24 0"',
+    Oceânico: '<path d="M10 28c8-7 16-7 24 0s16 7 24 0s14-7 22 0"/><path d="M10 43c8-7 16-7 24 0s16 7 24 0s14-7 22 0"/><path d="M10 58c8-7 16-7 24 0s16 7 24 0s14-7 22 0"/><path d="M40 12v9M34 17l6 5l6-5"',
+    Pelágico: '<path d="M12 30c8-6 16-6 24 0s16 6 24 0s14-6 20 0"/><path d="M12 48c8-6 16-6 24 0s16 6 24 0s14-6 20 0"/><path d="M40 12v18M40 48v20M34 22l6 8l6-8M34 58l6 10l6-10"',
+    Solo: '<path d="M12 25h56"/><path d="M12 40h56"/><path d="M12 55h56"/><path d="M22 25v15M48 40v15M34 55v13"/><circle cx="28" cy="33" r="3"/><circle cx="58" cy="48" r="3"/>',
+    Subterrâneo: '<path d="M12 22h56"/><path d="M18 22v13c0 22 10 33 22 33s22-11 22-33V22"/><path d="M28 68c0-12 5-20 12-20s12 8 12 20"/><circle cx="40" cy="39" r="6"/>'
+};
 
 const selectGroups = {
     feedingStrategy: feedingStrategyOptions,
@@ -585,6 +597,16 @@ export function getGeneralModelSvg(key = 'geral') {
         geral: makeSvg('<circle cx="40" cy="40" r="25"/><path d="M40 25v18"/><path d="M40 53v2"/>')
     };
     return icons[key] || icons.geral;
+}
+
+export function getEcologicalStratumMeta(value = '') {
+    const label = ecologicalStratumOptions.find(option => normalizeGeneralVisualKey(option) === normalizeGeneralVisualKey(value)) || value;
+    return { key: label || 'Estrato ecológico', title: label || 'Estrato ecológico', accent: 'accent-bioma' };
+}
+
+export function getEcologicalStratumSvg(value = '') {
+    const meta = getEcologicalStratumMeta(value);
+    return makeSvg(ecologicalStratumVisuals[meta.key] || ecologicalStratumVisuals.Solo, 'general-model-svg ecological-stratum-model-svg');
 }
 
 export function getActivityMeta(value = '') {

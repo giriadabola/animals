@@ -19,6 +19,10 @@ import { initSocialTypePopup } from "../js/social-type-popup.js?v=1";
 import { initSkeletonTypePopup } from "../js/skeleton-type-popup.js?v=1";
 import { initThermoregulationPopup } from "../js/thermoregulation-popup.js?v=1";
 import { initBodySymmetryPopup } from "../js/body-symmetry-popup.js?v=1";
+import { initEcologicalStratumPopup } from "../js/ecological-stratum-popup.js?v=1";
+import { initGroupCompositionPopup } from "../js/group-composition-popup.js?v=1";
+import { initLocomotionPopup } from "../js/locomotion-popup.js?v=1";
+import { initKinshipLineagePopup } from "../js/kinship-lineage-popup.js?v=1";
 import { initActivityPopup } from "../js/activity-popup.js?v=1";
 import { initTerritorySizePopup } from "../js/territory-size-popup.js?v=1";
 import { initFeedingStrategyPopup } from "../js/feeding-strategy-popup.js?v=20260714_strategy_popup_layout";
@@ -826,6 +830,22 @@ import { initAnimalComparison } from "../js/animal-comparison.js?v=2";
             return normalizeDimensionKey(type).includes('simetria corporal');
         }
 
+        function isEcologicalStratumModel(type = '') {
+            return normalizeDimensionKey(type).includes('estrato ecologico');
+        }
+
+        function isGroupCompositionModel(type = '') {
+            return normalizeDimensionKey(type).includes('composicao do grupo') && !normalizeDimensionKey(type).includes('social');
+        }
+
+        function isLocomotionModel(type = '') {
+            return normalizeDimensionKey(type).includes('locomocao');
+        }
+
+        function isKinshipLineageModel(type = '') {
+            return normalizeDimensionKey(type).includes('parentesco e linhagem social');
+        }
+
         function isActivityModel(type = '') {
             return normalizeDimensionKey(type) === 'atividade';
         }
@@ -918,6 +938,70 @@ import { initAnimalComparison } from "../js/animal-comparison.js?v=2";
             </button>`;
         }
 
+        function renderEcologicalStratumCard(items, filterContext = {}) {
+            const firstItem = items[0];
+            const meta = getGeneralVisualMeta(firstItem.tipo);
+            const infoGroup = getInfoGroupForGeneralType(firstItem.tipo);
+            const visible = items.some(item => getInitialVisualItemVisibility(item, filterContext));
+            const selectedTypes = [...new Set(items.map(item => item.valorMin || item.valor || item.opcao || '').map(value => String(value).trim()).filter(Boolean))];
+            const rows = items.map(item => {
+                const value = item.valorMin || item.valor || item.opcao || '—';
+                const isVisible = getInitialVisualItemVisibility(item, filterContext);
+                return `<div class="general-model-value-row" data-gender="${escapeHtml(item.genero || '')}" data-phase="${escapeHtml(item.fase || 'Adulto')}" data-info-group="${infoGroup}"${isVisible ? '' : ' style="display: none;"'}>${renderInlineGenderSymbol(item)}${escapeHtml(value)}</div>`;
+            }).join('');
+            return `<button type="button" class="dimension-model-card general-model-card visual-model-group-card perception-type-popup-trigger ${meta.accent}" data-info-group="${infoGroup}" data-ecological-stratum-popup data-ecological-stratum-types="${escapeHtml(JSON.stringify(selectedTypes))}" aria-haspopup="dialog" aria-label="Ver os estratos ecológicos e respetivas explicações"${visible ? '' : ' style="display: none;"'}>
+                <div class="dimension-model-icon">${getGeneralModelSvg(meta.key)}</div><div class="dimension-model-copy perception-model-copy"><div class="dimension-model-label">${escapeHtml(meta.title)}</div><div class="general-model-values">${rows}</div></div>
+            </button>`;
+        }
+
+        function renderGroupCompositionCard(items, filterContext = {}) {
+            const firstItem = items[0];
+            const meta = getGeneralVisualMeta(firstItem.tipo);
+            const infoGroup = getInfoGroupForGeneralType(firstItem.tipo);
+            const visible = items.some(item => getInitialVisualItemVisibility(item, filterContext));
+            const selectedTypes = [...new Set(items.map(item => item.valorMin || item.valor || item.opcao || '').map(value => String(value).trim()).filter(Boolean))];
+            const rows = items.map(item => {
+                const value = item.valorMin || item.valor || item.opcao || '—';
+                const isVisible = getInitialVisualItemVisibility(item, filterContext);
+                return `<div class="general-model-value-row" data-gender="${escapeHtml(item.genero || '')}" data-phase="${escapeHtml(item.fase || 'Adulto')}" data-info-group="${infoGroup}"${isVisible ? '' : ' style="display: none;"'}>${renderInlineGenderSymbol(item)}${escapeHtml(value)}</div>`;
+            }).join('');
+            return `<button type="button" class="dimension-model-card general-model-card visual-model-group-card perception-type-popup-trigger ${meta.accent}" data-info-group="${infoGroup}" data-group-composition-popup data-group-composition-types="${escapeHtml(JSON.stringify(selectedTypes))}" aria-haspopup="dialog" aria-label="Ver as composições de grupo e respetivas explicações"${visible ? '' : ' style="display: none;"'}>
+                <div class="dimension-model-icon">${getGeneralModelSvg(meta.key)}</div><div class="dimension-model-copy perception-model-copy"><div class="dimension-model-label">${escapeHtml(meta.title)}</div><div class="general-model-values">${rows}</div></div>
+            </button>`;
+        }
+
+        function renderLocomotionCard(items, filterContext = {}) {
+            const firstItem = items[0];
+            const meta = getGeneralVisualMeta(firstItem.tipo);
+            const infoGroup = getInfoGroupForGeneralType(firstItem.tipo);
+            const visible = items.some(item => getInitialVisualItemVisibility(item, filterContext));
+            const selectedTypes = [...new Set(items.map(item => item.valorMin || item.valor || item.opcao || '').map(value => String(value).trim()).filter(Boolean))];
+            const rows = items.map(item => {
+                const value = item.valorMin || item.valor || item.opcao || '—';
+                const isVisible = getInitialVisualItemVisibility(item, filterContext);
+                return `<div class="general-model-value-row" data-gender="${escapeHtml(item.genero || '')}" data-phase="${escapeHtml(item.fase || 'Adulto')}" data-info-group="${infoGroup}"${isVisible ? '' : ' style="display: none;"'}>${renderInlineGenderSymbol(item)}${escapeHtml(value)}</div>`;
+            }).join('');
+            return `<button type="button" class="dimension-model-card general-model-card visual-model-group-card perception-type-popup-trigger ${meta.accent}" data-info-group="${infoGroup}" data-locomotion-popup data-locomotion-types="${escapeHtml(JSON.stringify(selectedTypes))}" aria-haspopup="dialog" aria-label="Ver os tipos de locomoção e respetivas explicações"${visible ? '' : ' style="display: none;"'}>
+                <div class="dimension-model-icon">${getGeneralModelSvg(meta.key)}</div><div class="dimension-model-copy perception-model-copy"><div class="dimension-model-label">${escapeHtml(meta.title)}</div><div class="general-model-values">${rows}</div></div>
+            </button>`;
+        }
+
+        function renderKinshipLineageCard(items, filterContext = {}) {
+            const firstItem = items[0];
+            const meta = getGeneralVisualMeta(firstItem.tipo);
+            const infoGroup = getInfoGroupForGeneralType(firstItem.tipo);
+            const visible = items.some(item => getInitialVisualItemVisibility(item, filterContext));
+            const selectedTypes = [...new Set(items.map(item => item.valorMin || item.valor || item.opcao || '').map(value => String(value).trim()).filter(Boolean))];
+            const rows = items.map(item => {
+                const value = item.valorMin || item.valor || item.opcao || '—';
+                const isVisible = getInitialVisualItemVisibility(item, filterContext);
+                return `<div class="general-model-value-row" data-gender="${escapeHtml(item.genero || '')}" data-phase="${escapeHtml(item.fase || 'Adulto')}" data-info-group="${infoGroup}"${isVisible ? '' : ' style="display: none;"'}>${renderInlineGenderSymbol(item)}${escapeHtml(value)}</div>`;
+            }).join('');
+            return `<button type="button" class="dimension-model-card general-model-card visual-model-group-card perception-type-popup-trigger ${meta.accent}" data-info-group="${infoGroup}" data-kinship-lineage-popup data-kinship-lineage-types="${escapeHtml(JSON.stringify(selectedTypes))}" aria-haspopup="dialog" aria-label="Ver os tipos de parentesco e linhagem social e respetivas explicações"${visible ? '' : ' style="display: none;"'}>
+                <div class="dimension-model-icon">${getGeneralModelSvg(meta.key)}</div><div class="dimension-model-copy perception-model-copy"><div class="dimension-model-label">${escapeHtml(meta.title)}</div><div class="general-model-values">${rows}</div></div>
+            </button>`;
+        }
+
         function renderActivityCard(items, filterContext = {}) {
             const firstItem = items[0];
             const meta = getGeneralVisualMeta(firstItem.tipo);
@@ -996,6 +1080,10 @@ import { initAnimalComparison } from "../js/animal-comparison.js?v=2";
             if (isSkeletonTypeModel(item.tipo)) return renderSkeletonTypeCard([item]);
             if (isThermoregulationModel(item.tipo)) return renderThermoregulationCard([item]);
             if (isBodySymmetryModel(item.tipo)) return renderBodySymmetryCard([item]);
+            if (isEcologicalStratumModel(item.tipo)) return renderEcologicalStratumCard([item]);
+            if (isGroupCompositionModel(item.tipo)) return renderGroupCompositionCard([item]);
+            if (isLocomotionModel(item.tipo)) return renderLocomotionCard([item]);
+            if (isKinshipLineageModel(item.tipo)) return renderKinshipLineageCard([item]);
             if (isActivityModel(item.tipo)) return renderActivityCard([item]);
             if (isTerritorySizeModel(item.tipo)) return renderTerritorySizeCard([item]);
             if (isCommunicationTypeModel(item.tipo)) return renderCommunicationTypeCard([item]);
@@ -1056,6 +1144,10 @@ import { initAnimalComparison } from "../js/animal-comparison.js?v=2";
             if (isSkeletonTypeModel(firstItem.tipo)) return renderSkeletonTypeCard(items, filterContext);
             if (isThermoregulationModel(firstItem.tipo)) return renderThermoregulationCard(items, filterContext);
             if (isBodySymmetryModel(firstItem.tipo)) return renderBodySymmetryCard(items, filterContext);
+            if (isEcologicalStratumModel(firstItem.tipo)) return renderEcologicalStratumCard(items, filterContext);
+            if (isGroupCompositionModel(firstItem.tipo)) return renderGroupCompositionCard(items, filterContext);
+            if (isLocomotionModel(firstItem.tipo)) return renderLocomotionCard(items, filterContext);
+            if (isKinshipLineageModel(firstItem.tipo)) return renderKinshipLineageCard(items, filterContext);
             if (isActivityModel(firstItem.tipo)) return renderActivityCard(items, filterContext);
             if (isTerritorySizeModel(firstItem.tipo)) return renderTerritorySizeCard(items, filterContext);
             if (isCommunicationTypeModel(firstItem.tipo)) return renderCommunicationTypeCard(items, filterContext);
@@ -3902,6 +3994,10 @@ import { initAnimalComparison } from "../js/animal-comparison.js?v=2";
             initSkeletonTypePopup(mainContent);
             initThermoregulationPopup(mainContent);
             initBodySymmetryPopup(mainContent);
+            initEcologicalStratumPopup(mainContent);
+            initGroupCompositionPopup(mainContent);
+            initLocomotionPopup(mainContent);
+            initKinshipLineagePopup(mainContent);
             initActivityPopup(mainContent);
             initTerritorySizePopup(mainContent);
             initFeedingStrategyPopup(mainContent);

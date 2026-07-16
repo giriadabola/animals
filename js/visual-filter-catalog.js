@@ -1,4 +1,4 @@
-import { generalVisualOptions, getGeneralModelSvg, getGeneralVisualMeta, getActivityMeta, getActivitySvg, getSocialMeta, getSocialSvg, socialTypes } from './general-visual-catalog.js';
+import { generalVisualOptions, ecologicalStratumOptions, getGeneralModelSvg, getGeneralVisualMeta, getEcologicalStratumMeta, getEcologicalStratumSvg, getActivityMeta, getActivitySvg, getSocialMeta, getSocialSvg, socialTypes } from './general-visual-catalog.js';
 import { feedingStrategies, getFeedingStrategyMeta, getFeedingStrategySvg } from './feeding-strategies.js';
 import { feedingTypes, getFeedingVisualMeta, getFeedingModelSvg } from './feeding-visuals.js';
 import { locomotionCatalog, getLocomotionSvg } from './locomotion-visuals.js';
@@ -10,6 +10,8 @@ import { matingSystems, getMatingMeta, getMatingSystemSvg } from './mating-syste
 import { sexualSystems, getSexualSystemSvg } from './sexual-systems.js';
 import { ecologyBlockConfigs, getEcologyBlockSvg } from './ecology-visuals.js';
 import { biogeographicRegions } from './biogeographic-regions.js';
+import { groupCompositionOptions, getGroupCompositionMeta, getGroupCompositionSvg } from './group-composition-visuals.js';
+import { kinshipLineageOptions, getKinshipLineageMeta, getKinshipLineageSvg } from './kinship-lineage-visuals.js';
 
 const imageFilters = [
     ...[
@@ -54,6 +56,9 @@ const activityValues = ['Diurno', 'Noturno', 'Crepuscular', 'Matutino', 'Vespert
 export const visualFilterPool = [
     ...imageFilters.map(([type, value, image, accent]) => ({ type, value, name: value, image, accent })),
     ...generalVisualOptions.map(option => { const meta = getGeneralVisualMeta(option.tipo); return { type: option.tipo, value: '*', name: option.tipo, model: () => getGeneralModelSvg(meta.key), accent: meta.accent }; }),
+    ...ecologicalStratumOptions.map(value => { const meta = getEcologicalStratumMeta(value); return { type: 'Estrato ecológico', value, name: value, model: () => getEcologicalStratumSvg(value), accent: meta.accent }; }),
+    ...groupCompositionOptions.map(value => { const meta = getGroupCompositionMeta(value); return { type: 'Composição do grupo', value, name: value, model: () => getGroupCompositionSvg(value), accent: meta.accent }; }),
+    ...kinshipLineageOptions.map(value => { const meta = getKinshipLineageMeta(value); return { type: 'Parentesco e linhagem social', value, name: value, model: () => getKinshipLineageSvg(value), accent: meta.accent }; }),
     ...activityValues.map(value => { const meta = getActivityMeta(value); return { type: 'atividade', value, name: value, model: () => getActivitySvg(meta.key), accent: meta.accent }; }),
     ...socialTypes.map(item => { const meta = getSocialMeta(item.label); return { type: 'vida social', value: item.label, name: item.label, model: () => getSocialSvg(meta.key), accent: meta.accent }; }),
     ...feedingStrategies.map(value => { const meta = getFeedingStrategyMeta(value); return { type: 'estratégia para obter alimento', value, name: value, model: () => getFeedingStrategySvg(meta.key), accent: meta.accent }; }),
