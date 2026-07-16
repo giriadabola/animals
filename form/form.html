@@ -26,7 +26,8 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsvectormap/dist/css/jsvectormap.min.css">
     <script src="https://cdn.jsdelivr.net/npm/jsvectormap"></script>
     <script src="https://cdn.jsdelivr.net/npm/jsvectormap/dist/maps/world.js"></script>
-    <script src="./form-cache.js?v=20260709_portfolio_1"></script>
+    <script src="./form-cache.js?v=20260716_ios_refresh_1"></script>
+    <script src="../js/page-transition.js?v=1"></script>
     <link rel="stylesheet" href="./form.css?v=20260714_reproduction_preview_selection">
     <link rel="stylesheet" href="./form-responsive.css?v=20260715_mobile_1">
 
@@ -540,17 +541,7 @@
                                         <div id="feedingRows" class="feeding-rows"></div>
 
                                         <button type="button" id="addFeedingBtn" class="secondary-action-btn">+ Adicionar modelo</button>
-                                        <div class="feeding-animal-dropdown" id="feedingAnimalDropdown">
-                                            <button type="button" class="feeding-animal-trigger" id="feedingAnimalTrigger" aria-expanded="false" aria-controls="feedingAnimalMenu">
-                                                <span>Escolher animal da dieta</span>
-                                                <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
-                                            </button>
-                                            <div class="feeding-animal-menu" id="feedingAnimalMenu">
-                                                <input type="search" id="feedingAnimalSearch" class="feeding-animal-search" placeholder="Pesquisar animal..." autocomplete="off">
-                                                <div class="feeding-animal-list" id="feedingAnimalList" role="listbox" aria-label="Animais por ordem alfabética"></div>
-                                            </div>
-                                        </div>
-                                        <p class="form-hint">Escolhe um ou mais tipos de dieta. O modelo visual mostra um ícone próprio para cada tipo selecionado.</p>
+                                        <p class="form-hint">Escolhe o modelo e associa animais e alimentos. Podes pesquisar ou colar vários valores separados por vírgulas, ponto e vírgula ou linhas.</p>
                                     </div>
 
                                     <div class="reproduction-visual-preview feeding-visual-preview" aria-live="polite">
@@ -846,7 +837,12 @@
                         <input type="url" id="video5" placeholder="URL do YouTube">
                     </div>
                     <div class="form-group xeno-audio-form-group">
-                        <label for="xenoCantoAudioId">Áudio xeno-canto</label>
+                        <div class="xeno-audio-label-row">
+                            <label for="xenoCantoAudioId">Áudio xeno-canto</label>
+                            <a id="xenoCantoSearchLink" class="xeno-audio-search-link" href="https://xeno-canto.org/" target="_blank" rel="noopener noreferrer" aria-label="Abrir pesquisa no Xeno-canto" title="Abrir no Xeno-canto">
+                                <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>
+                            </a>
+                        </div>
                         <input type="text" id="xenoCantoAudioId" inputmode="numeric" pattern="[0-9]*" placeholder="Código do áudio, ex: 1067401">
                         <small class="form-hint">Coloca apenas o número da gravação. Ex: 1067401.</small>
                     </div>
@@ -855,6 +851,10 @@
             
             <div id="top-tabpanel-rodape" class="grid-span-3">
                 <div class="rodape-options-card">
+                    <label class="rodape-comparison-toggle" for="rodapeComparacaoOn">
+                        <input type="checkbox" id="rodapeComparacaoOn" checked>
+                        <span>Mostrar comparação com outro animal</span>
+                    </label>
                     <div style="flex: 1; min-width: 250px; display: flex; flex-direction: column; gap: 6px;">
                         <label for="imagemRodape">Adicionar imagem para rodapé</label>
                         <input type="text" id="imagemRodape" placeholder="URL da imagem de rodapé" style="width: 100%;">
@@ -1103,11 +1103,12 @@
     </div>
 
     <!-- Componentes e Lógica -->
-    <script type="module" src="../js/components.js?v=20260710_no_animais_snapshot_1"></script>
+    <script type="module" src="../js/components.js?v=20260716_mobile_home_1"></script>
     <script src="../js/distribution-areas.js?v=20260713_6"></script>
     <script src="./modules/form-distribution-regions.js?v=20260710_1"></script>
     <script type="module" src="./form.js?v=20260714_reproduction_preview_selection"></script>
     <!-- Service Worker PWA -->
-    <script src="./sw-register.js?v=20260710_no_animais_snapshot_1"></script>
+    <script src="./sw-register.js?v=20260716_ios_refresh_1"></script>
+    <script src="./xeno-canto-link.js?v=1"></script>
 </body>
 </html>

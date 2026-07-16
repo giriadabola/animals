@@ -833,6 +833,7 @@
             openEditModalBtn.disabled = false;
             openEditModalBtn.innerHTML = '<i class="fa-solid fa-magnifying-glass" style="margin-right: 8px;"></i> Procurar p/ Editar';
             formEditLog('Botão Procurar p/ Editar desbloqueado.', reason);
+            document.dispatchEvent(new CustomEvent('form:edit-button-ready', { detail: { reason } }));
         }
 
         function setEditButtonLoading(reason = '') {

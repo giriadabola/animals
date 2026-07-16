@@ -32,6 +32,7 @@ import { initEcologyRelationsPopup } from "../js/ecology-relations-popup.js?v=1"
 import { initEnvironmentVisualPopup } from "../js/environment-visual-popup.js?v=1";
 import { initClimateZoneMapPopup } from "../js/climate-zone-map-popup.js?v=1";
 import { initScientificClassificationToggles } from "./scientific-classification-toggle.js?v=1";
+import { initAnimalComparison } from "../js/animal-comparison.js?v=2";
         
         const mainContent = document.getElementById('main-content-area');
 
@@ -3536,6 +3537,7 @@ import { initScientificClassificationToggles } from "./scientific-classification
                 </div>
                 ${(() => {
                     const hasFooterImage = !!animalData.imagemRodape;
+                    const hasFooterComparison = animalData.rodapeComparacaoOn !== false;
                     const hasEsqueleto = !!animalData.rodapeHasEsqueleto;
                     const hasAnatomia = !!animalData.rodapeHasAnatomia;
                     const cleanSciName = String(animalData.nomeCientifico || '').trim().replace(/\s+/g, '_');
@@ -3746,7 +3748,7 @@ import { initScientificClassificationToggles } from "./scientific-classification
                         });
                     }
 
-                    if (!hasFooterImage && !hasEsqueleto && !hasAnatomia && footerCards.length === 0) return '';
+                    if (!hasFooterImage && !hasEsqueleto && !hasAnatomia && !hasFooterComparison && footerCards.length === 0) return '';
 
                     return `
                         <div class="footer-anatomy-section">
@@ -3769,6 +3771,24 @@ import { initScientificClassificationToggles } from "./scientific-classification
                                         </div>
                                     ` : ''}
                                 </div>
+                            ` : ''}
+                            ${hasFooterComparison ? `
+                                <section class="animal-comparison-section" data-animal-comparison aria-labelledby="animal-comparison-title">
+                                    <div class="animal-comparison-heading">
+                                        <div>
+                                            <span class="animal-comparison-kicker">Comparação visual</span>
+                                            <h2 id="animal-comparison-title"><i class="fa-solid fa-scale-balanced" aria-hidden="true"></i> Comparar com outro animal</h2>
+                                        </div>
+                                        <div class="animal-comparison-search">
+                                            <label class="animal-comparison-select-label" for="animal-comparison-search-input">Animal</label>
+                                            <input id="animal-comparison-search-input" data-comparison-search type="search" autocomplete="off" placeholder="Pesquisar por nome comum ou científico..." aria-label="Pesquisar animal para comparar" aria-controls="animal-comparison-search-results" aria-expanded="false">
+                                            <div id="animal-comparison-search-results" class="animal-comparison-search-results" data-comparison-search-results role="listbox" hidden></div>
+                                        </div>
+                                    </div>
+                                    <div data-comparison-table>
+                                        <p class="animal-comparison-empty">A preparar a comparação...</p>
+                                    </div>
+                                </section>
                             ` : ''}
                             ${(hasFooterImage || footerCards.length > 0) ? `
                                 <div class="footer-image-row" style="display: flex; gap: 24px; align-items: center; flex-wrap: wrap; justify-content: center; width: 100%;">
@@ -3854,6 +3874,7 @@ import { initScientificClassificationToggles } from "./scientific-classification
             initScientificClassificationToggles(mainContent);
             initAnimalMediaBlock(mainContent);
             initFooterAnatomyTabs(mainContent);
+            initAnimalComparison(mainContent, animalData, animalId);
             initFooterBiomaSlider(mainContent);
             initAnimalAudioControls(mainContent);
             initAnimalProfileActions({ animalId });

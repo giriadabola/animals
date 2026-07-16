@@ -3,7 +3,7 @@
     margin: 28px auto 0;
     padding: 12px 18px 22px;
 }
-.visual-periodic-frame { position: relative; width: max-content; max-width: 100%; margin: 0 auto; box-sizing: border-box; padding: 22px 24px 58px; border: 1px solid rgba(110, 231, 183, .34); border-radius: 22px; background: linear-gradient(135deg, rgba(15, 35, 49, .52), rgba(17, 24, 39, .28)); box-shadow: inset 0 1px 0 rgba(255,255,255,.05), 0 12px 30px rgba(0,0,0,.12); }
+.visual-periodic-frame { position: relative; width: max-content; max-width: 100%; margin: 0 auto; box-sizing: border-box; padding: 22px 24px 58px; border: 1px solid rgba(110, 231, 183, .34); border-radius: 22px; background: linear-gradient(135deg, rgba(15, 35, 49, .52), rgba(17, 24, 39, .28)); box-shadow: inset 0 1px 0 rgba(255,255,255,.05), 0 12px 30px rgba(0,0,0,.12); overflow: hidden; }
 .visual-periodic-grid { display: grid; grid-template-columns: repeat(10, 62px); justify-content: center; gap: 18px 24px; }
 .visual-periodic-cell { position: relative; width: 62px; height: 62px; align-items: center; justify-content: center; color: var(--model-accent); text-decoration: none; transition: transform .2s ease, filter .2s ease, box-shadow .2s ease; }
 .visual-periodic-cell:hover, .visual-periodic-cell.is-featured { transform: translateY(-4px) scale(1.025); filter: saturate(1.12); box-shadow: 0 0 0 3px var(--model-accent-soft), 0 14px 28px rgba(0,0,0,.28); z-index: 1; }
@@ -18,6 +18,29 @@
     55% { opacity: .78; filter: blur(2px) saturate(.8); transform: scale(1.08) rotate(2deg); }
     100% { opacity: 1; filter: saturate(1.12); transform: scale(1.025); }
 }
-@media (max-width: 850px) { .visual-periodic-grid { grid-template-columns: repeat(8, 62px); } }
-@media (max-width: 650px) { .visual-periodic-card { width: min(100% - 20px, 1400px); padding: 12px 8px 18px; } .visual-periodic-frame { width: 100%; padding: 16px 10px 54px; } .visual-periodic-grid { grid-template-columns: repeat(6, 62px); gap: 14px 16px; } .visual-periodic-all-link { right: 16px; } }
-@media (max-width: 430px) { .visual-periodic-grid { grid-template-columns: repeat(5, 62px); gap: 12px 10px; } }
+@media (max-width: 850px) {
+    .visual-periodic-frame { width: 100%; }
+    .visual-periodic-grid { grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 18px clamp(10px, 2.5vw, 24px); }
+    .visual-periodic-cell,
+    .visual-periodic-cell .dimension-model-icon { width: 100%; height: auto; min-width: 0; aspect-ratio: 1; }
+}
+@media (max-width: 650px) {
+    .visual-periodic-card { width: min(100% - 20px, 1400px); padding: 12px 8px 18px; }
+    .visual-periodic-frame { width: 100%; padding: 16px 10px 54px; }
+    .visual-periodic-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 14px clamp(8px, 2.8vw, 16px); }
+    .visual-periodic-cell,
+    .visual-periodic-cell .dimension-model-icon { width: 100%; height: auto; min-width: 0; aspect-ratio: 1; }
+    .visual-periodic-cell {
+        padding: 0;
+        gap: 0;
+    }
+    .visual-periodic-cell .dimension-model-icon {
+        background: transparent;
+        border: 0;
+        border-radius: 0;
+    }
+    .visual-periodic-all-link { right: 16px; }
+}
+@media (max-width: 430px) {
+    .visual-periodic-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px 10px; }
+}

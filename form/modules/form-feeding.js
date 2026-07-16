@@ -3,77 +3,103 @@
             return String(value).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
         }
 
-        function closeFeedingAnimalDropdown() {
-            feedingAnimalDropdown.classList.remove('open');
-            feedingAnimalTrigger.setAttribute('aria-expanded', 'false');
+        let feedingFoodOptions = [];
+        let feedingAnimalsLoaded = false;
+        let feedingAnimalsLoadPromise = null;
+        const feedingRelationKey = { animals: 'animais', foods: 'alimentos' };
+        const relationLabel = { animals: 'Animais da dieta', foods: 'Alimentos' };
+        const relationPlaceholder = { animals: 'Pesquisar nome comum ou científico...', foods: 'Pesquisar alimento...' };
+        const relationIdKey = { animals: 'id', foods: 'id' };
+
+        function getFeedingAnimalOption() { return null; }
+
+        async function ensureFeedingAnimalsLoaded() {
+            // O módulo de edição pode limpar allAnimals ao iniciar; nesse caso
+            // a pesquisa deve voltar a consultar o Firebase.
+            if (feedingAnimalsLoaded && allAnimals.length) return allAnimals;
+            if (feedingAnimalsLoadPromise) return feedingAnimalsLoadPromise;
+            feedingAnimalsLoadPromise = getDocs(collection(db, 'animais')).then(snapshot => {
+                const loaded = snapshot.docs.map(item => ({ id: item.id, ...item.data() }));
+                const byId = new Map(allAnimals.map(item => [item.id, item]));
+                loaded.forEach(item => byId.set(item.id, item));
+                allAnimals = [...byId.values()];
+                feedingAnimalsLoaded = true;
+                return allAnimals;
+            }).catch(error => {
+                console.warn('Não foi possível carregar os animais para a pesquisa da alimentação.', error);
+                return allAnimals;
+            }).finally(() => { feedingAnimalsLoadPromise = null; });
+            return feedingAnimalsLoadPromise;
         }
 
-        function renderFeedingAnimalOptions(query = '') {
-            const normalizedQuery = normalizeSearchText(query);
-            const filteredOptions = feedingAnimalOptions.filter(option => normalizeSearchText(option.label).includes(normalizedQuery));
-
-            if (!filteredOptions.length) {
-                feedingAnimalList.innerHTML = '<div class="feeding-animal-empty">Sem resultados</div>';
-                return;
+        async function loadFeedingFoodOptions() {
+            try {
+                const snapshot = await getDocs(collection(db, 'alimento'));
+                feedingFoodOptions = snapshot.docs.map(item => ({ id: item.id, ...item.data() }))
+                    .filter(item => String(item.nome || '').trim())
+                    .sort((a, b) => String(a.nome).localeCompare(String(b.nome), 'pt-PT', { sensitivity: 'base' }));
+            } catch (error) {
+                console.warn('Não foi possível carregar o catálogo de alimentos.', error);
             }
-
-            feedingAnimalList.innerHTML = filteredOptions.map(option => `
-                <button type="button" class="feeding-animal-option" role="option" data-label="${option.label}">
-                    <img class="feeding-animal-thumb" src="${option.src}" alt="${option.label}" loading="lazy">
-                    <span class="feeding-animal-option-copy">
-                        <strong>${option.label}</strong>
-                        <small>${option.feedingType}</small>
-                    </span>
-                </button>
-            `).join('');
         }
 
-        function getFeedingAnimalOption(label = '') {
-            return feedingAnimalOptions.find(option => option.label === label);
+        function relationKey(value, kind) {
+            if (kind === 'animals') return value?.id ? `id:${value.id}` : `scientific:${normalizeSearchText(value?.nomeCientifico || value?.nome || value)}`;
+            return value?.id ? `id:${value.id}` : `name:${normalizeSearchText(value?.nome || value)}`;
         }
 
-        function selectFeedingAnimal(label) {
-            const option = feedingAnimalOptions.find(item => item.label === label);
-            if (!option) return;
-
-            const emptyRow = [...feedingRowsContainer.querySelectorAll('.feeding-row')].find(row => !getFeedingRowData(row));
-
-            if (emptyRow) {
-                const modelSelect = emptyRow.querySelector('.feeding-model-kind');
-                modelSelect.value = 'Tipo de Alimentação';
-                renderFeedingDetailControls(emptyRow, 'Tipo de Alimentação', `${option.feedingType} | ${option.label}`);
-                updateFeedingPreview();
-            } else {
-                createFeedingRow('Tipo de Alimentação', `${option.feedingType} | ${option.label}`);
-            }
-
-            feedingAnimalSearch.value = '';
-            renderFeedingAnimalOptions();
-            closeFeedingAnimalDropdown();
+        function renderRelationTags(tags, hidden, kind, onChange) {
+            let values = [];
+            try { values = JSON.parse(hidden.value || '[]'); } catch (_) { values = []; }
+            tags.innerHTML = values.map(value => `<span class="feeding-relation-tag"><span>${value.nome || value.nomeCientifico || value}</span><button type="button" aria-label="Remover">&times;</button></span>`).join('');
+            tags.querySelectorAll('button').forEach((button, index) => button.addEventListener('click', () => {
+                values.splice(index, 1); hidden.value = JSON.stringify(values); renderRelationTags(tags, hidden, kind, onChange); onChange();
+            }));
         }
 
-        function initFeedingAnimalDropdown() {
-            renderFeedingAnimalOptions();
-
-            feedingAnimalTrigger.addEventListener('click', () => {
-                const isOpen = feedingAnimalDropdown.classList.toggle('open');
-                feedingAnimalTrigger.setAttribute('aria-expanded', String(isOpen));
-                if (isOpen) feedingAnimalSearch.focus();
+        function createFeedingRelationSelector(kind, initialValues = [], onChange = updateFeedingPreview) {
+            const wrapper = document.createElement('div'); wrapper.className = `feeding-relation feeding-relation-${kind}`;
+            const hidden = document.createElement('input'); hidden.type = 'hidden'; hidden.className = `feeding-selected-${kind}`; hidden.value = JSON.stringify(initialValues || []);
+            const input = document.createElement('input'); input.type = 'search'; input.placeholder = relationPlaceholder[kind]; input.autocomplete = 'off'; input.className = 'feeding-relation-search';
+            const results = document.createElement('div'); results.className = 'feeding-relation-results';
+            const tags = document.createElement('div'); tags.className = 'feeding-relation-tags';
+            const getValues = () => { try { return JSON.parse(hidden.value || '[]'); } catch (_) { return []; } };
+            const addValue = value => {
+                const values = getValues(); if (!value || values.some(item => relationKey(item, kind) === relationKey(value, kind))) return;
+                values.push(value); hidden.value = JSON.stringify(values); renderRelationTags(tags, hidden, kind, onChange); input.value = ''; results.classList.remove('open'); onChange();
+            };
+            const commitText = async raw => {
+                if (kind === 'animals') await ensureFeedingAnimalsLoaded();
+                String(raw || '').split(/[;,\n\t]+/).map(item => item.trim()).filter(Boolean).forEach(token => {
+                const query = normalizeSearchText(token);
+                if (kind === 'animals') {
+                    const animal = allAnimals.find(item => normalizeSearchText(item.nome || '') === query || normalizeSearchText(item.nomeCientifico || '') === query);
+                    addValue(animal ? { id: animal.id, nome: animal.nome || animal.id, nomeCientifico: animal.nomeCientifico || '' } : { nomeCientifico: token });
+                } else {
+                    const food = feedingFoodOptions.find(item => normalizeSearchText(item.nome) === query);
+                    addValue(food ? { id: food.id, nome: food.nome } : { nome: token });
+                }
+                });
+            };
+            const renderResults = () => {
+                const query = normalizeSearchText(input.value); if (!query) { results.innerHTML = ''; results.classList.remove('open'); return; }
+                const values = getValues(); const selected = new Set(values.map(item => relationKey(item, kind)));
+                const source = kind === 'animals'
+                    ? allAnimals.filter(item => normalizeSearchText(`${item.nome || ''} ${item.nomeCientifico || ''}`).includes(query)).slice(0, 8).map(item => ({ id: item.id, nome: item.nome || item.id, nomeCientifico: item.nomeCientifico || '' }))
+                    : feedingFoodOptions.filter(item => normalizeSearchText(item.nome).includes(query)).slice(0, 8).map(item => ({ id: item.id, nome: item.nome }));
+                results.innerHTML = source.filter(item => !selected.has(relationKey(item, kind))).map(item => `<button type="button" data-value="${encodeURIComponent(JSON.stringify(item))}"><strong>${item.nome || item.nomeCientifico}</strong><small>${item.nomeCientifico || ''}</small></button>`).join('');
+                results.innerHTML += `<button type="button" class="feeding-relation-manual" data-manual="${input.value.replace(/"/g, '&quot;')}"><strong>Adicionar</strong><small>${input.value}</small></button>`;
+                results.classList.add('open');
+            };
+            input.addEventListener('input', () => {
+                renderResults();
+                if (kind === 'animals') ensureFeedingAnimalsLoaded().then(renderResults);
             });
-
-            feedingAnimalSearch.addEventListener('input', event => renderFeedingAnimalOptions(event.target.value));
-            feedingAnimalList.addEventListener('click', event => {
-                const optionButton = event.target.closest('.feeding-animal-option');
-                if (optionButton) selectFeedingAnimal(optionButton.dataset.label);
-            });
-
-            document.addEventListener('click', event => {
-                if (!feedingAnimalDropdown.contains(event.target)) closeFeedingAnimalDropdown();
-            });
-
-            document.addEventListener('keydown', event => {
-                if (event.key === 'Escape') closeFeedingAnimalDropdown();
-            });
+            input.addEventListener('keydown', event => { if (event.key === 'Enter' || event.key === ',') { event.preventDefault(); commitText(input.value); } });
+            input.addEventListener('paste', () => setTimeout(() => { if (/[;,\n\t]/.test(input.value)) commitText(input.value); }, 0));
+            input.addEventListener('blur', () => setTimeout(() => { if (input.value.trim()) commitText(input.value); }, 150));
+            results.addEventListener('mousedown', event => { const button = event.target.closest('button'); if (!button) return; event.preventDefault(); if (button.dataset.value) addValue(JSON.parse(decodeURIComponent(button.dataset.value))); else addValue(kind === 'animals' ? { nomeCientifico: button.dataset.manual } : { nome: button.dataset.manual }); });
+            wrapper.append(hidden, input, results, tags); renderRelationTags(tags, hidden, kind, onChange); return wrapper;
         }
 
         const feedingModelOptions = [
@@ -173,20 +199,15 @@
                 controls.append(strategySelect);
             } else {
                 const parsed = parseFeedingTypeDetail(detail);
-
-                const typeSelect = document.createElement('select');
-                typeSelect.className = 'feeding-type-value';
-                fillFeedingTypeSelect(typeSelect, parsed.type);
-
-                const detailInput = document.createElement('input');
-                detailInput.className = 'feeding-detail-value';
-                detailInput.type = 'text';
-                detailInput.placeholder = 'Ex: folhas jovens';
-                detailInput.value = parsed.detail;
-
-                typeSelect.addEventListener('change', updateFeedingPreview);
-                detailInput.addEventListener('input', updateFeedingPreview);
-                controls.append(typeSelect, detailInput);
+                const legacyAnimal = parsed.detail ? allAnimals.find(animal => normalizeSearchText(`${animal.nome || ''} ${animal.nomeCientifico || ''}`).includes(normalizeSearchText(parsed.detail))) : null;
+                const animals = row._feedingInitialAnimals || (legacyAnimal ? [{ id: legacyAnimal.id, nome: legacyAnimal.nome || legacyAnimal.id, nomeCientifico: legacyAnimal.nomeCientifico || '' }] : []);
+                const foods = row._feedingInitialFoods || [];
+                controls.append(
+                    (() => { const select = document.createElement('select'); select.className = 'feeding-type-value'; fillFeedingTypeSelect(select, parsed.type); select.addEventListener('change', updateFeedingPreview); return select; })(),
+                    createFeedingRelationSelector('animals', animals),
+                    createFeedingRelationSelector('foods', foods)
+                );
+                row._feedingInitialAnimals = null; row._feedingInitialFoods = null;
             }
 
             const anchorBtn = row.querySelector('.feeding-gender-toggle') || row.querySelector('.remove-dimension-btn');
@@ -247,11 +268,16 @@
             }
 
             const feedingTypeVal = row.querySelector('.feeding-type-value')?.value || '';
-            const detailVal = row.querySelector('.feeding-detail-value')?.value.trim() || '';
-            if (!feedingTypeVal && !detailVal) return null;
+            const readRelation = kind => { try { return JSON.parse(row.querySelector(`.feeding-selected-${kind}`)?.value || '[]'); } catch (_) { return []; } };
+            const animais = readRelation('animals');
+            const alimentos = readRelation('foods');
+            if (!feedingTypeVal && !animais.length && !alimentos.length) return null;
             return {
                 tipo: 'Tipo de Alimentação',
-                detalhe: feedingTypeVal && detailVal ? `${feedingTypeVal} | ${detailVal}` : (feedingTypeVal || detailVal),
+                detalhe: feedingTypeVal,
+                animais,
+                animalIds: animais.map(item => item.id).filter(Boolean),
+                alimentos,
                 ...meta
             };
         }
@@ -269,12 +295,15 @@
                 updateFeedingPreview();
                 return;
             }
-            items.forEach(item => createFeedingRow(
-                item.tipo || 'Tipo de Alimentação',
-                item.detalhe || item.descricao || '',
-                item.genero || GENDER_BOTH,
-                item.fase || 'Adulto'
-            ));
+            items.forEach(item => {
+                const row = createFeedingRow(item.tipo || 'Tipo de Alimentação', item.detalhe || item.descricao || '', item.genero || GENDER_BOTH, item.fase || 'Adulto');
+                const created = feedingRowsContainer.lastElementChild;
+                if (created && (item.animais?.length || item.alimentos?.length)) {
+                    created._feedingInitialAnimals = item.animais || [];
+                    created._feedingInitialFoods = item.alimentos || [];
+                    renderFeedingDetailControls(created, created.querySelector('.feeding-model-kind').value, item.detalhe || item.descricao || '');
+                }
+            });
             if (feedingRowsContainer.children.length === 0) createFeedingRow();
             updateFeedingPreview();
         }
@@ -340,9 +369,42 @@
         }
 
         addFeedingBtn.addEventListener('click', () => createFeedingRow());
-        initFeedingAnimalDropdown();
-
+        loadFeedingFoodOptions().then(() => updateFeedingPreview());
         setFeedingData();
+
+        async function ensureFeedingFoodCatalogEntries() {
+            const rows = [...feedingRowsContainer.querySelectorAll('.feeding-row')];
+            const names = [...new Set(rows.flatMap(row => { try { return JSON.parse(row.querySelector('.feeding-selected-foods')?.value || '[]').map(food => String(food.nome || '').trim()); } catch (_) { return []; } }).filter(Boolean))];
+            for (const nome of names) {
+                let catalogItem = feedingFoodOptions.find(item => normalizeSearchText(item.nome) === normalizeSearchText(nome));
+                if (!catalogItem) {
+                    const created = await addDoc(collection(db, 'alimento'), { nome, criadoEm: Date.now() });
+                    catalogItem = { id: created.id, nome }; feedingFoodOptions.push(catalogItem);
+                }
+                rows.forEach(row => {
+                    const hidden = row.querySelector('.feeding-selected-foods'); if (!hidden) return;
+                    try { hidden.value = JSON.stringify(JSON.parse(hidden.value || '[]').map(food => normalizeSearchText(food.nome) === normalizeSearchText(nome) ? catalogItem : food)); } catch (_) { /* ignorar */ }
+                });
+            }
+        }
+
+        async function backfillFeedingManualRefsForAnimal(animalId, animalData) {
+            const scientific = normalizeSearchText(animalData?.nomeCientifico || '');
+            if (!animalId || !scientific) return;
+            await Promise.all(allAnimals.filter(item => item?.id && item.id !== animalId).map(async existing => {
+                const details = existing.informacao?.alimentacaoDetalhada;
+                if (!Array.isArray(details)) return;
+                let changed = false;
+                const next = details.map(item => {
+                    if (!Array.isArray(item?.animais)) return item;
+                    const animais = item.animais.map(ref => normalizeSearchText(ref?.nomeCientifico || '') === scientific ? { ...ref, id: animalId, nome: animalData.nome || animalId, nomeCientifico: animalData.nomeCientifico } : ref);
+                    const itemChanged = JSON.stringify(animais) !== JSON.stringify(item.animais);
+                    if (itemChanged) changed = true;
+                    return itemChanged ? { ...item, animais, animalIds: animais.map(ref => ref.id).filter(Boolean) } : item;
+                });
+                if (changed) await updateDoc(doc(db, 'animais', existing.id), { 'informacao.alimentacaoDetalhada': next });
+            }));
+        }
 
         const ecologyModelOptions = [
             'Ameaças naturais',

@@ -82,10 +82,6 @@
         const previewGeneralVisualModels = document.getElementById('previewGeneralVisualModels');
         const feedingRowsContainer = document.getElementById('feedingRows');
         const addFeedingBtn = document.getElementById('addFeedingBtn');
-        const feedingAnimalDropdown = document.getElementById('feedingAnimalDropdown');
-        const feedingAnimalTrigger = document.getElementById('feedingAnimalTrigger');
-        const feedingAnimalSearch = document.getElementById('feedingAnimalSearch');
-        const feedingAnimalList = document.getElementById('feedingAnimalList');
         const feedingHeroIcon = document.getElementById('feedingHeroIcon');
         const feedingHeroTitle = document.getElementById('feedingHeroTitle');
         const previewFeedingModels = document.getElementById('previewFeedingModels');
@@ -710,6 +706,7 @@
                     });
                 }
 
+                await ensureFeedingFoodCatalogEntries();
                 const curiosidadesDetalhadas = getCuriosidadesData();
                 const ecologiaDetalhada = getEcologyData();
                 const qualitySaveData = getQualityLevelSaveData();
@@ -768,6 +765,7 @@
                     imagemPerfilFase: profilePhotosSaveData.primary?.phase || '',
                     profileImages: profilePhotosSaveData.profileImages || [],
                     imagemRodape: document.getElementById('imagemRodape').value || '',
+                    rodapeComparacaoOn: document.getElementById('rodapeComparacaoOn').checked,
                     rodapeHasEsqueleto: document.getElementById('rodapeHasEsqueleto').checked,
                     rodapeHasAnatomia: document.getElementById('rodapeHasAnatomia').checked,
                     rodapeParamsOn: window.getSelectedRodapeParams ? window.getSelectedRodapeParams() : [],

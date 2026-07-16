@@ -105,6 +105,12 @@
     return hintVisible && groupHasHighlight && inputHasHighlight;
   }
 
+  function isEditButtonReady() {
+    const button = document.getElementById('openEditModalBtn');
+    if (!button || button.disabled) return false;
+    return button.textContent.toLowerCase().includes('procurar');
+  }
+
   function removeInactiveModalBlockers() {
     document.querySelectorAll('.modal-overlay').forEach((element) => {
       const isActive = element.classList.contains('active')
@@ -124,7 +130,7 @@
     document.body.classList.add(READY_CLASS);
 
     focusScientificName(true);
-    if (!isScientificFieldReadyForReveal()) {
+    if (!isScientificFieldReadyForReveal() || !isEditButtonReady()) {
       scheduleReadyCheck(`retry:${reason}`);
       return;
     }
@@ -179,6 +185,7 @@
   document.addEventListener('form:auth-ready', () => markReady('auth-ready'));
   document.addEventListener('form:modules-loaded', () => markReady('modules-loaded'));
   document.addEventListener('form:scientificGateReady', () => markReady('scientific-gate-ready'));
+  document.addEventListener('form:edit-button-ready', () => markReady('edit-button-ready'));
 
   setTimeout(() => markReady('failsafe-700ms'), 700);
   setTimeout(() => markReady('failsafe-2500ms'), 2500);

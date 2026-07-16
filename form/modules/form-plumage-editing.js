@@ -668,7 +668,12 @@
         }
 
         function refreshEditList() {
-            populateEditList(getEditFilteredAnimals());
+            const filteredAnimals = getEditFilteredAnimals();
+            const hasSearch = editSearchInput.value.trim().length > 0;
+            const initialAnimals = !hasSearch && !editModalFullSearchLoaded
+                ? filteredAnimals.slice(0, 5)
+                : filteredAnimals;
+            populateEditList(initialAnimals);
         }
 
         let editModalFullSearchLoaded = false;
@@ -702,7 +707,7 @@
 
             editModalFullSearchPromise = (async () => {
                 const startTime = performance.now();
-                logEditModal('Pesquisa global: a carregar todos os animais para procurar fora dos últimos 15...');
+                logEditModal('Pesquisa global: a carregar todos os animais para procurar fora dos últimos 5...');
                 const querySnapshot = await withEditModalTimeout(
                     getDocs(collection(db, "animais")),
                     12000,
@@ -730,14 +735,11 @@
 
             refreshEditList();
 
-            // O popup abre rápido com os últimos 15. Só quando o utilizador pesquisa é que
+            // O popup abre rápido apenas com os últimos 5. Ao pesquisar é que
             // carregamos o resto da coleção, para encontrar animais que não estão nessa lista.
             if (searchTerm.length < 2 || editModalFullSearchLoaded) return;
 
             const currentToken = normalizeString(searchTerm);
-            const currentResults = getEditFilteredAnimals();
-            if (currentResults.length) return;
-
             editListContainer.innerHTML = '<p style="padding: 15px; text-align: center; color: var(--text-secondary);">A procurar na base de dados...</p>';
 
             try {
@@ -794,6 +796,7 @@
             document.getElementById('imagemUrl').value = animal.imagemUrl || '';
             document.getElementById('imagemObjectPosition').value = animal.imagemObjectPosition || 'center center';
             document.getElementById('imagemRodape').value = animal.imagemRodape || '';
+            document.getElementById('rodapeComparacaoOn').checked = animal.rodapeComparacaoOn !== false;
             document.getElementById('rodapeHasEsqueleto').checked = !!animal.rodapeHasEsqueleto;
             document.getElementById('rodapeHasAnatomia').checked = !!animal.rodapeHasAnatomia;
             if (typeof window.setSelectedRodapeParams === 'function') {
@@ -1052,25 +1055,25 @@
                 return editModalLoadPromise;
             }
 
-            editListContainer.innerHTML = '<p style="padding: 15px; text-align: center; color: var(--text-secondary);">A carregar os últimos 15 animais...</p>';
+            editListContainer.innerHTML = '<p style="padding: 15px; text-align: center; color: var(--text-secondary);">A carregar os últimos 5 animais...</p>';
 
             editModalLoadPromise = (async () => {
                 try {
                     let querySnapshot = null;
 
                     try {
-                        logEditModal('Firestore: tentativa 1 — últimos 15 por timestamp...', { collection: 'animais', orderBy: 'timestamp desc', limit: 15 });
+                        logEditModal('Firestore: tentativa 1 — últimos 5 por timestamp...', { collection: 'animais', orderBy: 'timestamp desc', limit: 5 });
                         querySnapshot = await withEditModalTimeout(
-                            getDocs(firestoreQuery(collection(db, "animais"), orderBy("timestamp", "desc"), limit(15))),
+                            getDocs(firestoreQuery(collection(db, "animais"), orderBy("timestamp", "desc"), limit(5))),
                             5000,
-                            'getDocs últimos 15 por timestamp'
+                            'getDocs últimos 5 por timestamp'
                         );
                     } catch (primaryError) {
                         warnEditModal('Tentativa 1 falhou/demorou. Vou tentar fallback sem orderBy timestamp.', primaryError);
                         querySnapshot = await withEditModalTimeout(
-                            getDocs(firestoreQuery(collection(db, "animais"), limit(15))),
+                            getDocs(firestoreQuery(collection(db, "animais"), limit(5))),
                             5000,
-                            'getDocs fallback limit(15) sem orderBy'
+                            'getDocs fallback limit(5) sem orderBy'
                         );
                     }
 
@@ -1115,7 +1118,7 @@
                 refreshEditList();
                 logEditModal('Lista renderizada.', { rendered: getEditFilteredAnimals().length });
             } catch (error) {
-                errorEditModal('Erro ao carregar os últimos 15 animais para edição. Vou usar allAnimals como fallback.', error);
+                errorEditModal('Erro ao carregar os últimos 5 animais para edição. Vou usar allAnimals como fallback.', error);
                 if (Array.isArray(allAnimals) && allAnimals.length) {
                     populateEditList(allAnimals);
                     warnEditModal('Fallback allAnimals usado.', { total: allAnimals.length });

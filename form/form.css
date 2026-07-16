@@ -1733,6 +1733,74 @@ body.edit-theme #tabpanel-ecologia {
     grid-template-columns: minmax(62px, 0.65fr) minmax(62px, 0.65fr) minmax(92px, 0.85fr) !important;
 }
 
+/* Alimentação: modelo, tipo, animal da dieta e alimento ficam separados. */
+#subtabpanel-alimentacao-modelo-visual .feeding-detail-controls {
+    grid-template-columns: minmax(115px, 0.7fr) minmax(170px, 1fr) minmax(150px, 0.9fr) !important;
+    align-items: start !important;
+}
+
+#subtabpanel-alimentacao-modelo-visual .feeding-row-header,
+#subtabpanel-alimentacao-modelo-visual .feeding-row {
+    grid-template-columns: minmax(128px, .9fr) minmax(258px, 1.7fr) 46px 46px 42px !important;
+}
+#subtabpanel-alimentacao-modelo-visual .feeding-detail-controls:not(.measure-controls) {
+    display: grid !important;
+    grid-template-columns: minmax(118px, .9fr) minmax(132px, 1fr) !important;
+    gap: 8px !important;
+}
+#subtabpanel-alimentacao-modelo-visual .feeding-relation-foods { grid-column: 1; }
+
+#subtabpanel-alimentacao-modelo-visual .feeding-relation {
+    position: relative;
+    min-width: 0;
+}
+
+#subtabpanel-alimentacao-modelo-visual .feeding-relation-search {
+    padding: 0 12px !important;
+}
+
+#subtabpanel-alimentacao-modelo-visual .feeding-relation-results {
+    display: none;
+    position: absolute;
+    z-index: 20;
+    top: 52px;
+    left: 0;
+    right: 0;
+    max-height: 220px;
+    overflow-y: auto;
+    padding: 5px;
+    border: 1px solid rgba(255,255,255,.14);
+    border-radius: 10px;
+    background: #1b2028;
+    box-shadow: 0 12px 28px rgba(0,0,0,.35);
+}
+
+#subtabpanel-alimentacao-modelo-visual .feeding-relation-results.open { display: grid; gap: 3px; }
+#subtabpanel-alimentacao-modelo-visual .feeding-relation-results button {
+    display: grid;
+    height: auto !important;
+    min-height: 42px;
+    padding: 7px 9px;
+    border: 0;
+    border-radius: 7px;
+    text-align: left;
+    background: transparent;
+    color: inherit;
+}
+#subtabpanel-alimentacao-modelo-visual .feeding-relation-results button:hover { background: rgba(255,255,255,.08); }
+#subtabpanel-alimentacao-modelo-visual .feeding-relation-results small { opacity: .7; }
+#subtabpanel-alimentacao-modelo-visual .feeding-relation-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 5px; }
+#subtabpanel-alimentacao-modelo-visual .feeding-relation-tag { display: inline-flex; align-items: center; gap: 4px; max-width: 100%; padding: 3px 7px; border-radius: 999px; background: rgba(93,160,255,.16); font-size: .75rem; }
+#subtabpanel-alimentacao-modelo-visual .feeding-relation-tag span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#subtabpanel-alimentacao-modelo-visual .feeding-relation-tag button { width: auto !important; min-height: 0 !important; height: auto !important; padding: 0 2px; border: 0; background: transparent; color: inherit; }
+
+@media (max-width: 720px) {
+    #subtabpanel-alimentacao-modelo-visual .feeding-detail-controls,
+    #subtabpanel-alimentacao-modelo-visual .feeding-detail-controls:not(.measure-controls) { grid-template-columns: 1fr !important; }
+    #subtabpanel-alimentacao-modelo-visual .feeding-row-header,
+    #subtabpanel-alimentacao-modelo-visual .feeding-row { grid-template-columns: 1fr 46px !important; }
+}
+
 #subtabpanel-alimentacao-modelo-visual .feeding-detail-controls select,
 #subtabpanel-alimentacao-modelo-visual .feeding-detail-controls input {
     width: 100% !important;
@@ -3438,6 +3506,83 @@ body.form-ui-ready > :not(#loading-overlay) {
     font-weight: 700;
 }
 
+.rodape-comparison-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    width: fit-content;
+    margin-bottom: 14px;
+    color: var(--text-secondary);
+    font-size: 0.92rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.rodape-comparison-toggle input {
+    width: 18px !important;
+    height: 18px !important;
+    min-height: 18px !important;
+    margin: 0;
+    accent-color: var(--primary-color);
+    cursor: pointer;
+}
+
+.form-mobile-home-link {
+    display: none;
+}
+
+@media (max-width: 900px) {
+    .form-mobile-home-link {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 38px;
+        height: 38px;
+        flex: 0 0 38px;
+        border: 1px solid var(--border-color);
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.04);
+        color: var(--primary-color);
+        font-size: 1rem;
+        text-decoration: none;
+    }
+
+    .form-mobile-home-link:active,
+    .form-mobile-home-link:focus-visible {
+        background: rgba(255, 255, 255, 0.1);
+        outline: 2px solid var(--primary-color);
+        outline-offset: 2px;
+    }
+}
+
+.xeno-audio-label-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.xeno-audio-search-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    color: #a7f3d0;
+    font-size: 0.78rem;
+    text-decoration: none;
+    border-radius: 6px;
+    transition: color 0.2s ease, background 0.2s ease, transform 0.2s ease;
+}
+
+.xeno-audio-search-link:hover,
+.xeno-audio-search-link:focus-visible {
+    color: #ffffff;
+    background: rgba(167, 243, 208, 0.12);
+    transform: translateY(-1px);
+    outline: none;
+}
+
 .xeno-audio-form-group .form-hint {
     display: block;
     margin-top: 7px;
@@ -4468,4 +4613,22 @@ body.form-text-import-open { overflow: hidden; }
     .taxonomy-import-actions {
         justify-content: stretch;
     }
+}
+
+/* Ajuste final do editor de alimentação: mantém o bloco semelhante ao modelo visual. */
+#subtabpanel-alimentacao-modelo-visual .feeding-row-header,
+#subtabpanel-alimentacao-modelo-visual .feeding-row {
+    grid-template-columns: minmax(128px, .9fr) minmax(258px, 1.7fr) 46px 46px 42px !important;
+}
+#subtabpanel-alimentacao-modelo-visual .feeding-detail-controls:not(.measure-controls) {
+    display: grid !important;
+    grid-template-columns: minmax(118px, .9fr) minmax(132px, 1fr) !important;
+    gap: 8px !important;
+}
+#subtabpanel-alimentacao-modelo-visual .feeding-relation-foods { grid-column: 1; }
+
+@media (max-width: 720px) {
+    #subtabpanel-alimentacao-modelo-visual .feeding-row-header,
+    #subtabpanel-alimentacao-modelo-visual .feeding-row { grid-template-columns: 1fr 46px !important; }
+    #subtabpanel-alimentacao-modelo-visual .feeding-detail-controls:not(.measure-controls) { grid-template-columns: 1fr !important; }
 }

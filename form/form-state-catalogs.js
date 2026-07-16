@@ -82,10 +82,6 @@
         const previewGeneralVisualModels = document.getElementById('previewGeneralVisualModels');
         const feedingRowsContainer = document.getElementById('feedingRows');
         const addFeedingBtn = document.getElementById('addFeedingBtn');
-        const feedingAnimalDropdown = document.getElementById('feedingAnimalDropdown');
-        const feedingAnimalTrigger = document.getElementById('feedingAnimalTrigger');
-        const feedingAnimalSearch = document.getElementById('feedingAnimalSearch');
-        const feedingAnimalList = document.getElementById('feedingAnimalList');
         const feedingHeroIcon = document.getElementById('feedingHeroIcon');
         const feedingHeroTitle = document.getElementById('feedingHeroTitle');
         const previewFeedingModels = document.getElementById('previewFeedingModels');
@@ -790,6 +786,7 @@
 
                 await setDoc(doc(db, "animais", docId), animalData);
                 await backfillEcologyManualRefsForAnimal(docId, animalData);
+                await backfillFeedingManualRefsForAnimal(docId, animalData);
 
                 const savedAnimalForCache = { id: docId, ...animalData };
 

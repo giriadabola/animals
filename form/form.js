@@ -1,7 +1,6 @@
 import { db, auth } from "../js/firebase-config.js?v=5";
-        import { doc, setDoc, collection, getDocs, getDoc, updateDoc, arrayUnion, writeBatch, query as firestoreQuery, where, orderBy, limit } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
+        import { doc, setDoc, collection, getDocs, getDoc, addDoc, updateDoc, arrayUnion, writeBatch, query as firestoreQuery, where, orderBy, limit } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
         import { feedingTypes, feedingTypeDescriptions, getFeedingVisualMeta, getFeedingModelSvg } from "../js/feeding-visuals.js";
-        import { feedingAnimalOptions } from "../js/feeding-animal-options.js?v=2";
         import { getFeedingStrategyMeta, getFeedingStrategySvg } from "../js/feeding-strategies.js";
         import { matingSystems, getMatingMeta, getMatingSystemSvg } from "../js/mating-systems.js?v=3";
         import { generalVisualOptions as generalVisualCatalogOptions, generalVisualUnits as generalVisualCatalogUnits, getGeneralVisualMeta as getGeneralVisualCatalogMeta, getGeneralVisualOption as getGeneralVisualCatalogOption, getGeneralVisualSelectConfig, getGeneralVisualSelectOptions, getGeneralModelSvg as getGeneralCatalogModelSvg, getActivityMeta, getActivitySvg, getSocialMeta, getSocialSvg, getEcologicalFunctionMeta, getEcologicalFunctionSvg, getLocomotionMeta, getLocomotionSvg, isDropdownOnlyGeneralModel as isGeneralVisualCatalogDropdownOnly } from "../js/general-visual-catalog.js";
