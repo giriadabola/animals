@@ -13,7 +13,7 @@ import { db } from "../js/firebase-config.js?v=5";
         import { initAnimalProfileActions } from "../js/profile-favorites.js?v=4";
 import { POPULATION_RANKING_KEY } from "../js/ranking-metrics.js?v=1";
 import { getConservationStatusMeta, initConservationStatusPopup } from "../js/conservation-status-popup.js?v=1";
-import { initFeedingTypePopup } from "../js/feeding-type-popup.js?v=2";
+import { initFeedingTypePopup } from "../js/feeding-type-popup.js?v=20260716_relations_table";
 import { initPerceptionTypePopup } from "../js/perception-type-popup.js?v=1";
 import { initSocialTypePopup } from "../js/social-type-popup.js?v=1";
 import { initSkeletonTypePopup } from "../js/skeleton-type-popup.js?v=1";
@@ -1451,10 +1451,30 @@ import { initAnimalComparison } from "../js/animal-comparison.js?v=2";
                 const animalOption = getFeedingAnimalOption(detail);
 
                 if (!groups.has(type)) {
-                    groups.set(type, { type, details: [], animals: [] });
+                    groups.set(type, { type, details: [], animals: [], foods: [], relationGroups: [] });
                 }
 
                 const group = groups.get(type);
+                const relationAnimals = Array.isArray(item.animais) ? item.animais : [];
+                const relationFoods = Array.isArray(item.alimentos) ? item.alimentos : [];
+                if (relationAnimals.length || relationFoods.length) {
+                    const relationTitle = String((item.detalhe || '').split(' | ')[0] || type).trim();
+                    let relationGroup = group.relationGroups.find(entry => normalizeFeedingAnimalLabel(entry.title) === normalizeFeedingAnimalLabel(relationTitle));
+                    if (!relationGroup) {
+                        relationGroup = { title: relationTitle, animals: [], foods: [] };
+                        group.relationGroups.push(relationGroup);
+                    }
+                    relationGroup.animals.push(...relationAnimals);
+                    relationGroup.foods.push(...relationFoods);
+                }
+                (Array.isArray(item.animais) ? item.animais : []).forEach(animal => {
+                    const key = animal.id || normalizeFeedingAnimalLabel(animal.nomeCientifico || animal.nome || '');
+                    if (key && !group.animals.some(existing => (existing.id || normalizeFeedingAnimalLabel(existing.nomeCientifico || existing.nome || '')) === key)) group.animals.push(animal);
+                });
+                (Array.isArray(item.alimentos) ? item.alimentos : []).forEach(food => {
+                    const key = food.id || normalizeFeedingAnimalLabel(food.nome || food);
+                    if (key && !group.foods.some(existing => (existing.id || normalizeFeedingAnimalLabel(existing.nome || existing)) === key)) group.foods.push(food);
+                });
                 if (animalOption) {
                     if (!group.animals.some(existing => existing.label === animalOption.label)) {
                         group.animals.push(animalOption);
@@ -1575,11 +1595,6 @@ import { initAnimalComparison } from "../js/animal-comparison.js?v=2";
             return `
                 <div class="feeding-type-group">
                     ${renderFeedingTypeCardImproved(group)}
-                    ${group.animals.length ? `
-                        <div class="feeding-prey-grid">
-                            ${group.animals.map(renderFeedingAnimalCard).join('')}
-                        </div>
-                    ` : ''}
                 </div>`;
         }
 
@@ -1608,8 +1623,10 @@ import { initAnimalComparison } from "../js/animal-comparison.js?v=2";
                     .map(value => String(value || '').trim())
                     .filter(Boolean))];
                 const selectedFeedingTypesData = JSON.stringify(selectedFeedingTypes);
+                const feedingRelationsData = JSON.stringify({ animals: group.animals || [], foods: group.foods || [], groups: group.relationGroups || [] });
                 const firstEntry = entries[0] || { primary: '', secondary: '', display: '' };
-                const heroIcon = getFeedingNutritionModelSvg(nutritionMeta);
+                const firstTypeMeta = getFeedingVisualMeta(firstEntry.primary || '');
+                const heroIcon = firstEntry.primary ? getFeedingModelSvg(firstTypeMeta.key) : getFeedingNutritionModelSvg(nutritionMeta);
                 const listHtml = entries.length > 1
                     ? `
                         <div class="feeding-multi-value-list feeding-multi-value-list-visual">
@@ -1628,7 +1645,7 @@ import { initAnimalComparison } from "../js/animal-comparison.js?v=2";
                     : '';
 
                 return `
-                    <button type="button" class="dimension-model-card feeding-model-card feeding-type-highlight-card feeding-type-popup-trigger ${nutritionMeta.accent}" data-feeding-type-popup data-feeding-types="${escapeHtml(selectedFeedingTypesData)}" aria-haspopup="dialog" aria-label="Ver os tipos de alimentação e respetivas explicações" style="width: 100%; box-sizing: border-box; display: flex; align-items: center;">
+                    <button type="button" class="dimension-model-card feeding-model-card feeding-type-highlight-card feeding-type-popup-trigger ${nutritionMeta.accent}" data-feeding-type-popup data-feeding-types="${escapeHtml(selectedFeedingTypesData)}" data-feeding-relations="${escapeHtml(feedingRelationsData)}" aria-haspopup="dialog" aria-label="Ver o tipo de alimentação e os animais e alimentos associados" style="width: 100%; box-sizing: border-box; display: flex; align-items: center;">
                         <div class="dimension-model-icon">${heroIcon}</div>
                         <div class="dimension-model-copy">
                             ${listHtml}

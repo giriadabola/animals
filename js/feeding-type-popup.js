@@ -32,6 +32,53 @@ function readSelectedTypes(trigger) {
     }
 }
 
+function readFeedingRelations(trigger) {
+    try {
+        const data = JSON.parse(trigger.dataset.feedingRelations || '{}');
+        return {
+            animals: Array.isArray(data.animals) ? data.animals : [],
+            foods: Array.isArray(data.foods) ? data.foods : [],
+            groups: Array.isArray(data.groups) ? data.groups : []
+        };
+    } catch {
+        return { animals: [], foods: [] };
+    }
+}
+
+function renderFeedingRelations(relations, selectedTypes = []) {
+    const renderItemRows = (animals = [], foods = []) => [
+        ...animals.map(animal => ({
+            category: 'Animal',
+            name: animal.nome || animal.label || animal.nomeCientifico || 'Animal',
+            scientific: animal.nomeCientifico || ''
+        })),
+        ...foods.map(food => ({
+            category: 'Alimento',
+            name: food.nome || food.label || food,
+            scientific: ''
+        }))
+    ];
+    const rows = relations.groups.length
+        ? relations.groups.flatMap(group => [
+            { groupTitle: group.title },
+            ...renderItemRows(group.animals, group.foods)
+        ])
+        : renderItemRows(relations.animals, relations.foods);
+    if (!rows.some(row => !row.groupTitle)) return '';
+    return `
+        <section class="feeding-relations-panel" aria-labelledby="feeding-relations-title">
+            <h3 id="feeding-relations-title">Animais e alimentos associados</h3>
+            <div class="feeding-relations-table-wrap">
+                <table class="feeding-relations-table">
+                    <thead><tr><th>Tipo</th><th>Nome</th><th>Nome científico</th></tr></thead>
+                    <tbody>${rows.map(row => row.groupTitle
+                        ? `<tr class="feeding-relations-group-row"><th colspan="3">${escapeHtml(row.groupTitle)}</th></tr>`
+                        : `<tr><td>${escapeHtml(row.category)}</td><td>${escapeHtml(row.name)}</td><td>${escapeHtml(row.scientific || '—')}</td></tr>`).join('')}</tbody>
+                </table>
+            </div>
+        </section>`;
+}
+
 function renderSelectedType(type) {
     return `
         <article class="feeding-type-selected-item">
@@ -68,6 +115,7 @@ function openFeedingTypePopup(trigger) {
     closeFeedingTypePopup();
 
     const selectedTypes = readSelectedTypes(trigger).map(resolveFeedingType);
+    const relations = readFeedingRelations(trigger);
     const selectedKeys = new Set(selectedTypes.map(type => normalizeFeedingType(type.label)));
     const inactiveTypes = feedingCatalog
         .filter(type => !selectedKeys.has(normalizeFeedingType(type)))
@@ -92,6 +140,7 @@ function openFeedingTypePopup(trigger) {
                     ${selectedTypes.length ? selectedTypes.map(renderSelectedType).join('') : '<p class="feeding-type-empty">Não foi indicado um tipo de alimentação específico.</p>'}
                 </div>
             </section>
+            ${renderFeedingRelations(relations, selectedTypes)}
             <section class="feeding-type-catalog-panel" aria-labelledby="feeding-type-catalog-title">
                 <h3 id="feeding-type-catalog-title">Outros tipos de alimentação</h3>
                 <div class="feeding-type-catalog-grid">
