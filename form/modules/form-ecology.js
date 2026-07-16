@@ -391,9 +391,10 @@
             return items.length ? items : getDefaultEcologyRows();
         }
 
-        function setEcologyData(items = []) {
+        function setEcologyData(items = [], options = {}) {
+            const useDefaults = options.useDefaults !== false;
             ecologyRowsContainer.innerHTML = '';
-            const normalizedItems = Array.isArray(items) && items.length ? items : getDefaultEcologyRows();
+            const normalizedItems = Array.isArray(items) && items.length ? items : (useDefaults ? getDefaultEcologyRows() : []);
             normalizedItems.forEach(item => createEcologyRow(item.tipo || '', item));
             updateEcologyPreview();
         }

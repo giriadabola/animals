@@ -23,6 +23,8 @@ import { initEcologicalStratumPopup } from "../js/ecological-stratum-popup.js?v=
 import { initGroupCompositionPopup } from "../js/group-composition-popup.js?v=1";
 import { initLocomotionPopup } from "../js/locomotion-popup.js?v=1";
 import { initKinshipLineagePopup } from "../js/kinship-lineage-popup.js?v=1";
+import { initLeadershipHierarchyPopup } from "../js/leadership-hierarchy-popup.js?v=1";
+import { initDigestiveSystemPopup } from "../js/digestive-system-popup.js?v=1";
 import { initActivityPopup } from "../js/activity-popup.js?v=1";
 import { initTerritorySizePopup } from "../js/territory-size-popup.js?v=1";
 import { initFeedingStrategyPopup } from "../js/feeding-strategy-popup.js?v=20260714_strategy_popup_layout";
@@ -89,7 +91,8 @@ import { initAnimalComparison } from "../js/animal-comparison.js?v=2";
         function getInfoSectionIconSvg(type = 'geral') {
             const icons = {
                 geral: `<svg class="section-title-icon" viewBox="0 0 64 64" fill="none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><circle cx="32" cy="32" r="24"/><circle cx="23" cy="21" r="4.2"/><circle cx="32" cy="16.5" r="4.2"/><circle cx="41" cy="21" r="4.2"/><circle cx="47" cy="29" r="4"/><path d="M21 41c0-6 5-11 11-11c4 0 6 2 8 4c2-2 4-4 8-4c5 0 9 4 9 9c0 7-6 12-14 12H31c-6 0-10-4-10-10Z"/></svg>`,
-                dimensoes: `<svg class="section-title-icon" viewBox="0 0 64 64" fill="none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><path d="M12 48L48 12l8 8l-36 36H12v-8Z"/><path d="M41 19l4 4"/><path d="M35 25l4 4"/><path d="M29 31l4 4"/><path d="M23 37l4 4"/><path d="M17 43l4 4"/></svg>`,
+                medidas: `<svg class="section-title-icon" viewBox="0 0 64 64" fill="none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><path d="M13 46L46 13l8 8L21 54H13V46Z"/><path d="M28 31l5 5M34 25l5 5M40 19l5 5M22 37l5 5"/></svg>`,
+                dimensoes: `<svg class="section-title-icon" viewBox="0 0 64 64" fill="none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><rect x="19" y="19" width="26" height="26" rx="2"/><path d="M12 19v26M8 23l4-4l4 4M8 41l4 4l4-4M19 12h26M23 8l-4 4l4 4M41 8l4 4l-4 4"/></svg>`,
                 alimentacao: `<svg class="section-title-icon" viewBox="0 0 64 64" fill="none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><path d="M21 8v20"/><path d="M13 8v17c0 6 4 10 8 10s8-4 8-10V8"/><path d="M21 35v21"/><path d="M44 8c6 7 8 15 8 24c0 8-3 14-8 17v7"/><path d="M44 8v48"/></svg>`,
                 reproducao: `<svg class="section-title-icon" viewBox="0 0 64 64" fill="none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><path d="M32 8c12 10 19 20 19 32c0 10-8 17-19 17s-19-7-19-17C13 28 20 18 32 8Z"/><circle cx="32" cy="39" r="9"/><path d="M32 30v-8"/></svg>`,
                 plumagem: `<svg class="section-title-icon" viewBox="0 0 64 64" fill="none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><path d="M42 6L14 34c-4 4-4 10 0 14s10 4 14 0l28-28c4-4 4-10 0-14s-10-4-14 0Z"/><path d="M28 20l12 12"/><path d="M18 30l10 10"/><path d="M38 10l12 12"/><path d="M14 50l-8 8"/></svg>`,
@@ -419,7 +422,24 @@ import { initAnimalComparison } from "../js/animal-comparison.js?v=2";
             if (desenvolvimentoModels.has(normalized)) return 'desenvolvimento';
             if (estruturasAnatomicasModels.has(normalized)) return 'estruturas-anatomicas';
             
-            return 'medidas';
+            return 'estilo-vida';
+        }
+
+        const GENERAL_FORM_MEASURE_TYPES = new Set([
+            'Expetativa média de vida', 'Expetativa média de vida (cativeiro)',
+            'Profundidade máxima', 'Profundidade média', 'Tamanho da População',
+            'Taxa Metabólica Basal média', 'Velocidade máxima', 'Velocidade média',
+            'Vida útil', 'Vida útil (cativeiro)', 'Tamanho do grupo social',
+            'Tamanho do território', 'Taxa de sucesso da caça', 'Taxa de mortalidade',
+            'Taxa de mortalidade (cativeiro)', 'Altitude mínima', 'Altitude máxima',
+            'Duração do mergulho', 'Percentagem de gordura corporal',
+            'Espessura da camada de gordura', 'Número de fases do ciclo de vida',
+            'Tempo à superfície', 'Tempo de recuperação entre mergulhos',
+            'Frequência de mergulho', 'Alcance de deteção', 'Taxa de emissão de sinais'
+        ].map(value => normalizeDimensionKey(value)));
+
+        function getGeneralFormTabForType(type = '') {
+            return GENERAL_FORM_MEASURE_TYPES.has(normalizeDimensionKey(type)) ? 'medidas' : 'geral';
         }
 
         function getInfoGroupFilterIconSvg(group = 'estilo-vida') {
@@ -846,6 +866,14 @@ import { initAnimalComparison } from "../js/animal-comparison.js?v=2";
             return normalizeDimensionKey(type).includes('parentesco e linhagem social');
         }
 
+        function isLeadershipHierarchyModel(type = '') {
+            return normalizeDimensionKey(type).includes('lideranca e hierarquia');
+        }
+
+        function isDigestiveSystemModel(type = '') {
+            return normalizeDimensionKey(type).replace(/[()/]/g, ' ').replace(/\s+/g, ' ').trim().includes('presenca ausencia de sistema digestivo');
+        }
+
         function isActivityModel(type = '') {
             return normalizeDimensionKey(type) === 'atividade';
         }
@@ -1002,6 +1030,38 @@ import { initAnimalComparison } from "../js/animal-comparison.js?v=2";
             </button>`;
         }
 
+        function renderLeadershipHierarchyCard(items, filterContext = {}) {
+            const firstItem = items[0];
+            const meta = getGeneralVisualMeta(firstItem.tipo);
+            const infoGroup = getInfoGroupForGeneralType(firstItem.tipo);
+            const visible = items.some(item => getInitialVisualItemVisibility(item, filterContext));
+            const selectedTypes = [...new Set(items.map(item => item.valorMin || item.valor || item.opcao || '').map(value => String(value).trim()).filter(Boolean))];
+            const rows = items.map(item => {
+                const value = item.valorMin || item.valor || item.opcao || '—';
+                const isVisible = getInitialVisualItemVisibility(item, filterContext);
+                return `<div class="general-model-value-row" data-gender="${escapeHtml(item.genero || '')}" data-phase="${escapeHtml(item.fase || 'Adulto')}" data-info-group="${infoGroup}"${isVisible ? '' : ' style="display: none;"'}>${renderInlineGenderSymbol(item)}${escapeHtml(value)}</div>`;
+            }).join('');
+            return `<button type="button" class="dimension-model-card general-model-card visual-model-group-card perception-type-popup-trigger ${meta.accent}" data-info-group="${infoGroup}" data-leadership-hierarchy-popup data-leadership-hierarchy-types="${escapeHtml(JSON.stringify(selectedTypes))}" aria-haspopup="dialog" aria-label="Ver os tipos de liderança e hierarquia e respetivas explicações"${visible ? '' : ' style="display: none;"'}>
+                <div class="dimension-model-icon">${getGeneralModelSvg(meta.key)}</div><div class="dimension-model-copy perception-model-copy"><div class="dimension-model-label">${escapeHtml(meta.title)}</div><div class="general-model-values">${rows}</div></div>
+            </button>`;
+        }
+
+        function renderDigestiveSystemCard(items, filterContext = {}) {
+            const firstItem = items[0];
+            const meta = getGeneralVisualMeta(firstItem.tipo);
+            const infoGroup = getInfoGroupForGeneralType(firstItem.tipo);
+            const visible = items.some(item => getInitialVisualItemVisibility(item, filterContext));
+            const selectedTypes = [...new Set(items.map(item => item.valorMin || item.valor || item.opcao || '').map(value => String(value).trim()).filter(Boolean))];
+            const rows = items.map(item => {
+                const value = item.valorMin || item.valor || item.opcao || '—';
+                const isVisible = getInitialVisualItemVisibility(item, filterContext);
+                return `<div class="general-model-value-row" data-gender="${escapeHtml(item.genero || '')}" data-phase="${escapeHtml(item.fase || 'Adulto')}" data-info-group="${infoGroup}"${isVisible ? '' : ' style="display: none;"'}>${renderInlineGenderSymbol(item)}${escapeHtml(value)}</div>`;
+            }).join('');
+            return `<button type="button" class="dimension-model-card general-model-card visual-model-group-card perception-type-popup-trigger ${meta.accent}" data-info-group="${infoGroup}" data-digestive-system-popup data-digestive-system-types="${escapeHtml(JSON.stringify(selectedTypes))}" aria-haspopup="dialog" aria-label="Ver os estados do sistema digestivo e respetivas explicações"${visible ? '' : ' style="display: none;"'}>
+                <div class="dimension-model-icon">${getGeneralModelSvg(meta.key)}</div><div class="dimension-model-copy perception-model-copy"><div class="dimension-model-label">${escapeHtml(meta.title)}</div><div class="general-model-values">${rows}</div></div>
+            </button>`;
+        }
+
         function renderActivityCard(items, filterContext = {}) {
             const firstItem = items[0];
             const meta = getGeneralVisualMeta(firstItem.tipo);
@@ -1084,6 +1144,8 @@ import { initAnimalComparison } from "../js/animal-comparison.js?v=2";
             if (isGroupCompositionModel(item.tipo)) return renderGroupCompositionCard([item]);
             if (isLocomotionModel(item.tipo)) return renderLocomotionCard([item]);
             if (isKinshipLineageModel(item.tipo)) return renderKinshipLineageCard([item]);
+            if (isLeadershipHierarchyModel(item.tipo)) return renderLeadershipHierarchyCard([item]);
+            if (isDigestiveSystemModel(item.tipo)) return renderDigestiveSystemCard([item]);
             if (isActivityModel(item.tipo)) return renderActivityCard([item]);
             if (isTerritorySizeModel(item.tipo)) return renderTerritorySizeCard([item]);
             if (isCommunicationTypeModel(item.tipo)) return renderCommunicationTypeCard([item]);
@@ -1148,6 +1210,8 @@ import { initAnimalComparison } from "../js/animal-comparison.js?v=2";
             if (isGroupCompositionModel(firstItem.tipo)) return renderGroupCompositionCard(items, filterContext);
             if (isLocomotionModel(firstItem.tipo)) return renderLocomotionCard(items, filterContext);
             if (isKinshipLineageModel(firstItem.tipo)) return renderKinshipLineageCard(items, filterContext);
+            if (isLeadershipHierarchyModel(firstItem.tipo)) return renderLeadershipHierarchyCard(items, filterContext);
+            if (isDigestiveSystemModel(firstItem.tipo)) return renderDigestiveSystemCard(items, filterContext);
             if (isActivityModel(firstItem.tipo)) return renderActivityCard(items, filterContext);
             if (isTerritorySizeModel(firstItem.tipo)) return renderTerritorySizeCard(items, filterContext);
             if (isCommunicationTypeModel(firstItem.tipo)) return renderCommunicationTypeCard(items, filterContext);
@@ -1226,35 +1290,49 @@ import { initAnimalComparison } from "../js/animal-comparison.js?v=2";
                 </div>`;
         }
 
-        function renderTabbedModelSection({ id, infoItems = [], dimensionItems = [], infoFilterContext = {}, dimensionFilterContext = {}, mobile = false }) {
-            if (!infoItems.length && !dimensionItems.length) return '';
+        function renderTabbedModelSection({ id, generalText = '', dimensionText = '', generalItems = [], measureItems = [], dimensionItems = [], generalFilterContext = {}, measureFilterContext = {}, dimensionFilterContext = {}, mobile = false }) {
+            if (!String(generalText || '').trim() && !String(dimensionText || '').trim() && !generalItems.length && !measureItems.length && !dimensionItems.length) return '';
 
             const sectionClass = mobile ? 'info-section mobile-only visual-models-info-section' : 'info-section-card visual-models-info-section';
             const style = mobile ? 'margin-bottom: 20px;' : '';
-            const infoSortedItems = [...infoItems].sort((a, b) => String(a.tipo || '').localeCompare(String(b.tipo || ''), 'pt-PT'));
+            const generalSortedItems = [...generalItems].sort((a, b) => String(a.tipo || '').localeCompare(String(b.tipo || ''), 'pt-PT'));
+            const measureSortedItems = [...measureItems].sort((a, b) => String(a.tipo || '').localeCompare(String(b.tipo || ''), 'pt-PT'));
             const dimensionSortedItems = [...dimensionItems].sort((a, b) => String(a.tipo || '').localeCompare(String(b.tipo || ''), 'pt-PT'));
-            const infoControls = `${getInfoGroupFiltersHTML(infoItems)}${getGenderTabsHTML(infoItems)}`;
+            const generalControls = `${getInfoGroupFiltersHTML(generalItems)}${getGenderTabsHTML(generalItems)}`;
+            const measureControls = getGenderTabsHTML(measureItems);
             const dimensionControls = getGenderTabsHTML(dimensionItems);
+            const hasGeneralPane = Boolean(String(generalText || '').trim());
 
             return `
                 <div class="${sectionClass} visual-model-tabs" id="${id}" data-visual-model-tabs${style ? ` style="${style}"` : ''}>
                     <h3 class="visual-models-section-heading" style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
                         <span class="visual-model-section-tablist" role="tablist" aria-label="Separadores de informação">
-                            <button type="button" class="visual-model-section-tab is-active" data-visual-model-tab="info" role="tab" aria-selected="true">
-                                <span class="icon svg-icon">${getInfoSectionIconSvg('geral')}</span>Informações
+                            <button type="button" class="visual-model-section-tab is-active" data-visual-model-tab="general" role="tab" aria-selected="true">
+                                <span class="icon svg-icon">${getInfoSectionIconSvg('geral')}</span>Geral
+                            </button>
+                            <button type="button" class="visual-model-section-tab" data-visual-model-tab="measures" role="tab" aria-selected="false">
+                                <span class="icon svg-icon">${getInfoSectionIconSvg('medidas')}</span>Medidas
                             </button>
                             <button type="button" class="visual-model-section-tab" data-visual-model-tab="dimensions" role="tab" aria-selected="false">
                                 <span class="icon svg-icon">${getInfoSectionIconSvg('dimensoes')}</span>Dimensões
                             </button>
                         </span>
                     </h3>
-                    <div class="visual-model-tab-pane is-active" data-visual-model-pane="info">
-                        ${infoControls ? `<div class="visual-models-section-controls">${infoControls}</div>` : ''}
+                    <div class="visual-model-tab-pane is-active" data-visual-model-pane="general">
+                        ${hasGeneralPane ? `<div class="visual-model-general-copy"><p>${generalText}</p></div>` : ''}
+                        ${generalControls ? `<div class="visual-models-section-controls">${generalControls}</div>` : ''}
                         <div class="visual-models-grid" style="display: flex; flex-direction: column; gap: 14px;${mobile ? ' margin-top: 15px;' : ''}">
-                            ${renderVisualModelCards(infoSortedItems, infoFilterContext)}
+                            ${renderVisualModelCards(generalSortedItems, generalFilterContext)}
+                        </div>
+                    </div>
+                    <div class="visual-model-tab-pane" data-visual-model-pane="measures" hidden>
+                        ${measureControls ? `<div class="visual-models-section-controls">${measureControls}</div>` : ''}
+                        <div class="visual-models-grid" style="display: flex; flex-direction: column; gap: 14px;${mobile ? ' margin-top: 15px;' : ''}">
+                            ${renderVisualModelCards(measureSortedItems, measureFilterContext)}
                         </div>
                     </div>
                     <div class="visual-model-tab-pane" data-visual-model-pane="dimensions" hidden>
+                        ${dimensionText ? `<div class="visual-model-general-copy"><p>${dimensionText}</p></div>` : ''}
                         ${dimensionControls ? `<div class="visual-models-section-controls">${dimensionControls}</div>` : ''}
                         <div class="visual-models-grid" style="display: flex; flex-direction: column; gap: 14px;${mobile ? ' margin-top: 15px;' : ''}">
                             ${renderVisualModelCards(dimensionSortedItems, dimensionFilterContext)}
@@ -2951,7 +3029,7 @@ import { initAnimalComparison } from "../js/animal-comparison.js?v=2";
             }
         }
 
-        async function fetchAndRenderRelatedAnimals(subfamilia, currentAnimalId) {
+        async function fetchAndRenderRelatedAnimals(subfamilia, currentAnimalId, tribo = '') {
             const container = document.getElementById('related-animals-container');
             const containerMobile = document.getElementById('related-animals-container-mobile');
             if (container) container.style.display = 'none';
@@ -2969,11 +3047,16 @@ import { initAnimalComparison } from "../js/animal-comparison.js?v=2";
 
             try {
                 const q = query(collection(db, "animais"), where("subfamilia", "==", subfamilia));
-                const querySnapshot = await getDocs(q);
-
-                if (querySnapshot.size < 2) {
-                    return;
+                const querySnapshot = await getDocs(q);                const hasRelatedSubfamily = querySnapshot.size >= 2;
+                let tribePortalHTML = '';
+                if (tribo) {
+                    const tribeSnapshot = await getDocs(query(collection(db, "animais"), where("tribo", "==", tribo)));
+                    if (tribeSnapshot.size >= 2) {
+                        const tribeUrl = `family.html?tribo=${encodeURIComponent(tribo)}`;
+                        tribePortalHTML = `<a class="family-portal-link tribe-portal-link" href="${tribeUrl}" aria-label="Visitar a tribo ${escapeHtml(tribo)}"><div class="family-portal-content"><span class="family-portal-eyebrow">Visite a Tribo</span><span class="family-portal-name">${escapeHtml(tribo)} <i class="fa-solid fa-arrow-right"></i></span></div></a>`;
+                    }
                 }
+                if (!hasRelatedSubfamily && !tribePortalHTML) return;
 
                 const relatedAnimals = [];
                 querySnapshot.forEach(resultDoc => {
@@ -2983,12 +3066,12 @@ import { initAnimalComparison } from "../js/animal-comparison.js?v=2";
 
                 let listHTML = '';
                 if (relatedAnimals.length) {
-                    listHTML = '<div class="related-family-list-block"><h3>Da mesma subfamília</h3><ul class="related-list">' + relatedAnimals.map(animal => {
+                    listHTML = '<div class="related-family-list-block"><h3>Da mesma família</h3><ul class="related-list">' + relatedAnimals.map(animal => {
                         const objectPos = animal.imagemObjectPosition || 'center center';
                         return `<li class="related-item"><a href="animal.html?id=${encodeURIComponent(animal.id)}"><img src="${escapeHtml(animal.imagemUrl || '')}" alt="${escapeHtml(animal.nome || '')}" style="object-position:${escapeHtml(objectPos)}"><span>${escapeHtml(animal.nome || 'Animal')}</span></a></li>`;
                     }).join('') + '</ul></div>';
                 }
-                const html = `<div class="related-family-shell">${portalHTML}${listHTML}</div>`;
+                const html = `<div class="related-family-shell">${hasRelatedSubfamily ? portalHTML : ""}${tribePortalHTML}${hasRelatedSubfamily ? listHTML : ""}</div>`;
                 if (container) { container.innerHTML = html; container.style.display = 'block'; }
                 if (containerMobile) { containerMobile.innerHTML = html; containerMobile.style.display = 'block'; }
             } catch (error) {
@@ -3281,19 +3364,17 @@ import { initAnimalComparison } from "../js/animal-comparison.js?v=2";
             // Quando existem dimensões, mantém-se sempre a estrutura com as abas
             // "Informações" e "Dimensões". O número total de parâmetros não
             // deve decidir a apresentação; sem dimensões, a aba não é criada.
-            const useDimensionsTab = validDimensoes.length > 0;
             const infoModelItems = validQuickData.map(item => ({ ...item, isDimension: false }));
             const dimensionModelItems = validDimensoes.map(item => ({ ...item, isDimension: true }));
+            const useInfoTabs = Boolean(hasGeralText || infoModelItems.length || dimensionModelItems.length);
+            const generalModelItems = infoModelItems.filter(item => getGeneralFormTabForType(item.tipo) === 'geral');
+            const measureModelItems = infoModelItems.filter(item => getGeneralFormTabForType(item.tipo) === 'medidas');
 
             const navItems = [];
-            if (hasGeralText) navItems.push({ desktopHref: '#info-geral', mobileHref: '#info-geral-mobile', label: 'Geral' });
-            if (hasDimensoesText || hasDimensoesVisual) {
-                navItems.push({
-                    desktopHref: hasDimensoesVisual ? '#info-modelos-visuais' : '#info-dimensoes',
-                    mobileHref: hasDimensoesVisual ? '#info-modelos-visuais-mobile' : '#info-dimensoes-mobile',
-                    visualTab: useDimensionsTab ? 'dimensions' : '',
-                    label: 'Dimensões'
-                });
+            if (useInfoTabs) {
+                navItems.push({ desktopHref: '#info-modelos-visuais', mobileHref: '#info-modelos-visuais-mobile', visualTab: 'general', label: 'Geral' });
+                if (infoModelItems.length) navItems.push({ desktopHref: '#info-modelos-visuais', mobileHref: '#info-modelos-visuais-mobile', visualTab: 'measures', label: 'Medidas' });
+                if (hasDimensoesText || hasDimensoesVisual) navItems.push({ desktopHref: '#info-modelos-visuais', mobileHref: '#info-modelos-visuais-mobile', visualTab: 'dimensions', label: 'Dimensões' });
             }
             if (hasAlimentacao) navItems.push({ href: '#info-alimentacao', label: 'Alimentação' });
             if (hasEcologia) navItems.push({ href: '#info-ecologia', label: 'Ecologia' });
@@ -3466,13 +3547,13 @@ import { initAnimalComparison } from "../js/animal-comparison.js?v=2";
                     
                     <!-- Column 2: Sections (Geral, Dimensões, Alimentação, Reprodução, Plumagem, Distribuição) -->
                     <div class="middle-column desktop-only">
-                        ${hasGeralText ? `
+                        ${hasGeralText && !useInfoTabs ? `
                         <div class="info-section-card" id="info-geral">
                             <h3><span class="icon svg-icon">${getInfoSectionIconSvg('geral')}</span>Informação Geral</h3>
                             <p>${animalData.informacao.geral}</p>
                         </div>` : ''}
 
-                        ${hasDimensoesText ? `
+                        ${hasDimensoesText && !useInfoTabs ? `
                         <div class="info-section-card" id="info-dimensoes">
                             <h3><span class="icon svg-icon">${getInfoSectionIconSvg('dimensoes')}</span>Dimensões</h3>
                             <p>${animalData.informacao.dimensoes}</p>
@@ -3529,12 +3610,16 @@ import { initAnimalComparison } from "../js/animal-comparison.js?v=2";
 
                     <!-- Column 3: Visual Models & Climate Zone -->
                     <div class="column-3 desktop-only">
-                        ${useDimensionsTab
+                        ${useInfoTabs
                             ? renderTabbedModelSection({
                                 id: 'info-modelos-visuais',
-                                infoItems: infoModelItems,
+                                generalText: animalData.informacao?.geral || '',
+                                dimensionText: animalData.informacao?.dimensoes || '',
+                                generalItems: generalModelItems,
+                                measureItems: measureModelItems,
                                 dimensionItems: dimensionModelItems,
-                                infoFilterContext: { genders: collectConcreteGenders(infoModelItems), phases: new Set(infoModelItems.map(item => item.fase).filter(Boolean)) },
+                                generalFilterContext: { genders: collectConcreteGenders(generalModelItems), phases: new Set(generalModelItems.map(item => item.fase).filter(Boolean)) },
+                                measureFilterContext: { genders: collectConcreteGenders(measureModelItems), phases: new Set(measureModelItems.map(item => item.fase).filter(Boolean)) },
                                 dimensionFilterContext: { genders: collectConcreteGenders(dimensionModelItems), phases: new Set(dimensionModelItems.map(item => item.fase).filter(Boolean)) }
                             })
                             : renderModelSection({
@@ -3562,13 +3647,17 @@ import { initAnimalComparison } from "../js/animal-comparison.js?v=2";
                             ${navHTMLMobile}
                         </nav>
                         <div class="info-sections">
-                            ${useDimensionsTab
-                                ? renderTabbedModelSection({
-                                    id: 'info-modelos-visuais-mobile',
-                                    infoItems: infoModelItems,
-                                    dimensionItems: dimensionModelItems,
-                                    infoFilterContext: { genders: collectConcreteGenders(infoModelItems), phases: new Set(infoModelItems.map(item => item.fase).filter(Boolean)) },
-                                    dimensionFilterContext: { genders: collectConcreteGenders(dimensionModelItems), phases: new Set(dimensionModelItems.map(item => item.fase).filter(Boolean)) },
+                        ${useInfoTabs
+                            ? renderTabbedModelSection({
+                                id: 'info-modelos-visuais-mobile',
+                                generalText: animalData.informacao?.geral || '',
+                                dimensionText: animalData.informacao?.dimensoes || '',
+                                generalItems: generalModelItems,
+                                measureItems: measureModelItems,
+                                dimensionItems: dimensionModelItems,
+                                generalFilterContext: { genders: collectConcreteGenders(generalModelItems), phases: new Set(generalModelItems.map(item => item.fase).filter(Boolean)) },
+                                measureFilterContext: { genders: collectConcreteGenders(measureModelItems), phases: new Set(measureModelItems.map(item => item.fase).filter(Boolean)) },
+                                dimensionFilterContext: { genders: collectConcreteGenders(dimensionModelItems), phases: new Set(dimensionModelItems.map(item => item.fase).filter(Boolean)) },
                                     mobile: true
                                 })
                                 : renderModelSection({
@@ -3584,13 +3673,13 @@ import { initAnimalComparison } from "../js/animal-comparison.js?v=2";
                                 ? renderEnvironmentSections(envQuickData, { genders, phases }, { id: 'info-ambiente-mobile', mobile: true })
                                 : ''}
 
-                            ${hasGeralText ? `
+                            ${hasGeralText && !useInfoTabs ? `
                             <div class="info-section" id="info-geral-mobile">
                                 <h3><span class="icon svg-icon">${getInfoSectionIconSvg('geral')}</span>Informação Geral</h3>
                                 <p>${animalData.informacao.geral}</p>
                             </div>` : ''}
 
-                            ${hasDimensoesText ? `
+                            ${hasDimensoesText && !useInfoTabs ? `
                             <div class="info-section" id="info-dimensoes-mobile">
                                 <h3><span class="icon svg-icon">${getInfoSectionIconSvg('dimensoes')}</span>Dimensões</h3>
                                 <p>${animalData.informacao.dimensoes || ''}</p>
@@ -3998,6 +4087,8 @@ import { initAnimalComparison } from "../js/animal-comparison.js?v=2";
             initGroupCompositionPopup(mainContent);
             initLocomotionPopup(mainContent);
             initKinshipLineagePopup(mainContent);
+            initLeadershipHierarchyPopup(mainContent);
+            initDigestiveSystemPopup(mainContent);
             initActivityPopup(mainContent);
             initTerritorySizePopup(mainContent);
             initFeedingStrategyPopup(mainContent);
@@ -4328,10 +4419,12 @@ import { initAnimalComparison } from "../js/animal-comparison.js?v=2";
                     const section = btn.closest('[data-visual-model-tabs]');
                     if (!section) return;
 
-                    const showDimensions = btn.dataset.visualModelTab === 'dimensions';
-                    section.classList.toggle('is-dimensions-active', showDimensions);
-                    section.querySelector('[data-visual-model-pane="info"]')?.toggleAttribute('hidden', showDimensions);
-                    section.querySelector('[data-visual-model-pane="dimensions"]')?.toggleAttribute('hidden', !showDimensions);
+                    const selectedTab = btn.dataset.visualModelTab;
+                    section.classList.toggle('is-dimensions-active', selectedTab === 'dimensions');
+                    section.querySelectorAll('[data-visual-model-pane]').forEach(pane => {
+                        pane.toggleAttribute('hidden', pane.dataset.visualModelPane !== selectedTab);
+                        pane.classList.toggle('is-active', pane.dataset.visualModelPane === selectedTab);
+                    });
                     section.querySelectorAll('[data-visual-model-tab]').forEach(tab => {
                         const isActive = tab.dataset.visualModelTab === btn.dataset.visualModelTab;
                         tab.classList.toggle('is-active', isActive);
@@ -4436,9 +4529,9 @@ import { initAnimalComparison } from "../js/animal-comparison.js?v=2";
                     e.preventDefault();
                     const targetId = anchor.getAttribute('href');
                     const targetSection = targetId ? document.querySelector(targetId) : null;
-                    if (anchor.dataset.visualModelTabTarget === 'dimensions') {
-                        const dimensionTab = targetSection?.querySelector('[data-visual-model-tab="dimensions"]');
-                        if (dimensionTab && !targetSection.classList.contains('is-dimensions-active')) dimensionTab.click();
+                    if (anchor.dataset.visualModelTabTarget) {
+                        const targetTab = targetSection?.querySelector(`[data-visual-model-tab="${anchor.dataset.visualModelTabTarget}"]`);
+                        if (targetTab && !targetTab.classList.contains('is-active')) targetTab.click();
                     }
                     makeActive(anchor);
                     if (targetSection) {
@@ -4475,8 +4568,19 @@ import { initAnimalComparison } from "../js/animal-comparison.js?v=2";
             });
         }
 
+        const animalLoadingAnimations = [
+            { src: 'assets/loading/coruja_loader_site/coruja_escolher_livro_biblioteca.svg', alt: 'Coruja a escolher um livro' },
+            { src: 'assets/loading/macaco_loader_site/macaco_trepar_arvore.svg', alt: 'Macaco a trepar uma árvore' },
+            { src: 'assets/loading/polvo_loader_site/polvo_teclar_computador.svg', alt: 'Polvo a teclar num computador' }
+        ];
+
+        function renderAnimalLoadingState() {
+            const animation = animalLoadingAnimations[Math.floor(Math.random() * animalLoadingAnimations.length)];
+            return `<div class="animal-page-loading" role="status" aria-live="polite"><img src="${animation.src}" alt="${animation.alt}"><span class="animal-page-loading-text">A carregar dados do animal...</span></div>`;
+        }
+
         async function loadPage() {
-            mainContent.innerHTML = `<p class="loading">A carregar dados do animal...</p>`;
+            mainContent.innerHTML = renderAnimalLoadingState();
             const params = new URLSearchParams(window.location.search);
             const animalId = params.get('id');
             if (!animalId) {
@@ -4491,7 +4595,7 @@ import { initAnimalComparison } from "../js/animal-comparison.js?v=2";
                     const animalData = docSnap.data();
                     renderAnimalData(animalData, animalId);
                     fetchAndRenderSubspeciesParents(animalData.subespeciesDe);
-                    fetchAndRenderRelatedAnimals(animalData.subfamilia, animalId);
+                    fetchAndRenderRelatedAnimals(animalData.subfamilia, animalId, animalData.tribo);
                 } else {
                     mainContent.innerHTML = `<p class="error">Erro: Animal não encontrado.</p>`;
                 }

@@ -158,9 +158,14 @@
                 .filter(item => item.tipo && (item.valorMin || item.valorMax));
         }
 
-        function setDimensionData(dimensions = []) {
+        function setDimensionData(dimensions = [], options = {}) {
+            const useDefaults = options.useDefaults !== false;
             dimensionRowsContainer.innerHTML = '';
             const normalizedDimensions = collapseCombinedGenderItems(dimensions);
+            if (!useDefaults && (!Array.isArray(normalizedDimensions) || normalizedDimensions.length === 0)) {
+                updateDimensionPreview();
+                return;
+            }
             if (!Array.isArray(normalizedDimensions) || normalizedDimensions.length === 0) {
                 getDefaultDimensionsForCategory().forEach(item => createDimensionRow(item.tipo, '', item.unidade, '', item.genero || GENDER_BOTH, item.fase || 'Adulto'));
                 return;

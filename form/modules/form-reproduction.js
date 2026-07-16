@@ -1171,8 +1171,13 @@
             reproductionDefaultModels.forEach(type => createReproductionRow(type));
         }
 
-        function setReproductionData(reproduction = []) {
+        function setReproductionData(reproduction = [], options = {}) {
+            const useDefaults = options.useDefaults !== false;
             reproductionRowsContainer.innerHTML = '';
+            if (!useDefaults && (!Array.isArray(reproduction) || reproduction.length === 0)) {
+                updateReproductionPreview();
+                return;
+            }
             if (!Array.isArray(reproduction) || reproduction.length === 0) {
                 createAllReproductionRows();
                 updateReproductionPreview();

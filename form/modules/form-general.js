@@ -965,10 +965,15 @@
             });
         }
 
-        function setGeneralVisualData(items = []) {
+        function setGeneralVisualData(items = [], options = {}) {
+            const useDefaults = options.useDefaults !== false;
             buildGeneralVisualSections();
             const normalizedItems = collapseCombinedGenderItems(filterLegacyGeneralMatingItems(items))
                 .map(item => ({ ...item, tipo: getCanonicalGeneralModelType(item.tipo || '') }));
+            if (!useDefaults && (!Array.isArray(normalizedItems) || normalizedItems.length === 0)) {
+                updateGeneralVisualPreview();
+                return;
+            }
             if (!Array.isArray(normalizedItems) || normalizedItems.length === 0) {
                 GENERAL_VISUAL_SECTIONS.forEach(section => {
                     section.models.forEach(type => {

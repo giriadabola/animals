@@ -410,9 +410,10 @@
             return legacyItems;
         }
 
-        function setCuriosidadesData(items = []) {
+        function setCuriosidadesData(items = [], options = {}) {
+            const useDefaults = options.useDefaults !== false;
             curiosidadesRowsContainer.innerHTML = '';
-            const normalizedItems = Array.isArray(items) && items.length ? items : getDefaultCuriosidadesRows();
+            const normalizedItems = Array.isArray(items) && items.length ? items : (useDefaults ? getDefaultCuriosidadesRows() : []);
             normalizedItems.forEach(item => createCuriosidadeRow(
                 item.tipo || '',
                 item.valor || '',

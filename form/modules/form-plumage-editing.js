@@ -303,8 +303,12 @@
             }).filter(item => item.detalhe);
         }
 
-        function setPlumageData(items = []) {
+        function setPlumageData(items = [], options = {}) {
+            const useDefaults = options.useDefaults !== false;
             plumageRowsContainer.innerHTML = '';
+            if (!useDefaults && (!Array.isArray(items) || items.length === 0)) {
+                return;
+            }
             if (!Array.isArray(items) || items.length === 0) {
                 createPlumageRow();
                 return;
@@ -863,27 +867,27 @@
                     String(item?.valor || item?.valorMin || '').trim() === String(legacyItem?.valor || legacyItem?.valorMin || '').trim()
                 )
             );
-            setGeneralVisualData([...cleanGeneralVisualData, ...newCommunicationItems]);
+            setGeneralVisualData([...cleanGeneralVisualData, ...newCommunicationItems], { useDefaults: false });
             document.getElementById('infoDimensoes').value = animal.informacao.dimensoes || '';
-            setDimensionData(animal.informacao.dimensoesDetalhadas || []);
+            setDimensionData(animal.informacao.dimensoesDetalhadas || [], { useDefaults: false });
             document.getElementById('infoAlimentacao').value = animal.informacao.alimentacao || '';
             const rawAlimentacaoDetalhada = animal.informacao.alimentacaoDetalhada || [];
             const rawReproducaoDetalhada = animal.informacao.reproducaoDetalhada || [];
             const legacyNutritionItems = rawReproducaoDetalhada.filter(item => ['Tipo de Alimentação', 'Alimento Ingerido em Média', 'Água bebida em Média'].includes(item.tipo || ''));
             const cleanedReproducaoDetalhada = rawReproducaoDetalhada.filter(item => !['Tipo de Alimentação', 'Alimento Ingerido em Média', 'Água bebida em Média'].includes(item.tipo || ''));
-            setFeedingData([...rawAlimentacaoDetalhada, ...legacyNutritionItems]);
+            setFeedingData([...rawAlimentacaoDetalhada, ...legacyNutritionItems], { useDefaults: false });
             const ecoData = animal.informacao.ecologia || {};
-            setEcologyData(normalizeEcologyData(ecoData, legacyEcologyItems));
+            setEcologyData(normalizeEcologyData(ecoData, legacyEcologyItems), { useDefaults: false });
             document.getElementById('infoEcologia').value = ecoData.resumo || ecoData.texto || '';
             document.getElementById('infoReproducao').value = animal.informacao.reproducao || '';
             document.getElementById('infoPlumagem').value = animal.informacao.plumagem || '';
-            setReproductionData(mergeUniqueReproductionItems([...cleanedReproducaoDetalhada, ...legacyMatingItems]));
+            setReproductionData(mergeUniqueReproductionItems([...cleanedReproducaoDetalhada, ...legacyMatingItems]), { useDefaults: false });
             const coveringItems = Array.isArray(animal.informacao.plumagemDetalhada) ? [...animal.informacao.plumagemDetalhada] : [];
             const legacyColor = animal.informacao?.curiosidades?.cor || '';
             if (legacyColor && !coveringItems.some(item => item.grupo === 'cor' || item.tipo === legacyColor)) {
                 coveringItems.push({ grupo: 'cor', tipo: legacyColor, detalhe: '' });
             }
-            setPlumageData(coveringItems);
+            setPlumageData(coveringItems, { useDefaults: false });
             
             const distData = animal.informacao.distribuicao || { paises: [], paisesDetalhes: {}, paisesAutomaticos: [], descricao: '', regioesBiogeograficas: [], areas: [], pontos: [] };
             selectedCountries = distData.paises || [];
@@ -917,7 +921,7 @@
                 ...curiData,
                 importanciaEconomicaHumanos: curiData.importanciaEconomicaHumanos || ecologyLegacyImportance
             };
-            setCuriosidadesData(normalizeCuriosidadesData(normalizedCuriData));
+            setCuriosidadesData(normalizeCuriosidadesData(normalizedCuriData), { useDefaults: false });
             document.getElementById('infoCuriosidades').value = curiData.texto || '';
             updateCuriosidadesPreview();
 

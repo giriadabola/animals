@@ -288,8 +288,13 @@
                 .filter(Boolean);
         }
 
-        function setFeedingData(items = []) {
+        function setFeedingData(items = [], options = {}) {
+            const useDefaults = options.useDefaults !== false;
             feedingRowsContainer.innerHTML = '';
+            if (!useDefaults && (!Array.isArray(items) || items.length === 0)) {
+                updateFeedingPreview();
+                return;
+            }
             if (!Array.isArray(items) || items.length === 0) {
                 feedingModelOptions.forEach(type => createFeedingRow(type));
                 updateFeedingPreview();
