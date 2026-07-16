@@ -152,6 +152,7 @@ const secondaryClimateZoneOptions = [
 ];
 
 const biomaOptions = [
+    'Água salobra',
     'Agrícola',
     'Áreas rochosas',
     'Área degradada',
@@ -256,6 +257,7 @@ const biomaOptions = [
 ];
 
 const habitatOptions = [
+    'Água salobra',
     'Água doce', 'Agrícola', 'Ambiente doméstico', 'Ambiente subterrâneo',
     'Área degradada', 'Área industrial', 'Áreas rochosas', 'Baía',
     'Bioma antropogénico', 'Bosque', 'Campo (bioma)', 'Canal',

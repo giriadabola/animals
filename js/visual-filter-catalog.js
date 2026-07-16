@@ -36,7 +36,7 @@ const imageFilters = [
         'Oceânico', 'Mediterrânico', 'Continental Húmido', 'Subártico', 'Tundra', 'Glacial'
     ].map(value => ['Zona Climática Secundária', value, `assets/zonas-climaticas-secundario/${value}.png`, 'accent-climate']),
     ...[
-        ['Agrícola', 'Agrícola'], ['Ambiente doméstico', 'Ambiente doméstico'], ['Ambiente subterrâneo', 'Ambiente subterrâneo'],
+        ['Água salobra', 'Água salobra'],       ['Agrícola', 'Agrícola'], ['Ambiente doméstico', 'Ambiente doméstico'], ['Ambiente subterrâneo', 'Ambiente subterrâneo'],
         ['Área degradada', 'Área degradada'], ['Área industrial', 'Área industrial'], ['Áreas rochosas', 'Áreas rochosas'],
         ['Baía', 'Baía'], ['Bioma antropogénico', 'Bioma antropogénico'], ['Bosque', 'Bosque'], ['Campo (bioma)', 'Campo (bioma)'],
         ['Canal ou reservatório artificial', 'Canal ou reservatório artificial'], ['Canal', 'Canal'], ['Caverna', 'Caverna'],
