@@ -16,6 +16,23 @@ const climateDescriptions = {
     Montanhoso: 'As áreas montanhosas acompanham grandes cadeias de montanhas, onde a altitude altera a temperatura, a precipitação e a vegetação.'
 };
 
+function resolveClimateKey(value = '') {
+    const normalized = String(value || '').toLocaleLowerCase('pt-PT')
+        .normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
+    const aliases = {
+        tropical: 'Tropical',
+        arido: 'Árido',
+        arida: 'Árido',
+        temperado: 'Temperado',
+        temperada: 'Temperado',
+        continental: 'Continental',
+        polar: 'Polar',
+        montanhoso: 'Montanhoso',
+        montanhosa: 'Montanhoso'
+    };
+    return aliases[normalized] || value;
+}
+
 const normalizeClimateMapKey = value => String(value || '')
     .toLocaleLowerCase('pt-PT')
     .normalize('NFD')
@@ -45,7 +62,7 @@ function createClimateWorldMap(popup, climate) {
             selector: '#climate-zone-world-map',
             map: 'world',
             regionsSelectable: false,
-            selectedRegions: climateCountryCodes[climate] || [],
+            selectedRegions: climateCountryCodes[resolveClimateKey(climate)] || [],
             zoomButtons: false,
             zoomOnScroll: false,
             regionStyle: {
@@ -63,6 +80,7 @@ function createClimateWorldMap(popup, climate) {
 function openClimateZoneMapPopup(trigger) {
     closeClimateZoneMapPopup();
     const climate = trigger.dataset.popupLabel || '';
+    const climateKey = resolveClimateKey(climate);
     const popup = document.createElement('div');
     popup.id = 'climate-zone-map-modal';
     popup.className = 'conservation-status-modal-backdrop biogeographic-region-modal-backdrop climate-zone-map-modal-backdrop';
@@ -84,7 +102,7 @@ function openClimateZoneMapPopup(trigger) {
                 <div id="climate-zone-world-map" class="biogeographic-region-map climate-zone-world-map" role="img" aria-label="Mapa-mundo com a zona climática destacada"></div>
                 <div class="biogeographic-region-map-legend"><span class="biogeographic-region-dot climate-zone-map-dot" aria-hidden="true"></span> ${escapeClimateMapHtml(climate)}</div>
             </section>
-            <div class="environment-visual-modal-copy climate-zone-map-description"><strong>Sobre esta zona</strong><p>${escapeClimateMapHtml(climateDescriptions[climate] || 'Zona climática definida por padrões regionais de temperatura e precipitação.')}</p></div>
+            <div class="environment-visual-modal-copy climate-zone-map-description"><strong>Sobre esta zona</strong><p>${escapeClimateMapHtml(climateDescriptions[climateKey] || 'Zona climática definida por padrões regionais de temperatura e precipitação.')}</p></div>
         </section>`;
     popup.__trigger = trigger;
     popup.querySelector('.conservation-status-modal-close').addEventListener('click', closeClimateZoneMapPopup);

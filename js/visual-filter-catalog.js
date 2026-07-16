@@ -12,6 +12,8 @@ import { ecologyBlockConfigs, getEcologyBlockSvg } from './ecology-visuals.js';
 import { biogeographicRegions } from './biogeographic-regions.js';
 import { groupCompositionOptions, getGroupCompositionMeta, getGroupCompositionSvg } from './group-composition-visuals.js';
 import { kinshipLineageOptions, getKinshipLineageMeta, getKinshipLineageSvg } from './kinship-lineage-visuals.js';
+import { leadershipHierarchyOptions, getLeadershipHierarchyMeta, getLeadershipHierarchySvg } from './leadership-hierarchy-visuals.js';
+import { digestiveSystemOptions, getDigestiveSystemMeta, getDigestiveSystemSvg } from './digestive-system-visuals.js';
 
 const imageFilters = [
     ...[
@@ -59,6 +61,8 @@ export const visualFilterPool = [
     ...ecologicalStratumOptions.map(value => { const meta = getEcologicalStratumMeta(value); return { type: 'Estrato ecológico', value, name: value, model: () => getEcologicalStratumSvg(value), accent: meta.accent }; }),
     ...groupCompositionOptions.map(value => { const meta = getGroupCompositionMeta(value); return { type: 'Composição do grupo', value, name: value, model: () => getGroupCompositionSvg(value), accent: meta.accent }; }),
     ...kinshipLineageOptions.map(value => { const meta = getKinshipLineageMeta(value); return { type: 'Parentesco e linhagem social', value, name: value, model: () => getKinshipLineageSvg(value), accent: meta.accent }; }),
+    ...leadershipHierarchyOptions.map(value => { const meta = getLeadershipHierarchyMeta(value); return { type: 'Liderança e hierarquia', value, name: value, model: () => getLeadershipHierarchySvg(value), accent: meta.accent }; }),
+    ...digestiveSystemOptions.map(value => { const meta = getDigestiveSystemMeta(value); return { type: 'Presença/ausência de sistema digestivo', value, name: value, model: () => getDigestiveSystemSvg(value), accent: meta.accent }; }),
     ...activityValues.map(value => { const meta = getActivityMeta(value); return { type: 'atividade', value, name: value, model: () => getActivitySvg(meta.key), accent: meta.accent }; }),
     ...socialTypes.map(item => { const meta = getSocialMeta(item.label); return { type: 'vida social', value: item.label, name: item.label, model: () => getSocialSvg(meta.key), accent: meta.accent }; }),
     ...feedingStrategies.map(value => { const meta = getFeedingStrategyMeta(value); return { type: 'estratégia para obter alimento', value, name: value, model: () => getFeedingStrategySvg(meta.key), accent: meta.accent }; }),
