@@ -413,8 +413,11 @@ export function injectHeader() {
             // passa a mostrar apenas um atalho leve para o portefólio.
             if (isForm && centerInfo) {
                 centerInfo.innerHTML = `
-                    <a href="../myportefolio.html" class="nav-link" style="display: inline-flex; align-items: center; gap: 8px; background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color); padding: 8px 18px; border-radius: var(--border-radius-sm); font-size: 0.85rem; font-weight: 600; color: var(--text-secondary); text-decoration: none;">
+                    <a href="../myportefolio.html" class="nav-link form-portfolio-link" style="display: inline-flex; align-items: center; gap: 8px; background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color); padding: 8px 18px; border-radius: var(--border-radius-sm); font-size: 0.85rem; font-weight: 600; color: var(--text-secondary); text-decoration: none;">
                         <i class="fa-solid fa-table-list" style="color: var(--primary-color);"></i> Meu portefólio
+                    </a>
+                    <a href="../index.html" class="form-mobile-home-link" aria-label="Voltar ao início" title="Voltar ao início">
+                        <i class="fa-solid fa-house" aria-hidden="true"></i>
                     </a>
                 `;
             }

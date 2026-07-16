@@ -12,12 +12,41 @@ import { ecologyBlockConfigs, getEcologyBlockSvg } from './ecology-visuals.js';
 import { biogeographicRegions } from './biogeographic-regions.js';
 
 const imageFilters = [
-    ['bioma', 'Floresta', 'assets/bioma/16_Floresta.png', 'accent-bioma-floresta'],
-    ['bioma', 'Marinho', 'assets/bioma/01_Marinho.png', 'accent-bioma-marinho'],
-    ['bioma', 'Savana', 'assets/bioma/02_Savana.png', 'accent-bioma-savana'],
-    ['zona-climatica', 'Tropical', 'assets/zonas-climaticas/01_Tropical.png', 'accent-climate-tropical'],
-    ['zona-climatica', 'Polar', 'assets/zonas-climaticas/04_Polar.png', 'accent-climate-polar'],
-    ['zona-climatica', 'Árido', 'assets/zonas-climaticas/07_Desertica.png', 'accent-climate-desertica']
+    ...[
+        'Bosque de coníferas', 'Bosque temperado', 'Bosque tropical seco', 'Brejo', 'Calota de gelo',
+        'Campos inundáveis', 'Campos temperados', 'Campos tropicais', 'Chaparral', 'Delta', 'Deserto frio',
+        'Deserto quente', 'Estepa', 'Estepe', 'Floresta decídua temperada', 'Floresta inundável',
+        'Floresta mediterrânica', 'Floresta montana', 'Floresta nublada', 'Floresta temperada de coníferas',
+        'Floresta temperada pluvial', 'Floresta tropical e subtropical húmida', 'Floresta tropical pluvial',
+        'Floresta tropical seca', 'Florestas tropicais de coníferas', 'Lago', 'Manguezal', 'Mar profundo',
+        'Matagal tropical', 'Matagal xerófilo', 'Oceano aberto', 'Plataforma continental',
+        'Pântano de água doce', 'Recife de coral', 'Riacho', 'Rio', 'Savana tropical', 'Semi-deserto',
+        'Taiga', 'Tundra alpina', 'Tundra ártica', 'Tundra', 'Turfeira', 'Várzea - Planície aluvial',
+        'Zona abissal', 'Zona batial', 'Zona bentónica', 'Zona nerítica', 'Zona pelágica'
+    ].map(value => ['bioma', value, `assets/bioma/${value}.png`, 'accent-bioma']),
+    ...[
+        'Continental', 'Montanhoso', 'Polar', 'Temperado', 'Tropical', 'Árido'
+    ].map(value => ['zona-climatica', value, `assets/zonas-climaticas/${value}.png`, 'accent-climate']),
+    ...[
+        'Equatorial', 'Monção', 'Savana', 'Desérticos', 'Semiáridos', 'Subtropical Húmido',
+        'Oceânico', 'Mediterrânico', 'Continental Húmido', 'Subártico', 'Tundra', 'Glacial'
+    ].map(value => ['Zona Climática Secundária', value, `assets/zonas-climaticas-secundario/${value}.png`, 'accent-climate']),
+    ...[
+        ['Agrícola', 'Agrícola'], ['Ambiente doméstico', 'Ambiente doméstico'], ['Ambiente subterrâneo', 'Ambiente subterrâneo'],
+        ['Área degradada', 'Área degradada'], ['Área industrial', 'Área industrial'], ['Áreas rochosas', 'Áreas rochosas'],
+        ['Baía', 'Baía'], ['Bioma antropogénico', 'Bioma antropogénico'], ['Bosque', 'Bosque'], ['Campo (bioma)', 'Campo (bioma)'],
+        ['Canal ou reservatório artificial', 'Canal ou reservatório artificial'], ['Canal', 'Canal'], ['Caverna', 'Caverna'],
+        ['Charco', 'Charco'], ['Costa rochosa', 'Costa rochosa'], ['Costa', 'Costa'], ['Deserto polar', 'Deserto polar'],
+        ['Duna', 'Duna'], ['Estuário', 'Estuário'], ['Fauna urbana', 'Fauna urbana'], ['Fiorde', 'Fiorde'],
+        ['Floresta de kelp', 'Floresta de kelp'], ['Floresta', 'Floresta'], ['Jardim / Parque', 'Jardim - Parque'],
+        ['Lagoa costeira', 'Lagoa costeira'], ['Lagoa', 'Lagoa'], ['Marinho', 'Marinho'], ['Marisma salgada', 'Marisma salgada'],
+        ['Matagal mediterrânico', 'Matagal mediterrânico'], ['Mina / Pedreira', 'Mina - Pedreira'], ['Montanha', '11_Montanha'],
+        ['Nascente', 'Nascente'], ['Oásis', 'Oásis'], ['Pastagem', 'Pastagem'], ['Planalto', 'Planalto'],
+        ['Plantação florestal', 'Plantação florestal'], ['Pântano', '04_Pantano'], ['Pradaria marinha', 'Pradaria marinha'], ['Praia arenosa', 'Praia arenosa'],
+        ['Recife rochoso', 'Recife rochoso'], ['Reservatório', 'Reservatório'], ['Rural', 'Rural'], ['Suburbano', 'Suburbano'],
+        ['Subúrbio', 'Subúrbio'], ['Urbano', 'Urbano'], ['Vale', 'Vale'], ['Zona entremarés', 'Zona entremarés'],
+        ['Zona húmida', 'Zona húmida'], ['Zona ripária', 'Zona ripária']
+    ].map(([value, filename]) => ['Habitats', value, `assets/habitat/${filename}.png`, 'accent-bioma'])
 ];
 
 const activityValues = ['Diurno', 'Noturno', 'Crepuscular', 'Matutino', 'Vespertino', 'Catemeral', 'Arrítmico', 'Ultradiano', 'Sazonal', 'Migratório', 'Hibernante', 'Estivante', 'Brumante', 'Torpidário', 'Subterrâneo/Fossorial', 'Aquático ativo', 'Arborícola ativo', 'Terrestre ativo', 'Aéreo ativo'];

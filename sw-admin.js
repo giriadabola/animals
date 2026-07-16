@@ -1,4 +1,4 @@
-const CACHE_NAME = 'animals-admin-v20260713-text-import-1';
+const CACHE_NAME = 'animals-admin-v20260716-ios-refresh-1';
 
 const ASSETS_TO_CACHE = [
   './',
@@ -8,6 +8,8 @@ const ASSETS_TO_CACHE = [
   './form/form-auth.js',
   './form/form-cache.js',
   './form/sw-register.js',
+  './form/form-startup-guard.js',
+  './form/form-responsive.css',
   './form/manifest-admin.webmanifest',
 
   './form/modules/form-dropdown-polish.js',
@@ -28,6 +30,11 @@ const ASSETS_TO_CACHE = [
   './form/modules/form-statistics-counter.js',
   './form/modules/form-parameter-search.js',
   './form/modules/form-distribution-submit.js',
+  './form/modules/form-distribution-regions.js',
+  './form/modules/form-rodape-tab.js',
+  './form/modules/form-text-import-popup.js',
+  './form/modules/form-taxonomy-source-import.js',
+  './form/xeno-canto-link.js',
 
   '../gestor-index.html',
   '../login.html',
@@ -100,6 +107,10 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
+self.addEventListener('message', (event) => {
+  if (event.data?.type === 'SKIP_WAITING') self.skipWaiting();
+});
+
 self.addEventListener('fetch', (event) => {
   if (shouldIgnoreRequest(event.request)) return;
 
@@ -113,25 +124,21 @@ self.addEventListener('fetch', (event) => {
           }
           return response;
         })
-        .catch(() => caches.match(event.request, { ignoreSearch: true })
-          .then((cachedResponse) => cachedResponse || caches.match('./form/form.html')))
+        .catch(() => caches.match('./form/form.html', { ignoreSearch: true })
+          .then((cachedResponse) => cachedResponse || createOfflineFallback(event.request)))
     );
     return;
   }
 
   event.respondWith(
-    caches.match(event.request, { ignoreSearch: true }).then((cachedResponse) => {
-      const fetchPromise = fetch(event.request, { cache: 'no-store' })
-        .then((response) => {
-          if (response && response.status === 200) {
-            const responseToCache = response.clone();
-            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseToCache));
-          }
-          return response;
-        })
-        .catch(() => cachedResponse);
-
-      return fetchPromise;
-    })
+    fetch(event.request, { cache: 'no-store' })
+      .then((response) => {
+        if (response && response.status === 200) {
+          const responseToCache = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseToCache));
+        }
+        return response;
+      })
+      .catch(() => caches.match(event.request, { ignoreSearch: true }))
   );
 });
