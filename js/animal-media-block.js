@@ -9,25 +9,6 @@ function escapeHtml(value = '') {
     }[char]));
 }
 
-function getComparisonHref(animalId = '') {
-    const params = new URLSearchParams();
-    if (animalId) params.set('id', animalId);
-    const query = params.toString();
-    return `vs.html${query ? `?${query}` : ''}`;
-}
-
-function getActionIconSvg(kind = 'comparacao') {
-    if (kind === 'comparacao') {
-        return `
-            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <path d="M8 5v14" />
-                <path d="M16 5v14" />
-                <path d="M5 8c0-1.657 1.343-3 3-3h3v14H8c-1.657 0-3-1.343-3-3V8Z" />
-                <path d="M19 8c0-1.657-1.343-3-3-3h-3v14h3c1.657 0 3-1.343 3-3V8Z" />
-            </svg>`;
-    }
-    return '';
-}
 
 function normalizeProfileImageGender(value = '') {
     const v = String(value || '').trim().toUpperCase();
@@ -105,13 +86,38 @@ function toggleProfileImageByBadge(widget, button) {
     const image = widget.querySelector('[data-profile-main-image]');
     if (!image || !button) return;
 
+    const loader = widget.querySelector('.profile-image-loader');
     const originalSrc = image.dataset.originalSrc || image.getAttribute('src') || '';
     image.dataset.originalSrc = originalSrc;
 
+    let targetUrl = '';
+    let nextPhase = '';
+    
     if (button.hasAttribute('data-profile-phase-switch')) {
         const currentPhase = button.dataset.profileActivePhase || 'Adulto';
-        const nextPhase = currentPhase === 'Adulto' ? 'Cria' : 'Adulto';
-        const targetUrl = nextPhase === 'Adulto' ? button.dataset.profileAdultUrl : button.dataset.profileYoungUrl;
+        nextPhase = currentPhase === 'Adulto' ? 'Cria' : 'Adulto';
+        targetUrl = nextPhase === 'Adulto' ? button.dataset.profileAdultUrl : button.dataset.profileYoungUrl;
+    } else {
+        const badgeUrl = button.dataset.profileBadgeUrl || '';
+        const badgeKey = button.dataset.profileBadgeKey || '';
+        const isSameBadgeActive = widget.dataset.activeProfileBadge === badgeKey;
+        targetUrl = isSameBadgeActive || !badgeUrl ? originalSrc : badgeUrl;
+    }
+
+    if (targetUrl && image.getAttribute('src') !== targetUrl) {
+        if (loader) {
+            loader.style.display = 'flex';
+        }
+        const onFinish = () => {
+            image.removeEventListener('load', onFinish);
+            image.removeEventListener('error', onFinish);
+            if (loader) loader.style.display = 'none';
+        };
+        image.addEventListener('load', onFinish);
+        image.addEventListener('error', onFinish);
+    }
+
+    if (button.hasAttribute('data-profile-phase-switch')) {
         image.src = targetUrl || originalSrc;
         button.dataset.profileActivePhase = nextPhase;
         button.classList.toggle('is-young-active', nextPhase === 'Cria');
@@ -123,10 +129,8 @@ function toggleProfileImageByBadge(widget, button) {
         return;
     }
 
-    const targetUrl = button.dataset.profileBadgeUrl || '';
     const badgeKey = button.dataset.profileBadgeKey || '';
     const isSameBadgeActive = widget.dataset.activeProfileBadge === badgeKey;
-
     widget.querySelectorAll('[data-profile-badge-key]').forEach(btn => btn.classList.remove('active'));
 
     if (isSameBadgeActive || !targetUrl) {
@@ -142,20 +146,20 @@ function toggleProfileImageByBadge(widget, button) {
 
 export function renderAnimalMediaBlock(animalData = {}, animalId = '') {
     const objectPosition = animalData.imagemObjectPosition || 'center center';
-    const compareHref = getComparisonHref(animalId);
+
     const profileBadgesHTML = getProfileImageBadges(animalData);
     const audioId = getAnimalAudioId(animalData);
 
     return `
         <section class="anatomy-widget">
-            <div class="animal-image">
+            <div class="animal-image" style="position: relative;">
+                <div class="profile-image-loader" style="display: none; position: absolute; inset: 0; align-items: center; justify-content: center; background: rgba(9, 9, 20, 0.45); backdrop-filter: blur(6px); z-index: 5; border-radius: 18px;">
+                    <i class="fa-solid fa-paw fa-fade" style="font-size: 3rem; color: #10b981;"></i>
+                </div>
                 <img data-profile-main-image src="${escapeHtml(animalData.imagemUrl || '')}" alt="${escapeHtml(animalData.nome || 'Animal')}" style="object-position: ${escapeHtml(objectPosition)};">
                 ${profileBadgesHTML}
             </div>
             <div class="animal-media-actions">
-                <a class="animal-media-action" href="${compareHref}" aria-label="Comparação" title="Comparação">
-                    ${getActionIconSvg('comparacao')}
-                </a>
                 ${audioId ? `
                     <button type="button" class="animal-media-action animal-media-action-audio" data-animal-audio-panel-toggle data-audio-id="${escapeHtml(audioId)}" aria-label="Áudio" title="Áudio">
                         ${getAnimalAudioIconSvg('audio')}

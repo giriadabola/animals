@@ -1,6 +1,7 @@
 import { auth, db } from "./firebase-config.js?v=5";
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
 import { doc, onSnapshot, getDocs, collection } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
+import { findLocalAnimalsByWikidata } from "./wikidata-search.js?v=1";
 
 let allAnimals = null;
 
@@ -29,6 +30,9 @@ function normalizeAnimalSearchText(value = '') {
 function getAlsoKnownAsNames(animal = {}) {
     const curiosidades = animal.informacao?.curiosidades || {};
     const names = [];
+    const idiomaData = animal.informacao?.idiomas;
+    if (Array.isArray(idiomaData)) names.push(...idiomaData.map(item => item?.nome || item?.name).filter(Boolean));
+    else if (idiomaData && typeof idiomaData === 'object') names.push(...Object.values(idiomaData).filter(Boolean));
     if (Array.isArray(curiosidades.tambemConhecidoComo)) names.push(...curiosidades.tambemConhecidoComo);
     if (Array.isArray(curiosidades.detalhes)) {
         curiosidades.detalhes
@@ -81,7 +85,8 @@ function formatCategoryDisplay(categoria) {
 function displayHeaderResults(results, container) {
     container.innerHTML = '';
     if (results.length === 0) {
-        container.style.display = 'none';
+        container.innerHTML = '<div style="padding: 12px; text-align: center; color: var(--text-secondary); width: 100%; box-sizing: border-box;">not found</div>';
+        container.style.display = 'flex';
         return;
     }
     results.forEach(animal => {
@@ -287,7 +292,6 @@ export function injectHeader() {
     `;
     document.body.insertBefore(header, document.body.firstChild);
 
-    // Setup header search events
     if (!isHome && !isForm) {
         const searchBtn = document.getElementById('header-search-btn');
         const container = document.getElementById('header-search-container');
@@ -301,7 +305,22 @@ export function injectHeader() {
                 if (!isActive) {
                     container.classList.add('active');
                     searchInput.focus();
+                    
+                    const searchTerm = searchInput.value.trim();
+                    if (searchTerm.length > 0) {
+                        searchResults.style.display = 'flex';
+                        searchResults.innerHTML = `
+                            <div class="search-loading" style="display: flex; align-items: center; justify-content: center; padding: 20px; width: 100%; box-sizing: border-box;">
+                                <i class="fa-solid fa-paw fa-fade" style="font-size: 1.8rem; color: var(--primary-color);"></i>
+                            </div>
+                        `;
+                    }
+                    
                     await loadSearchAnimals();
+                    
+                    if (searchTerm.length > 0) {
+                        searchInput.dispatchEvent(new Event('input'));
+                    }
                 } else {
                     const searchTerm = searchInput.value.trim();
                     if (searchTerm.length === 0) {
@@ -322,17 +341,44 @@ export function injectHeader() {
                 }
             });
 
-            searchInput.addEventListener('input', () => {
+            let globalSearchSequence = 0;
+            searchInput.addEventListener('input', async () => {
+                const currentSearch = ++globalSearchSequence;
                 const searchTerm = searchInput.value.trim();
                 if (searchTerm.length === 0) {
                     searchResults.style.display = 'none';
                     searchResults.innerHTML = '';
                     return;
                 }
-                if (!allAnimals) return;
 
-                const filtered = allAnimals.filter(animal => animalMatchesSearch(animal, searchTerm));
-                displayHeaderResults(filtered, searchResults);
+                // Show pulsing paw loader inside the search results dropdown
+                searchResults.style.display = 'flex';
+                searchResults.innerHTML = `
+                    <div class="search-loading" style="display: flex; align-items: center; justify-content: center; padding: 20px; width: 100%; box-sizing: border-box;">
+                        <i class="fa-solid fa-paw fa-fade" style="font-size: 1.8rem; color: var(--primary-color);"></i>
+                    </div>
+                `;
+
+                try {
+                    if (!allAnimals) await loadSearchAnimals();
+
+                    const localMatches = allAnimals.filter(animal => animalMatchesSearch(animal, searchTerm));
+                    let remoteMatches = [];
+                    try { 
+                        remoteMatches = await findLocalAnimalsByWikidata(searchTerm, allAnimals); 
+                    } catch (error) { 
+                        console.warn('Wikidata: pesquisa indisponível', error); 
+                    }
+                    
+                    if (currentSearch !== globalSearchSequence) return;
+                    const merged = new Map([...localMatches, ...remoteMatches].map(animal => [animal.id, animal]));
+                    displayHeaderResults([...merged.values()], searchResults);
+                } catch (error) {
+                    console.error("Erro na pesquisa:", error);
+                    if (currentSearch === globalSearchSequence) {
+                        searchResults.innerHTML = '<div style="padding: 12px; color: var(--text-secondary);">Erro ao pesquisar.</div>';
+                    }
+                }
             });
         }
     }

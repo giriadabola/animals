@@ -2,6 +2,7 @@ import { ecologicalFunctionCatalog, getEcologicalFunctionMeta, getEcologicalFunc
 import { locomotionCatalog, getLocomotionMeta, getLocomotionSvg } from "./locomotion-visuals.js";
 
 export const generalVisualOptions = [
+    { tipo: 'Temperatura corporal', unidade: '\u00b0C' },
     { tipo: 'Vida útil', unidade: 'anos' },
     { tipo: 'Espetativa média de vida', unidade: 'anos' },
     { tipo: 'Velocidade máxima', unidade: 'km/h' },
@@ -356,6 +357,7 @@ const anatomicalCategoryMeta = {
 };
 
 const uniqueGeneralVisualMeta = {
+    'temperatura corporal': { key: 'temperatura-corporal', accent: 'accent-metabolic-rate' },
     'duracao do mergulho': { key: 'duracao-mergulho', accent: 'accent-depth-max' },
     'percentagem de gordura corporal': { key: 'gordura-corporal', accent: 'accent-life' },
     'espessura da camada de gordura': { key: 'camada-gordura', accent: 'accent-width' },
@@ -560,6 +562,7 @@ export function getGeneralModelSvg(key = 'geral') {
         'velocidade-media': makeSvg('<path d="M13 58a27 27 0 0 1 54 0"/><path d="M22 58h36"/><path d="M40 58l8-18"/><path d="M23 43h8"/><path d="M49 43h8"/><path d="M30 28l-4-7"/><path d="M50 28l4-7"/>'),
         'forca-mordida': makeSvg('<path d="M20 30c0-6 10-10 20-10s20 4 20 10v6H20v-6z"/><path d="M20 50c0 6 10 10 20 10s20-4 20-10v-6H20v6z"/><path d="M28 30l2 6M36 30l1 6M44 30l-1 6M52 30l-2 6"/><path d="M28 50l2-6M36 50l1-6M44 50l-1-6M52 50l-2-6"/>'),
         'numero-dentes': makeSvg('<path d="M18 30c0-7 10-12 22-12s22 5 22 12v7H18v-7Z"/><path d="M18 49c0 7 10 13 22 13s22-6 22-13v-7H18v7Z"/><path d="M24 37v8"/><path d="M32 37v10"/><path d="M40 37v10"/><path d="M48 37v10"/><path d="M56 37v8"/>'),
+        'temperatura-corporal': makeSvg('<path d="M34 16a6 6 0 0 1 12 0v25a14 14 0 1 1-12 0V16Z"/><path d="M40 24v27"/><circle cx="40" cy="57" r="6"/><path d="M52 22h10M52 32h7M52 42h10"/><path d="M20 64c5-5 10-7 16-7M60 64c-5-5-10-7-16-7"/>'),
         'numero-mamas': makeSvg('<path d="M24 18c9 0 16 7 16 16v12c0 9-7 16-16 16S8 55 8 46V34c0-9 7-16 16-16Z"/><path d="M56 18c9 0 16 7 16 16v12c0 9-7 16-16 16S40 55 40 46V34c0-9 7-16 16-16Z"/><circle cx="24" cy="43" r="4"/><circle cx="56" cy="43" r="4"/><path d="M32 18c4-5 12-5 16 0"/>'),
         'estrato-ecologico': makeSvg('<path d="M14 64h52"/><path d="M20 64V48l9-8l9 8v16"/><path d="M42 64V31l10-9l10 9v33"/><path d="M25 39V23"/><path d="M18 30c2-9 8-14 16-14s14 5 16 14"/><path d="M46 22c1-8 6-13 14-13s13 5 14 13"/>'),
         termorregulacao: makeSvg('<path d="M35 16a7 7 0 0 1 14 0v28a16 16 0 1 1-14 0V16Z"/><path d="M42 24v27"/><circle cx="42" cy="57" r="7"/><path d="M56 21h10M56 31h7M56 41h10"/>'),

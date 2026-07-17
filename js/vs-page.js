@@ -1,6 +1,9 @@
 import { db } from "./firebase-config.js?v=5";
+import { findLocalAnimalsByWikidata, getWikidataLocalizedNames } from "./wikidata-search.js?v=1";
 import { collection, getDocs } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
 import { generalVisualOptions } from "./general-visual-catalog.js";
+import { initAnimalLanguage, renderAnimalLanguageSelect, getSavedAnimalLanguage } from "./i18n/index.js?v=20260717_zh_complete_1";
+import { hideLoadingOverlay } from "./loader.js?v=2";
 import {
     collapseCombinedGenderItems,
     getGenderUi,
@@ -13,7 +16,6 @@ import {
 const compareGrid = document.getElementById('compareGrid');
 const compareSearchInput = document.getElementById('compareSearchInput');
 const compareSearchResults = document.getElementById('compareSearchResults');
-const compareSelectedList = document.getElementById('compareSelectedList');
 const compareSimilarityPanel = document.getElementById('compareSimilarityPanel');
 
 const state = {
@@ -25,6 +27,24 @@ const state = {
 };
 
 const preferredOrder = generalVisualOptions.map(option => option.tipo);
+
+const localizedNamesCache = {}; // { [animalId]: { [lang]: name } }
+
+async function fetchLocalizedNames(animal) {
+    if (!animal?.nomeCientifico || !animal?.id) return;
+    if (localizedNamesCache[animal.id]?._fetched) return;
+
+    if (!localizedNamesCache[animal.id]) {
+        localizedNamesCache[animal.id] = { pt: animal.nome };
+    }
+    try {
+        const names = await getWikidataLocalizedNames(animal.nomeCientifico);
+        Object.assign(localizedNamesCache[animal.id], names);
+        localizedNamesCache[animal.id]._fetched = true;
+    } catch (e) {
+        console.warn('Erro ao obter nomes da Wikidata para ' + animal.nome, e);
+    }
+}
 
 function escapeHtml(value = '') {
     return String(value).replace(/[&<>"]/g, char => ({
@@ -47,6 +67,9 @@ function normalizeSearchText(value = '') {
 function getAlsoKnownAsNames(animal = {}) {
     const curiosidades = animal.informacao?.curiosidades || {};
     const names = [];
+    const idiomaData = animal.informacao?.idiomas;
+    if (Array.isArray(idiomaData)) names.push(...idiomaData.map(item => item?.nome || item?.name).filter(Boolean));
+    else if (idiomaData && typeof idiomaData === 'object') names.push(...Object.values(idiomaData).filter(Boolean));
     if (Array.isArray(curiosidades.tambemConhecidoComo)) names.push(...curiosidades.tambemConhecidoComo);
     if (Array.isArray(curiosidades.detalhes)) {
         curiosidades.detalhes
@@ -301,40 +324,21 @@ function getComparisonValue(item = null) {
     return valueFromItem(item);
 }
 
-function renderSelectedList() {
-    if (!state.selectedIds.length) {
-        compareSelectedList.innerHTML = '<div class="compare-empty">Nenhum animal selecionado.</div>';
-        return;
-    }
 
-    compareSelectedList.innerHTML = state.selectedIds.map(animalId => {
-        const animal = getAnimalById(animalId);
-        if (!animal) return '';
-        return `
-            <div class="compare-chip">
-                <img src="${escapeHtml(animal.imagemUrl || '')}" alt="${escapeHtml(animal.nome || '')}">
-                <div class="compare-chip-copy">
-                    <strong>${escapeHtml(animal.nome || 'Animal')}</strong>
-                    <span>${escapeHtml(animal.nomeCientifico || '')}</span>
-                </div>
-                <button type="button" class="compare-chip-remove" data-remove-id="${animal.id}" aria-label="Remover ${escapeHtml(animal.nome || 'animal')}">×</button>
-            </div>
-        `;
-    }).join('');
-
-    compareSelectedList.querySelectorAll('[data-remove-id]').forEach(button => {
-        button.addEventListener('click', () => {
-            const id = button.dataset.removeId;
-            state.selectedIds = state.selectedIds.filter(item => item !== id);
-            delete state.selections[id];
-            if (state.similarityTargetId === id) state.similarityTargetId = '';
-            updateUrl();
-            renderAll();
-        });
-    });
-}
 
 function renderAnimalHeader(animal = {}) {
+    if (!localizedNamesCache[animal.id]?._fetched) {
+        return `
+            <article class="compare-animal-card is-loading">
+                <div class="compare-animal-loader">
+                    <div class="animal-animation">
+                        <i class="fa-solid fa-paw"></i>
+                    </div>
+                </div>
+            </article>
+        `;
+    }
+
     const selection = ensureSelectionForAnimal(animal);
     const genderUi = getGenderUi(selection.gender);
     const phaseUi = getPhaseUi(selection.phase);
@@ -342,18 +346,26 @@ function renderAnimalHeader(animal = {}) {
     const availableGenders = getAvailableGenderChoices(items);
     const availablePhases = getAvailablePhaseChoices(items);
 
+    const currentLang = getSavedAnimalLanguage();
+    const displayName = (localizedNamesCache[animal.id] && (localizedNamesCache[animal.id][currentLang] || localizedNamesCache[animal.id]['en'])) || animal.nome;
+
     return `
         <article class="compare-animal-card">
             <div class="compare-animal-controls">
-                <button type="button" class="compare-variant-btn compare-variant-gender" data-animal-id="${escapeHtml(animal.id)}" data-field="gender" ${availableGenders.size <= 1 ? 'disabled' : ''} aria-label="Alternar género">${genderUi.html}</button>
-                <button type="button" class="compare-variant-btn compare-variant-phase" data-animal-id="${escapeHtml(animal.id)}" data-field="phase" ${availablePhases.size <= 1 ? 'disabled' : ''} aria-label="Alternar fase">${phaseUi.html}</button>
-                <button type="button" class="compare-variant-btn compare-variant-similar" data-similar-id="${escapeHtml(animal.id)}" aria-label="Parecido" title="Parecido"><i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i></button>
+                <div class="compare-controls-left">
+                    <button type="button" class="compare-variant-btn compare-variant-gender" data-animal-id="${escapeHtml(animal.id)}" data-field="gender" ${availableGenders.size <= 1 ? 'disabled' : ''} aria-label="Alternar género">${genderUi.html}</button>
+                    <button type="button" class="compare-variant-btn compare-variant-phase compare-phase-${phaseUi.value.toLowerCase()}" data-animal-id="${escapeHtml(animal.id)}" data-field="phase" ${availablePhases.size <= 1 ? 'disabled' : ''} aria-label="Alternar fase">${phaseUi.html}</button>
+                </div>
+                <div class="compare-controls-right">
+                    <button type="button" class="compare-variant-btn compare-variant-similar" data-similar-id="${escapeHtml(animal.id)}" aria-label="Parecido" title="Parecido"><i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i></button>
+                    <button type="button" class="compare-variant-btn compare-variant-remove" data-remove-id="${escapeHtml(animal.id)}" aria-label="Remover" title="Remover"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+                </div>
             </div>
             <div class="compare-animal-image">
                 <img src="${escapeHtml(animal.imagemUrl || '')}" alt="${escapeHtml(animal.nome || '')}" style="object-position: ${escapeHtml(animal.imagemObjectPosition || 'center center')}">
             </div>
             <div class="compare-animal-copy">
-                <h4>${escapeHtml(animal.nome || 'Animal')}</h4>
+                <h4>${escapeHtml(displayName || 'Animal')}</h4>
                 <p>${escapeHtml(animal.nomeCientifico || 'Sem nome científico')}</p>
                 <span>${escapeHtml(getActiveCategories(animal.categoria))}</span>
             </div>
@@ -374,35 +386,35 @@ function renderMatrix() {
     const maps = new Map(animals.map(animal => [animal.id, getVisibleMap(animal)]));
 
     compareGrid.innerHTML = `
-        <section class="compare-matrix-section">
-            <div class="compare-section-head">
-                <h3>Comparação</h3>
-                <p>Clica numa linha para a destacar. Usa o ícone de brilho para ver animais com estatísticas parecidas.</p>
+        <div class="compare-matrix-table" style="--animal-count: ${animals.length};">
+            <div class="compare-matrix-row compare-matrix-row-head">
+                <div class="compare-matrix-label compare-matrix-label-head">Estatística</div>
+                ${animals.map(animal => renderAnimalHeader(animal)).join('')}
             </div>
-            <div class="compare-matrix-scroll">
-                <div class="compare-matrix-table" style="--animal-count: ${animals.length};">
-                    <div class="compare-matrix-row compare-matrix-row-head">
-                        <div class="compare-matrix-label compare-matrix-label-head">Estatística</div>
-                        ${animals.map(animal => renderAnimalHeader(animal)).join('')}
-                    </div>
-                    ${rows.map(type => `
-                        <div class="compare-matrix-row ${state.activeRowType === type ? 'is-active' : ''}" data-row-type="${escapeHtml(type)}">
-                            <div class="compare-matrix-label">${escapeHtml(type)}</div>
-                            ${animals.map(animal => {
-                                const visible = maps.get(animal.id);
-                                const item = visible?.get(type)?.item || null;
-                                const value = getComparisonValue(item);
-                                return `
-                                    <div class="compare-matrix-value ${value === '-' ? 'is-empty' : ''}">
-                                        <strong>${escapeHtml(value)}</strong>
-                                    </div>
-                                `;
-                            }).join('')}
-                        </div>
-                    `).join('')}
+            ${rows.map(type => `
+                <div class="compare-matrix-row ${state.activeRowType === type ? 'is-active' : ''}" data-row-type="${escapeHtml(type)}">
+                    <div class="compare-matrix-label">${escapeHtml(type)}</div>
+                    ${animals.map(animal => {
+                        const isLoaded = !!localizedNamesCache[animal.id]?._fetched;
+                        if (!isLoaded) {
+                            return `
+                                <div class="compare-matrix-value is-loading">
+                                    <i class="fa-solid fa-paw fa-pulse" style="opacity: 0.35; font-size: 1.3rem;"></i>
+                                </div>
+                            `;
+                        }
+                        const visible = maps.get(animal.id);
+                        const item = visible?.get(type)?.item || null;
+                        const value = getComparisonValue(item);
+                        return `
+                            <div class="compare-matrix-value ${value === '-' ? 'is-empty' : ''}">
+                                <strong>${escapeHtml(value)}</strong>
+                            </div>
+                        `;
+                    }).join('')}
                 </div>
-            </div>
-        </section>
+            `).join('')}
+        </div>
     `;
 
     compareGrid.querySelectorAll('.compare-matrix-row[data-row-type]').forEach(row => {
@@ -420,6 +432,17 @@ function renderMatrix() {
             const field = button.dataset.field;
             const next = field === 'gender' ? getNextAvailableGender(animal) : getNextAvailablePhase(animal);
             state.selections[animal.id] = { ...ensureSelectionForAnimal(animal), [field]: next };
+            renderAll();
+        });
+    });
+
+    compareGrid.querySelectorAll('[data-remove-id]').forEach(button => {
+        button.addEventListener('click', () => {
+            const id = button.dataset.removeId;
+            state.selectedIds = state.selectedIds.filter(item => item !== id);
+            delete state.selections[id];
+            if (state.similarityTargetId === id) state.similarityTargetId = '';
+            updateUrl();
             renderAll();
         });
     });
@@ -511,34 +534,48 @@ function renderSimilarityPanel() {
 }
 
 function renderSearchResults() {
+    if (!compareSearchResults) return;
     const term = normalizeSearchText(compareSearchInput.value);
-    const selected = new Set(state.selectedIds);
-    const matches = state.allAnimals
-        .filter(animal => !selected.has(animal.id))
-        .filter(animal => {
-            if (!term) return true;
-            return animalMatchesSearch(animal, term);
-        })
-        .slice(0, term ? 8 : 6);
-
-    if (!matches.length) {
-        compareSearchResults.innerHTML = '<div class="compare-empty">Sem resultados disponíveis.</div>';
+    if (!term) {
+        compareSearchResults.style.display = 'none';
+        compareSearchResults.innerHTML = '';
         return;
     }
 
-    compareSearchResults.innerHTML = matches.map(animal => `
-        <div class="compare-result-item">
-            <img src="${escapeHtml(animal.imagemUrl || '')}" alt="${escapeHtml(animal.nome || '')}">
-            <div class="compare-result-copy">
-                <strong>${escapeHtml(animal.nome || 'Animal')}</strong>
-                <span>${escapeHtml(animal.nomeCientifico || '')}</span>
-            </div>
-            <button type="button" class="compare-add-btn" data-add-id="${animal.id}">Adicionar</button>
-        </div>
-    `).join('');
+    const selected = new Set(state.selectedIds);
+    const matches = state.allAnimals
+        .filter(animal => !selected.has(animal.id))
+        .filter(animal => animalMatchesSearch(animal, term))
+        .slice(0, 8);
 
-    compareSearchResults.querySelectorAll('[data-add-id]').forEach(button => {
-        button.addEventListener('click', () => addAnimal(button.dataset.addId || ''));
+    if (!matches.length) {
+        compareSearchResults.innerHTML = '<div class="compare-empty">Sem resultados.</div>';
+        compareSearchResults.style.display = 'block';
+        return;
+    }
+
+    const currentLang = getSavedAnimalLanguage();
+    compareSearchResults.innerHTML = matches.map(animal => {
+        const displayName = (localizedNamesCache[animal.id] && (localizedNamesCache[animal.id][currentLang] || localizedNamesCache[animal.id]['en'])) || animal.nome;
+        return `
+            <div class="compare-result-dropdown-item" data-add-id="${animal.id}">
+                <img src="${escapeHtml(animal.imagemUrl || '')}" alt="${escapeHtml(displayName || '')}">
+                <div class="compare-result-dropdown-copy">
+                    <strong>${escapeHtml(displayName || 'Animal')}</strong>
+                    <span>${escapeHtml(animal.nomeCientifico || '')}</span>
+                </div>
+            </div>
+        `;
+    }).join('');
+
+    compareSearchResults.style.display = 'flex';
+
+    compareSearchResults.querySelectorAll('[data-add-id]').forEach(item => {
+        item.addEventListener('click', () => {
+            addAnimal(item.dataset.addId);
+            compareSearchResults.style.display = 'none';
+            compareSearchResults.innerHTML = '';
+        });
     });
 }
 
@@ -549,6 +586,11 @@ function addAnimal(animalId = '') {
     state.similarityTargetId = '';
     updateUrl();
     renderAll();
+
+    const animal = getAnimalById(animalId);
+    if (animal) {
+        fetchLocalizedNames(animal).then(() => renderAll());
+    }
 }
 
 function renderAll() {
@@ -557,8 +599,6 @@ function renderAll() {
         if (animal) ensureSelectionForAnimal(animal);
     });
 
-    renderSelectedList();
-    renderSearchResults();
     renderMatrix();
     renderSimilarityPanel();
 }
@@ -581,19 +621,55 @@ async function loadAnimals() {
 
         const availableIds = new Set(state.allAnimals.map(animal => animal.id));
         state.selectedIds = parseSelectedIdsFromUrl().filter(id => availableIds.has(id));
+
+        // Initialize language control and apply saved language
+        const langContainer = document.getElementById('compare-language-select-container');
+        if (langContainer) {
+            langContainer.innerHTML = renderAnimalLanguageSelect();
+            initAnimalLanguage(document.body);
+        }
+
+        // Collect translation fetch promises for selected animals
+        const localizePromises = [];
         state.selectedIds.forEach(id => {
             const animal = getAnimalById(id);
-            if (animal) ensureSelectionForAnimal(animal);
+            if (animal) {
+                ensureSelectionForAnimal(animal);
+                localizePromises.push(fetchLocalizedNames(animal));
+            }
         });
+
+        // Wait for Wikidata localized names to load
+        await Promise.all(localizePromises);
 
         updateUrl();
         renderAll();
+        hideLoadingOverlay();
     } catch (error) {
         console.error('Erro ao carregar animais para comparação:', error);
         compareGrid.innerHTML = '<div class="compare-empty">Não foi possível carregar os animais.</div>';
+        hideLoadingOverlay();
     }
 }
 
 compareSearchInput.addEventListener('input', renderSearchResults);
+compareSearchInput.addEventListener('focus', renderSearchResults);
+
+document.addEventListener('click', (e) => {
+    if (compareSearchResults && !e.target.closest('.compare-search-block')) {
+        compareSearchResults.style.display = 'none';
+    }
+});
+
+document.addEventListener('animal-language-change', () => {
+    const promises = state.selectedIds
+        .map(getAnimalById)
+        .filter(Boolean)
+        .map(animal => fetchLocalizedNames(animal));
+
+    Promise.all(promises).then(() => {
+        renderAll();
+    });
+});
 
 loadAnimals();

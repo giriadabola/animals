@@ -1,4 +1,5 @@
 import { feedingTypes, feedingTypeDescriptions, getFeedingModelSvg, getFeedingVisualMeta } from './feeding-visuals.js';
+import { getWikidataLabelsByTerm, getWikidataLocalizedNames } from './wikidata-search.js?v=20260717_localized_names_1';
 
 const feedingCatalog = [...feedingTypes].sort((a, b) => a.localeCompare(b, 'pt-PT', { sensitivity: 'base' }));
 
@@ -73,7 +74,7 @@ function renderFeedingRelations(relations, selectedTypes = []) {
                     <thead><tr><th>Tipo</th><th>Nome</th><th>Nome científico</th></tr></thead>
                     <tbody>${rows.map(row => row.groupTitle
                         ? `<tr class="feeding-relations-group-row"><th colspan="3">${escapeHtml(row.groupTitle)}</th></tr>`
-                        : `<tr><td>${escapeHtml(row.category)}</td><td>${escapeHtml(row.name)}</td><td>${escapeHtml(row.scientific || '—')}</td></tr>`).join('')}</tbody>
+                        : `<tr><td>${escapeHtml(row.category)}</td><td data-feeding-name-source="${escapeHtml(row.name)}" data-feeding-scientific-source="${escapeHtml(row.scientific)}">${escapeHtml(row.name)}</td><td>${row.scientific ? escapeHtml(row.scientific) : '&#8212;'}</td></tr>`).join('')}</tbody>
                 </table>
             </div>
         </section>`;
@@ -105,10 +106,36 @@ function closeFeedingTypePopup() {
     const popup = document.getElementById('feeding-type-modal');
     if (!popup) return;
     if (popup.__handleEscape) document.removeEventListener('keydown', popup.__handleEscape);
+    if (popup.__handleLanguageChange) document.removeEventListener('animal-language-change', popup.__handleLanguageChange);
     const trigger = popup.__trigger;
     popup.remove();
     document.body.classList.remove('conservation-status-modal-open');
     trigger?.focus();
+}
+
+
+function getActiveFeedingLanguage() {
+    return document.documentElement.lang === 'pt-PT' ? 'pt' : document.documentElement.lang || 'pt';
+}
+
+async function translateFeedingRelationNames(popup) {
+    const language = getActiveFeedingLanguage();
+    const cells = [...popup.querySelectorAll('[data-feeding-name-source]')];
+    if (language === 'pt') {
+        cells.forEach(cell => { cell.textContent = cell.dataset.feedingNameSource || ''; });
+        return;
+    }
+    await Promise.all(cells.map(async cell => {
+        const sourceName = cell.dataset.feedingNameSource || '';
+        const scientificName = cell.dataset.feedingScientificSource || '';
+        const labels = scientificName
+            ? await getWikidataLocalizedNames(scientificName)
+            : await getWikidataLabelsByTerm(sourceName);
+        const translated = labels[language]
+            || (language === 'zh' ? labels['zh-hans'] || labels['zh-hant'] : '')
+            || sourceName;
+        cell.textContent = translated;
+    }));
 }
 
 function openFeedingTypePopup(trigger) {
@@ -159,7 +186,10 @@ function openFeedingTypePopup(trigger) {
         if (event.key === 'Escape') closeFeedingTypePopup();
     };
     document.addEventListener('keydown', popup.__handleEscape);
+    popup.__handleLanguageChange = () => translateFeedingRelationNames(popup);
+    document.addEventListener('animal-language-change', popup.__handleLanguageChange);
     document.body.appendChild(popup);
+    translateFeedingRelationNames(popup);
     document.body.classList.add('conservation-status-modal-open');
     closeButton.focus();
 }

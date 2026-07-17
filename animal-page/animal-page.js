@@ -1,4 +1,6 @@
 import { db } from "../js/firebase-config.js?v=5";
+import { applyAnimalLanguage, initAnimalLanguage, renderAnimalLanguageSelect, getSavedAnimalLanguage } from "../js/i18n/index.js?v=20260717_zh_complete_1";
+import { getWikidataLocalizedNames } from "../js/wikidata-search.js?v=20260717_localized_names_1";
         import { doc, getDoc, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
         import { feedingTypeDescriptions, getFeedingVisualMeta, getFeedingModelSvg } from "../js/feeding-visuals.js";
         import { feedingAnimalOptions } from "../js/feeding-animal-options.js?v=2";
@@ -7,6 +9,7 @@ import { db } from "../js/firebase-config.js?v=5";
         import { sexualSystems } from "../js/sexual-systems.js?v=1";
         import { ecologyBlockConfigs, getEcologyBlockSvg } from "../js/ecology-visuals.js?v=20260714_ecology_models";
         import { getGeneralVisualMeta as getGeneralVisualCatalogMeta, getGeneralModelSvg as getGeneralCatalogModelSvg, getActivityMeta, getActivitySvg, getSocialMeta, getSocialSvg, getEcologicalFunctionMeta, getEcologicalFunctionSvg, getLocomotionMeta, getLocomotionSvg, isDropdownOnlyGeneralModel as isDropdownOnlyGeneralCatalogModel } from "../js/general-visual-catalog.js?v=20260714_ecology_models";
+        import { getRestingPlaceMaterialSvg } from "../js/resting-place-materials.js?v=1";
         import { collapseCombinedGenderItems, collectConcreteGenders, genderMatchesSelection, normalizeGenderValue } from "../js/gender-utils.js?v=2";
         import { renderAnimalMediaBlock, initAnimalMediaBlock, initFooterAnatomyTabs } from "../js/animal-media-block.js?v=3";
         import { renderAnimalAudioThumbnail, initAnimalAudioControls, pauseAllAnimalAudio } from "../js/animal-audio.js?v=20260710_audio_4";
@@ -36,6 +39,7 @@ import { getCommunicationGenericModelSvg } from "../js/communication-visuals.js?
 import { initCommunicationTypePopup } from "../js/communication-type-popup.js?v=1";
 import { initEcologyRelationsPopup } from "../js/ecology-relations-popup.js?v=1";
 import { initEnvironmentVisualPopup } from "../js/environment-visual-popup.js?v=1";
+import { getEnvironmentImageMeta } from "../js/environment-image-catalog.js?v=1";
 import { initClimateZoneMapPopup } from "../js/climate-zone-map-popup.js?v=1";
 import { initScientificClassificationToggles } from "./scientific-classification-toggle.js?v=1";
 import { initAnimalComparison } from "../js/animal-comparison.js?v=2";
@@ -74,7 +78,7 @@ import { initAnimalComparison } from "../js/animal-comparison.js?v=2";
 
         function getCountryFlagEmoji(code) {
             const normalizedCode = normalizeCountryCode(code);
-            if (!/^[A-Z]{2}$/.test(normalizedCode)) return '🌍';
+            if (!/^[A-Z]{2}$/.test(normalizedCode)) return '�YO�';
             return [...normalizedCode].map(character => String.fromCodePoint(127397 + character.charCodeAt(0))).join('');
         }
 
@@ -161,7 +165,7 @@ import { initAnimalComparison } from "../js/animal-comparison.js?v=2";
             const defaultGender = genders.has('M') ? 'M' : 'F';
             let html = `<span class="info-gender-tabs" style="display: inline-flex; gap: 10px; align-items: center; vertical-align: middle;">`;
             
-            // Abas de Fase (Ã  esquerda)
+            // Abas de Fase (�f  esquerda)
             if (hasPhases) {
                 html += `
                     <span class="glass-pill-toggle phase-toggle-container" style="display: inline-flex; background: rgba(255, 255, 255, 0.04); backdrop-filter: blur(8px); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 30px; padding: 3px; gap: 2px; align-items: center; box-shadow: inset 0 1px 1px rgba(255,255,255,0.05);">
@@ -170,11 +174,11 @@ import { initAnimalComparison } from "../js/animal-comparison.js?v=2";
                     </span>
                 `;
                 if (hasGenders) {
-                    html += `<span style="width: 1px; height: 18px; background: rgba(255,255,255,0.12);"></span>`;
+                    html += `<span style="width: 1px; height: 28px; background: rgba(255,255,255,0.12);"></span>`;
                 }
             }
             
-            // Abas de Género (Ã  direita)
+            // Abas de Género (�f  direita)
             if (hasGenders) {
                 html += `
                     <span class="glass-pill-toggle gender-toggle-container" style="display: inline-flex; background: rgba(255, 255, 255, 0.04); backdrop-filter: blur(8px); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 30px; padding: 3px; gap: 2px; align-items: center; box-shadow: inset 0 1px 1px rgba(255,255,255,0.05);">
@@ -603,7 +607,7 @@ import { initAnimalComparison } from "../js/animal-comparison.js?v=2";
             const normalizedType = normalizeDimensionKey(item.tipo || '');
             const isPercentageContext = normalizedType.includes('taxa de sucesso da caca') || normalizedType.includes('taxa de mortalidade');
             return isPercentageContext
-                ? `${escapeHtml(value)} %${unit ? ` • ${escapeHtml(unit)}` : ''}`.trim()
+                ? `${escapeHtml(value)} %${unit ? ` – ${escapeHtml(unit)}` : ''}`.trim()
                 : `${escapeHtml(value)}${unit ? ` ${escapeHtml(unit)}` : ''}`.trim();
         }
 
@@ -644,89 +648,11 @@ import { initAnimalComparison } from "../js/animal-comparison.js?v=2";
         }
 
         function getBiomaMeta(value = '') {
-            const normalized = normalizeDimensionKey(value).replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
-            const habitatMeta = getHabitatMeta(value);
-            if (habitatMeta) return habitatMeta;
-            const biomas = {
-                bosque: { image: 'assets/bioma/03_Bosque.png', accent: 'accent-bioma-bosque' },
-                calota_de_gelo: { image: 'assets/bioma/07_Calota_de_Gelo.png', accent: 'accent-bioma-calota-gelo' },
-                caverna: { image: 'assets/bioma/05_Caverna.png', accent: 'accent-bioma-caverna' },
-                chaparral: { image: 'assets/bioma/10_Chaparral.png', accent: 'accent-bioma-chaparral' },
-                duna: { image: 'assets/bioma/06_Duna.png', accent: 'accent-bioma-duna' },
-                estepe: { image: 'assets/bioma/09_Estepe.png', accent: 'accent-bioma-estepe' },
-                fauna_urbana: { image: 'assets/bioma/12_Fauna_Urbana.png', accent: 'accent-bioma-fauna-urbana' },
-                marinho: { image: 'assets/bioma/01_Marinho.png', accent: 'accent-bioma-marinho' },
-                montanha: { image: 'assets/bioma/11_Montanha.png', accent: 'accent-bioma-montanha' },
-                pantano: { image: 'assets/bioma/04_Pantano.png', accent: 'accent-bioma-pantano' },
-                pradaria: { image: 'assets/bioma/08_Pradaria.png', accent: 'accent-bioma-pradaria' },
-                savana: { image: 'assets/bioma/02_Savana.png', accent: 'accent-bioma-savana' },
-                floresta: { image: 'assets/bioma/16_Floresta.png', accent: 'accent-bioma-floresta' },
-                matagal: { image: 'assets/bioma/17_Matagal.png', accent: 'accent-bioma-matagal' },
-                costa: { image: 'assets/bioma/14_Costa.png', accent: 'accent-bioma-costa' },
-                areas_rochosas: { image: 'assets/bioma/15_Areas_Rochosas.png', accent: 'accent-bioma-areas-rochosas' },
-                marinho_corais: { image: 'assets/bioma/13_Marinho_corais.png', accent: 'accent-bioma-marinho-corais' }
-            };
-            return biomas[normalized] || null;
+            return getEnvironmentImageMeta(value, 'bioma', 'assets');
         }
 
         function getHabitatMeta(value = '') {
-            const normalized = normalizeDimensionKey(value).replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
-            const habitatImages = {
-                agua_salobra: 'Água salobra.png',
-                agricola: 'Agrícola.png',
-                ambiente_domestico: 'Ambiente doméstico.png',
-                ambiente_subterraneo: 'Ambiente subterrâneo.png',
-                area_degradada: 'Área degradada.png',
-                area_industrial: 'Área industrial.png',
-                areas_rochosas: 'Áreas rochosas.png',
-                baia: 'Baía.png',
-                bioma_antropogenico: 'Bioma antropogénico.png',
-                bosque: 'Bosque.png',
-                campo_bioma: 'Campo (bioma).png',
-                canal: 'Canal.png',
-                canal_ou_reservatorio_artificial: 'Canal ou reservatório artificial.png',
-                caverna: 'Caverna.png',
-                charco: 'Charco.png',
-                costa: 'Costa.png',
-                costa_rochosa: 'Costa rochosa.png',
-                costeiro: 'Costa.png',
-                deserto_polar: 'Deserto polar.png',
-                duna: 'Duna.png',
-                estuario: 'Estuário.png',
-                fauna_urbana: 'Fauna urbana.png',
-                fiorde: 'Fiorde.png',
-                floresta: 'Floresta.png',
-                floresta_de_kelp: 'Floresta de kelp.png',
-                jardim_parque: 'Jardim - Parque.png',
-                lagoa: 'Lagoa.png',
-                lagoa_costeira: 'Lagoa costeira.png',
-                marinho: 'Marinho.png',
-                marisma_salgada: 'Marisma salgada.png',
-                matagal: 'Matagal mediterrânico.png',
-                mina_pedreira: 'Mina - Pedreira.png',
-                montanha: '11_Montanha.png',
-                nascente: 'Nascente.png',
-                oasis: 'Oásis.png',
-                oceanico: 'Marinho.png',
-                pantano: '04_Pantano.png',
-                pastagem: 'Pastagem.png',
-                planalto: 'Planalto.png',
-                plantacao_florestal: 'Plantação florestal.png',
-                pradaria_marinha: 'Pradaria marinha.png',
-                praia_arenosa: 'Praia arenosa.png',
-                recife_rochoso: 'Recife rochoso.png',
-                reservatorio: 'Reservatório.png',
-                rural: 'Rural.png',
-                suburbano: 'Suburbano.png',
-                suburbio: 'Subúrbio.png',
-                urbano: 'Urbano.png',
-                vale: 'Vale.png',
-                zona_entremares: 'Zona entremarés.png',
-                zona_humida: 'Zona húmida.png',
-                zona_riparia: 'Zona ripária.png'
-            };
-            const filename = habitatImages[normalized];
-            return filename ? { image: `assets/habitat/${filename}`, accent: 'accent-bioma' } : null;
+            return getEnvironmentImageMeta(value, 'habitat', 'assets');
         }
 
         function getGeneralModelSvg(key = 'geral') {
@@ -1192,7 +1118,7 @@ import { initAnimalComparison } from "../js/animal-comparison.js?v=2";
                     <div class="dimension-model-icon ${climateMeta || habitatMeta || biomaMeta ? 'climate-zone-model-icon' : ''}">${icon}</div>
                     <div class="dimension-model-copy">
                         <div class="dimension-model-label${inlineGenderSymbol ? ' with-gender' : ''}">${escapeHtml(displayMeta.title)}${inlineGenderSymbol}</div>
-                        <div class="dimension-model-value">${mixedOption ? `${escapeHtml(mixedOption)} • ` : ''}${formatGeneralVisualValue(item)}</div>
+                        <div class="dimension-model-value">${mixedOption ? `${escapeHtml(mixedOption)} – ` : ''}${formatGeneralVisualValue(item)}</div>
                     </div>
                 </article>`;
         }
@@ -1312,10 +1238,10 @@ import { initAnimalComparison } from "../js/animal-comparison.js?v=2";
                                 <span class="icon svg-icon">${getInfoSectionIconSvg('geral')}</span>Geral
                             </button>
                             <button type="button" class="visual-model-section-tab" data-visual-model-tab="measures" role="tab" aria-selected="false">
-                                <span class="icon svg-icon">${getInfoSectionIconSvg('medidas')}</span>Medidas
+                                <span class="icon svg-icon">${getInfoSectionIconSvg('medidas')}</span><span class="visual-tab-label visual-tab-label--short" data-label-pt="Medidas" data-label-en="Meas." data-label-fr="Mesures" data-label-es="Medidas" data-label-de="Messwerte" data-label-ja="測定値" data-label-zh="测量">Medidas</span>
                             </button>
                             <button type="button" class="visual-model-section-tab" data-visual-model-tab="dimensions" role="tab" aria-selected="false">
-                                <span class="icon svg-icon">${getInfoSectionIconSvg('dimensoes')}</span>Dimensões
+                                <span class="icon svg-icon">${getInfoSectionIconSvg('dimensoes')}</span><span class="visual-tab-label visual-tab-label--short" data-label-pt="Dimensões" data-label-en="Dimensions" data-label-fr="Dimensions" data-label-es="Dimensiones" data-label-de="Abm." data-label-ja="寸法" data-label-zh="尺寸">Dimensões</span>
                             </button>
                         </span>
                     </h3>
@@ -1346,10 +1272,11 @@ import { initAnimalComparison } from "../js/animal-comparison.js?v=2";
             return items.map(item => {
                 const value = item.valorMin || item.valor || item.opcao || '';
                 const type = normalizeDimensionKey(item.tipo);
-                const isBiome = type === 'bioma' || type.includes('habitat');
-                const meta = isBiome ? getBiomaMeta(value) : null;
-                const popupAttributes = isBiome
-                    ? ` data-environment-visual-popup data-popup-kind="biome" data-popup-label="${escapeHtml(value)}" data-popup-image="${escapeHtml(meta?.image || '')}"`
+                const isBiome = type === 'bioma';
+                const isHabitat = type.includes('habitat');
+                const meta = isBiome ? getBiomaMeta(value) : isHabitat ? getHabitatMeta(value) : null;
+                const popupAttributes = meta
+                    ? ` data-environment-visual-popup data-popup-kind="${isHabitat ? 'habitat' : 'biome'}" data-popup-label="${escapeHtml(value)}" data-popup-image="${escapeHtml(meta?.image || '')}"`
                     : '';
                 const cardHtml = renderGeneralVisualCard(item).replace('<article ', `<article${popupAttributes} `);
                 return getInitialVisualItemVisibility(item, filterContext)
@@ -1440,7 +1367,7 @@ import { initAnimalComparison } from "../js/animal-comparison.js?v=2";
 
             return `
                 <div class="info-section-card" id="${id}" style="${wrapperStyle}">
-                    <h3><span class="icon svg-icon">${getInfoSectionIconSvg('distribuicao')}</span>Zona Climática, Biomas &amp; Habitats</h3>
+                    <h3 class="environment-section-heading"><span class="icon svg-icon">${getInfoSectionIconSvg('distribuicao')}</span><span class="environment-section-heading-title">Zona Climática, Biomas &amp; Habitats</span></h3>
                     <div class="visual-models-grid" style="display: flex; flex-direction: column; gap: 14px;">
                         ${renderClimateZoneEnvironmentCard(climateItems, biomeItems, filterContext)}
                         ${remainingBiomes.length ? `<div class="environment-subsection-heading">Biomas</div>${renderEnvironmentVisualCards(remainingBiomes.map(item => ({ ...item, isDimension: false })), filterContext)}` : ''}
@@ -1448,6 +1375,15 @@ import { initAnimalComparison } from "../js/animal-comparison.js?v=2";
                         ${habitatItems.length ? `<div class="environment-subsection-heading">Habitats</div>${renderEnvironmentVisualCards(habitatItems.map(item => ({ ...item, isDimension: false })), filterContext)}` : ''}
                     </div>
                 </div>`;
+        }
+
+        function isGeneralEnvironmentModel(item = {}) {
+            const type = normalizeDimensionKey(item.tipo || '');
+            return type === 'zona climatica'
+                || type === 'zona climatica secundaria'
+                || type === 'bioma'
+                || type === 'habitats'
+                || type === 'habitat';
         }
 
         function getGeneralVisualModels(animalData = {}) {
@@ -1466,7 +1402,7 @@ import { initAnimalComparison } from "../js/animal-comparison.js?v=2";
 
         function renderGeneralVisual(animalData) {
             const models = getGeneralVisualModels(animalData);
-            const isEnv = item => normalizeDimensionKey(item.tipo).includes('zona') || normalizeDimensionKey(item.tipo).includes('bioma') || normalizeDimensionKey(item.tipo).includes('habitat');
+            const isEnv = isGeneralEnvironmentModel;
             const valid = collapseCombinedGenderItems(
                 Array.isArray(models) ? models.filter(item => item.tipo && (item.valor || item.valorMin || item.valorMax) && !isEnv(item)) : []
             );
@@ -1695,7 +1631,7 @@ import { initAnimalComparison } from "../js/animal-comparison.js?v=2";
 
         function renderFeedingTypeCard(group) {
             const nutritionMeta = getFeedingNutritionMeta(group.type);
-            if (nutritionMeta && group.type === 'Tipo de AlimentaÃ§Ã£o') {
+            if (nutritionMeta && group.type === 'Tipo de Alimenta�f§�f£o') {
                 const entries = group.details
                     .map(parseFeedingDetail)
                     .filter(entry => entry.display)
@@ -1858,7 +1794,7 @@ import { initAnimalComparison } from "../js/animal-comparison.js?v=2";
             if (nutritionMeta) {
                 const detailData = parseFeedingDetail(item.detalhe || '');
                 const resolvedValue = detailData.display || item.detalhe || feedingTypeDescriptions[type] || 'Modelo visual';
-                const icon = type === 'Tipo de AlimentaÃ§Ã£o'
+                const icon = type === 'Tipo de Alimenta�f§�f£o'
                     ? getFeedingModelSvg(getFeedingVisualMeta(detailData.primary || resolvedValue).key)
                     : getReproductionModelSvg(nutritionMeta.key);
                 return `
@@ -2334,7 +2270,7 @@ import { initAnimalComparison } from "../js/animal-comparison.js?v=2";
             'Pelagem curta':'fa-scissors','Pelagem longa':'fa-wave-square','Pelagem densa':'fa-layer-group','Pelagem lanosa':'fa-cloud','Pelagem impermeável':'fa-umbrella','Pelagem sazonal':'fa-arrows-rotate','Pelagem de camuflagem':'fa-leaf','Pelagem com riscas':'fa-bars','Pelagem com manchas':'fa-circle-dot','Pelo liso':'fa-minus','Pelo ondulado':'fa-water','Pelo encaracolado':'fa-hurricane','Pelo áspero':'fa-grip-lines','Subpelo isolante':'fa-temperature-half','Vibrissas':'fa-lines-leaning','Espinhos modificados':'fa-burst','Sem pelo aparente':'fa-ban',
             'Escamas placoides':'fa-tooth','Escamas ganoides':'fa-gem','Escamas cicloides':'fa-circle-notch','Escamas ctenoides':'fa-fan','Escamas reduzidas':'fa-compress','Sem escamas':'fa-ban','Pele mucosa':'fa-droplet','Placas dérmicas':'fa-shield','Dentículos dérmicos':'fa-teeth','Bioluminescência':'fa-lightbulb','Coloração iridescente':'fa-wand-magic-sparkles','Mudança de cor':'fa-palette',
             'Pele lisa':'fa-circle','Pele rugosa':'fa-braille','Pele granulosa':'fa-grip','Pele húmida':'fa-droplet','Pele verrugosa':'fa-circle-nodes','Pele translúcida':'fa-eye','Glândulas mucosas':'fa-water','Glândulas de veneno':'fa-flask','Dobras cutâneas':'fa-wave-square','Tubérculos':'fa-circle-dot','Coloração aposemática':'fa-triangle-exclamation',
-            'Exoesqueleto rígido':'fa-shield-halved','Exoesqueleto flexível':'fa-link','Exoesqueleto quitinoso':'fa-shield','Élitros':'fa-door-closed','Cutícula cerosa':'fa-droplet','Muda do exoesqueleto':'fa-arrows-rotate','Cerdas sensoriais':'fa-satellite-dish','Espinhos':'fa-burst','Placas':'fa-table-cells','Brilho metálico':'fa-bolt','Pelos urticantes':'fa-fire','Carapaça calcificada':'fa-gem','Carapaça rígida':'fa-shield','Carapaça flexível':'fa-link','Exoesqueleto segmentado':'fa-layer-group','Muda da carapaça':'fa-arrows-rotate','Pinças especializadas':'fa-scissors',
+            'Exoesqueleto rígido':'fa-shield-halved','Exoesqueleto flexível':'fa-link','Exoesqueleto quitinoso':'fa-shield','�?litros':'fa-door-closed','Cutícula cerosa':'fa-droplet','Muda do exoesqueleto':'fa-arrows-rotate','Cerdas sensoriais':'fa-satellite-dish','Espinhos':'fa-burst','Placas':'fa-table-cells','Brilho metálico':'fa-bolt','Pelos urticantes':'fa-fire','Carapaça calcificada':'fa-gem','Carapaça rígida':'fa-shield','Carapaça flexível':'fa-link','Exoesqueleto segmentado':'fa-layer-group','Muda da carapaça':'fa-arrows-rotate','Pinças especializadas':'fa-scissors',
             'Manchas':'fa-circle-dot',
             'Concha univalve':'fa-circle-notch','Concha bivalve':'fa-book-open','Concha espiral':'fa-hurricane','Concha interna':'fa-circle-half-stroke','Sem concha externa':'fa-ban','Manto':'fa-sheet-plastic','Cromatóforos':'fa-palette','Pele segmentada':'fa-grip-lines','Cutícula':'fa-layer-group','Pele ciliada':'fa-lines-leaning','Anéis corporais':'fa-ring','Membrana celular':'fa-circle','Película':'fa-circle-notch','Parede externa':'fa-border-all','Cápsula':'fa-capsules','Carapaça microscópica':'fa-shield','Cílios':'fa-lines-leaning','Flagelos':'fa-wave-square','Pseudópodes':'fa-hand','Espículas':'fa-burst'
         };
@@ -2583,7 +2519,7 @@ import { initAnimalComparison } from "../js/animal-comparison.js?v=2";
             const renderMeta = (item) => `
                 <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px;">
                     <span style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 8px; border-radius: 999px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08); color: rgba(255,255,255,0.72); font-size: 0.72rem; font-weight: 600;">${escapeHtml(getGenderLabel(item.genero || 'MF'))}</span>
-                    <span style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 8px; border-radius: 999px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08); color: rgba(255,255,255,0.72); font-size: 0.72rem; font-weight: 600;">${item.fase === 'Cria' ? '👶 Cria' : '🐾 Adulto'}</span>
+                    <span style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 8px; border-radius: 999px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08); color: rgba(255,255,255,0.72); font-size: 0.72rem; font-weight: 600;">${item.fase === 'Cria' ? 'Cria' : 'Adulto'}</span>
                 </div>
             `;
 
@@ -2592,7 +2528,7 @@ import { initAnimalComparison } from "../js/animal-comparison.js?v=2";
                 const min = item.valorMin !== undefined && item.valorMin !== null ? String(item.valorMin).trim() : '';
                 const max = item.valorMax !== undefined && item.valorMax !== null ? String(item.valorMax).trim() : '';
                 const unit = item.unidade ? ` ${String(item.unidade).trim()}` : '';
-                if (min && max) return min === max ? `${min}${unit}` : `${min}–${max}${unit}`;
+                if (min && max) return min === max ? `${min}${unit}` : `${min}—${max}${unit}`;
                 if (min) return `${min}${unit}`;
                 if (max) return `${max}${unit}`;
                 return '';
@@ -2665,7 +2601,7 @@ import { initAnimalComparison } from "../js/animal-comparison.js?v=2";
                             <div class="curiosidades-card-head">
                                 <span class="dimension-model-label">${escapeHtml(status.name)}</span>
                                 ${renderMetaSymbols(item)}
-                                <span class="curiosidades-card-open-indicator" aria-hidden="true">↗︎</span>
+                                <span class="curiosidades-card-open-indicator" aria-hidden="true">↗</span>
                             </div>
                             <strong class="dimension-model-value">Estado de Conservação</strong>
                         </div>
@@ -2684,9 +2620,9 @@ import { initAnimalComparison } from "../js/animal-comparison.js?v=2";
                     : normalizedTipo === 'tipo de toxina'
                         ? 'toxinType'
                         : normalizedTipo.includes('administra') && normalizedTipo.includes('toxina')
-                            ? 'Via de administraÃ§Ã£o da toxina'
+                            ? 'Via de administra�f§�f£o da toxina'
                             : normalizedTipo.includes('doto') && normalizedTipo.includes('disp')
-                                ? 'AntÃ­doto disponÃ­vel'
+                                ? 'Ant�f­doto dispon�f­vel'
                                 : '';
                 if (item.tipo === 'Também conhecido como') {
                     return `
@@ -2764,6 +2700,48 @@ import { initAnimalComparison } from "../js/animal-comparison.js?v=2";
                     `;
                 }
 
+                if (normalizeDimensionKey(item.tipo) === 'materiais de local de repouso') {
+                    const materialNames = Array.isArray(item.materiais) && item.materiais.length
+                        ? item.materiais
+                        : String(item.valor || '').split(',').map(value => value.trim()).filter(Boolean);
+                    const material = materialNames[0] || '';
+                    const materialIcon = getRestingPlaceMaterialSvg(material);
+                    return `
+                        <article class="dimension-model-card curiosidades-model-card resting-place-materials-card" style="width: 100%; box-sizing: border-box; display: flex; align-items: center;">
+                            <div class="dimension-model-icon" style="flex-shrink: 0; background: rgba(16, 185, 129, 0.18); color: #6ee7b7; display: flex; align-items: center; justify-content: center;">
+                                ${materialIcon || '<i class="fa-solid fa-leaf" aria-hidden="true"></i>'}
+                            </div>
+                            <div class="dimension-model-copy" style="display: flex; flex-direction: column; align-items: flex-start; text-align: left;">
+                                <div class="curiosidades-card-head">
+                                    <span class="dimension-model-label">${valuesHtml}</span>
+                                    ${renderMetaSymbols(item)}
+                                </div>
+                                <strong class="dimension-model-value">Materiais de local de repouso</strong>
+                            </div>
+                        </article>
+                    `;
+                }
+                if (normalizeDimensionKey(item.tipo) === 'dimensoes do local de repouso') {
+                    return `
+                        <article class="dimension-model-card curiosidades-model-card resting-place-dimensions-card" style="width: 100%; box-sizing: border-box; display: flex; align-items: center;">
+                            <div class="dimension-model-icon" style="flex-shrink: 0; background: rgba(14, 165, 233, 0.18); color: #7dd3fc; display: flex; align-items: center; justify-content: center;">
+                                <svg viewBox="0 0 64 64" fill="none" aria-hidden="true" style="width: 30px; height: 30px;">
+                                    <path d="M10 45c8-13 16-19 22-19s14 6 22 19" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M16 45h32" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/>
+                                    <path d="M12 53h40M20 53v-5M44 53v-5" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+                                    <path d="M54 18v24M50 22l4-4l4 4M50 38l4 4l4-4" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </div>
+                            <div class="dimension-model-copy" style="display: flex; flex-direction: column; align-items: flex-start; text-align: left;">
+                                <div class="curiosidades-card-head">
+                                    <span class="dimension-model-label">${valuesHtml}</span>
+                                    ${renderMetaSymbols(item)}
+                                </div>
+                                <strong class="dimension-model-value">Dimensões do local de repouso</strong>
+                            </div>
+                        </article>
+                    `;
+                }
                 if (normalizeDimensionKey(item.tipo) === 'tipo de comunicacao') {
                     const communicationTypesData = escapeHtml(JSON.stringify(communicationTypeValues));
                     return `
@@ -2775,7 +2753,7 @@ import { initAnimalComparison } from "../js/animal-comparison.js?v=2";
                                 <div class="curiosidades-card-head">
                                 <span class="dimension-model-label">${valuesHtml}</span>
                                 ${renderMetaSymbols(item)}
-                                <span class="curiosidades-card-open-indicator" aria-hidden="true">↗︎</span>
+                                <span class="curiosidades-card-open-indicator" aria-hidden="true">↗</span>
                                 </div>
                                 <strong class="dimension-model-value">Tipo de Comunicação</strong>
                             </div>
@@ -2918,7 +2896,7 @@ import { initAnimalComparison } from "../js/animal-comparison.js?v=2";
                     `;
                 }
 
-                if (item.tipo !== 'Estado de ConservaÃ§Ã£o' && item.tipo !== 'Estado de Conservação') {
+                if (item.tipo !== 'Estado de Conserva�f§�f£o' && item.tipo !== 'Estado de Conservação') {
                     return `
                         <article class="dimension-model-card curiosidades-model-card" style="width:100%;box-sizing:border-box;display:flex;align-items:center;">
                             <div class="dimension-model-icon" style="flex-shrink:0;background:rgba(148, 163, 184, 0.16);color:#cbd5e1;display:flex;align-items:center;justify-content:center;"><i class="fa-solid fa-sparkles"></i></div>
@@ -2943,7 +2921,7 @@ import { initAnimalComparison } from "../js/animal-comparison.js?v=2";
                             <div class="curiosidades-card-head">
                                 <span class="dimension-model-label">${escapeHtml(sColor.name)}</span>
                                 ${renderMetaSymbols(item)}
-                                <span class="curiosidades-card-open-indicator" aria-hidden="true">↗︎</span>
+                                <span class="curiosidades-card-open-indicator" aria-hidden="true">↗</span>
                             </div>
                             <strong class="dimension-model-value">Estado de Conservação</strong>
                         </div>
@@ -3227,6 +3205,34 @@ import { initAnimalComparison } from "../js/animal-comparison.js?v=2";
             });
         }
 
+        async function initAnimalNameLocalization(animalData = {}) {
+            const portugueseName = String(animalData.nome || '').trim();
+            const scientificName = String(animalData.nomeCientifico || '').trim();
+            const localizedNames = { pt: portugueseName };
+            let requestSequence = 0;
+
+            const updateName = async language => {
+                const currentRequest = ++requestSequence;
+                let name = portugueseName;
+                if (language !== 'pt' && scientificName) {
+                    if (!localizedNames[language]) {
+                        const names = await getWikidataLocalizedNames(scientificName);
+                        Object.assign(localizedNames, names);
+                    }
+                    name = localizedNames[language] || localizedNames['en'] || portugueseName;
+                }
+                if (currentRequest !== requestSequence) return;
+                document.querySelectorAll('[data-animal-common-name]').forEach(element => { element.textContent = name; });
+                document.title = `${name} - Grandes Projetos`;
+            };
+
+            document.addEventListener('animal-language-change', event => {
+                updateName(event.detail?.language || 'pt');
+            });
+            const initialLanguage = document.documentElement.lang === 'pt-PT' ? 'pt' : document.documentElement.lang;
+            updateName(initialLanguage);
+        }
+
         function renderAnimalData(animalData, animalId) {
             console.log("Loaded animalData in browser:", animalData);
             document.title = `${animalData.nome} - Grandes Projetos`;
@@ -3351,7 +3357,7 @@ import { initAnimalComparison } from "../js/animal-comparison.js?v=2";
             );
 
             const models = animalData.informacao?.geralDetalhada || [];
-            const isEnv = item => normalizeDimensionKey(item.tipo).includes('zona') || normalizeDimensionKey(item.tipo).includes('bioma') || normalizeDimensionKey(item.tipo).includes('habitat');
+            const isEnv = isGeneralEnvironmentModel;
             const validQuickData = collapseCombinedGenderItems(
                 Array.isArray(models) ? models.filter(item => item.tipo && (item.valor || item.valorMin || item.valorMax) && !isEnv(item) && !isLegacyGeneralMatingItem(item)) : []
             );
@@ -3529,11 +3535,13 @@ import { initAnimalComparison } from "../js/animal-comparison.js?v=2";
                 </div>
                 <div class="animal-header-card desktop-only">
                     <div class="header-titles">
-                        <h1>${animalData.nome}</h1>
+                        <h1 data-animal-common-name>${animalData.nome}</h1>
                         <h2 class="scientific-name">(${animalData.nomeCientifico})</h2>
+                        ${renderAnimalLanguageSelect()}
                     </div>
                 </div>
-                <nav class="page-nav desktop-only">
+                <nav class="page-nav desktop-only" data-page-nav>
+                    <a class="page-nav-home" href="index.html" aria-label="P?gina inicial"><i class="fa-solid fa-paw" aria-hidden="true"></i></a>
                     ${navHTMLDesktop}
                 </nav>
                 <div class="content-grid has-3-cols">
@@ -3556,7 +3564,7 @@ import { initAnimalComparison } from "../js/animal-comparison.js?v=2";
 
                         ${hasDimensoesText && !useInfoTabs ? `
                         <div class="info-section-card" id="info-dimensoes">
-                            <h3><span class="icon svg-icon">${getInfoSectionIconSvg('dimensoes')}</span>Dimensões</h3>
+                            <h3><span class="icon svg-icon">${getInfoSectionIconSvg('dimensoes')}</span><span>Dimensões</span></h3>
                             <p>${animalData.informacao.dimensoes}</p>
                         </div>` : ''}
 
@@ -3641,10 +3649,12 @@ import { initAnimalComparison } from "../js/animal-comparison.js?v=2";
                     <!-- Stacked Mobile Version -->
                     <div class="animal-details mobile-only">
                         <div class="header mobile-only">
-                            <h1>${animalData.nome}</h1>
+                            ${renderAnimalLanguageSelect()}
+                            <h1 data-animal-common-name>${animalData.nome}</h1>
                             <h2 class="scientific-name">(${animalData.nomeCientifico})</h2>
                         </div>
-                        <nav class="page-nav">
+                        <nav class="page-nav" data-page-nav>
+                            <a class="page-nav-home" href="index.html" aria-label="P?gina inicial"><i class="fa-solid fa-paw" aria-hidden="true"></i></a>
                             ${navHTMLMobile}
                         </nav>
                         <div class="info-sections">
@@ -3682,7 +3692,7 @@ import { initAnimalComparison } from "../js/animal-comparison.js?v=2";
 
                             ${hasDimensoesText && !useInfoTabs ? `
                             <div class="info-section" id="info-dimensoes-mobile">
-                                <h3><span class="icon svg-icon">${getInfoSectionIconSvg('dimensoes')}</span>Dimensões</h3>
+                                <h3><span class="icon svg-icon">${getInfoSectionIconSvg('dimensoes')}</span><span>Dimensões</span></h3>
                                 <p>${animalData.informacao.dimensoes || ''}</p>
                             </div>` : ''}
                             ${hasAlimentacao ? `
@@ -3894,7 +3904,7 @@ import { initAnimalComparison } from "../js/animal-comparison.js?v=2";
                         const getRankingUrl = (paramName) => {
                             const name = String(paramName || '').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
                             if (name.includes('vida') || name.includes('longevidade')) {
-                                return 'filtros.html?tipo=mais-vida-util&valor=Com%20mais%20Vida%20Útil';
+                                return 'filtros.html?tipo=mais-vida-util&valor=Com%20mais%20Vida%20�stil';
                             }
                             if (name.includes('velocidade') || name.includes('veloz')) {
                                 return 'filtros.html?tipo=mais-velozes&valor=Os%20Mais%20Velozes';
@@ -3978,7 +3988,11 @@ import { initAnimalComparison } from "../js/animal-comparison.js?v=2";
                                             <span class="animal-comparison-kicker">Comparação visual</span>
                                             <h2 id="animal-comparison-title"><i class="fa-solid fa-scale-balanced" aria-hidden="true"></i> Comparar com outro animal</h2>
                                         </div>
-                                        <div class="animal-comparison-search">
+                                        <a class="animal-comparison-open-button" href="vs.html?id=${encodeURIComponent(animalId)}" aria-label="Abrir página de comparação" title="Abrir página de comparação">
+                                                    <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>
+                                                    Abrir comparação completa
+                                                </a>
+                                                <div class="animal-comparison-search">
                                             <label class="animal-comparison-select-label" for="animal-comparison-search-input">Animal</label>
                                             <input id="animal-comparison-search-input" data-comparison-search type="search" autocomplete="off" placeholder="Pesquisar por nome comum ou científico..." aria-label="Pesquisar animal para comparar" aria-controls="animal-comparison-search-results" aria-expanded="false">
                                             <div id="animal-comparison-search-results" class="animal-comparison-search-results" data-comparison-search-results role="listbox" hidden></div>
@@ -4069,6 +4083,9 @@ import { initAnimalComparison } from "../js/animal-comparison.js?v=2";
                     `;
                 })()}
             `;
+
+            initAnimalLanguage(mainContent);
+            initAnimalNameLocalization(animalData);
 
             initScientificClassificationToggles(mainContent);
             initAnimalMediaBlock(mainContent);
@@ -4517,6 +4534,14 @@ import { initAnimalComparison } from "../js/animal-comparison.js?v=2";
             });
 
             // Lógica para navegação interna ativa
+            const pageNavs = document.querySelectorAll('[data-page-nav]');
+            const updateFloatingPageNavs = () => {
+                pageNavs.forEach(nav => {
+                    const top = nav.getBoundingClientRect().top;
+                    nav.classList.toggle('is-floating', window.scrollY > 0 && top <= 22);
+                });
+            };
+            updateFloatingPageNavs();
             const navAnchors = document.querySelectorAll('.nav-anchor');
             const sections = document.querySelectorAll('.middle-column .info-section-card, .info-sections .info-section');
 
@@ -4543,6 +4568,7 @@ import { initAnimalComparison } from "../js/animal-comparison.js?v=2";
 
             // Seletor dinâmico baseado no scroll usando getBoundingClientRect
             window.addEventListener('scroll', () => {
+                updateFloatingPageNavs();
                 let current = '';
                 
                 // Encontrar a primeira secção visível cujo fundo ultrapasse o topo/cabeçalho da página
@@ -4572,7 +4598,10 @@ import { initAnimalComparison } from "../js/animal-comparison.js?v=2";
         const animalLoadingAnimations = [
             { src: 'assets/loading/coruja_loader_site/coruja_escolher_livro_biblioteca.svg', alt: 'Coruja a escolher um livro' },
             { src: 'assets/loading/macaco_loader_site/macaco_trepar_arvore.svg', alt: 'Macaco a trepar uma árvore' },
-            { src: 'assets/loading/polvo_loader_site/polvo_teclar_computador.svg', alt: 'Polvo a teclar num computador' }
+            { src: 'assets/loading/polvo_loader_site/polvo_teclar_computador.svg', alt: 'Polvo a teclar num computador' },
+            { src: 'assets/loading/camaleao_shy_loader_site/camaleao_envergonhado_floresta.svg', alt: 'Camaleão envergonhado na floresta' },
+            { src: 'assets/loading/caranguejo_loader_site/caranguejo_fita_metrica_praia.svg', alt: 'Caranguejo com fita métrica na praia' },
+            { src: 'assets/loading/garca_loader_site/garca_voar_biblioteca.svg', alt: 'Garça a voar na biblioteca' }
         ];
 
         function renderAnimalLoadingState() {
@@ -4594,6 +4623,17 @@ import { initAnimalComparison } from "../js/animal-comparison.js?v=2";
                 const docSnap = await getDoc(docRef);
                 if (docSnap.exists()) {
                     const animalData = docSnap.data();
+                    
+                    // Await Wikidata name translations for the saved language if it's not Portuguese
+                    const currentLang = getSavedAnimalLanguage();
+                    if (currentLang !== 'pt' && animalData.nomeCientifico) {
+                        try {
+                            await getWikidataLocalizedNames(animalData.nomeCientifico);
+                        } catch (e) {
+                            console.warn("Erro ao pré-carregar nomes do Wikidata:", e);
+                        }
+                    }
+
                     renderAnimalData(animalData, animalId);
                     fetchAndRenderSubspeciesParents(animalData.subespeciesDe);
                     fetchAndRenderRelatedAnimals(animalData.subfamilia, animalId, animalData.tribo);
@@ -4607,4 +4647,5 @@ import { initAnimalComparison } from "../js/animal-comparison.js?v=2";
         }
         
         loadPage();
+
 

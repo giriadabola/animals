@@ -1,5 +1,6 @@
 import { db } from './firebase-config.js?v=5';
 import { collection, getDocs } from 'https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js';
+import { findLocalAnimalsByWikidata } from './wikidata-search.js?v=1';
 
 const STATISTICS = [
     { key: 'altura', label: 'Altura', source: 'dimensoes' },
@@ -102,11 +103,21 @@ export async function initAnimalComparison(root, currentAnimal = {}, currentAnim
             searchResults.hidden = true;
             searchInput.setAttribute('aria-expanded', 'false');
         };
-        const renderResults = () => {
+        const renderResults = async () => {
             const term = normalize(searchInput.value);
-            const matches = term
-                ? animals.filter(animal => normalize(animal.nome).includes(term) || normalize(animal.nomeCientifico).includes(term)).slice(0, 12)
+            let matches = term
+                ? animals.filter(animal => normalize(animal.nome).includes(term) || normalize(animal.nomeCientifico).includes(term))
                 : [];
+            if (term) {
+                try {
+                    const remoteMatches = await findLocalAnimalsByWikidata(term, animals);
+                    const ids = new Set(matches.map(animal => animal.id));
+                    remoteMatches.forEach(animal => { if (!ids.has(animal.id)) matches.push(animal); });
+                } catch (error) {
+                    console.warn('Wikidata: pesquisa indisponível', error);
+                }
+                matches = matches.slice(0, 12);
+            }
             searchResults.innerHTML = matches.length
                 ? matches.map(animal => `<button type="button" class="animal-comparison-search-result" data-comparison-animal-id="${escapeHtml(animal.id)}" role="option"><strong>${escapeHtml(getAnimalName(animal))}</strong>${animal.nomeCientifico && animal.nomeCientifico !== animal.nome ? `<small>${escapeHtml(animal.nomeCientifico)}</small>` : ''}</button>`).join('')
                 : (term ? '<p class="animal-comparison-search-empty">Nenhum animal encontrado.</p>' : '');
