@@ -890,6 +890,7 @@
             setPlumageData(coveringItems, { useDefaults: false });
             
             const distData = animal.informacao.distribuicao || { paises: [], paisesDetalhes: {}, paisesAutomaticos: [], descricao: '', regioesBiogeograficas: [], areas: [], pontos: [] };
+            if (typeof window.setIdiomasData === 'function') window.setIdiomasData(animal.informacao.idiomas || []);
             selectedCountries = distData.paises || [];
             paisesDetalhes = distData.paisesDetalhes || {};
             const savedAutomaticCountries = new Set(Array.isArray(distData.paisesAutomaticos) ? distData.paisesAutomaticos : []);
@@ -1179,7 +1180,8 @@
 
                 const parsed = parseClassificationText(rawText);
 
-                if (!Object.keys(parsed).length) {
+                const supplemental = window.pendingTaxonomySupplemental || {};
+                if (!Object.keys(parsed).length && !(supplemental.idiomas?.length || supplemental.alsoKnownAs?.length)) {
                     window.alert('Não foram encontrados campos taxonómicos no texto. Verifica se o texto contém, por exemplo, “Class: Mammalia” ou “Class\\tMammalia”.');
                     return;
                 }
@@ -1229,11 +1231,13 @@
                     }
                 }
 
-                if (!filledFields) {
+                if (!filledFields && !(supplemental.idiomas?.length || supplemental.alsoKnownAs?.length)) {
                     window.alert('Foram reconhecidos ranks, mas não foi possível localizar os campos do formulário. Recarrega a página e tenta novamente.');
                     return;
                 }
 
+                if (typeof window.applyImportedTaxonomySupplemental === 'function') window.applyImportedTaxonomySupplemental(supplemental);
+                window.pendingTaxonomySupplemental = {};
                 closeImportTaxModal();
             });
         }
@@ -1489,6 +1493,8 @@
         // --- CURIOSIDADES E MODELO VISUAL ---
         const curiosidadesTypeOptions = [
             'Cor do animal',
+            'Dimensões do local de repouso',
+            'Materiais de local de repouso',
             'Distância Percorrida',
             'Estado de Conservação',
             'Horas de Sono',

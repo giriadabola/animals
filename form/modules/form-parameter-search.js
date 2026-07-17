@@ -5,6 +5,9 @@
     const input = document.getElementById('formParameterSearchInput');
     const results = document.getElementById('formParameterSearchResults');
     const clearBtn = document.getElementById('formParameterSearchClear');
+    const unlockBtn = document.getElementById('formParameterSearchUnlock');
+    const originalParent = root.parentNode;
+    const originalNextSibling = root.nextSibling;
     if (!root || !input || !results) return;
 
     const SECTION_META = {
@@ -27,6 +30,17 @@
     ].map(value => normalize(value)));
 
     let searchEntries = [];
+    function setFloatingSearch(isUnlocked) {
+        if (isUnlocked && root.parentNode !== document.body) document.body.appendChild(root);
+        if (!isUnlocked && root.parentNode === document.body && originalParent) originalParent.insertBefore(root, originalNextSibling);
+        root.classList.toggle('is-unlocked', isUnlocked);
+        unlockBtn?.setAttribute('aria-pressed', String(isUnlocked));
+        if (unlockBtn) {
+            unlockBtn.setAttribute('aria-label', isUnlocked ? 'Trancar pesquisa' : 'Destrancar pesquisa');
+            unlockBtn.setAttribute('title', isUnlocked ? 'Trancar pesquisa' : 'Destrancar pesquisa');
+            unlockBtn.innerHTML = isUnlocked ? '<i class="fa-solid fa-unlock" aria-hidden="true"></i>' : '<i class="fa-solid fa-lock" aria-hidden="true"></i>';
+        }
+    }
     let activeIndex = -1;
 
     function normalize(value = '') {
@@ -171,6 +185,16 @@
         reproductionSecondary.set('Acasalamento', optionValues(typeof matingSystems !== 'undefined' ? matingSystems : []));
         reproductionSecondary.set('Sistema sexual', ['Dióico','Monoico','Hermafrodita simultâneo','Hermafrodita sequencial','Protândrico','Protogínico']);
         reproductionSecondary.set('Época de reprodução', ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro','Primavera','Verão','Outono','Inverno']);
+        optionValues(typeof getReproductiveLifeHistoryOptions === 'function' ? getReproductiveLifeHistoryOptions() : []).forEach(value => addEntry(entries, {
+            section: 'reproducao', label: value, parent: 'Estratégia reprodutiva › Estratégia',
+            keywords: ['estratégia reprodutiva', 'semelparidade', 'iteroparidade'],
+            action: () => createReproductiveStrategyTarget('lifeHistory', value)
+        }));
+        optionValues(typeof getReproductiveTimingOptions === 'function' ? getReproductiveTimingOptions() : []).forEach(value => addEntry(entries, {
+            section: 'reproducao', label: value, parent: 'Estratégia reprodutiva › Padrão',
+            keywords: ['estratégia reprodutiva', 'padrão reprodutivo'],
+            action: () => createReproductiveStrategyTarget('timing', value)
+        }));
         let allReproductionTypes = [];
         if (typeof reproductionTypesByCategory !== 'undefined') allReproductionTypes = Object.values(reproductionTypesByCategory).flat();
         if (typeof reproductionTypeOptionsByCategory !== 'undefined') allReproductionTypes.push(...Object.values(reproductionTypeOptionsByCategory).flat());
@@ -222,6 +246,31 @@
         // Curiosidades.
         (typeof curiosidadesTypeOptions !== 'undefined' ? curiosidadesTypeOptions : []).forEach(parameter => {
             addEntry(entries, { section: 'curiosidades', label: parameter, action: () => createCuriosityTarget(parameter, '') });
+            if (typeof isRestingPlaceMaterialsCuriosidade === 'function' && isRestingPlaceMaterialsCuriosidade(parameter)) {
+                const materials = typeof getRestingPlaceMaterialOptions === 'function' ? getRestingPlaceMaterialOptions() : [];
+                optionValues(materials).forEach(material => addEntry(entries, {
+                    section: 'curiosidades',
+                    label: material,
+                    parent: parameter,
+                    keywords: [material, 'material', 'local de repouso'],
+                    action: () => createCuriosityTarget(parameter, material, { materiais: [material] })
+                }));
+            }
+            if (typeof isRestingPlaceDimensionsCuriosidade === 'function' && isRestingPlaceDimensionsCuriosidade(parameter)) {
+                const restingPlaces = typeof getRestingPlaceOptions === 'function' ? getRestingPlaceOptions() : [];
+                const dimensions = typeof RESTING_PLACE_DIMENSION_TYPES !== 'undefined' ? RESTING_PLACE_DIMENSION_TYPES : [];
+                restingPlaces.forEach(localRepouso => dimensions.forEach(dimensao => addEntry(entries, {
+                    section: 'curiosidades',
+                    label: `${dimensao} — ${localRepouso}`,
+                    parent: parameter,
+                    keywords: [localRepouso, dimensao, 'local de repouso'],
+                    action: () => createCuriosityTarget(parameter, '', {
+                        localRepouso,
+                        dimensao,
+                        unidade: dimensao === 'Cor' ? 'Sem cor definida' : 'cm'
+                    })
+                })));
+            }
             let options = [];
             try { options = getCuriosidadeValueOptions(parameter) || []; } catch (_) {}
             optionValues(options).forEach(value => addEntry(entries, {
@@ -326,6 +375,25 @@
         finishTarget(reproductionRowsContainer.querySelector('.reproduction-row:last-child'));
     }
 
+    function createReproductiveStrategyTarget(field, value) {
+        switchTab('reproducao');
+        const selector = field === 'timing' ? '.reproduction-strategy-timing' : '.reproduction-strategy-life-history';
+        let row = [...reproductionRowsContainer.querySelectorAll('.reproduction-row')].find(candidate =>
+            candidate.querySelector('.reproduction-row-mode')?.value === 'estrategia_reprodutiva'
+            && !candidate.querySelector(selector)?.value
+        ) || null;
+        if (!row) {
+            createReproductionRow('Estratégia reprodutiva', '');
+            row = reproductionRowsContainer.querySelector('.reproduction-row:last-child');
+        }
+        const control = row?.querySelector(selector);
+        if (control) {
+            control.value = value;
+            control.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+        finishTarget(row);
+    }
+
     function createBodyCoveringTarget(group, value, category) {
         switchTab('plumagem');
         // O modelo é criado mesmo quando a opção pesquisada pertence a outra categoria.
@@ -347,10 +415,40 @@
         finishTarget(target);
     }
 
-    function createCuriosityTarget(parameter, value) {
+    function createCuriosityTarget(parameter, value, extra = {}) {
         switchTab('curiosidades');
-        createCuriosidadeRow(parameter, value);
-        finishTarget(curiosidadesRowsContainer.querySelector('.curiosidades-row:last-child'));
+        const isRestingPlaceTarget = typeof isRestingPlaceDimensionsCuriosidade === 'function'
+            && isRestingPlaceDimensionsCuriosidade(parameter)
+            && extra.localRepouso;
+        const isRestingMaterialsTarget = typeof isRestingPlaceMaterialsCuriosidade === 'function'
+            && isRestingPlaceMaterialsCuriosidade(parameter)
+            && Array.isArray(extra.materiais)
+            && extra.materiais.length;
+        let target = null;
+        if (isRestingPlaceTarget) {
+            target = [...curiosidadesRowsContainer.querySelectorAll('.curiosidades-row')].find(row =>
+                row.querySelector('.curiosidade-type')?.value === parameter
+                && !row.querySelector('.curiosidade-resting-place')?.value
+            ) || null;
+        }
+        if (!target && isRestingMaterialsTarget) {
+            target = [...curiosidadesRowsContainer.querySelectorAll('.curiosidades-row')].find(row =>
+                row.querySelector('.curiosidade-type')?.value === parameter
+            ) || null;
+            if (target) {
+                const selectedMaterials = [...target.querySelectorAll('.curiosidade-material-option input:checked')]
+                    .map(control => control.value);
+                extra.materiais = [...new Set([...selectedMaterials, ...extra.materiais])];
+            }
+        }
+        if (target) {
+            renderCuriosidadeValueControls(target, parameter, { valor: value, ...extra });
+            updateCuriosidadesPreview();
+        } else {
+            createCuriosidadeRow(parameter, value, GENDER_BOTH, 'Adulto', extra);
+            target = curiosidadesRowsContainer.querySelector('.curiosidades-row:last-child');
+        }
+        finishTarget(target);
     }
 
     function scoreEntry(entry, query) {
@@ -461,6 +559,8 @@
         closeResults();
         input.focus();
     });
+
+    unlockBtn?.addEventListener('click', () => { setFloatingSearch(!root.classList.contains('is-unlocked')); input.focus(); });
 
     document.addEventListener('click', event => {
         if (!root.contains(event.target)) closeResults();

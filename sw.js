@@ -1,4 +1,4 @@
-const CACHE_NAME = 'animals-app-v20260715-info-dim-mega-tabs-v18';
+const CACHE_NAME = 'animals-app-v20260717-wikidata-search-v1';
 
 const ASSETS_TO_CACHE = [
   './',
@@ -20,6 +20,7 @@ const ASSETS_TO_CACHE = [
   './index/survival-lists.js',
 
   './js/components.js',
+  './js/wikidata-search.js',
   './js/countries.json',
   './js/feeding-animal-options.js',
   './js/feeding-strategies.js',

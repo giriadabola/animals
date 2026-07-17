@@ -22,7 +22,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsvectormap/dist/css/jsvectormap.min.css">
     <script src="https://cdn.jsdelivr.net/npm/jsvectormap"></script>
     <script src="https://cdn.jsdelivr.net/npm/jsvectormap/dist/maps/world.js"></script>
-    <link rel="stylesheet" href="animal-page/animal-page.css?v=20260716_comparison_search_v1">
+    <link rel="stylesheet" href="animal-page/animal-page.css?v=20260717_mobile_language_order_2">
     <link rel="stylesheet" href="animal-page/ecology-relations-popup.css?v=20260714_relations_popup">
 
 </head>
@@ -31,14 +31,14 @@
     <main id="main-content-area"></main>
     
     <!-- Componentes e Lógica -->
-    <script type="module" src="js/components.js?v=6"></script>
-    <script type="module" src="animal-page/animal-page.js?v=20260715_controls_sync_v1"></script>
+    <script type="module" src="js/components.js?v=7"></script>
+    <script type="module" src="animal-page/animal-page.js?v=20260717_mobile_language_order_4"></script>
 
     <!-- Service Worker PWA -->
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-            navigator.serviceWorker.register('./sw.js?v=20260715_info_dim_mega_tabs_v18')
+            navigator.serviceWorker.register('./sw.js?v=20260717_wikidata_search_v1')
                     .then(reg => console.log('Service Worker registrado com sucesso:', reg.scope))
                     .catch(err => console.log('Erro ao registrar o Service Worker:', err));
             });

@@ -89,6 +89,40 @@
             return '';
         }
 
+        const RESTING_PLACE_DIMENSIONS_TYPE = 'Dimensões do local de repouso';
+        const RESTING_PLACE_DIMENSION_TYPES = ['Diâmetro', 'Altura', 'Comprimento', 'Largura', 'Profundidade', 'Altitude', 'Cor'];
+        const RESTING_PLACE_DIMENSION_UNITS = ['µm', 'mm', 'cm', 'm', 'km', 'mg', 'g', 'kg', 't'];
+        const RESTING_PLACE_COLORS = [
+            'Branco', 'Branco-sujo', 'Creme', 'Marfim', 'Bege', 'Areia', 'Palha', 'Amarelo', 'Amarelo-pálido', 'Amarelo-dourado',
+            'Dourado', 'Ocre', 'Laranja', 'Ferrugem', 'Vermelho', 'Vermelho-acastanhado', 'Rosa', 'Castanho-claro', 'Castanho',
+            'Castanho-escuro', 'Castanho-avermelhado', 'Castanho-amarelado', 'Chocolate', 'Canela', 'Cinzento-claro', 'Cinzento',
+            'Cinzento-escuro', 'Cinzento-acastanhado', 'Preto', 'Verde-claro', 'Verde', 'Verde-escuro', 'Verde-oliva',
+            'Verde-musgo', 'Verde-acastanhado', 'Azul-claro', 'Azul', 'Azul-escuro', 'Turquesa', 'Roxo', 'Violeta', 'Prateado',
+            'Metálico', 'Translúcido', 'Transparente', 'Multicolor', 'Cor variável', 'Cor natural do substrato', 'Sem cor definida'
+        ];
+
+        const RESTING_PLACE_MATERIALS_TYPE = 'Materiais de local de repouso';
+
+        function isRestingPlaceMaterialsCuriosidade(type = '') {
+            return normalizeSearchText(type) === 'materiais de local de repouso';
+        }
+        function isRestingPlaceDimensionsCuriosidade(type = '') {
+            return normalizeSearchText(type) === 'dimensoes do local de repouso';
+        }
+
+        function renderRestingPlaceDimensionSvg(dimension = '') {
+            const key = normalizeSearchText(dimension);
+            const models = {
+                diametro: '<circle cx="40" cy="40" r="22"/><path d="M18 40h44M18 40l7-6M18 40l7 6M62 40l-7-6M62 40l-7 6"/>',
+                altura: '<path d="M28 16h24v48H28Z"/><path d="M18 16v48M18 16l-6 8M18 16l6 8M18 64l-6-8M18 64l6-8"/>',
+                comprimento: '<path d="M14 30h52v20H14Z"/><path d="M14 60h52M14 60l8-6M14 60l8 6M66 60l-8-6M66 60l-8 6"/>',
+                largura: '<path d="M20 22h40v36H20Z"/><path d="M20 14h40M20 14l7-6M20 14l7 6M60 14l-7-6M60 14l-7 6"/>',
+                profundidade: '<path d="M14 22h52M18 36c8-6 16-6 24 0s16 6 24 0"/><path d="M40 24v42M40 66l-7-9M40 66l7-9"/>',
+                altitude: '<path d="M12 62l18-30l10 14l10-20l18 36Z"/><path d="M66 54V14M66 14l-7 9M66 14l7 9"/>',
+                cor: '<circle cx="28" cy="30" r="10"/><circle cx="50" cy="27" r="8"/><circle cx="52" cy="50" r="11"/><circle cx="27" cy="52" r="7"/><path d="M20 40h40"/>'
+            };
+            return `<svg class="metric-model-svg resting-place-dimension-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true">${models[key] || models.comprimento}</svg>`;
+        }
         function isSleepHoursCuriosidade(type = '') {
             return normalizeSearchText(type).includes('horas de sono');
         }
@@ -182,8 +216,81 @@
 
             const wrapper = document.createElement('div');
             wrapper.className = 'curiosidade-value-wrapper';
+            row.classList.toggle('has-resting-place-dimensions', isRestingPlaceDimensionsCuriosidade(type));
+            row.classList.toggle('has-resting-place-materials', isRestingPlaceMaterialsCuriosidade(type));
 
-            if (isAlsoKnownAsCuriosidade(type)) {
+            if (isRestingPlaceMaterialsCuriosidade(type)) {
+                wrapper.classList.add('resting-place-materials-controls');
+                const selectedMaterials = new Set(
+                    Array.isArray(data.materiais)
+                        ? data.materiais
+                        : String(data.valor || '').split(/\s*,\s*/).filter(Boolean)
+                );
+                const dropdown = document.createElement('details');
+                dropdown.className = 'curiosidade-materials-multiselect';
+                const summary = document.createElement('summary');
+                summary.className = 'curiosidade-materials-summary';
+                const optionsPanel = document.createElement('div');
+                optionsPanel.className = 'curiosidade-materials-options';
+                const updateSummary = () => {
+                    const count = optionsPanel.querySelectorAll('input:checked').length;
+                    summary.textContent = count ? `${count} ${count === 1 ? 'material seleccionado' : 'materiais seleccionados'}` : 'Escolhe os materiais';
+                };
+                getRestingPlaceMaterialOptions().forEach(material => {
+                    const label = document.createElement('label');
+                    label.className = 'curiosidade-material-option';
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.value = material;
+                    checkbox.checked = selectedMaterials.has(material);
+                    const model = document.createElement('span');
+                    model.className = 'curiosidade-material-option-model';
+                    model.innerHTML = getRestingPlaceMaterialSvg(material);
+                    const text = document.createElement('span');
+                    text.textContent = material;
+                    checkbox.addEventListener('change', () => {
+                        updateSummary();
+                        updateCuriosidadesPreview();
+                    });
+                    label.append(checkbox, model, text);
+                    optionsPanel.append(label);
+                });
+                dropdown.append(summary, optionsPanel);
+                wrapper.append(dropdown);
+                updateSummary();
+            } else if (isRestingPlaceDimensionsCuriosidade(type)) {
+                wrapper.classList.add('resting-place-dimensions-controls');
+                const restingPlaceSelect = document.createElement('select');
+                restingPlaceSelect.className = 'curiosidade-resting-place';
+                restingPlaceSelect.innerHTML = '<option value="">Escolhe o local de repouso</option>' + getRestingPlaceOptions().map(option => `<option value="${option}">${option}</option>`).join('');
+                restingPlaceSelect.value = data.localRepouso || '';
+                const minInput = document.createElement('input');
+                minInput.type = 'number'; minInput.step = '0.01'; minInput.min = '0';
+                minInput.className = 'curiosidade-resting-min'; minInput.placeholder = 'Mín.'; minInput.value = data.valorMin || '';
+                const maxInput = document.createElement('input');
+                maxInput.type = 'number'; maxInput.step = '0.01'; maxInput.min = '0';
+                maxInput.className = 'curiosidade-resting-max'; maxInput.placeholder = 'Máx.'; maxInput.value = data.valorMax || '';
+                const dimensionSelect = document.createElement('select');
+                dimensionSelect.className = 'curiosidade-resting-dimension';
+                dimensionSelect.innerHTML = '<option value="">Escolhe a dimensão</option>' + RESTING_PLACE_DIMENSION_TYPES.map(option => `<option value="${option}">${option}</option>`).join('');
+                dimensionSelect.value = data.dimensao || '';
+                const unitSelect = document.createElement('select');
+                unitSelect.className = 'curiosidade-resting-unit';
+                unitSelect.innerHTML =
+                    `<optgroup label="Medidas">${RESTING_PLACE_DIMENSION_UNITS.map(unit => `<option value="${unit}">${unit}</option>`).join('')}</optgroup>` +
+                    `<optgroup label="Cores">${RESTING_PLACE_COLORS.map(color => `<option value="${color}">${color}</option>`).join('')}</optgroup>`;
+                const availableUnitsAndColors = [...RESTING_PLACE_DIMENSION_UNITS, ...RESTING_PLACE_COLORS];
+                unitSelect.value = availableUnitsAndColors.includes(data.unidade)
+                    ? data.unidade
+                    : (dimensionSelect.value === 'Cor' ? 'Sem cor definida' : 'cm');
+                [restingPlaceSelect, minInput, maxInput, unitSelect].forEach(control => control.addEventListener(control.tagName === 'SELECT' ? 'change' : 'input', updateCuriosidadesPreview));
+                dimensionSelect.addEventListener('change', () => {
+                    if (dimensionSelect.value === 'Cor' && RESTING_PLACE_DIMENSION_UNITS.includes(unitSelect.value)) unitSelect.value = 'Sem cor definida';
+                    if (dimensionSelect.value !== 'Cor' && RESTING_PLACE_COLORS.includes(unitSelect.value)) unitSelect.value = 'cm';
+                    updateCuriosidadesPreview();
+                });
+                wrapper.append(restingPlaceSelect, minInput, maxInput, dimensionSelect, unitSelect);
+            } else if (isAlsoKnownAsCuriosidade(type)) {
                 const textInput = document.createElement('input');
                 textInput.type = 'text';
                 textInput.className = 'curiosidade-text-value curiosidade-also-known-value';
@@ -323,6 +430,26 @@
                         genero: normalizeGenderValue(row.querySelector('.curiosidade-gender-toggle')?.dataset.value, GENDER_BOTH),
                         fase: row.querySelector('.curiosidade-fase-toggle')?.dataset.value || 'Adulto'
                     };
+                    if (isRestingPlaceMaterialsCuriosidade(tipo)) {
+                        const materiais = [...row.querySelectorAll('.curiosidade-material-option input:checked')]
+                            .map(input => input.value);
+                        item.valor = materiais.join(', ');
+                        item.materiais = materiais;
+                    }
+                    if (isRestingPlaceDimensionsCuriosidade(tipo)) {
+                        const localRepouso = row.querySelector('.curiosidade-resting-place')?.value || '';
+                        const min = row.querySelector('.curiosidade-resting-min')?.value || '';
+                        const max = row.querySelector('.curiosidade-resting-max')?.value || '';
+                        const dimensao = row.querySelector('.curiosidade-resting-dimension')?.value || '';
+                        const unit = row.querySelector('.curiosidade-resting-unit')?.value || 'cm';
+                        const medida = dimensao === 'Cor' ? unit : buildCuriosidadeMetricValue(min, max, unit);
+                        item.valor = [localRepouso, dimensao, medida].filter(Boolean).join(' • ');
+                        item.localRepouso = localRepouso;
+                        item.valorMin = min;
+                        item.valorMax = max;
+                        item.dimensao = dimensao;
+                        item.unidade = unit;
+                    }
                     if (tipo === 'Temperatura do Ambiente') {
                         const min = row.querySelector('.curiosidade-temp-min')?.value || '';
                         const max = row.querySelector('.curiosidade-temp-max')?.value || '';
@@ -372,6 +499,9 @@
                         valorMin: item.valorMin || '',
                         valorMax: item.valorMax || '',
                         unidade: item.unidade || (item.tipo === 'Temperatura do Ambiente' ? '°C' : getCuriosidadeDefaultMetricUnit(item.tipo || '')),
+                        localRepouso: item.localRepouso || '',
+                        dimensao: item.dimensao || '',
+                        materiais: Array.isArray(item.materiais) ? item.materiais : [],
                         descricao: item.descricao || '',
                         genero: item.genero || GENDER_BOTH,
                         fase: item.fase || 'Adulto'
@@ -419,7 +549,7 @@
                 item.valor || '',
                 item.genero || GENDER_BOTH,
                 item.fase || 'Adulto',
-                { valorMin: item.valorMin || '', valorMax: item.valorMax || '', unidade: item.unidade || '' }
+                { valorMin: item.valorMin || '', valorMax: item.valorMax || '', unidade: item.unidade || '', localRepouso: item.localRepouso || '', dimensao: item.dimensao || '', materiais: Array.isArray(item.materiais) ? item.materiais : [] }
             ));
             updateCuriosidadesPreview();
         }
@@ -474,6 +604,42 @@
                 }
             };
 
+            if (isRestingPlaceMaterialsCuriosidade(item.tipo)) {
+                const materiais = Array.isArray(item.materiais) && item.materiais.length
+                    ? item.materiais
+                    : String(item.valor || '').split(/\s*,\s*/).filter(Boolean);
+                const materialModels = materiais.map(material => `
+                    <div class="resting-place-material-preview">
+                        <div class="dimension-model-icon" title="${material}">${getRestingPlaceMaterialSvg(material)}</div>
+                        <span>${material}</span>
+                    </div>`).join('');
+                return `
+                    <div class="curiosidades-preview-item resting-place-materials-preview-item">
+                        <div class="curiosidades-preview-info">
+                            <span class="preview-label">Materiais de local de repouso</span>
+                            <div class="resting-place-materials-preview-grid">${materialModels}</div>
+                            ${renderCuriosidadeMeta(item)}
+                        </div>
+                    </div>`;
+            }
+            if (isRestingPlaceDimensionsCuriosidade(item.tipo)) {
+                const measurement = item.dimensao === 'Cor'
+                    ? (item.unidade || 'Sem cor definida')
+                    : buildCuriosidadeMetricValue(item.valorMin || '', item.valorMax || '', item.unidade || 'cm');
+                return `
+                    <div class="curiosidades-preview-item resting-place-dimensions-preview-item">
+                        <div class="resting-place-preview-models">
+                            <div class="dimension-model-icon" title="${item.localRepouso || 'Local de repouso'}">${getRestingPlaceVisualSvg(item.localRepouso || '')}</div>
+                            <div class="dimension-model-icon resting-place-dimension-model" title="${item.dimensao || 'Dimensão'}">${renderRestingPlaceDimensionSvg(item.dimensao || '')}</div>
+                        </div>
+                        <div class="curiosidades-preview-info">
+                            <span class="preview-label">Dimensões do local de repouso</span>
+                            <strong style="font-size:1.05rem;font-weight:800;color:var(--text-primary);">${item.localRepouso || 'Local por seleccionar'}</strong>
+                            <div class="communication-preview-desc">${item.dimensao || 'Dimensão por seleccionar'}${measurement ? ` • ${measurement}` : ''}</div>
+                            ${renderCuriosidadeMeta(item)}
+                        </div>
+                    </div>`;
+            }
             if (item.tipo === 'Também conhecido como') {
                 return `
                     <div class="curiosidades-preview-item also-known-preview-item">
@@ -691,6 +857,8 @@
 
         const curiosidadesPreviewCoverage = new Set([
             'Cor do animal',
+            'Dimensões do local de repouso',
+            'Materiais de local de repouso',
             'Distância Percorrida',
             'Estado de Conservação',
             'Horas de Sono',

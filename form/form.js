@@ -3,11 +3,15 @@ import { db, auth } from "../js/firebase-config.js?v=5";
         import { feedingTypes, feedingTypeDescriptions, getFeedingVisualMeta, getFeedingModelSvg } from "../js/feeding-visuals.js";
         import { getFeedingStrategyMeta, getFeedingStrategySvg } from "../js/feeding-strategies.js";
         import { matingSystems, getMatingMeta, getMatingSystemSvg } from "../js/mating-systems.js?v=3";
+        import { getReproductiveLifeHistoryOptions, getReproductiveTimingOptions, getReproductiveStrategySvg } from "../js/reproductive-strategy-visuals.js?v=1";
         import { generalVisualOptions as generalVisualCatalogOptions, generalVisualUnits as generalVisualCatalogUnits, getGeneralVisualMeta as getGeneralVisualCatalogMeta, getGeneralVisualOption as getGeneralVisualCatalogOption, getGeneralVisualSelectConfig, getGeneralVisualSelectOptions, getGeneralModelSvg as getGeneralCatalogModelSvg, getActivityMeta, getActivitySvg, getSocialMeta, getSocialSvg, getEcologicalFunctionMeta, getEcologicalFunctionSvg, getLocomotionMeta, getLocomotionSvg, isDropdownOnlyGeneralModel as isGeneralVisualCatalogDropdownOnly } from "../js/general-visual-catalog.js";
+        import { getRestingPlaceOptions, getRestingPlaceVisualMeta, getRestingPlaceVisualSvg } from "../js/resting-place-visuals.js?v=2";
+        import { getRestingPlaceMaterialOptions, getRestingPlaceMaterialMeta, getRestingPlaceMaterialSvg } from "../js/resting-place-materials.js?v=1";
         import { GENDER_BOTH, collapseCombinedGenderItems, expandCombinedGenderItems, getGenderUi, getNextGenderValue, normalizeGenderValue } from "../js/gender-utils.js?v=2";
         import { getEcologyVisualMeta as getSharedEcologyVisualMeta, getEcologyModelSvg as getSharedEcologyModelSvg } from "../js/ecology-visuals.js?v=2";
+        import { getEnvironmentImageMeta } from "../js/environment-image-catalog.js?v=1";
 
-const FORM_JS_VERSION = '54_sort_general_model_rows';
+const FORM_JS_VERSION = '61_environment_image_catalog';
 
 const FORM_MODULE_FILES = [
     './modules/form-dropdown-polish.js',
@@ -30,7 +34,8 @@ const FORM_MODULE_FILES = [
     './modules/form-text-import-popup.js',
     './modules/form-taxonomy-source-import.js',
     './modules/form-distribution-submit.js',
-    './modules/form-rodape-tab.js'
+    './modules/form-rodape-tab.js',
+    './modules/form-languages.js'
 ];
 
 async function loadFormModules() {

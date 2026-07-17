@@ -288,6 +288,7 @@
         import { db } from "./js/firebase-config.js?v=5";
         import { collection, getDocs } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
         import { hideLoadingOverlay } from "./js/loader.js?v=2";
+        import { findLocalAnimalsByWikidata } from "./js/wikidata-search.js?v=1";
         import { extractPopulationMetric, isPopulationRankingFilter, POPULATION_RANKING_KEY } from "./js/ranking-metrics.js?v=1";
         import { getDistanceMetricFromAnimal, initDistanceFilterPanel } from "./js/distance-filter.js?v=20260714_distance_filter";
         import { visualFilterPool, getVisualFilterUrl, renderVisualFilterIcon } from "./js/visual-filter-catalog.js?v=20260715_visual_catalog";
@@ -432,6 +433,9 @@
         function getAlsoKnownAsNames(animal = {}) {
             const curiosidades = animal.informacao?.curiosidades || {};
             const names = [];
+    const idiomaData = animal.informacao?.idiomas;
+    if (Array.isArray(idiomaData)) names.push(...idiomaData.map(item => item?.nome || item?.name).filter(Boolean));
+    else if (idiomaData && typeof idiomaData === 'object') names.push(...Object.values(idiomaData).filter(Boolean));
             if (Array.isArray(curiosidades.tambemConhecidoComo)) names.push(...curiosidades.tambemConhecidoComo);
             if (Array.isArray(curiosidades.detalhes)) {
                 curiosidades.detalhes
@@ -537,7 +541,7 @@
             });
         }
 
-        function handleSearch(queryText) {
+        async function handleSearch(queryText) {
             const normalizedQuery = queryText.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
             const sourceAnimals = activeFilterType === 'continente' ? countryFilteredAnimals : matchedAnimals;
             if (!normalizedQuery) {
@@ -545,6 +549,7 @@
                 clearSearch.style.display = 'none';
             } else {
                 filteredAnimals = sourceAnimals.filter(item => animalMatchesSearch(item.data, normalizedQuery));
+                try { const remoteMatches = await findLocalAnimalsByWikidata(queryText, sourceAnimals, item => item.data); const ids = new Set(filteredAnimals.map(item => item.id)); remoteMatches.forEach(item => { if (!ids.has(item.id)) filteredAnimals.push(item); }); } catch (error) { console.warn('Wikidata: pesquisa indisponível', error); }
                 clearSearch.style.display = 'block';
             }
             

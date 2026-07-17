@@ -146,6 +146,7 @@
                 title: 'Geral',
                 icon: 'fa-circle-info',
                 models: [
+                    'Temperatura corporal',
                     'Expetativa média de vida',
                     'Expetativa média de vida (cativeiro)',
                     'Profundidade máxima',
@@ -418,7 +419,7 @@
                 'Defensiva', 'Multimodal', 'Distância da comunicação',
                 'Contexto da comunicação', 'Complexidade comunicativa'
             ],
-            'Construção de local de repouso': ['Escava depressão para repousar','Usa toca abandonada','Constrói toca','Usa cavidade em árvore','Abriga-se sob folhas','Abriga-se em cavernas'],
+            'Construção de local de repouso': getRestingPlaceOptions(),
             'Autoinfeção': ['Ausente','Autoinfeção externa','Autoinfeção interna','Reinfeção'],
             'Tipo de perceção': ['Visual','Tátil','Química','Olfativa','Acústica','Ultravioleta','Elétrica / eletroreceção','Vibrações','Eco-localização','Pressão da água','Temperatura','Magnetorreceção'],
             'Presença/ausência de sistema digestivo': ['Presente','Reduzido','Ausente'],
@@ -590,6 +591,7 @@
         }
 
         function getGeneralUnitOptions(type = '') {
+            if (normalizeSearchText(type).includes('temperatura corporal')) return ['\u00b0C'];
             if (isSocialGroupCompositionGeneralModel(type)) return ['machos adultos', 'fêmeas adultas', 'subadultos', 'juvenis', 'crias', 'indivíduos'];
             if (isMixedDropdownRangeGeneralModel(type)) return ['mm', 'cm', 'm'];
             if (normalizeSearchText(type).includes('percentagem de gordura')) return ['%'];
@@ -614,6 +616,7 @@
         }
 
         function getGeneralDefaultUnit(type = '') {
+            if (normalizeSearchText(type).includes('temperatura corporal')) return '\u00b0C';
             if (isSocialGroupCompositionGeneralModel(type)) return '';
             if (isMixedDropdownRangeGeneralModel(type)) return 'cm';
             if (normalizeSearchText(type).includes('percentagem de gordura')) return '%';
@@ -1058,88 +1061,11 @@
         }
 
         function getBiomaMeta(value = '') {
-            const normalized = normalizeSearchText(value);
-            const biomas = {
-                areas_rochosas: { image: '../assets/bioma/15_Areas_Rochosas.png', accent: 'accent-bioma-areas-rochosas' },
-                bosque: { image: '../assets/bioma/03_Bosque.png', accent: 'accent-bioma-bosque' },
-                calota_de_gelo: { image: '../assets/bioma/07_Calota_de_Gelo.png', accent: 'accent-bioma-calota-gelo' },
-                caverna: { image: '../assets/bioma/05_Caverna.png', accent: 'accent-bioma-caverna' },
-                chaparral: { image: '../assets/bioma/10_Chaparral.png', accent: 'accent-bioma-chaparral' },
-                costa: { image: '../assets/bioma/14_Costa.png', accent: 'accent-bioma-costa' },
-                duna: { image: '../assets/bioma/06_Duna.png', accent: 'accent-bioma-duna' },
-                estepe: { image: '../assets/bioma/09_Estepe.png', accent: 'accent-bioma-estepe' },
-                fauna_urbana: { image: '../assets/bioma/12_Fauna_Urbana.png', accent: 'accent-bioma-fauna-urbana' },
-                floresta: { image: '../assets/bioma/16_floresta.png', accent: 'accent-bioma-floresta' },
-                marinho: { image: '../assets/bioma/01_Marinho.png', accent: 'accent-bioma-marinho' },
-                marinho_corais: { image: '../assets/bioma/13_Marinho_corais.png', accent: 'accent-bioma-marinho-corais' },
-                matagal: { image: '../assets/bioma/17_Matagal.png', accent: 'accent-bioma-matagal' },
-                montanha: { image: '../assets/habitat/11_Montanha.png', accent: 'accent-bioma-montanha' },
-                pantano: { image: '../assets/habitat/04_Pantano.png', accent: 'accent-bioma-pantano' },
-                pradaria: { image: '../assets/bioma/08_Pradaria.png', accent: 'accent-bioma-pradaria' },
-                savana: { image: '../assets/bioma/02_Savana.png', accent: 'accent-bioma-savana' }
-            };
-            const key = normalized.replace(/[^a-z0-9_]+/g, '_').replace(/\s+/g, '_').replace(/__+/g, '_').replace(/^_|_$/g, '');
-            return biomas[key] || null;
+            return getEnvironmentImageMeta(value, 'bioma', '../assets');
         }
 
         function getHabitatMeta(value = '') {
-            const normalized = normalizeSearchText(value);
-            const habitatImages = {
-                agua_salobra: 'Água salobra.png',
-                agricola: 'Agrícola.png',
-                ambiente_domestico: 'Ambiente doméstico.png',
-                ambiente_subterraneo: 'Ambiente subterrâneo.png',
-                area_degradada: 'Área degradada.png',
-                area_industrial: 'Área industrial.png',
-                areas_rochosas: 'Áreas rochosas.png',
-                baia: 'Baía.png',
-                bioma_antropogenico: 'Bioma antropogénico.png',
-                bosque: 'Bosque.png',
-                campo_bioma: 'Campo (bioma).png',
-                canal: 'Canal.png',
-                canal_ou_reservatorio_artificial: 'Canal ou reservatório artificial.png',
-                caverna: 'Caverna.png',
-                charco: 'Charco.png',
-                costa: 'Costa.png',
-                costa_rochosa: 'Costa rochosa.png',
-                costeiro: 'Costa.png',
-                deserto_polar: 'Deserto polar.png',
-                duna: 'Duna.png',
-                estuario: 'Estuário.png',
-                fauna_urbana: 'Fauna urbana.png',
-                fiorde: 'Fiorde.png',
-                floresta: 'Floresta.png',
-                floresta_de_kelp: 'Floresta de kelp.png',
-                jardim_parque: 'Jardim - Parque.png',
-                lagoa: 'Lagoa.png',
-                lagoa_costeira: 'Lagoa costeira.png',
-                marinho: 'Marinho.png',
-                marisma_salgada: 'Marisma salgada.png',
-                mina_pedreira: 'Mina - Pedreira.png',
-                montanha: '11_Montanha.png',
-                nascente: 'Nascente.png',
-                oasis: 'Oásis.png',
-                oceanico: 'Marinho.png',
-                pantano: '04_Pantano.png',
-                pastagem: 'Pastagem.png',
-                planalto: 'Planalto.png',
-                plantacao_florestal: 'Plantação florestal.png',
-                pradaria_marinha: 'Pradaria marinha.png',
-                praia_arenosa: 'Praia arenosa.png',
-                recife_rochoso: 'Recife rochoso.png',
-                reservatorio: 'Reservatório.png',
-                rural: 'Rural.png',
-                suburbano: 'Suburbano.png',
-                suburbio: 'Subúrbio.png',
-                urbano: 'Urbano.png',
-                vale: 'Vale.png',
-                zona_entremares: 'Zona entremarés.png',
-                zona_humida: 'Zona húmida.png',
-                zona_riparia: 'Zona ripária.png'
-            };
-            const key = normalized.replace(/[^a-z0-9_]+/g, '_').replace(/\s+/g, '_').replace(/__+/g, '_').replace(/^_|_$/g, '');
-            const filename = habitatImages[key];
-            return filename ? { image: `../assets/habitat/${filename}`, accent: 'accent-bioma' } : null;
+            return getEnvironmentImageMeta(value, 'habitat', '../assets');
         }
 
         function getGeneralModelSvg(key = 'geral') {
@@ -1200,7 +1126,11 @@
             const climateMeta = isClimateZone && !isSuggestion ? getClimateZoneMeta(item.valorMin || item.valor || '') : null;
             const biomaMeta = isBioma && !isSuggestion ? getBiomaMeta(item.valorMin || item.valor || '') : null;
             const habitatMeta = isHabitat && !isSuggestion ? getHabitatMeta(item.valorMin || item.valor || '') : null;
-            const icon = climateMeta
+            const isRestingPlace = normalizeSearchText(type) === 'construcao de local de repouso';
+            const restingPlaceValue = item.valorMin || item.valor || '';
+            const restingPlaceMeta = isRestingPlace && !isSuggestion ? getRestingPlaceVisualMeta(restingPlaceValue) : null;
+            const restingPlaceIcon = restingPlaceMeta ? getRestingPlaceVisualSvg(restingPlaceValue) : null;
+            const icon = restingPlaceIcon || (climateMeta
                 ? `<img class="climate-zone-model-image" src="${climateMeta.image}" alt="Zona climática ${item.valorMin || item.valor || ''}" loading="lazy">`
                 : biomaMeta
                     ? `<img class="climate-zone-model-image" src="${biomaMeta.image}" alt="Bioma ${item.valorMin || item.valor || ''}" loading="lazy">`
@@ -1216,9 +1146,9 @@
                             ? getActivitySvg(activityMeta.key)
                             : socialMeta
                                 ? getSocialSvg(socialMeta.key)
-                            : getGeneralModelSvg(meta.key);
+                            : getGeneralModelSvg(meta.key));
             return `
-                <article class="dimension-model-card general-model-card ${climateMeta?.accent || biomaMeta?.accent || habitatMeta?.accent || ecologicalMeta?.accent || locomotionMeta?.accent || strategyMeta?.accent || activityMeta?.accent || socialMeta?.accent || meta.accent}${isSuggestion ? ' is-suggestion' : ''}">
+                <article class="dimension-model-card general-model-card ${restingPlaceMeta?.accent || climateMeta?.accent || biomaMeta?.accent || habitatMeta?.accent || ecologicalMeta?.accent || locomotionMeta?.accent || strategyMeta?.accent || activityMeta?.accent || socialMeta?.accent || meta.accent}${isSuggestion ? ' is-suggestion' : ''}">
                     <div class="dimension-model-icon ${climateMeta || biomaMeta || habitatMeta ? 'climate-zone-model-icon' : ''}">${icon}</div>
                     <div class="dimension-model-copy">
                         <div class="dimension-model-label">${meta.title}</div>

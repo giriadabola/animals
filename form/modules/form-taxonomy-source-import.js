@@ -10,6 +10,7 @@
     if (!modal || !textarea || !openButton || !status || !animalLabel || !closeTabsInput) return;
 
     let extensionReady = false;
+    window.setPendingTaxonomySupplemental = data => { window.pendingTaxonomySupplemental = data || {}; };
     let extensionRequestTimer = null;
 
     function setStatus(message = '', kind = '') {
@@ -61,6 +62,7 @@
         clearTimeout(extensionRequestTimer);
         const importedText = String(message.text || '').trim();
         if (importedText) textarea.value = importedText;
+        window.setPendingTaxonomySupplemental({ idiomas: message.idiomas || [], alsoKnownAs: message.alsoKnownAs || [] });
 
         const errors = Array.isArray(message.errors) ? message.errors : [];
         setStatus(

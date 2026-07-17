@@ -1,8 +1,10 @@
-﻿(function() {
+(function() {
     const topTabBtns = document.querySelectorAll('.top-level-tab-btn');
     const panelParametros = document.querySelector('.form-header-fields');
     const panelParametrosTabs = document.querySelector('.form-tabs-wrapper');
     const panelRodape = document.getElementById('top-tabpanel-rodape');
+    const panelIdiomas = document.getElementById('top-tabpanel-idiomas');
+    const panelVideos = document.getElementById('videosFieldset');
     
     topTabBtns.forEach(btn => {
         btn.addEventListener('click', () => {
@@ -16,11 +18,21 @@
                 panelParametros.style.display = 'grid';
                 panelParametrosTabs.style.display = 'block';
                 panelRodape.style.display = 'none';
-            } else {
+                panelIdiomas.style.display = 'none';
+                if (panelVideos) panelVideos.style.display = '';
+            } else if (tab === 'rodape') {
                 panelParametros.style.display = 'none';
                 panelParametrosTabs.style.display = 'none';
                 panelRodape.style.display = 'flex';
+                panelIdiomas.style.display = 'none';
+                if (panelVideos) panelVideos.style.display = 'none';
                 updateRodapeParametersList();
+            } else {
+                panelParametros.style.display = 'none';
+                panelParametrosTabs.style.display = 'none';
+                panelRodape.style.display = 'none';
+                panelIdiomas.style.display = 'block';
+                if (panelVideos) panelVideos.style.display = 'none';
             }
         });
     });

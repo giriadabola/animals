@@ -148,12 +148,16 @@
             const optGestacao = document.createElement('option');
             optGestacao.value = 'gestacao';
             optGestacao.textContent = 'Tempo de Gestação';
+            const optEstrategiaReprodutiva = document.createElement('option');
+            optEstrategiaReprodutiva.value = 'estrategia_reprodutiva';
+            optEstrategiaReprodutiva.textContent = 'Estratégia reprodutiva';
+
 
             const optTipo = document.createElement('option');
             optTipo.value = 'tipo';
             optTipo.textContent = 'Tipo de reprodução';
             
-            rowModeSelect.append(optPlaceholder, optAcasalamento, optEpocaReproducao, optParental, optMaturidade, optCrias, optNumeroOvos, optTempoEclosao, optEstro, optFrequenciaEstro, optSucessoReprodutivo, optIntervaloNascimentos, optIdadeMetamorfose, optNumeroMudas, optNumeroEstadiosLarvais, optSistemaSexual, optGestacao, optTipo);
+            rowModeSelect.append(optPlaceholder, optAcasalamento, optEpocaReproducao, optParental, optMaturidade, optCrias, optNumeroOvos, optTempoEclosao, optEstro, optFrequenciaEstro, optSucessoReprodutivo, optIntervaloNascimentos, optIdadeMetamorfose, optNumeroMudas, optNumeroEstadiosLarvais, optSistemaSexual, optGestacao, optEstrategiaReprodutiva, optTipo);
             window.formDropdownPolish?.sortSelectOptionsAlphabetically?.(rowModeSelect);
 
             const typeSelect = document.createElement('select');
@@ -164,6 +168,15 @@
 
             const matingSelect = document.createElement('select');
             matingSelect.className = 'reproduction-mating-type';
+            const reproductiveLifeHistorySelect = document.createElement('select');
+            reproductiveLifeHistorySelect.className = 'reproduction-strategy-life-history';
+            reproductiveLifeHistorySelect.innerHTML = '<option value="">Escolhe a estratégia</option>' +
+                getReproductiveLifeHistoryOptions().map(option => `<option value="${option}">${option}</option>`).join('');
+
+            const reproductiveTimingSelect = document.createElement('select');
+            reproductiveTimingSelect.className = 'reproduction-strategy-timing';
+            reproductiveTimingSelect.innerHTML = '<option value="">Escolhe o padrão</option>' +
+                getReproductiveTimingOptions().map(option => `<option value="${option}">${option}</option>`).join('');
 
             const sexualSystemSelect = document.createElement('select');
             sexualSystemSelect.className = 'reproduction-sexual-system';
@@ -264,8 +277,14 @@
             const isNumeroMudas = normalizedReproductionType.includes('numero de mudas');
             const isNumeroEstadiosLarvais = normalizedReproductionType.includes('numero de estadios larvais');
             const isSistemaSexual = normalizedReproductionType.includes('sistema sexual');
+            const isEstrategiaReprodutiva = normalizedReproductionType.includes('estrategia reprodutiva');
 
-            if (isSistemaSexual) {
+            if (isEstrategiaReprodutiva) {
+                rowModeSelect.value = 'estrategia_reprodutiva';
+                const strategyParts = detailStr.split(/\s*(?:•|\|)\s*/).filter(Boolean);
+                reproductiveLifeHistorySelect.value = strategyParts[0] || '';
+                reproductiveTimingSelect.value = strategyParts[1] || '';
+            } else if (isSistemaSexual) {
                 rowModeSelect.value = 'sistema_sexual';
                 fillSexualSystemSelect(detailStr);
             } else             if (isParental) {
@@ -572,6 +591,10 @@
                 } else if (rowModeSelect.value === 'acasalamento') {
                     fillMatingTypeSelect(matingSelect, matingSelect.value || initialMatingValue);
                     row.append(matingSelect, genderBtn, faseBtn, removeBtn);
+                } else if (rowModeSelect.value === 'estrategia_reprodutiva') {
+                    const strategySpacer = document.createElement('div');
+                    strategySpacer.className = 'reproduction-strategy-spacer';
+                    row.append(reproductiveLifeHistorySelect, reproductiveTimingSelect, strategySpacer, genderBtn, faseBtn, removeBtn);
                 } else if (rowModeSelect.value === 'sistema_sexual') {
                     fillSexualSystemSelect(sexualSystemSelect.value || detailStr);
                     sexualSystemSelect.style.gridColumn = 'span 3';
@@ -647,7 +670,24 @@
                         unitSelect.append(opt);
                     });
                     unitSelect.value = hatchUnits.includes(previousUnit) ? previousUnit : 'dias';
-                    row.append(minInput, maxInput, unitSelect, genderBtn, faseBtn, removeBtn);                    } else if (rowModeSelect.value === 'alimento_medio') {
+                    row.append(minInput, maxInput, unitSelect, genderBtn, faseBtn, removeBtn);
+                } else if (rowModeSelect.value === 'intervalo_nascimentos') {
+                    minInput.className = 'reproduction-gestation-min';
+                    maxInput.className = 'reproduction-gestation-max';
+                    minInput.placeholder = 'Mín: 1';
+                    maxInput.placeholder = 'Máx: 5';
+                    const previousUnit = unitSelect.dataset.intervaloNascimentosUnit || unitSelect.value;
+                    const intervalUnits = ['minutos', 'horas', 'dias', 'semanas', 'meses', 'anos'];
+                    unitSelect.innerHTML = '';
+                    intervalUnits.forEach(u => {
+                        const opt = document.createElement('option');
+                        opt.value = u;
+                        opt.textContent = u;
+                        unitSelect.append(opt);
+                    });
+                    unitSelect.value = intervalUnits.includes(previousUnit) ? previousUnit : 'meses';
+                    row.append(minInput, maxInput, unitSelect, genderBtn, faseBtn, removeBtn);
+                } else if (rowModeSelect.value === 'alimento_medio') {
                         const min = row.querySelector('.reproduction-gestation-min')?.value || '';
                         const max = row.querySelector('.reproduction-gestation-max')?.value || '';
                         const unit = row.querySelector('.reproduction-gestation-unit')?.value || 'kg/dia';
@@ -697,6 +737,8 @@
 
             typeSelect.addEventListener('change', updateReproductionPreview);
             matingSelect.addEventListener('change', updateReproductionPreview);
+            reproductiveLifeHistorySelect.addEventListener('change', updateReproductionPreview);
+            reproductiveTimingSelect.addEventListener('change', updateReproductionPreview);
             feedingTypeSelect.addEventListener('change', updateReproductionPreview);
             eggColorSelect.addEventListener('change', updateReproductionPreview);
             sexualSystemSelect.addEventListener('change', updateReproductionPreview);
@@ -874,6 +916,17 @@
                             tipo: 'Acasalamento',
                             detalhe: matingVal
                         };
+                    } else if (rowModeSelect.value === 'estrategia_reprodutiva') {
+                        const lifeHistory = row.querySelector('.reproduction-strategy-life-history')?.value || '';
+                        const timing = row.querySelector('.reproduction-strategy-timing')?.value || '';
+                        const detalhe = [lifeHistory, timing].filter(Boolean).join(' | ');
+                        return detalhe ? {
+                            ...rowMeta,
+                            tipo: 'Estratégia reprodutiva',
+                            estrategia: lifeHistory,
+                            padrao: timing,
+                            detalhe
+                        } : null;
                     } else if (rowModeSelect.value === 'sistema_sexual') {
                         const detail = row.querySelector('.reproduction-sexual-system')?.value || '';
                         return detail ? {
@@ -1084,6 +1137,7 @@
             'Acasalamento',
             'Duração do estro',
             'Época de reprodução',
+            'Estratégia reprodutiva',
             'Frequência de acasalamento durante o estro',
             'Idade da metamorfose',
             'Investimento Parental',
@@ -1244,6 +1298,27 @@
                         </div>
                     </article>`;
             }
+
+            if (normalizeSearchText(item.tipo || '') === 'estrategia reprodutiva') {
+                const strategyParts = String(item.detalhe || '').split(/\s*(?:•|\|)\s*/).filter(Boolean);
+                const lifeHistory = item.estrategia || strategyParts[0] || '';
+                const timing = item.padrao || strategyParts[1] || '';
+                const models = [lifeHistory, timing].filter(Boolean).map(value => `
+                    <div class="reproductive-strategy-preview-model" title="${value}">
+                        <div class="dimension-model-icon">${getReproductiveStrategySvg(value)}</div>
+                        <span>${value}</span>
+                    </div>`).join('');
+                return `
+                    <article class="dimension-model-card reproduction-model-card reproductive-strategy-card ${isSuggestion ? 'is-suggestion' : ''}">
+                        <div class="reproductive-strategy-preview-models">${models}</div>
+                        <div class="dimension-model-copy">
+                            <div class="dimension-model-label">Estratégia reprodutiva</div>
+                            <div class="dimension-model-value">${[lifeHistory, timing].filter(Boolean).join(' • ')}</div>
+                            <div class="dimension-model-meta">Modelos visuais</div>
+                        </div>
+                    </article>`;
+            }
+
             const matingValue = normalizeSearchText(item.tipo || '').includes('acasalamento')
                 ? (item.detalhe || '')
                 : (isMatingReproductionItem(item.tipo || '') ? (item.tipo || '') : '');

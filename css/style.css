@@ -1226,6 +1226,42 @@ body.edit-theme .page-nav {
     background: rgba(20, 13, 9, 0.7);
 }
 
+.page-nav-home {
+    display: none;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    margin-top: -2px;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: #f8fafc;
+    transition: transform 180ms ease, border-color 180ms ease, background 180ms ease;
+}
+
+.page-nav-home i { font-size: 1.1rem; color: currentColor; }
+.page-nav.is-floating .page-nav-home {
+    display: inline-flex;
+    color: #f8fafc;
+    background: transparent !important;
+    box-shadow: none;
+}
+
+.page-nav .page-nav-home::after { display: none; }
+
+.page-nav.is-floating .page-nav-home:hover,
+.page-nav.is-floating .page-nav-home:focus-visible,
+.page-nav.is-floating .page-nav-home:active {
+    transform: translateY(-1px);
+    color: #a7f3d0;
+    background: rgba(167, 243, 208, 0.1) !important;
+    box-shadow: 0 0 18px rgba(167, 243, 208, 0.28);
+}
+
+.page-nav-home:focus-visible { outline: 2px solid #a7f3d0; outline-offset: 3px; }
+
 .page-nav a {
     text-decoration: none;
     font-weight: 700;
@@ -1821,6 +1857,16 @@ button[type="submit"]:hover {
         margin-right: -8px;
         overflow-x: auto;
         scrollbar-width: thin;
+    }
+
+    .page-nav.is-floating .page-nav-home {
+        box-sizing: border-box;
+        width: 48px;
+        min-width: 48px;
+        height: 30px;
+        margin: 0;
+        padding: 0 0 12px;
+        justify-content: center;
     }
 
     .info-section h3 {

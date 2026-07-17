@@ -13,37 +13,52 @@
     <link rel="apple-touch-icon" href="assets/logos/apple-touch-icon.png">
     <meta name="theme-color" content="#0b3022">
     <link rel="stylesheet" href="css/style.css?v=1.0.3">
-    <link rel="stylesheet" href="css/vs.css?v=1">
+    <link rel="stylesheet" href="css/vs.css?v=5">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="js/runtime-guard.js"></script>
     <script src="js/page-transition.js?v=1"></script>
 </head>
 <body>
+    <!-- Loading Overlay -->
+    <div id="loading-overlay">
+        <div class="loader-content">
+            <div class="animal-animation">
+                <i class="fa-solid fa-paw"></i>
+            </div>
+            <p class="loader-text">A carregar...</p>
+        </div>
+    </div>
+
     <main class="compare-page">
         <section class="compare-hero">
-            <div>
+            <div class="compare-hero-info">
                 <p class="compare-kicker">Comparação</p>
-                <h1>Animais lado a lado</h1>
+                <div class="compare-hero-title-row">
+                    <h1>Animais lado a lado</h1>
+                    <div id="compare-language-select-container"></div>
+                </div>
                 <p class="compare-lead">Escolhe até quatro animais para comparar imagem, classificação, dados rápidos e dimensões na mesma grelha.</p>
             </div>
             <a class="compare-back-link" href="index.html">Voltar ao início</a>
         </section>
 
-        <section class="compare-toolbar">
-            <div class="compare-search-block">
-                <label for="compareSearchInput">Adicionar animal</label>
-                <input id="compareSearchInput" type="search" placeholder="Pesquisar por nome comum ou científico..." autocomplete="off">
-                <div id="compareSearchResults" class="compare-search-results"></div>
-            </div>
-            <div class="compare-selected-block">
-                <span>Selecionados</span>
-                <div id="compareSelectedList" class="compare-selected-list"></div>
-            </div>
-        </section>
+
 
         <section id="compareSimilarityPanel" class="compare-similarity-panel" hidden></section>
 
-        <section id="compareGrid" class="compare-grid" aria-live="polite"></section>
+        <section class="compare-matrix-section">
+            <div class="compare-section-head">
+                <div class="compare-section-info">
+                    <h3>Comparação</h3>
+                    <p>Clica numa linha para a destacar. Usa o ícone de brilho para ver animais com estatísticas parecidas.</p>
+                </div>
+                <div class="compare-search-block">
+                    <input id="compareSearchInput" type="search" placeholder="Pesquisar por nome comum ou científico..." autocomplete="off">
+                    <div id="compareSearchResults" class="compare-search-results" style="display: none;"></div>
+                </div>
+            </div>
+            <div id="compareGrid" class="compare-matrix-scroll" aria-live="polite"></div>
+        </section>
     </main>
 
     <script type="module" src="js/components.js?v=5"></script>

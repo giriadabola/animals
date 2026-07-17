@@ -1,4 +1,4 @@
-const CACHE_NAME = 'animals-admin-v20260716-ios-refresh-1';
+const CACHE_NAME = 'animals-admin-v20260717-sw-response-fix-1';
 
 const ASSETS_TO_CACHE = [
   './',
@@ -32,6 +32,7 @@ const ASSETS_TO_CACHE = [
   './form/modules/form-distribution-submit.js',
   './form/modules/form-distribution-regions.js',
   './form/modules/form-rodape-tab.js',
+  './form/modules/form-languages.js',
   './form/modules/form-text-import-popup.js',
   './form/modules/form-taxonomy-source-import.js',
   './form/xeno-canto-link.js',
@@ -68,6 +69,19 @@ const ASSETS_TO_CACHE = [
   'https://cdn.jsdelivr.net/npm/jsvectormap/dist/maps/world.js'
 ];
 
+function createOfflineFallback(request) {
+  const destination = request?.destination || '';
+  if (destination === 'image') {
+    return new Response('<svg xmlns="http://www.w3.org/2000/svg" width="1" height="1"></svg>', {
+      status: 200,
+      headers: { 'Content-Type': 'image/svg+xml; charset=utf-8' }
+    });
+  }
+  return new Response('', {
+    status: 503,
+    statusText: 'Service Unavailable'
+  });
+}
 function shouldIgnoreRequest(request) {
   const url = new URL(request.url);
   return (
@@ -139,6 +153,6 @@ self.addEventListener('fetch', (event) => {
         }
         return response;
       })
-      .catch(() => caches.match(event.request, { ignoreSearch: true }))
+      .catch(() => caches.match(event.request, { ignoreSearch: true }).then((cachedResponse) => cachedResponse || createOfflineFallback(event.request)))
   );
 });

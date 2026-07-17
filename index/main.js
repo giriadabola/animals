@@ -5,12 +5,14 @@ import { hideLoadingOverlay, waitForPageImages } from "../js/loader.js?v=2";
 import { initGlobeSearch } from "./globe-search.js";
 import { initBiomaExplorer } from "./bioma-explorer.js";
 import { populateSurvivalLists } from "./survival-lists.js?v=2";
+import { findLocalAnimalsByWikidata } from "../js/wikidata-search.js?v=1";
 
 onAuthStateChanged(auth, (user) => {
     console.log("AUTH STATE: Estado de autenticação recebido. Utilizador:", user ? (user.email || user.uid) : "Anónimo");
 });
 
 let allAnimals = [];
+let searchSequence = 0;
 let mainLayout = null;
 const searchInput = document.getElementById('searchInput');
 const searchResultsContainer = document.getElementById('searchResults');
@@ -116,6 +118,9 @@ function normalizeAnimalSearchText(value = '') {
 function getAlsoKnownAsNames(animal = {}) {
     const curiosidades = animal.informacao?.curiosidades || {};
     const names = [];
+    const idiomaData = animal.informacao?.idiomas;
+    if (Array.isArray(idiomaData)) names.push(...idiomaData.map(item => item?.nome || item?.name).filter(Boolean));
+    else if (idiomaData && typeof idiomaData === 'object') names.push(...Object.values(idiomaData).filter(Boolean));
     if (Array.isArray(curiosidades.tambemConhecidoComo)) names.push(...curiosidades.tambemConhecidoComo);
     if (Array.isArray(curiosidades.detalhes)) {
         curiosidades.detalhes
@@ -237,7 +242,8 @@ function displayResults(results) {
 }
 
 if (searchInput) {
-    searchInput.addEventListener('input', () => {
+    searchInput.addEventListener('input', async () => {
+        const currentSearch = ++searchSequence;
         const searchTerm = searchInput.value.trim();
         if (searchTerm.length === 0) {
             if (searchResultsContainer) {
@@ -248,8 +254,12 @@ if (searchInput) {
             requestAnimationFrame(keepSearchCardTopVisible);
             return;
         }
-        const filteredAnimals = allAnimals.filter(animal => animalMatchesSearch(animal, searchTerm));
-        displayResults(filteredAnimals);
+        const localMatches = allAnimals.filter(animal => animalMatchesSearch(animal, searchTerm));
+        let remoteMatches = [];
+        try { remoteMatches = await findLocalAnimalsByWikidata(searchTerm, allAnimals); } catch (error) { console.warn('Wikidata: pesquisa indisponível', error); }
+        if (currentSearch !== searchSequence) return;
+        const merged = new Map([...localMatches, ...remoteMatches].map(animal => [animal.id, animal]));
+        displayResults([...merged.values()]);
     });
 }
 

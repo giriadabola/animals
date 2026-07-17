@@ -1,6 +1,6 @@
 if ('serviceWorker' in navigator) {
   const registerAdminServiceWorker = () => {
-    navigator.serviceWorker.register('../sw-admin.js?v=20260716-ios-refresh-1', { scope: '../', updateViaCache: 'none' })
+    navigator.serviceWorker.register('../sw-admin.js?v=20260717-sw-response-fix-1', { scope: '../', updateViaCache: 'none' })
       .then(async (registration) => {
         console.log('Service Worker de Administração registado:', registration.scope);
         await registration.update();

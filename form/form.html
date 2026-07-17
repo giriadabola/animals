@@ -28,7 +28,7 @@
     <script src="https://cdn.jsdelivr.net/npm/jsvectormap/dist/maps/world.js"></script>
     <script src="./form-cache.js?v=20260716_ios_refresh_1"></script>
     <script src="../js/page-transition.js?v=1"></script>
-    <link rel="stylesheet" href="./form.css?v=20260716_egg_colors">
+    <link rel="stylesheet" href="./form.css?v=20260716_reproductive_strategy_1">
     <link rel="stylesheet" href="./form-responsive.css?v=20260715_mobile_1">
 
     <style id="form-auth-critical-css">
@@ -99,6 +99,7 @@
                 <button type="button" class="top-level-tab-btn" data-top-tab="rodape">
                     <i class="fa-solid fa-shoe-prints" style="transform: rotate(-90deg);"></i> Rodapé
                 </button>
+                <button type="button" class="top-level-tab-btn" data-top-tab="idiomas"><i class="fa-solid fa-language"></i> Idiomas</button>
             </div>
             <div class="form-header-fields">
                 <div class="form-group">
@@ -323,6 +324,7 @@
                         <button type="button" id="openFormTextImportBtn" class="form-text-import-trigger" aria-label="Colar texto extraído" title="Colar texto extraído" aria-haspopup="dialog" aria-controls="formTextImportModalOverlay">
                             <i class="fa-solid fa-file-import" aria-hidden="true"></i>
                         </button>
+                        <button type="button" id="formParameterSearchUnlock" class="form-parameter-search-unlock" aria-label="Destrancar pesquisa" title="Destrancar pesquisa" aria-pressed="false"><i class="fa-solid fa-lock" aria-hidden="true"></i></button>
                     </div>
                     <div id="formParameterSearchResults" class="form-parameter-search-results" role="listbox" hidden></div>
                     <small class="form-parameter-search-note">Pesquisa parâmetros e subparâmetros. As unidades de medida não são incluídas.</small>
@@ -878,6 +880,19 @@
                 </div>
             </div>
             
+            <div id="top-tabpanel-idiomas" class="grid-span-3" style="display: none;">
+                <div class="idiomas-card">
+                    <div class="idiomas-heading">
+                        <div><h3>Idiomas</h3><p>Nome do animal por país ou idioma, recolhido automaticamente do Wikidata.</p></div>
+                        <button type="button" class="secondary-action-btn" id="addIdiomaBtn"><i class="fa-solid fa-plus"></i> Adicionar linha</button>
+                    </div>
+                    <div class="idiomas-table-wrap">
+                        <table class="idiomas-table"><thead><tr><th>País</th><th>Nome do animal</th><th aria-label="Acções"></th></tr></thead><tbody id="idiomasRows"></tbody></table>
+                    </div>
+                    <p class="idiomas-empty" id="idiomasEmpty">Ainda não existem idiomas importados.</p>
+                </div>
+            </div>
+
             <div class="save-quality-row grid-span-3">
                 <div class="animal-quality-selector" id="animalQualitySelector" aria-label="Nível de qualidade do registo">
                     <button type="button" class="quality-choice quality-forte" data-quality="forte" title="Forte" aria-label="Forte">
@@ -1106,7 +1121,7 @@
     <script type="module" src="../js/components.js?v=20260716_mobile_home_1"></script>
     <script src="../js/distribution-areas.js?v=20260713_6"></script>
     <script src="./modules/form-distribution-regions.js?v=20260710_1"></script>
-    <script type="module" src="./form.js?v=20260714_reproduction_preview_selection"></script>
+    <script type="module" src="./form.js?v=20260716_environment_images_1"></script>
     <!-- Service Worker PWA -->
     <script src="./sw-register.js?v=20260716_ios_refresh_1"></script>
     <script src="./xeno-canto-link.js?v=1"></script>
