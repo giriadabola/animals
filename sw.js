@@ -1,4 +1,4 @@
-const CACHE_NAME = 'animals-app-v20260717-wikidata-search-v1';
+const CACHE_NAME = 'animals-app-v20260718-footer-labels-v1';
 
 const ASSETS_TO_CACHE = [
   './',

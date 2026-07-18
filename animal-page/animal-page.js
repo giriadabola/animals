@@ -1,5 +1,5 @@
 import { db } from "../js/firebase-config.js?v=5";
-import { applyAnimalLanguage, initAnimalLanguage, renderAnimalLanguageSelect, getSavedAnimalLanguage } from "../js/i18n/index.js?v=20260717_zh_complete_1";
+import { applyAnimalLanguage, initAnimalLanguage, renderAnimalLanguageSelect, getSavedAnimalLanguage } from "../js/i18n/index.js?v=20260718_footer_labels_1";
 import { getWikidataLocalizedNames } from "../js/wikidata-search.js?v=20260717_localized_names_1";
         import { doc, getDoc, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
         import { feedingTypeDescriptions, getFeedingVisualMeta, getFeedingModelSvg } from "../js/feeding-visuals.js";
@@ -78,7 +78,7 @@ import { initAnimalComparison } from "../js/animal-comparison.js?v=2";
 
         function getCountryFlagEmoji(code) {
             const normalizedCode = normalizeCountryCode(code);
-            if (!/^[A-Z]{2}$/.test(normalizedCode)) return '�YO�';
+            if (!/^[A-Z]{2}$/.test(normalizedCode)) return '🌐';
             return [...normalizedCode].map(character => String.fromCodePoint(127397 + character.charCodeAt(0))).join('');
         }
 
@@ -165,7 +165,7 @@ import { initAnimalComparison } from "../js/animal-comparison.js?v=2";
             const defaultGender = genders.has('M') ? 'M' : 'F';
             let html = `<span class="info-gender-tabs" style="display: inline-flex; gap: 10px; align-items: center; vertical-align: middle;">`;
             
-            // Abas de Fase (�f  esquerda)
+            // Abas de Fase (? esquerda)
             if (hasPhases) {
                 html += `
                     <span class="glass-pill-toggle phase-toggle-container" style="display: inline-flex; background: rgba(255, 255, 255, 0.04); backdrop-filter: blur(8px); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 30px; padding: 3px; gap: 2px; align-items: center; box-shadow: inset 0 1px 1px rgba(255,255,255,0.05);">
@@ -178,7 +178,7 @@ import { initAnimalComparison } from "../js/animal-comparison.js?v=2";
                 }
             }
             
-            // Abas de Género (�f  direita)
+            // Abas de Género (? direita)
             if (hasGenders) {
                 html += `
                     <span class="glass-pill-toggle gender-toggle-container" style="display: inline-flex; background: rgba(255, 255, 255, 0.04); backdrop-filter: blur(8px); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 30px; padding: 3px; gap: 2px; align-items: center; box-shadow: inset 0 1px 1px rgba(255,255,255,0.05);">
@@ -1238,7 +1238,7 @@ import { initAnimalComparison } from "../js/animal-comparison.js?v=2";
                                 <span class="icon svg-icon">${getInfoSectionIconSvg('geral')}</span>Geral
                             </button>
                             <button type="button" class="visual-model-section-tab" data-visual-model-tab="measures" role="tab" aria-selected="false">
-                                <span class="icon svg-icon">${getInfoSectionIconSvg('medidas')}</span><span class="visual-tab-label visual-tab-label--short" data-label-pt="Medidas" data-label-en="Meas." data-label-fr="Mesures" data-label-es="Medidas" data-label-de="Messwerte" data-label-ja="測定値" data-label-zh="测量">Medidas</span>
+                                <span class="icon svg-icon">${getInfoSectionIconSvg('medidas')}</span><span class="visual-tab-label visual-tab-label--short" data-label-pt="Medidas" data-label-en="Meas." data-label-fr="Mesures" data-label-es="Medidas" data-label-de="Messwerte" data-label-ja="æ¸¬å®šå€¤" data-label-zh="æµ‹é‡">Medidas</span>
                             </button>
                             <button type="button" class="visual-model-section-tab" data-visual-model-tab="dimensions" role="tab" aria-selected="false">
                                 <span class="icon svg-icon">${getInfoSectionIconSvg('dimensoes')}</span><span class="visual-tab-label visual-tab-label--short" data-label-pt="Dimensões" data-label-en="Dimensions" data-label-fr="Dimensions" data-label-es="Dimensiones" data-label-de="Abm." data-label-ja="寸法" data-label-zh="尺寸">Dimensões</span>
@@ -1631,7 +1631,7 @@ import { initAnimalComparison } from "../js/animal-comparison.js?v=2";
 
         function renderFeedingTypeCard(group) {
             const nutritionMeta = getFeedingNutritionMeta(group.type);
-            if (nutritionMeta && group.type === 'Tipo de Alimenta�f§�f£o') {
+            if (nutritionMeta && group.type === 'Tipo de Alimenta??o') {
                 const entries = group.details
                     .map(parseFeedingDetail)
                     .filter(entry => entry.display)
@@ -1794,7 +1794,7 @@ import { initAnimalComparison } from "../js/animal-comparison.js?v=2";
             if (nutritionMeta) {
                 const detailData = parseFeedingDetail(item.detalhe || '');
                 const resolvedValue = detailData.display || item.detalhe || feedingTypeDescriptions[type] || 'Modelo visual';
-                const icon = type === 'Tipo de Alimenta�f§�f£o'
+                const icon = type === 'Tipo de Alimenta??o'
                     ? getFeedingModelSvg(getFeedingVisualMeta(detailData.primary || resolvedValue).key)
                     : getReproductionModelSvg(nutritionMeta.key);
                 return `
@@ -1823,7 +1823,7 @@ import { initAnimalComparison } from "../js/animal-comparison.js?v=2";
         function renderFeedingStrategyCard(item) {
             const strategy = item.estrategia || item.tipo || '';
             const meta = getFeedingStrategyMeta(strategy);
-            const detail = item.detalhe || feedingStrategyDescriptions[strategy] || 'Estratï¿½gia alimentar';
+            const detail = item.detalhe || feedingStrategyDescriptions[strategy] || 'Estratégia alimentar';
             return `
                 <button type="button" class="dimension-model-card feeding-strategy-card feeding-type-popup-trigger feeding-strategy-popup-trigger ${meta.accent}" data-feeding-strategy-popup data-feeding-strategies="${escapeHtml(JSON.stringify([strategy]))}" aria-haspopup="dialog" aria-label="Ver as estratégias para obter alimentos e respetivas explicações" style="width: 100%; box-sizing: border-box; display: flex; align-items: center;">
                     <div class="dimension-model-icon">${getFeedingStrategySvg(meta.key)}</div>
@@ -2270,7 +2270,7 @@ import { initAnimalComparison } from "../js/animal-comparison.js?v=2";
             'Pelagem curta':'fa-scissors','Pelagem longa':'fa-wave-square','Pelagem densa':'fa-layer-group','Pelagem lanosa':'fa-cloud','Pelagem impermeável':'fa-umbrella','Pelagem sazonal':'fa-arrows-rotate','Pelagem de camuflagem':'fa-leaf','Pelagem com riscas':'fa-bars','Pelagem com manchas':'fa-circle-dot','Pelo liso':'fa-minus','Pelo ondulado':'fa-water','Pelo encaracolado':'fa-hurricane','Pelo áspero':'fa-grip-lines','Subpelo isolante':'fa-temperature-half','Vibrissas':'fa-lines-leaning','Espinhos modificados':'fa-burst','Sem pelo aparente':'fa-ban',
             'Escamas placoides':'fa-tooth','Escamas ganoides':'fa-gem','Escamas cicloides':'fa-circle-notch','Escamas ctenoides':'fa-fan','Escamas reduzidas':'fa-compress','Sem escamas':'fa-ban','Pele mucosa':'fa-droplet','Placas dérmicas':'fa-shield','Dentículos dérmicos':'fa-teeth','Bioluminescência':'fa-lightbulb','Coloração iridescente':'fa-wand-magic-sparkles','Mudança de cor':'fa-palette',
             'Pele lisa':'fa-circle','Pele rugosa':'fa-braille','Pele granulosa':'fa-grip','Pele húmida':'fa-droplet','Pele verrugosa':'fa-circle-nodes','Pele translúcida':'fa-eye','Glândulas mucosas':'fa-water','Glândulas de veneno':'fa-flask','Dobras cutâneas':'fa-wave-square','Tubérculos':'fa-circle-dot','Coloração aposemática':'fa-triangle-exclamation',
-            'Exoesqueleto rígido':'fa-shield-halved','Exoesqueleto flexível':'fa-link','Exoesqueleto quitinoso':'fa-shield','�?litros':'fa-door-closed','Cutícula cerosa':'fa-droplet','Muda do exoesqueleto':'fa-arrows-rotate','Cerdas sensoriais':'fa-satellite-dish','Espinhos':'fa-burst','Placas':'fa-table-cells','Brilho metálico':'fa-bolt','Pelos urticantes':'fa-fire','Carapaça calcificada':'fa-gem','Carapaça rígida':'fa-shield','Carapaça flexível':'fa-link','Exoesqueleto segmentado':'fa-layer-group','Muda da carapaça':'fa-arrows-rotate','Pinças especializadas':'fa-scissors',
+            'Exoesqueleto rígido':'fa-shield-halved','Exoesqueleto flexível':'fa-link','Exoesqueleto quitinoso':'fa-shield','≥ litros':'fa-door-closed','Cutícula cerosa':'fa-droplet','Muda do exoesqueleto':'fa-arrows-rotate','Cerdas sensoriais':'fa-satellite-dish','Espinhos':'fa-burst','Placas':'fa-table-cells','Brilho metálico':'fa-bolt','Pelos urticantes':'fa-fire','Carapaça calcificada':'fa-gem','Carapaça rígida':'fa-shield','Carapaça flexível':'fa-link','Exoesqueleto segmentado':'fa-layer-group','Muda da carapaça':'fa-arrows-rotate','Pinças especializadas':'fa-scissors',
             'Manchas':'fa-circle-dot',
             'Concha univalve':'fa-circle-notch','Concha bivalve':'fa-book-open','Concha espiral':'fa-hurricane','Concha interna':'fa-circle-half-stroke','Sem concha externa':'fa-ban','Manto':'fa-sheet-plastic','Cromatóforos':'fa-palette','Pele segmentada':'fa-grip-lines','Cutícula':'fa-layer-group','Pele ciliada':'fa-lines-leaning','Anéis corporais':'fa-ring','Membrana celular':'fa-circle','Película':'fa-circle-notch','Parede externa':'fa-border-all','Cápsula':'fa-capsules','Carapaça microscópica':'fa-shield','Cílios':'fa-lines-leaning','Flagelos':'fa-wave-square','Pseudópodes':'fa-hand','Espículas':'fa-burst'
         };
@@ -2620,9 +2620,9 @@ import { initAnimalComparison } from "../js/animal-comparison.js?v=2";
                     : normalizedTipo === 'tipo de toxina'
                         ? 'toxinType'
                         : normalizedTipo.includes('administra') && normalizedTipo.includes('toxina')
-                            ? 'Via de administra�f§�f£o da toxina'
+                            ? 'Via de administra??o da toxina'
                             : normalizedTipo.includes('doto') && normalizedTipo.includes('disp')
-                                ? 'Ant�f­doto dispon�f­vel'
+                                ? 'Ant?doto dispon?vel'
                                 : '';
                 if (item.tipo === 'Também conhecido como') {
                     return `
@@ -2896,7 +2896,7 @@ import { initAnimalComparison } from "../js/animal-comparison.js?v=2";
                     `;
                 }
 
-                if (item.tipo !== 'Estado de Conserva�f§�f£o' && item.tipo !== 'Estado de Conservação') {
+                if (item.tipo !== 'Estado de Conserva??o' && item.tipo !== 'Estado de Conservação') {
                     return `
                         <article class="dimension-model-card curiosidades-model-card" style="width:100%;box-sizing:border-box;display:flex;align-items:center;">
                             <div class="dimension-model-icon" style="flex-shrink:0;background:rgba(148, 163, 184, 0.16);color:#cbd5e1;display:flex;align-items:center;justify-content:center;"><i class="fa-solid fa-sparkles"></i></div>
@@ -3904,7 +3904,7 @@ import { initAnimalComparison } from "../js/animal-comparison.js?v=2";
                         const getRankingUrl = (paramName) => {
                             const name = String(paramName || '').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
                             if (name.includes('vida') || name.includes('longevidade')) {
-                                return 'filtros.html?tipo=mais-vida-util&valor=Com%20mais%20Vida%20�stil';
+                                return 'filtros.html?tipo=mais-vida-util&valor=Com%20mais%20Vida%20%C3%BAtil';
                             }
                             if (name.includes('velocidade') || name.includes('veloz')) {
                                 return 'filtros.html?tipo=mais-velozes&valor=Os%20Mais%20Velozes';
@@ -3982,28 +3982,46 @@ import { initAnimalComparison } from "../js/animal-comparison.js?v=2";
                                 </div>
                             ` : ''}
                             ${hasFooterComparison ? `
-                                <section class="animal-comparison-section" data-animal-comparison aria-labelledby="animal-comparison-title">
-                                    <div class="animal-comparison-heading">
-                                        <div>
-                                            <span class="animal-comparison-kicker">Comparação visual</span>
-                                            <h2 id="animal-comparison-title"><i class="fa-solid fa-scale-balanced" aria-hidden="true"></i> Comparar com outro animal</h2>
+                                <div class="footer-comparison-layout">
+                                    <section class="animal-comparison-section" data-animal-comparison aria-labelledby="animal-comparison-title">
+                                        <div class="animal-comparison-heading">
+                                            <div>
+                                                <span class="animal-comparison-kicker">Comparação visual</span>
+                                                <h2 id="animal-comparison-title"><i class="fa-solid fa-scale-balanced" aria-hidden="true"></i> Comparar com outro animal</h2>
+                                            </div>
+                                            <a class="animal-comparison-open-button" href="vs.html?id=${encodeURIComponent(animalId)}" aria-label="Abrir página de comparação" title="Abrir página de comparação">
+                                                <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>
+                                                Abrir comparação completa
+                                            </a>
+                                            <div class="animal-comparison-search">
+                                                <label class="animal-comparison-select-label" for="animal-comparison-search-input">Animal</label>
+                                                <input id="animal-comparison-search-input" data-comparison-search type="search" autocomplete="off" placeholder="Pesquisar por nome comum ou científico..." aria-label="Pesquisar animal para comparar" aria-controls="animal-comparison-search-results" aria-expanded="false">
+                                                <div id="animal-comparison-search-results" class="animal-comparison-search-results" data-comparison-search-results role="listbox" hidden></div>
+                                            </div>
                                         </div>
-                                        <a class="animal-comparison-open-button" href="vs.html?id=${encodeURIComponent(animalId)}" aria-label="Abrir página de comparação" title="Abrir página de comparação">
-                                                    <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>
-                                                    Abrir comparação completa
-                                                </a>
-                                                <div class="animal-comparison-search">
-                                            <label class="animal-comparison-select-label" for="animal-comparison-search-input">Animal</label>
-                                            <input id="animal-comparison-search-input" data-comparison-search type="search" autocomplete="off" placeholder="Pesquisar por nome comum ou científico..." aria-label="Pesquisar animal para comparar" aria-controls="animal-comparison-search-results" aria-expanded="false">
-                                            <div id="animal-comparison-search-results" class="animal-comparison-search-results" data-comparison-search-results role="listbox" hidden></div>
+                                        <div data-comparison-table>
+                                            <p class="animal-comparison-empty">A preparar a comparação...</p>
+                                        </div>
+                                    </section>
+                                    <div class="footer-comparison-promos" aria-label="Explorar outros temas de comparação">
+                                        <div class="footer-comparison-promo-item">
+                                            <a href="vs.html?id=${encodeURIComponent(animalId)}" class="footer-comparison-promo footer-comparison-promo-footprints" aria-label="Pegadas de leão e elefante na praia" style="display: block;">
+                                                <span class="footer-comparison-promo-label label-orange">Comparar animais</span>
+                                            </a>
+                                        </div>
+                                        <div class="footer-comparison-promo-item">
+                                            <article class="footer-comparison-promo footer-comparison-promo-mushrooms" aria-label="Chimpanzé a observar cogumelos florescentes">
+                                                <span class="footer-comparison-promo-label">Visite o laboratório</span>
+                                            </article>
+                                        </div>
+                                        <div class="footer-comparison-promo-item">
+                                            <article class="footer-comparison-promo footer-comparison-promo-metamorphosis" aria-label="Metamorfose de uma borboleta">
+                                                <span class="footer-comparison-promo-label">Metamorfose</span>
+                                            </article>
                                         </div>
                                     </div>
-                                    <div data-comparison-table>
-                                        <p class="animal-comparison-empty">A preparar a comparação...</p>
-                                    </div>
-                                </section>
-                            ` : ''}
-                            ${(hasFooterImage || footerCards.length > 0) ? `
+</div>
+                            ` : ''}                            ${(hasFooterImage || footerCards.length > 0) ? `
                                 <div class="footer-image-row" style="display: flex; gap: 24px; align-items: center; flex-wrap: wrap; justify-content: center; width: 100%;">
                                     ${hasFooterImage ? `
                                         <div class="footer-image-card ${footerBiomas.length ? 'has-cartoon-bg' : ''}" style="margin: 0;"${footerBiomas.length > 1 ? ' data-footer-bioma-slider' : ''}>
@@ -4647,5 +4665,6 @@ import { initAnimalComparison } from "../js/animal-comparison.js?v=2";
         }
         
         loadPage();
+
 
 

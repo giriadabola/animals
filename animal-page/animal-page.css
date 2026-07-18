@@ -152,8 +152,7 @@
             transform: rotate(180deg);
         }
 
-        @media (max-width: 640px) {
-            .scientific-classification-row {
+        @media (max-width: 640px) {`r`n.scientific-classification-row {
                 align-items: flex-start;
                 gap: 10px;
             }
@@ -3477,7 +3476,8 @@ body.conservation-status-modal-open {
 }
 
 .animal-comparison-section {
-    width: min(100%, 1400px);
+    width: 100%;
+    min-width: 0;
     margin: 26px auto 0;
     padding: 24px;
     border: 1px solid rgba(110, 231, 183, 0.24);
@@ -3486,6 +3486,95 @@ body.conservation-status-modal-open {
     box-shadow: 0 16px 36px rgba(0, 0, 0, 0.22);
 }
 
+.footer-comparison-layout {
+    display: grid;
+    grid-template-columns: 1fr 180px;
+    align-items: stretch;
+    gap: 18px;
+    width: min(100%, 1400px);
+    margin: 26px auto 0;
+}
+
+.footer-comparison-layout .animal-comparison-section { margin: 0; }
+
+.footer-comparison-promos {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    align-self: stretch;
+    min-width: 0;
+}
+
+.footer-comparison-promo-item {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+}
+
+.footer-comparison-promo-label {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    z-index: 5;
+    text-align: left;
+    width: calc(100% - 40px);
+    color: #6ee7b7;
+    font-size: 0.72rem;
+    font-weight: 900;
+    letter-spacing: 0.12em;
+    line-height: 1.2;
+    text-transform: uppercase;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8), 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+.footer-comparison-promo-label.label-orange {
+    color: #fca366;
+}
+
+.footer-comparison-promo {
+    position: relative;
+    min-width: 0;
+    width: 100%;
+    aspect-ratio: 1;
+    overflow: hidden;
+    border: 1px solid rgba(167, 243, 208, 0.24);
+    border-radius: 18px;
+    background-position: center;
+    background-size: cover;
+    box-shadow: 0 14px 30px rgba(0, 0, 0, 0.24), inset 0 1px rgba(255, 255, 255, 0.12);
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.footer-comparison-promo:hover {
+    transform: translateY(-4px);
+    border-color: rgba(110, 231, 183, 0.52);
+    box-shadow: 0 20px 38px rgba(0, 0, 0, 0.4), inset 0 1px rgba(255, 255, 255, 0.2);
+}
+
+.footer-comparison-promo::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    pointer-events: none;
+    z-index: 1;
+}
+
+.footer-comparison-promo::after {
+    content: '';
+    position: absolute;
+    inset: 10px;
+    border: 1px dashed rgba(167, 243, 208, 0.44);
+    border-radius: 12px;
+    pointer-events: none;
+    z-index: 2;
+}
+
+
+.footer-comparison-promo-footprints { background-image: url('../assets/capas/familias/comparison-footprints.png'); }
+.footer-comparison-promo-mushrooms { background-image: url('../assets/capas/familias/comparison-chimp-mushrooms.png'); }
+.footer-comparison-promo-metamorphosis { background-image: url('../assets/capas/familias/comparison-metamorphosis.png'); }
 .animal-comparison-heading {
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
@@ -4163,7 +4252,20 @@ html[lang="de"] .visual-model-section-tab .visual-tab-label--short[data-label-de
 }
 
 @media (max-width: 640px) {
+    .footer-comparison-layout {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+    }
+
+    .footer-comparison-promos {
+        display: flex;
+        flex-direction: column;
+    }
+
     .visual-model-section-tab .visual-tab-label--short {
         flex: 0 1 auto;
     }
 }
+
+

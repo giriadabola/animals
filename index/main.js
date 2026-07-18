@@ -4,7 +4,7 @@ import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.15.0/fi
 import { hideLoadingOverlay, waitForPageImages } from "../js/loader.js?v=2";
 import { initGlobeSearch } from "./globe-search.js";
 import { initBiomaExplorer } from "./bioma-explorer.js";
-import { populateSurvivalLists } from "./survival-lists.js?v=2";
+import { populateSurvivalLists } from "./survival-lists.js?v=1.0.14";
 import { findLocalAnimalsByWikidata } from "../js/wikidata-search.js?v=1";
 
 onAuthStateChanged(auth, (user) => {

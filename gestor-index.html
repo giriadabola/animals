@@ -370,7 +370,7 @@
                 display: none !important;
             }
         }
-    </style>
+    .showcase-editor{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px;margin-top:14px;padding:14px;border-radius:12px;background:var(--bg-secondary,#10231a)}.showcase-editor label{display:flex;flex-direction:column;gap:5px;font-size:.78rem;font-weight:700}.showcase-editor input,.showcase-editor select{padding:8px;border:1px solid #446b55;border-radius:8px;background:#0b1d14;color:inherit}.showcase-check{flex-direction:row!important;align-items:center;align-self:end}</style>
 </head>
 <body>
     <!-- Authorization Guard Overlay -->
@@ -452,6 +452,7 @@
 
         // High level sections definitions
         const sectionDefs = {
+            "animais-destaque": { title: "Animais em destaque", desc: "Cartões com bioma, imagem e estatísticas principais." },
             "pesquisa-globo": {
                 title: "Pesquisa pelo Globo",
                 desc: "Card grande com pesquisa por países. Permite pesquisar animais pela sua distribuição geográfica."
@@ -528,11 +529,12 @@
             "especie": { title: "Espécie", icon: "fa-dna" }
         };
 
-        let currentOrder = ["pesquisa-globo", "explorar-biomas", "parametros-visuais", "explorar-continentes", "estrategia-alimento", "acasalamento", "zona-climatica", "categoria", "familia", "classificacao-cientifica-niveis", "estatisticas"];
+        let currentOrder = ["pesquisa-globo", "explorar-biomas", "parametros-visuais", "animais-destaque", "explorar-continentes", "estrategia-alimento", "acasalamento", "zona-climatica", "categoria", "familia", "classificacao-cientifica-niveis", "estatisticas"];
         let currentActive = {
             "pesquisa-globo": true,
             "explorar-biomas": true,
             "parametros-visuais": true,
+            "animais-destaque": true,
             "explorar-continentes": true,
             "estrategia-alimento": true,
             "acasalamento": false,
@@ -566,6 +568,8 @@
             "forca-mordida": false,
             "maior-populacao": false
         };
+
+        let animalShowcase = { selectedAnimalId: "", characteristic: "", characteristicValue: "", randomAnimals: true, quantity: 6 };
 
         let currentLimits = {
             "acasalamento": 12,
@@ -890,6 +894,7 @@
                             }
                         });
                     }
+                    if (data.animalShowcase) animalShowcase = { ...animalShowcase, ...data.animalShowcase };
                     if (data.cardLimits) {
                         Object.keys(currentLimits).forEach(key => {
                             if (key in data.cardLimits) {
@@ -904,7 +909,7 @@
                         subClassificationOrder: subClassificationOrder,
                         subStatsOrder: subStatsOrder,
                         active: currentActive,
-                        cardLimits: currentLimits
+                        cardLimits: currentLimits, animalShowcase
                     });
                 } else {
                     await setDoc(docRef, {
@@ -912,7 +917,7 @@
                         subClassificationOrder: subClassificationOrder,
                         subStatsOrder: subStatsOrder,
                         active: currentActive,
-                        cardLimits: currentLimits
+                        cardLimits: currentLimits, animalShowcase
                     });
                 }
                 renderSettingsList();
@@ -930,7 +935,7 @@
                     subClassificationOrder: subClassificationOrder,
                     subStatsOrder: subStatsOrder,
                     active: currentActive,
-                    cardLimits: currentLimits
+                    cardLimits: currentLimits, animalShowcase
                 });
                 showStatus("Definições guardadas com sucesso!", "success");
             } catch (error) {
@@ -1004,5 +1009,6 @@
             });
         }
     </script>
+<script type="module" src="index/animal-showcase-admin.js?v=1"></script>
 </body>
 </html>

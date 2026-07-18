@@ -1,4 +1,5 @@
 import { extractPopulationMetric } from "../js/ranking-metrics.js?v=1";
+import { populateAnimalShowcase } from "./animal-showcase.js?v=1.0.17";
 
 function getFirstActiveCategory(categoria) {
     if (typeof categoria === 'string') return categoria;
@@ -32,13 +33,14 @@ export async function populateSurvivalLists(allAnimals, db, searchResultsContain
     if (!container) return;
     container.innerHTML = '';
 
-    let order = ["pesquisa-globo", "explorar-biomas", "parametros-visuais", "explorar-continentes", "estrategia-alimento", "acasalamento", "zona-climatica", "categoria", "familia", "classificacao-cientifica-niveis", "estatisticas"];
+    let order = ["pesquisa-globo", "explorar-biomas", "parametros-visuais", "animais-destaque", "explorar-continentes", "estrategia-alimento", "acasalamento", "zona-climatica", "categoria", "familia", "classificacao-cientifica-niveis", "estatisticas"];
     let subClassificationOrder = ["reino", "filo", "subfilo", "classe", "superordem", "subordem", "ordem", "familia-sub", "genero", "especie"];
     let subStatsOrder = ["mais-velozes", "mais-vida-util", "mais-altos", "mais-pesados", "mais-largo", "mais-espesso", "maior-envergadura", "gestacao-longa", "mais-crias", "mais-longos", "forca-mordida", "maior-populacao"];
     let active = {
         "pesquisa-globo": true,
         "explorar-biomas": true,
         "parametros-visuais": true,
+        "animais-destaque": true,
         "explorar-continentes": true,
         "estrategia-alimento": true,
         "acasalamento": false,
@@ -101,7 +103,7 @@ export async function populateSurvivalLists(allAnimals, db, searchResultsContain
         if (settingsSnap.exists()) {
             const data = settingsSnap.data();
             if (data.order) {
-                const defaultOrder = ["pesquisa-globo", "explorar-biomas", "parametros-visuais", "explorar-continentes", "estrategia-alimento", "acasalamento", "zona-climatica", "categoria", "familia", "classificacao-cientifica-niveis", "estatisticas"];
+                const defaultOrder = ["pesquisa-globo", "explorar-biomas", "parametros-visuais", "animais-destaque", "explorar-continentes", "estrategia-alimento", "acasalamento", "zona-climatica", "categoria", "familia", "classificacao-cientifica-niveis", "estatisticas"];
                 order = data.order.filter(key => defaultOrder.includes(key));
                 defaultOrder.forEach(key => {
                     if (!order.includes(key)) order.push(key);
@@ -223,6 +225,11 @@ export async function populateSurvivalLists(allAnimals, db, searchResultsContain
                 biomaExplorerCard.style.display = 'flex';
                 container.appendChild(biomaExplorerCard);
             }
+            return;
+        }
+
+        if (key === 'animais-destaque') {
+            populateAnimalShowcase(allAnimals, db, getDoc, doc);
             return;
         }
 
