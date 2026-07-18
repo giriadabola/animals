@@ -252,7 +252,12 @@
             function rebuildDetailControl() {
                 detailControl.innerHTML = '';
                 const isSpots = groupSelect.value === 'manchas';
-                if (isSpots) {
+                const isFeatherStructure = groupSelect.value === 'estrutura_penas';
+                if (isFeatherStructure) {
+                    detailControl.innerHTML = `<input type="number" min="0" step="any" class="plumage-detail plumage-value-min" placeholder="Mín." value="${extra.valorMin || ''}"><input type="number" min="0" step="any" class="plumage-detail plumage-value-max" placeholder="Máx." value="${extra.valorMax || ''}"><select class="plumage-detail plumage-unit"><option value="unid.">unid.</option></select>`;
+                    detailControl.querySelectorAll('input, select').forEach(control => control.addEventListener('input', updatePlumagePreview));
+                    detailControl.querySelector('.plumage-unit')?.addEventListener('change', updatePlumagePreview);
+                } else if (isSpots) {
                     const colorSelect = document.createElement('select');
                     colorSelect.className = 'plumage-detail plumage-spot-color';
                     colorSelect.innerHTML = `<option value="">Cor das manchas</option>` + bodyCoveringColorOptions.map(color => `<option value="${color}">${color}</option>`).join('');
@@ -294,9 +299,16 @@
                 const tipo = row.querySelector('.plumage-type')?.value || '';
                 const detailEl = row.querySelector('.plumage-detail');
                 const detalhe = String(detailEl?.value || '').trim();
+                const valorMin = String(row.querySelector('.plumage-value-min')?.value || '').trim();
+                const valorMax = String(row.querySelector('.plumage-value-max')?.value || '').trim();
+                const unidade = row.querySelector('.plumage-unit')?.value || '';
                 const genderButtons = [...row.querySelectorAll('[data-gender].is-active')].map(button => button.dataset.gender);
                 const genero = genderButtons.length === 2 ? 'MF' : (genderButtons[0] || 'MF');
                 const fase = row.querySelector('[data-phase].is-active')?.dataset.phase || 'Adulto';
+                if (grupo === 'estrutura_penas') {
+                    const range = [valorMin, valorMax].filter(Boolean).join('–');
+                    return { grupo, tipo, detalhe: range ? `${range} ${unidade}` : '', valorMin, valorMax, unidade, genero, fase };
+                }
                 return grupo === 'manchas'
                     ? { grupo, tipo, detalhe: detalhe ? `Cor: ${detalhe}` : '', cor: detalhe, genero, fase }
                     : { grupo, tipo, detalhe, genero, fase };
@@ -319,7 +331,7 @@
                     item = { ...item, grupo: Object.keys(config.groups).find(key => key.startsWith('cor_')) || 'cor' };
                 }
                 const inferredColor = item.cor || (item.grupo === 'manchas' ? String(item.detalhe || '').replace(/^Cor:\s*/i, '') : '');
-                createPlumageRow(item.grupo || '', item.tipo || '', item.grupo === 'manchas' ? '' : (item.detalhe || ''), { cor: inferredColor, genero: item.genero || 'MF', fase: item.fase || 'Adulto' });
+                createPlumageRow(item.grupo || '', item.tipo || '', item.grupo === 'manchas' || item.grupo === 'estrutura_penas' ? '' : (item.detalhe || ''), { cor: inferredColor, valorMin: item.valorMin || '', valorMax: item.valorMax || '', unidade: item.unidade || '', genero: item.genero || 'MF', fase: item.fase || 'Adulto' });
             });
             updatePlumagePreview();
         }

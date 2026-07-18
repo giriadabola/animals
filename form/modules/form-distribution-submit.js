@@ -755,6 +755,10 @@
             openSubregionModal(code);
         }
 
+        window.addImportedDistributionCountry = (code) => {
+            if (countryList && countryList[code]) addCountrySilently(code);
+        };
+
         function addCountrySilently(code) {
             if (!selectedCountries.includes(code)) {
                 selectedCountries.push(code);

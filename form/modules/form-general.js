@@ -37,6 +37,8 @@
             { tipo: 'Taxa Metabólica Basal média', unidade: 'W' },
             { tipo: 'Profundidade máxima', unidade: 'm' },
             { tipo: 'Profundidade média', unidade: 'm' },
+            { tipo: 'Distância máxima do salto', unidade: 'm' },
+            { tipo: 'Altura máxima do salto', unidade: 'm' },
             { tipo: 'Início do voo', unidade: 'meses' },
             { tipo: 'Primeira alimentação sólida', unidade: 'meses' },
             { tipo: 'Saída do ninho', unidade: 'meses' },
@@ -52,11 +54,12 @@
             { tipo: 'Taxa de mortalidade (cativeiro)', unidade: 'mortalidade adulta' },
             { tipo: 'Altitude mínima', unidade: 'm' },
             { tipo: 'Altitude máxima', unidade: 'm' },
+            { tipo: 'Altitude média', unidade: 'm' },
             { tipo: 'Transformações do desenvolvimento', unidade: '' },
             { tipo: 'Número de segmentos', unidade: 'centenas' },
             { tipo: 'Número de patas', unidade: 'centenas' },
             { tipo: 'Número de poros', unidade: 'centenas' },
-            { tipo: 'Número de brânquias', unidade: 'centenas' },
+            { tipo: 'Número de brânquias', unidade: 'unidade' },
             { tipo: 'Número de barbatanas', unidade: 'centenas' },
             { tipo: 'Número de vértebras', unidade: 'centenas' },
             { tipo: 'Número de escamas', unidade: 'centenas' },
@@ -151,6 +154,8 @@
                     'Expetativa média de vida (cativeiro)',
                     'Profundidade máxima',
                     'Profundidade média',
+                    'Distância máxima do salto',
+                    'Altura máxima do salto',
                     'Tamanho da População',
                     'Taxa Metabólica Basal média',
                     'Velocidade máxima',
@@ -163,7 +168,8 @@
                     'Taxa de mortalidade',
                     'Taxa de mortalidade (cativeiro)',
                     'Altitude mínima',
-                    'Altitude máxima', 'Duração do mergulho', 'Percentagem de gordura corporal', 'Espessura da camada de gordura', 'Número de fases do ciclo de vida', 'Tempo à superfície', 'Tempo de recuperação entre mergulhos', 'Frequência de mergulho', 'Alcance de deteção', 'Taxa de emissão de sinais'
+                    'Altitude máxima',
+                    'Altitude média', 'Duração do mergulho', 'Percentagem de gordura corporal', 'Espessura da camada de gordura', 'Número de fases do ciclo de vida', 'Tempo à superfície', 'Tempo de recuperação entre mergulhos', 'Frequência de mergulho', 'Alcance de deteção', 'Taxa de emissão de sinais'
                 ]
             },
             {
@@ -573,7 +579,7 @@
 
         function isAltitudeGeneralModel(type = '') {
             const normalized = normalizeSearchText(type);
-            return normalized.includes('altitude minima') || normalized.includes('altitude maxima');
+            return normalized.includes('altitude minima') || normalized.includes('altitude maxima') || normalized.includes('altitude media');
         }
 
         function isAnatomicalCountGeneralModel(type = '') {
@@ -625,6 +631,7 @@
             if (normalizeSearchText(type).includes('alcance de detecao')) return 'm';
             if (normalizeSearchText(type).includes('taxa de emissao')) return 'sinais/segundo';
             if (isBasalMetabolicRateGeneralModel(type)) return 'W';
+            if (normalizeSearchText(type).includes('distancia maxima do salto') || normalizeSearchText(type).includes('altura maxima do salto')) return 'm';
             if (isDepthGeneralModel(type)) return 'm';
             if (isCaptivityMovementGeneralModel(type)) return 'km/dia';
             if (isLifeExpectancyGeneralModel(type)) return 'anos';
@@ -636,6 +643,7 @@
             if (isHuntingSuccessGeneralModel(type)) return 'caça individual';
             if (isMortalityRateGeneralModel(type)) return 'mortalidade adulta';
             if (isAltitudeGeneralModel(type)) return 'm';
+            if (normalizeSearchText(type).includes('numero de branquias')) return 'unidade';
             if (isAnatomicalCountGeneralModel(type)) return 'centenas';
             if (isPopulationGeneralModel(type)) return 'milhares';
             return getGeneralVisualOption(type)?.unidade || 'anos';
@@ -972,7 +980,12 @@
             const useDefaults = options.useDefaults !== false;
             buildGeneralVisualSections();
             const normalizedItems = collapseCombinedGenderItems(filterLegacyGeneralMatingItems(items))
-                .map(item => ({ ...item, tipo: getCanonicalGeneralModelType(item.tipo || '') }));
+                .map(item => {
+                    const tipo = getCanonicalGeneralModelType(item.tipo || '');
+                    const valueKey = normalizeSearchText(item.valorMin || item.valor || '');
+                    if (normalizeSearchText(tipo) === 'habitats' && valueKey === 'rio') return { ...item, tipo: 'Bioma' };
+                    return { ...item, tipo };
+                });
             if (!useDefaults && (!Array.isArray(normalizedItems) || normalizedItems.length === 0)) {
                 updateGeneralVisualPreview();
                 return;
@@ -1015,6 +1028,9 @@
         }
 
         function getGeneralVisualMeta(type = '') {
+            if (isAltitudeGeneralModel(type) && normalizeSearchText(type).includes('altitude media')) {
+                return { key: 'altitude-media', title: type || 'Altitude média', accent: 'accent-altitude-average' };
+            }
             if (isSeasonalBehaviorGeneralModel(type)) {
                 return { key: 'comportamento-sazonal', title: type || 'Comportamento sazonal', accent: 'accent-seasonal-behavior' };
             }
@@ -1023,7 +1039,7 @@
             }
             if (isDepthGeneralModel(type)) {
                 const normalized = normalizeSearchText(type);
-                return { key: normalized.includes('maxima') ? 'profundidade-maxima' : 'profundidade-media', title: type || (normalized.includes('maxima') ? 'Profundidade máxima' : 'Profundidade média'), accent: normalized.includes('maxima') ? 'accent-depth-max' : 'accent-depth-average' };
+                return { key: normalized.includes('maxima') ? 'profundidade-maxima' : normalized.includes('media') ? 'profundidade-media' : 'profundidade-media', title: type || (normalized.includes('maxima') ? 'Profundidade máxima' : 'Profundidade média'), accent: normalized.includes('maxima') ? 'accent-depth-max' : 'accent-depth-average' };
             }
             if (isCaptivityMovementGeneralModel(type)) {
                 const normalized = normalizeSearchText(type);
@@ -1080,6 +1096,9 @@
             }
             if (key === 'profundidade-media') {
                 return `<svg class="metric-model-svg general-model-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M16 30c8-6 16-6 24 0s16 6 24 0"/><path d="M16 50c8-6 16-6 24 0s16 6 24 0"/><path d="M40 32v18"/><path d="M34 44l6 6l6-6"/><path d="M28 62h24"/></svg>`;
+            }
+            if (key === 'altitude-media') {
+                return `<svg class="metric-model-svg general-model-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M14 58h52"/><path d="M20 54 35 31l8 12 7-10 10 21"/><path d="M40 18v22"/><path d="M34 25l6-7 6 7"/><circle cx="40" cy="18" r="3"/></svg>`;
             }
             if (key === 'vida-util-cativeiro') {
                 return `<svg class="metric-model-svg general-model-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M18 58c8-16 20-24 36-24"/><path d="M24 62h36"/><path d="M50 21c8 4 12 12 10 21"/><path d="M20 38c8-10 18-14 30-12"/><path d="M30 22c-4 7-4 13 0 20"/><path d="M38 18c-1 9 1 16 7 22"/><path d="M22 50c6 0 10 4 10 10"/><path d="M47 50c8 0 14 4 17 12"/></svg>`;
