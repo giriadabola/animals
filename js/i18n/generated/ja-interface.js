@@ -49,6 +49,7 @@ export default Object.freeze({
   "alimentoMedio": "食品中",
   "Altitude máxima": "最大高度",
   "Altitude mínima": "最低高度",
+  "Altitude média": "平均標高",
   "Altura ao ombro": "肩の高さ",
   "Amarelo": "黄色",
   "Ameaças naturais": "自然の脅威",

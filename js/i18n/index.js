@@ -1,9 +1,9 @@
-import en from './en.js?v=20260717_catalog_5';
-import fr from './fr.js?v=20260717_catalog_5';
-import es from './es.js?v=20260717_catalog_5';
-import de from './de.js?v=20260717_catalog_5';
-import ja from './ja.js?v=20260717_catalog_5';
-import zh from './zh.js?v=20260717_catalog_5';
+import en from './en.js?v=20260718_footer_labels_1';
+import fr from './fr.js?v=20260718_footer_labels_1';
+import es from './es.js?v=20260718_footer_labels_1';
+import de from './de.js?v=20260718_footer_labels_1';
+import ja from './ja.js?v=20260718_footer_labels_1';
+import zh from './zh.js?v=20260718_footer_labels_1';
 import { priorityDictionaries } from './priority-catalog.js?v=20260717_priority_2';
 import { generatedDictionaries } from './generated/index.js?v=20260717_zh_complete_1';
 

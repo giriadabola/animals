@@ -1,6 +1,6 @@
 const common = {
   'Geral':'\u4e00\u822c','Informa\u00e7\u00e3o Geral':'\u57fa\u672c\u4fe1\u606f','Medidas':'\u6d4b\u91cf\u503c','Dimens\u00f5es':'\u5c3a\u5bf8','Alimenta\u00e7\u00e3o':'\u98df\u6027','Reprodu\u00e7\u00e3o':'\u7e41\u6b96','Distribui\u00e7\u00e3o':'\u5206\u5e03','Curiosidades':'\u8da3\u95fb','Plumagem':'\u7fbd\u6bdb',
-  'Comparar com outro animal':'\u4e0e\u5176\u4ed6\u52a8\u7269\u6bd4\u8f83','Compara\u00e7\u00e3o visual':'\u89c6\u89c9\u6bd4\u8f83','Abrir compara\u00e7\u00e3o completa':'\u6253\u5f00\u5b8c\u6574\u6bd4\u8f83',
+  'Comparar com outro animal':'\u4e0e\u5176\u4ed6\u52a8\u7269\u6bd4\u8f83','Comparar animais': '比较动物', 'Visite o laboratório': '参观实验室', 'Compara\u00e7\u00e3o visual':'\u89c6\u89c9\u6bd4\u8f83','Abrir compara\u00e7\u00e3o completa':'\u6253\u5f00\u5b8c\u6574\u6bd4\u8f83',
   'Animal':'\u52a8\u7269','Macho':'\u96c4\u6027','F\u00eamea':'\u96cc\u6027','Adulto':'\u6210\u4f53','Cria':'\u5e7c\u4f53',
   'Estado de Conserva\u00e7\u00e3o':'\u4fdd\u62a4\u72b6\u51b5','Vulner\u00e1vel':'\u6613\u5371','Pouco Preocupante':'\u65e0\u5371','Ninho':'\u5de2','Galhos':'\u6811\u679d',
   'Materiais de local de repouso':'\u4f11\u606f\u573a\u6240\u6750\u6599','Dimens\u00f5es do local de repouso':'\u4f11\u606f\u573a\u6240\u5c3a\u5bf8',

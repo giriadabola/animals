@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const RELEASE_ID = '20260715-visual-filter-catalog-1';
+  const RELEASE_ID = '20260718-utf8-fix-1';
   const STORAGE_KEY = `animals-cache-reset:${RELEASE_ID}`;
 
   async function forceCacheRefresh() {

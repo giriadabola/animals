@@ -50,6 +50,8 @@ function injectStyles() {
     .create-list-row button{min-width:112px;height:48px;border:0;border-radius:13px;padding:0 20px;background:linear-gradient(135deg,#f04aa0,#dd3b91);color:#fff;font:inherit;font-weight:900;cursor:pointer;box-shadow:0 10px 22px rgba(236,72,153,.22);transition:transform .2s ease,filter .2s ease}.create-list-row button:hover{transform:translateY(-1px);filter:brightness(1.06)}.create-list-row button:disabled{opacity:.6;cursor:wait;transform:none}
     @media(max-width:560px){.lists-modal-backdrop{padding:12px}.lists-modal{padding:20px;border-radius:22px}.create-list-row{grid-template-columns:1fr}.create-list-row button{width:100%}}
     .profile-action-message{position:fixed;left:50%;bottom:28px;z-index:100001;transform:translateX(-50%);background:#20243d;color:#fff;border:1px solid rgba(255,255,255,.12);border-radius:999px;padding:11px 18px;font-weight:800;box-shadow:0 14px 35px rgba(0,0,0,.4)}
+    .animal-showcase-like.is-active{color:#ff82bc!important;background:rgba(236,72,153,.22)!important;border-color:rgba(236,72,153,.62)!important}
+    .animal-showcase-like.is-active svg{fill:currentColor}
   `;
   document.head.appendChild(style);
 }
@@ -159,5 +161,48 @@ export function initAnimalProfileActions({ animalId }) {
       fav.disabled = false;
     };
     lists.onclick = () => openListsModal(user, animalId);
+  });
+}
+
+export function initShowcaseLike({ button, animalId }) {
+  if (!button || !animalId) return;
+  injectStyles();
+  onAuthStateChanged(auth, async user => {
+    if (!user) {
+      button.onclick = e => {
+        e.preventDefault();
+        e.stopPropagation();
+        location.href = `login.html?redirect=${encodeURIComponent(location.href)}`;
+      };
+      return;
+    }
+    await ensureUserDoc(user);
+    let profile = await getUserProfile(user.uid);
+    let active = profile.favorites.includes(animalId);
+    const paint = () => {
+      button.classList.toggle('is-active', active);
+      button.setAttribute('aria-label', active ? 'Remover dos favoritos' : 'Favoritar');
+      button.title = active ? 'Remover dos favoritos' : 'Favoritar';
+    };
+    paint();
+    button.onclick = async e => {
+      e.preventDefault();
+      e.stopPropagation();
+      button.style.pointerEvents = 'none';
+      try {
+        const ref = doc(db, 'users', user.uid);
+        await updateDoc(ref, { favorites: active ? arrayRemove(animalId) : arrayUnion(animalId) });
+        active = !active;
+        profile.favorites = active ? [...new Set([...profile.favorites, animalId])] : profile.favorites.filter(id => id !== animalId);
+        writeCache(user.uid, profile);
+        paint();
+        if (active) burst(button);
+        toast(active ? 'Animal adicionado aos favoritos.' : 'Animal removido dos favoritos.');
+      } catch (err) {
+        console.error(err);
+        toast('Não foi possível atualizar os favoritos.');
+      }
+      button.style.pointerEvents = 'auto';
+    };
   });
 }

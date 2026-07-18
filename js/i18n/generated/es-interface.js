@@ -45,6 +45,7 @@ export default Object.freeze({
   "alimentoMedio": "comidamediana",
   "Altitude máxima": "Altitud máxima",
   "Altitude mínima": "Altitud mínima",
+  "Altitude média": "Altitud media",
   "Altura ao ombro": "altura del hombro",
   "Amarelo": "amarillo",
   "Ameaças naturais": "Amenazas naturales",
