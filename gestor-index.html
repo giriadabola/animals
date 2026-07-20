@@ -452,6 +452,7 @@
 
         // High level sections definitions
         const sectionDefs = {
+            "hero-title": { title: "Título Principal (GRANDES PROJETOS)", desc: "Permite mostrar/ocultar o título principal e alterar o seu alinhamento (Esquerda, Centro ou Direita) no Index." },
             "animais-destaque": { title: "Animais em destaque", desc: "Cartões com bioma, imagem e estatísticas principais." },
             "pesquisa-globo": {
                 title: "Pesquisa pelo Globo",
@@ -529,8 +530,9 @@
             "especie": { title: "Espécie", icon: "fa-dna" }
         };
 
-        let currentOrder = ["pesquisa-globo", "explorar-biomas", "parametros-visuais", "animais-destaque", "explorar-continentes", "estrategia-alimento", "acasalamento", "zona-climatica", "categoria", "familia", "classificacao-cientifica-niveis", "estatisticas"];
+        let currentOrder = ["hero-title", "pesquisa-globo", "explorar-biomas", "parametros-visuais", "animais-destaque", "explorar-continentes", "estrategia-alimento", "acasalamento", "zona-climatica", "categoria", "familia", "classificacao-cientifica-niveis", "estatisticas"];
         let currentActive = {
+            "hero-title": true,
             "pesquisa-globo": true,
             "explorar-biomas": true,
             "parametros-visuais": true,
@@ -569,7 +571,39 @@
             "maior-populacao": false
         };
 
+        let heroTitleAlign = "center";
         let animalShowcase = { selectedAnimalId: "", characteristic: "", characteristicValue: "", randomAnimals: true, quantity: 6 };
+
+        const categoryIcons = {
+            Mamiferos: '<i class="fa-solid fa-paw"></i>',
+            Aves: '<i class="fa-solid fa-dove"></i>',
+            Peixes: '<i class="fa-solid fa-fish"></i>',
+            Moluscos: '<svg viewBox="0 0 24 24" fill="currentColor" style="width:16px;height:16px;display:inline-block;vertical-align:middle;"><path d="M19 15c0-1.66-1.34-3-3-3H9c-1.66 0-3-1.34-3-3s1.34-3 3-3h7c1.66 0 3-1.34 3-3s-1.34-3-3-3h-4a5 5 0 0 0-5 5v.2c-1.8.4-3 2-3 3.8 0 2.2 1.8 4 4 4h10c1.1 0 2 .9 2 2s-.9 2-2 2H4v2h12c2.8 0 5-2.2 5-5Zm-3-12a1 1 0 1 1 0 2 1 1 0 0 1 0-2Zm-7 6c0-.55.45-1 1-1s1 .45 1 1-.45 1-1 1-1-.45-1-1Z"/></svg>',
+            Crustaceos: '<i class="fa-solid fa-shrimp"></i>',
+            Aracnideos: '<i class="fa-solid fa-spider"></i>',
+            Vermes: '<i class="fa-solid fa-worm"></i>',
+            Repteis: '<svg viewBox="0 0 24 24" fill="currentColor" style="width:16px;height:16px;display:inline-block;vertical-align:middle;"><path d="M19.5 7.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5ZM21 9c0 1.93-1.57 3.5-3.5 3.5H9c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5h7.5c.83 0 1.5-.67 1.5-1.5S17.33 5 16.5 5h-10A4.5 4.5 0 0 0 2 9.5 4.5 4.5 0 0 0 6.5 14h10c2.48 0 4.5-2.02 4.5-4.5V9ZM6.5 16A6.5 6.5 0 0 1 0 9.5V11a7.5 7.5 0 0 0 7.5 7.5H19c1.93 0 3.5-1.57 3.5-3.5v-1c0 .83-.67 1.5-1.5 1.5H6.5Z"/></svg>',
+            Anfibios: '<i class="fa-solid fa-frog"></i>',
+            Insetos: '<i class="fa-solid fa-bug"></i>',
+            Microscopicos: '<i class="fa-solid fa-microscope"></i>',
+            Extintos: '<i class="fa-solid fa-bone"></i>'
+        };
+
+        let categoriesOrder = ["Mamiferos", "Aves", "Peixes", "Moluscos", "Crustaceos", "Aracnideos", "Vermes", "Repteis", "Anfibios", "Insetos", "Microscopicos", "Extintos"];
+        let categoriesActive = {
+            "Mamiferos": true,
+            "Aves": true,
+            "Peixes": true,
+            "Moluscos": true,
+            "Crustaceos": true,
+            "Aracnideos": true,
+            "Vermes": true,
+            "Repteis": true,
+            "Anfibios": true,
+            "Insetos": true,
+            "Microscopicos": true,
+            "Extintos": true
+        };
 
         let currentLimits = {
             "acasalamento": 12,
@@ -602,8 +636,126 @@
                 const itemDiv = document.createElement('div');
                 itemDiv.className = 'setting-item';
                 
-                // If it is the "classificacao-cientifica-niveis" key, it renders as a expandable grouped box
-                if (key === 'classificacao-cientifica-niveis') {
+                // If it is the "hero-title" key, it renders alignment options
+                if (key === 'hero-title') {
+                    const alignText = heroTitleAlign === 'left' ? 'Esquerda' : heroTitleAlign === 'right' ? 'Direita' : 'Centro';
+                    itemDiv.style.flexDirection = 'column';
+                    itemDiv.style.alignItems = 'stretch';
+                    itemDiv.style.gap = '15px';
+                    itemDiv.innerHTML = `
+                        <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                            <div class="setting-info">
+                                <h3>${info.title}</h3>
+                                <p>${info.desc}</p>
+                                <div class="limit-selector" style="margin-top: 15px; display: flex; align-items: center; gap: 12px; background: rgba(255, 255, 255, 0.015); padding: 8px 12px; border-radius: var(--border-radius-sm); border: 1px dashed rgba(255, 255, 255, 0.08); width: fit-content;">
+                                    <span>Posição do Título: <strong>${alignText}</strong></span>
+                                    <div style="display: flex; gap: 6px; margin-left: 10px;">
+                                        <button type="button" class="arrow-btn align-left-btn" ${heroTitleAlign === 'left' ? 'disabled' : ''} title="Mover para Esquerda">
+                                            <i class="fa-solid fa-chevron-left"></i>
+                                        </button>
+                                        <button type="button" class="arrow-btn align-right-btn" ${heroTitleAlign === 'right' ? 'disabled' : ''} title="Mover para Direita">
+                                            <i class="fa-solid fa-chevron-right"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="order-actions">
+                                <button type="button" class="arrow-btn up-btn" data-index="${index}" ${index === 0 ? 'disabled' : ''} title="Mover para cima">
+                                    <i class="fa-solid fa-chevron-up"></i>
+                                </button>
+                                <button type="button" class="arrow-btn down-btn" data-index="${index}" ${index === currentOrder.length - 1 ? 'disabled' : ''} title="Mover para baixo">
+                                    <i class="fa-solid fa-chevron-down"></i>
+                                </button>
+                                <label class="switch">
+                                    <input type="checkbox" data-key="${key}" ${isActive ? 'checked' : ''}>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="stats-subcontainer categories-subcontainer" style="display: ${isActive ? 'block' : 'none'};">
+                            <h4>Ordenação e Visibilidade dos Botões de Categoria (Topo)</h4>
+                            <div class="stats-sublist">
+                                <!-- Categories dynamically loaded here -->
+                            </div>
+                        </div>
+                    `;
+
+                    // Render categories sub list
+                    const categoriesSublist = itemDiv.querySelector('.stats-sublist');
+                    if (categoriesSublist) {
+                        categoriesOrder.forEach((catKey, catIndex) => {
+                            const isCatActive = categoriesActive[catKey] !== false;
+                            const iconHtml = categoryIcons[catKey] || '<i class="fa-solid fa-paw"></i>';
+                            const subCard = document.createElement('div');
+                            subCard.className = 'sub-stat-card';
+                            subCard.innerHTML = `
+                                <div class="sub-stat-header">
+                                    <span class="sub-stat-title">${iconHtml} ${catKey}</span>
+                                    <label class="switch" style="transform: scale(0.8);">
+                                        <input type="checkbox" data-cat="${catKey}" ${isCatActive ? 'checked' : ''}>
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                <div class="sub-stat-footer">
+                                    <span style="font-size: 0.75rem; color: var(--text-muted);">Mover Horizontal</span>
+                                    <div style="display: flex; gap: 4px;">
+                                        <button type="button" class="arrow-btn sub-left" ${catIndex === 0 ? 'disabled' : ''} title="Mover para Esquerda">
+                                            <i class="fa-solid fa-chevron-left"></i>
+                                        </button>
+                                        <button type="button" class="arrow-btn sub-right" ${catIndex === categoriesOrder.length - 1 ? 'disabled' : ''} title="Mover para Direita">
+                                            <i class="fa-solid fa-chevron-right"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            `;
+
+                            // Sub toggle listener
+                            subCard.querySelector('input[type="checkbox"]').addEventListener('change', (e) => {
+                                categoriesActive[catKey] = e.target.checked;
+                                saveSettingsToFirestore();
+                            });
+                            
+                            // Sub shift order listeners
+                            subCard.querySelector('.sub-left').addEventListener('click', () => {
+                                if (catIndex > 0) {
+                                    const temp = categoriesOrder[catIndex];
+                                    categoriesOrder[catIndex] = categoriesOrder[catIndex - 1];
+                                    categoriesOrder[catIndex - 1] = temp;
+                                    renderSettingsList();
+                                    saveSettingsToFirestore();
+                                }
+                            });
+                            subCard.querySelector('.sub-right').addEventListener('click', () => {
+                                if (catIndex < categoriesOrder.length - 1) {
+                                    const temp = categoriesOrder[catIndex];
+                                    categoriesOrder[catIndex] = categoriesOrder[catIndex + 1];
+                                    categoriesOrder[catIndex + 1] = temp;
+                                    renderSettingsList();
+                                    saveSettingsToFirestore();
+                                }
+                            });
+
+                            categoriesSublist.appendChild(subCard);
+                        });
+                    }
+
+                    // Event listeners for align-left-btn / align-right-btn
+                    itemDiv.querySelector('.align-left-btn').addEventListener('click', () => {
+                        if (heroTitleAlign === 'center') heroTitleAlign = 'left';
+                        else if (heroTitleAlign === 'right') heroTitleAlign = 'center';
+                        renderSettingsList();
+                        saveSettingsToFirestore();
+                    });
+
+                    itemDiv.querySelector('.align-right-btn').addEventListener('click', () => {
+                        if (heroTitleAlign === 'left') heroTitleAlign = 'center';
+                        else if (heroTitleAlign === 'center') heroTitleAlign = 'right';
+                        renderSettingsList();
+                        saveSettingsToFirestore();
+                    });
+
+                } else if (key === 'classificacao-cientifica-niveis') {
                     itemDiv.style.flexDirection = 'column';
                     itemDiv.style.alignItems = 'stretch';
                     itemDiv.style.gap = '15px';
@@ -895,6 +1047,13 @@
                         });
                     }
                     if (data.animalShowcase) animalShowcase = { ...animalShowcase, ...data.animalShowcase };
+                    if (data.heroTitleAlign) heroTitleAlign = data.heroTitleAlign;
+                    if (data.categoriesOrder && Array.isArray(data.categoriesOrder)) {
+                        categoriesOrder = data.categoriesOrder;
+                    }
+                    if (data.categoriesActive) {
+                        categoriesActive = data.categoriesActive;
+                    }
                     if (data.cardLimits) {
                         Object.keys(currentLimits).forEach(key => {
                             if (key in data.cardLimits) {
@@ -909,7 +1068,11 @@
                         subClassificationOrder: subClassificationOrder,
                         subStatsOrder: subStatsOrder,
                         active: currentActive,
-                        cardLimits: currentLimits, animalShowcase
+                        cardLimits: currentLimits,
+                        animalShowcase: animalShowcase,
+                        heroTitleAlign: heroTitleAlign,
+                        categoriesOrder: categoriesOrder,
+                        categoriesActive: categoriesActive
                     });
                 } else {
                     await setDoc(docRef, {
@@ -917,7 +1080,11 @@
                         subClassificationOrder: subClassificationOrder,
                         subStatsOrder: subStatsOrder,
                         active: currentActive,
-                        cardLimits: currentLimits, animalShowcase
+                        cardLimits: currentLimits,
+                        animalShowcase: animalShowcase,
+                        heroTitleAlign: heroTitleAlign,
+                        categoriesOrder: categoriesOrder,
+                        categoriesActive: categoriesActive
                     });
                 }
                 renderSettingsList();
@@ -935,7 +1102,11 @@
                     subClassificationOrder: subClassificationOrder,
                     subStatsOrder: subStatsOrder,
                     active: currentActive,
-                    cardLimits: currentLimits, animalShowcase
+                    cardLimits: currentLimits,
+                    animalShowcase: animalShowcase,
+                    heroTitleAlign: heroTitleAlign,
+                    categoriesOrder: categoriesOrder,
+                    categoriesActive: categoriesActive
                 });
                 showStatus("Definições guardadas com sucesso!", "success");
             } catch (error) {

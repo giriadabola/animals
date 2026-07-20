@@ -71,7 +71,7 @@ const rows = [
     ['Remover', 'Remove', 'Retirer', 'Eliminar', 'Entfernen', '削除', '删除'],
     ['Abrir', 'Open', 'Ouvrir', 'Abrir', 'Öffnen', '開く', '打开'],
     ['Sem resultados.', 'No results.', 'Aucun résultat.', 'Sin resultados.', 'Keine Ergebnisse.', '結果がありません。', '没有结果。'],
-    ['A carregar animais...', 'Loading animals...', 'Chargement des animais...', 'Cargando animales...', 'Tiere werden geladen...', '動物を読み込んでいます...', '正在加载动物...'],
+    ['A carregar animais...', 'Loading animals...', 'Chargement des animaux...', 'Cargando animales...', 'Tiere werden geladen...', '動物を読み込んでいます...', '正在加载动物...'],
     ['Não foi possível carregar os animais.', 'Could not load animals.', 'Impossible de charger les animaux.', 'No se pudieron cargar los animales.', 'Tiere konnten nicht geladen werden.', '動物を読み込めませんでした。', '无法加载动物。'],
     ['Escolhe pelo menos um animal para iniciar a comparação.', 'Choose at least one animal to start the comparison.', 'Choisissez au moins un animal pour commencer la comparaison.', 'Elige al menos un animal para comenzar la comparación.', 'Wählen Sie mindestens ein Tier aus, um den Vergleich zu starten.', '比較を開始するには、少なくとも1頭の動物を選択してください。', '选择至少一种动物以开始比较。'],
     ['Parecido com', 'Similar to', 'Semblable à', 'Similar a', 'Ähnlich wie', 'に似ている', '类似于'],
@@ -80,6 +80,13 @@ const rows = [
     ['milhares', 'thousands', 'milliers', 'miles', 'Tausende', '千', '千'],
     ['milhões', 'millions', 'millions', 'millones', 'Millionen', '百万', '百万'],
     ['indivíduos', 'individuals', 'individus', 'individuos', 'Individuen', '個体', '只'],
+    ['Distribui\u00e7\u00e3o exclusiva', 'Exclusive distribution', 'Distribution exclusive', 'Distribuci\u00f3n exclusiva', 'Ausschlie\u00dfliche Verbreitung', '\u72ec\u5360\u7684\u306a\u5206\u5e03', '\u72ec\u6709\u5206\u5e03'],
+    ['Animais registados apenas neste pa\u00eds.', 'Animals registered only in this country.', 'Animaux enregistr\u00e9s uniquement dans ce pays.', 'Animales registrados \u00fanicamente en este pa\u00eds.', 'Tiere, die ausschlie\u00dflich in diesem Land registriert sind.', '\u3053\u306e\u56fd\u3060\u3051\u3067\u8a18\u9332\u3055\u308c\u3066\u3044\u308b\u52d5\u7269\u3002', '\u4ec5\u5728\u6b64\u56fd\u5bb6\u8bb0\u5f55\u7684\u52a8\u7269\u3002'],
+    ['N\u00e3o existem outros animais registados apenas neste pa\u00eds.', 'No other animals are registered only in this country.', 'Aucun autre animal n\u2019est enregistr\u00e9 uniquement dans ce pays.', 'No hay otros animales registrados \u00fanicamente en este pa\u00eds.', 'Keine anderen Tiere sind ausschlie\u00dflich in diesem Land registriert.', '\u3053\u306e\u56fd\u3060\u3051\u3067\u8a18\u9332\u3055\u308c\u3066\u3044\u308b\u4ed6\u306e\u52d5\u7269\u306f\u3044\u307e\u305b\u3093\u3002', '\u6ca1\u6709\u5176\u4ed6\u4ec5\u5728\u6b64\u56fd\u5bb6\u8bb0\u5f55\u7684\u52a8\u7269\u3002'],
+    ['animal encontrado', 'animal found', 'animal trouv\u00e9', 'animal encontrado', 'Tier gefunden', '\u52d5\u7269\u304c\u898b\u3064\u304b\u308a\u307e\u3057\u305f', '\u627e\u5230\u4e00\u79cd\u52a8\u7269'],
+    ['animais encontrados', 'animals found', 'animaux trouv\u00e9s', 'animales encontrados', 'Tiere gefunden', '\u52d5\u7269\u304c\u898b\u3064\u304b\u308a\u307e\u3057\u305f', '\u627e\u5230\u591a\u79cd\u52a8\u7269'],
+    ['Fechar', 'Close', 'Fermer', 'Cerrar', 'Schlie\u00dfen', '\u9589\u3058\u308b', '\u5173\u95ed'],
+    ['Bandeira de', 'Flag of', 'Drapeau de', 'Bandera de', 'Flagge von', '\u56fd\u65d7\uff1a', '\u56fd\u65d7\uff1a'],
 ];const languageColumns = { en: 1, fr: 2, es: 3, de: 4, ja: 5, zh: 6 };
 
 export const priorityDictionaries = Object.fromEntries(

@@ -111,56 +111,64 @@ function escapeHtml(value='') { return String(value).replace(/[&<>'"]/g, c => ({
 
 export function initAnimalProfileActions({ animalId }) {
   injectStyles();
-  const mount = document.getElementById('animal-profile-actions');
-  const mediaActions = document.querySelector('.animal-media-actions');
-  if (!mediaActions || !animalId) return;
-  if (mount) mount.hidden = true;
+  document.querySelectorAll('#animal-profile-actions').forEach(mount => {
+    mount.hidden = true;
+  });
+  const allMediaActions = document.querySelectorAll('.animal-media-actions');
+  if (!allMediaActions.length || !animalId) return;
 
-  mediaActions.querySelectorAll('.profile-media-action').forEach(button => button.remove());
-  mediaActions.insertAdjacentHTML('beforeend', `
-    <button type="button" class="animal-media-action profile-media-action favorite-action" aria-label="Favoritar" title="Favoritar">${icon('heart')}</button>
-    <button type="button" class="animal-media-action profile-media-action lists-action" aria-label="Adicionar a listas" title="Adicionar a listas">${icon('list')}</button>
-  `);
-
-  const fav = mediaActions.querySelector('.favorite-action');
-  const lists = mediaActions.querySelector('.lists-action');
-  onAuthStateChanged(auth, async user => {
-    mediaActions.querySelector('.edit-suggestion-action')?.remove();
-
-    if (!user) {
-      fav.onclick = lists.onclick = () => { location.href = `login.html?redirect=${encodeURIComponent(location.href)}`; };
-      return;
-    }
-
+  allMediaActions.forEach(mediaActions => {
+    mediaActions.querySelectorAll('.profile-media-action').forEach(button => button.remove());
     mediaActions.insertAdjacentHTML('beforeend', `
-      <button type="button" class="animal-media-action profile-media-action edit-suggestion-action" aria-label="Sugerir edição" title="Sugerir edição">${icon('edit')}</button>
+      <button type="button" class="animal-media-action profile-media-action favorite-action" aria-label="Favoritar" title="Favoritar">${icon('heart')}</button>
+      <button type="button" class="animal-media-action profile-media-action lists-action" aria-label="Adicionar a listas" title="Adicionar a listas">${icon('list')}</button>
     `);
-    const edit = mediaActions.querySelector('.edit-suggestion-action');
 
-    await ensureUserDoc(user);
-    let profile = await getUserProfile(user.uid);
-    edit.onclick = () => {
-      const role = String(profile.rule || '').toLowerCase();
-      const status = String(profile.status || '').toLowerCase();
-      const approved = status === 'on' && (role === 'colaborador' || String(profile.colaborador || '').toLowerCase() === 'on');
-      location.href = approved
-        ? `form/form.html?edit=${encodeURIComponent(animalId)}&mode=suggestion`
-        : `myperfil.html?tab=contribute`;
-    };
-    let active = profile.favorites.includes(animalId);
-    const paint = () => { fav.classList.toggle('is-active', active); fav.setAttribute('aria-label', active ? 'Remover dos favoritos' : 'Favoritar'); fav.title = active ? 'Remover dos favoritos' : 'Favoritar'; };
-    paint();
-    fav.onclick = async () => {
-      fav.disabled = true;
-      try {
-        const ref = doc(db, 'users', user.uid);
-        await updateDoc(ref, { favorites: active ? arrayRemove(animalId) : arrayUnion(animalId) });
-        active = !active; profile.favorites = active ? [...new Set([...profile.favorites, animalId])] : profile.favorites.filter(id => id !== animalId); writeCache(user.uid, profile); paint();
-        if (active) burst(fav); toast(active ? 'Animal adicionado aos favoritos.' : 'Animal removido dos favoritos.');
-      } catch (e) { console.error(e); toast('Não foi possível atualizar os favoritos.'); }
-      fav.disabled = false;
-    };
-    lists.onclick = () => openListsModal(user, animalId);
+    const fav = mediaActions.querySelector('.favorite-action');
+    const lists = mediaActions.querySelector('.lists-action');
+    onAuthStateChanged(auth, async user => {
+      mediaActions.querySelector('.edit-suggestion-action')?.remove();
+
+      if (!user) {
+        fav.onclick = lists.onclick = () => { location.href = `login.html?redirect=${encodeURIComponent(location.href)}`; };
+        return;
+      }
+
+      mediaActions.insertAdjacentHTML('beforeend', `
+        <button type="button" class="animal-media-action profile-media-action edit-suggestion-action" aria-label="Sugerir edição" title="Sugerir edição">${icon('edit')}</button>
+      `);
+      const edit = mediaActions.querySelector('.edit-suggestion-action');
+
+      await ensureUserDoc(user);
+      let profile = await getUserProfile(user.uid);
+      edit.onclick = () => {
+        const role = String(profile.rule || '').toLowerCase();
+        const status = String(profile.status || '').toLowerCase();
+        const approved = status === 'on' && (role === 'colaborador' || String(profile.colaborador || '').toLowerCase() === 'on');
+        location.href = approved
+          ? `form/form.html?edit=${encodeURIComponent(animalId)}&mode=suggestion`
+          : `myperfil.html?tab=contribute`;
+      };
+      let active = profile.favorites.includes(animalId);
+      const paint = () => { fav.classList.toggle('is-active', active); fav.setAttribute('aria-label', active ? 'Remover dos favoritos' : 'Favoritar'); fav.title = active ? 'Remover dos favoritos' : 'Favoritar'; };
+      paint();
+      fav.onclick = async () => {
+        fav.disabled = true;
+        try {
+          const ref = doc(db, 'users', user.uid);
+          await updateDoc(ref, { favorites: active ? arrayRemove(animalId) : arrayUnion(animalId) });
+          active = !active; profile.favorites = active ? [...new Set([...profile.favorites, animalId])] : profile.favorites.filter(id => id !== animalId); writeCache(user.uid, profile);
+          document.querySelectorAll('.favorite-action').forEach(f => {
+            f.classList.toggle('is-active', active);
+            f.setAttribute('aria-label', active ? 'Remover dos favoritos' : 'Favoritar');
+            f.title = active ? 'Remover dos favoritos' : 'Favoritar';
+          });
+          if (active) burst(fav); toast(active ? 'Animal adicionado aos favoritos.' : 'Animal removido dos favoritos.');
+        } catch (e) { console.error(e); toast('Não foi possível atualizar os favoritos.'); }
+        fav.disabled = false;
+      };
+      lists.onclick = () => openListsModal(user, animalId);
+    });
   });
 }
 

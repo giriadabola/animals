@@ -226,6 +226,18 @@
         return [...new Set(coveredCodes)];
     }
 
+    function getCountryAtPoint(container, point) {
+        const svg = getMapSvg(container);
+        if (!svg || !Array.isArray(point) || point.length < 2) return '';
+        const mapLayer = getMapCoordinateLayer(svg);
+        const geographyBounds = getGeographyBounds(svg, mapLayer);
+        const normalized = normalizedToLayerPoint(point, geographyBounds);
+        const layerPoint = svg.createSVGPoint();
+        layerPoint.x = normalized.x;
+        layerPoint.y = normalized.y;
+        const path = Array.from(svg.querySelectorAll('path[data-code]')).find(countryPath => pathContainsLayerPoint(countryPath, layerPoint, mapLayer));
+        return String(path?.getAttribute('data-code') || '').toUpperCase();
+    }
     function pointsToPath(points, bounds) {
         return points.map((point, index) => {
             const x = bounds.x + (point[0] / MAP_WIDTH) * bounds.width;
@@ -474,6 +486,7 @@
         getDistributionAreaColor,
         getDistributionAreaTypeOptions,
         getCountriesCoveredByArea,
+                getCountryAtPoint,
         normalizeDistributionAreas,
         normalizeDistributionPoints,
         focusDistributionGeometry,

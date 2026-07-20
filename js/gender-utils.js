@@ -115,9 +115,9 @@ export function collectConcreteGenders(items = []) {
 
 export function genderMatchesSelection(itemGender, selectedGender) {
     if (!selectedGender) return true;
-    const variants = expandGenderVariants(itemGender);
-    if (variants.length === 0) return true;
-    return variants.includes(selectedGender);
+    const normalizedItemGender = normalizeGenderValue(itemGender, '');
+    if (!normalizedItemGender) return true;
+    return normalizedItemGender === selectedGender;
 }
 
 export function expandCombinedGenderItems(items = [], genderKey = 'genero') {

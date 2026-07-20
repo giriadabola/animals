@@ -12,7 +12,7 @@ export const generalVisualOptions = [
     { tipo: 'Número de mamas', unidade: '' },
     { tipo: 'Termorregulação', unidade: '' },
     { tipo: 'Simetria corporal', unidade: '' },
-    { tipo: 'Abertura dos olhos', unidade: 'meses' },
+    { tipo: 'Abertura dos olhos', unidade: 'dias' },
     { tipo: 'Início da marcha', unidade: 'meses' },
     { tipo: 'Início da corrida', unidade: 'meses' },
     { tipo: 'Saída do esconderijo', unidade: 'meses' },
