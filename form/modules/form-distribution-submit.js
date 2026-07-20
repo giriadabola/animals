@@ -201,6 +201,11 @@
             distributionAreas.forEach(area => {
                 detectCountries(mapContainer, area.pontos).forEach(code => detectedCodes.add(code));
             });
+            const detectPointCountry = getAreaHelpers().getCountryAtPoint;
+            distributionPoints.forEach(point => {
+                const code = point.countryCode || (typeof detectPointCountry === 'function' ? detectPointCountry(mapContainer, point.ponto) : '');
+                if (code) detectedCodes.add(String(code).toUpperCase());
+            });
 
             detectedCodes.forEach(code => {
                 if (!selectedCountries.includes(code)) {
@@ -525,7 +530,7 @@
 
         function initMapForm() {
             const container = document.getElementById('distributionMapForm');
-            if (!container) return;
+            if (!container || container.offsetWidth === 0 || container.offsetHeight === 0) return;
             container.innerHTML = '';
             
             mapForm = new jsVectorMap({

@@ -804,6 +804,7 @@
                     rodapeHasEsqueleto: document.getElementById('rodapeHasEsqueleto').checked,
                     rodapeHasAnatomia: document.getElementById('rodapeHasAnatomia').checked,
                     rodapeParamsOn: window.getSelectedRodapeParams ? window.getSelectedRodapeParams() : [],
+                    feedSections: window.getFeedSectionsData ? window.getFeedSectionsData() : {},
                     categoria: getSelectedCategoriesMap(),
                     qualidadeRegisto: qualitySaveData,
                     nivelQualidade: qualitySaveData.nivel,

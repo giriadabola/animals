@@ -154,10 +154,18 @@ function formatCategoryDisplay(categoria) {
     return '';
 }
 
-function populateCategories() {
+function populateCategories(order, active) {
     if (!categoriesContainer) return;
     categoriesContainer.innerHTML = '';
-    for (const [name, iconHtml] of Object.entries(categoryIcons)) {
+    
+    const currentOrder = order || Object.keys(categoryIcons);
+    const currentActive = active || {};
+
+    currentOrder.forEach(name => {
+        if (currentActive[name] === false) return;
+        const iconHtml = categoryIcons[name];
+        if (!iconHtml) return;
+
         const categoryLink = document.createElement('a');
         categoryLink.className = 'category-link';
         categoryLink.href = `categories.html?category=${name}`;
@@ -166,7 +174,7 @@ function populateCategories() {
             <span>${name}</span>
         `;
         categoriesContainer.appendChild(categoryLink);
-    }
+    });
 }
 
 async function fetchAllAnimals() {
@@ -191,8 +199,30 @@ async function fetchAllAnimals() {
         if (loadingMessage) loadingMessage.style.display = 'none';
         if (categoriesContainer) categoriesContainer.style.display = 'grid';
         
+        console.log("fetchAllAnimals: A carregar definições das categorias...");
+        let categoriesOrder = ["Mamiferos", "Aves", "Peixes", "Moluscos", "Crustaceos", "Aracnideos", "Vermes", "Repteis", "Anfibios", "Insetos", "Microscopicos", "Extintos"];
+        let categoriesActive = {
+            "Mamiferos": true, "Aves": true, "Peixes": true, "Moluscos": true, "Crustaceos": true, "Aracnideos": true,
+            "Vermes": true, "Repteis": true, "Anfibios": true, "Insetos": true, "Microscopicos": true, "Extintos": true
+        };
+
+        try {
+            const settingsSnap = await getDoc(doc(db, "settings", "index-lists"));
+            if (settingsSnap.exists()) {
+                const data = settingsSnap.data();
+                if (data.categoriesOrder && Array.isArray(data.categoriesOrder)) {
+                    categoriesOrder = data.categoriesOrder;
+                }
+                if (data.categoriesActive) {
+                    categoriesActive = data.categoriesActive;
+                }
+            }
+        } catch (e) {
+            console.error("Erro ao carregar settings das categorias:", e);
+        }
+
         console.log("fetchAllAnimals: A popular categorias...");
-        populateCategories();
+        populateCategories(categoriesOrder, categoriesActive);
         
         console.log("fetchAllAnimals: A popular listas de sobrevivência...");
         await populateSurvivalLists(allAnimals, db, searchResultsContainer, getDoc, doc);

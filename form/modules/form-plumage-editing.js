@@ -815,6 +815,7 @@
             document.getElementById('rodapeComparacaoOn').checked = animal.rodapeComparacaoOn !== false;
             document.getElementById('rodapeHasEsqueleto').checked = !!animal.rodapeHasEsqueleto;
             document.getElementById('rodapeHasAnatomia').checked = !!animal.rodapeHasAnatomia;
+            if (typeof window.setFeedSectionsData === 'function') window.setFeedSectionsData(animal.feedSections || {});
             if (typeof window.setSelectedRodapeParams === 'function') {
                 window.setSelectedRodapeParams(animal.rodapeParamsOn || []);
             }
@@ -1427,13 +1428,16 @@
 
                 if (targetTab === 'distribuicao') {
                     setTimeout(() => {
-                        if (!mapForm) {
-                            initMapForm();
-                        } else {
-                            mapForm.updateSize();
+                        const manualPanel = document.getElementById('subtabpanel-distribuicao-mapa-manual');
+                        if (!manualPanel?.classList.contains('active')) {
+                            window.initDynamicDistributionMap?.();
+                            return;
                         }
+                        if (!mapForm) initMapForm();
+                        else if (typeof mapForm.updateSize === 'function') mapForm.updateSize();
+                        syncCountriesFromHabitatAreas();
                         focusDistributionMapContent();
-                    }, 50);
+                    }, 80);
                 }
             });
         });
@@ -1454,6 +1458,17 @@
                     const isActive = panel.id === `subtabpanel-${targetSubTab}`;
                     panel.classList.toggle('active', isActive);
                 });
+
+                if (targetSubTab === 'distribuicao-mapa-manual') {
+                    setTimeout(() => {
+                        if (!mapForm) initMapForm();
+                        else if (typeof mapForm.updateSize === 'function') mapForm.updateSize();
+                        syncCountriesFromHabitatAreas();
+                        focusDistributionMapContent();
+                    }, 80);
+                } else if (targetSubTab === 'distribuicao-mapa-dinamico') {
+                    window.initDynamicDistributionMap?.();
+                }
             });
         });
 

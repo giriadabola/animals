@@ -1262,6 +1262,20 @@ body.edit-theme .page-nav {
 
 .page-nav-home:focus-visible { outline: 2px solid #a7f3d0; outline-offset: 3px; }
 
+@media (min-width: 993px) {
+    .page-nav.is-floating .page-nav-search {
+        display: flex;
+        flex: 0 0 auto;
+        align-items: center;
+        align-self: flex-start;
+        margin-left: auto;
+    }
+
+    .page-nav.is-floating .page-nav-search #header-search-container {
+        margin-top: -2px;
+    }
+}
+
 .page-nav a {
     text-decoration: none;
     font-weight: 700;
@@ -1989,7 +2003,7 @@ button[type="submit"]:hover {
     }
 }
 
-/* Dimensões estruturadas + modelo visual */
+/* DimensÃµes estruturadas + modelo visual */
 .dimensions-fieldset {
     background: rgba(255, 255, 255, 0.025);
 }
@@ -2323,7 +2337,7 @@ button[type="submit"]:hover {
 }
 
 
-/* Modelos visuais de dimensões com ícones próprios */
+/* Modelos visuais de dimensÃµes com Ã­cones prÃ³prios */
 .animal-silhouette,
 .dimensions-visual-card .visual-icon {
     color: rgba(248, 250, 252, 0.92);
@@ -2524,7 +2538,7 @@ button[type="submit"]:hover {
 }
 
 
-/* Correção perita: silhuetas anatómicas em SVG, não emojis/rabiscos */
+/* CorreÃ§Ã£o perita: silhuetas anatÃ³micas em SVG, nÃ£o emojis/rabiscos */
 .animal-model-svg .animal-line,
 .metric-model-svg path,
 .metric-model-svg circle,
@@ -2575,7 +2589,7 @@ button[type="submit"]:hover {
 }
 
 
-/* Ave redesenhada: silhueta reconhecível, com cabeça, bico, asa, cauda e patas */
+/* Ave redesenhada: silhueta reconhecÃ­vel, com cabeÃ§a, bico, asa, cauda e patas */
 .real-bird-model {
     width: clamp(220px, 42vw, 330px);
     color: rgba(248, 250, 252, 0.94);
@@ -2634,7 +2648,7 @@ button[type="submit"]:hover {
 }
 
 
-/* Não mostrar placeholders de dimensões não preenchidas */
+/* NÃ£o mostrar placeholders de dimensÃµes nÃ£o preenchidas */
 .weight-badge.is-empty,
 .length-ruler.is-empty,
 .height-ruler.is-empty {
@@ -2754,7 +2768,7 @@ button[type="submit"]:hover {
     animation: fadeIn 0.3s ease-in-out;
 }
 
-/* Sub-tabs Navigation inside Dimensões */
+/* Sub-tabs Navigation inside DimensÃµes */
 .sub-tabs-navigation {
     display: flex;
     gap: 8px;
@@ -2802,7 +2816,7 @@ button[type="submit"]:hover {
     to { opacity: 1; transform: translateY(0); }
 }
 
-/* Reprodução estruturada + modelo visual */
+/* ReproduÃ§Ã£o estruturada + modelo visual */
 .reproduction-layout {
     display: grid;
     grid-template-columns: minmax(0, 1.15fr) minmax(280px, 0.85fr);
@@ -2983,7 +2997,7 @@ button[type="submit"]:hover {
     fill: none;
 }
 
-/* Alimentação usa o mesmo padrão visual da reprodução, mas com medidas mais compactas. */
+/* AlimentaÃ§Ã£o usa o mesmo padrÃ£o visual da reproduÃ§Ã£o, mas com medidas mais compactas. */
 .feeding-layout {
     grid-template-columns: minmax(0, 1fr) minmax(260px, 0.9fr);
     gap: 22px;
@@ -3627,7 +3641,7 @@ button[type="submit"]:hover {
     }
 }
 
-/* Distribuição tab & maps */
+/* DistribuiÃ§Ã£o tab & maps */
 .distribution-layout {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(320px, 1.2fr);
@@ -3759,7 +3773,7 @@ button[type="submit"]:hover {
 }
 
 
-/* Ovos de aves — Reprodução > Modelo Visual */
+/* Ovos de aves â€” ReproduÃ§Ã£o > Modelo Visual */
 .bird-eggs-visual-panel {
     grid-column: 1 / -1;
     margin-top: 16px;
@@ -3887,7 +3901,7 @@ button[type="submit"]:hover {
 }
 
 
-/* Ovos escolhidos — cartões individuais em Reprodução > Modelo Visual */
+/* Ovos escolhidos â€” cartÃµes individuais em ReproduÃ§Ã£o > Modelo Visual */
 .bird-egg-selected-card {
     align-items: center;
     min-height: 118px;
@@ -3928,7 +3942,7 @@ button[type="submit"]:hover {
 }
 
 
-/* Informação Geral — Modelo Visual */
+/* InformaÃ§Ã£o Geral â€” Modelo Visual */
 .general-info-section {
     display: block;
     padding: 24px;
@@ -4932,7 +4946,7 @@ button[type="submit"]:hover {
     --local-gradient: linear-gradient(135deg, #fdbb2d, #f43f5e) !important;
 }
 
-/* Utilitário para ocultar elementos em ecrãs móveis (PWA / Mobile) */
+/* UtilitÃ¡rio para ocultar elementos em ecrÃ£s mÃ³veis (PWA / Mobile) */
 @media (max-width: 768px) {
     .hide-on-mobile {
         display: none !important;
@@ -5019,7 +5033,7 @@ button[type="submit"]:hover {
     }
 }
 
-/* Forçar o mesmo tamanho para a segunda linha de todos os cards de modelos visuais */
+/* ForÃ§ar o mesmo tamanho para a segunda linha de todos os cards de modelos visuais */
 .dimension-model-card .dimension-model-value,
 .reproduction-model-card .dimension-model-value,
 .feeding-model-card .dimension-model-value,
@@ -5031,7 +5045,7 @@ button[type="submit"]:hover {
     font-size: 1.39rem !important;
 }
 
-/* Segunda linha uniforme na coluna de Informações e Dimensões */
+/* Segunda linha uniforme na coluna de InformaÃ§Ãµes e DimensÃµes */
 #info-modelos-visuais .dimension-model-value,
 #info-modelos-visuais-mobile .dimension-model-value {
     font-size: 1.39rem !important;
@@ -5040,7 +5054,7 @@ button[type="submit"]:hover {
 
 
 
-/* Forï¿½ar a primeira linha (rï¿½tulos) de todos os cards de modelos visuais em branco */
+/* ForÃ¯Â¿Â½ar a primeira linha (rÃ¯Â¿Â½tulos) de todos os cards de modelos visuais em branco */
 .dimension-model-card .dimension-model-label,
 .reproduction-model-card .dimension-model-label,
 .feeding-model-card .dimension-model-label,
@@ -5305,7 +5319,7 @@ button[type="submit"]:hover {
     }
 }
 
-/* Miniatura modular de áudio xeno-canto */
+/* Miniatura modular de Ã¡udio xeno-canto */
 .animal-audio-thumbnail {
     width: 190px;
     height: 105px;

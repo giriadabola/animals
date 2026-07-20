@@ -32,8 +32,8 @@
         );
         generalVisualOptions.unshift({ tipo: 'Expetativa média de vida', unidade: 'anos' });
         [
-            { tipo: 'Vida útil (cativeiro)', unidade: 'km/dia' },
-            { tipo: 'Expetativa média de vida (cativeiro)', unidade: 'km/dia' },
+            { tipo: 'Vida útil (cativeiro)', unidade: 'anos' },
+            { tipo: 'Expetativa média de vida (cativeiro)', unidade: 'anos' },
             { tipo: 'Taxa Metabólica Basal média', unidade: 'W' },
             { tipo: 'Profundidade máxima', unidade: 'm' },
             { tipo: 'Profundidade média', unidade: 'm' },
@@ -519,7 +519,7 @@
             return ['segundos', 'minutos', 'horas', 'dias', 'semanas', 'meses', 'anos', 'milénios'];
         }
 
-        function isCaptivityMovementGeneralModel(type = '') {
+        function isCaptiveLifeExpectancyGeneralModel(type = '') {
             const normalized = normalizeSearchText(type);
             return normalized.includes('cativeiro') && (normalized.includes('vida util') || normalized.includes('expectativa media de vida') || normalized.includes('expetativa media de vida'));
         }
@@ -607,7 +607,7 @@
             if (normalizeSearchText(type).includes('taxa de emissao')) return ['sinais/segundo','cliques/segundo','pulsos/segundo','cliques/metro'];
             if (isBasalMetabolicRateGeneralModel(type)) return getBasalMetabolicRateUnits();
             if (isDepthGeneralModel(type)) return getDepthUnits();
-            if (isCaptivityMovementGeneralModel(type)) return getCaptivityMovementUnits();
+            if (isCaptiveLifeExpectancyGeneralModel(type)) return getLifeExpectancyUnits();
             if (isLifeExpectancyGeneralModel(type)) return getLifeExpectancyUnits();
             if (isNursingGeneralModel(type)) return ['dias', 'meses', 'anos'];
             if (isDevelopmentMilestoneGeneralModel(type)) return ['minutos', 'horas', 'dias', 'semanas', 'meses', 'anos'];
@@ -633,9 +633,10 @@
             if (isBasalMetabolicRateGeneralModel(type)) return 'W';
             if (normalizeSearchText(type).includes('distancia maxima do salto') || normalizeSearchText(type).includes('altura maxima do salto')) return 'm';
             if (isDepthGeneralModel(type)) return 'm';
-            if (isCaptivityMovementGeneralModel(type)) return 'km/dia';
+            if (isCaptiveLifeExpectancyGeneralModel(type)) return 'anos';
             if (isLifeExpectancyGeneralModel(type)) return 'anos';
             if (isNursingGeneralModel(type)) return 'meses';
+            if (normalizeSearchText(type).includes('abertura dos olhos')) return 'dias';
             if (isDevelopmentMilestoneGeneralModel(type)) return 'meses';
             if (isSocialGroupSizeGeneralModel(type)) return 'centenas';
             if (isSocialGroupCompositionGeneralModel(type)) return 'machos adultos';
@@ -661,7 +662,7 @@
         function getGeneralMinPlaceholder(type = '') {
             if (isBasalMetabolicRateGeneralModel(type)) return 'Mín.';
             if (isDepthGeneralModel(type)) return 'Mín.';
-            if (isCaptivityMovementGeneralModel(type)) return 'Mín.';
+            if (isCaptiveLifeExpectancyGeneralModel(type)) return 'Mín.';
             if (isPopulationGeneralModel(type)) return 'Ex: 1200';
             if (isNursingGeneralModel(type)) return 'Ex: 2';
             if (isLifeExpectancyGeneralModel(type)) return 'Ex: 8';
@@ -677,7 +678,7 @@
         function getGeneralMaxPlaceholder(type = '') {
             if (isBasalMetabolicRateGeneralModel(type)) return 'Máx.';
             if (isDepthGeneralModel(type)) return 'Máx.';
-            if (isCaptivityMovementGeneralModel(type)) return 'Máx.';
+            if (isCaptiveLifeExpectancyGeneralModel(type)) return 'Máx.';
             if (isPopulationGeneralModel(type)) return 'Ex: 3500';
             if (isNursingGeneralModel(type)) return 'Ex: 8';
             if (isLifeExpectancyGeneralModel(type)) return 'Ex: 15';
@@ -1041,7 +1042,7 @@
                 const normalized = normalizeSearchText(type);
                 return { key: normalized.includes('maxima') ? 'profundidade-maxima' : normalized.includes('media') ? 'profundidade-media' : 'profundidade-media', title: type || (normalized.includes('maxima') ? 'Profundidade máxima' : 'Profundidade média'), accent: normalized.includes('maxima') ? 'accent-depth-max' : 'accent-depth-average' };
             }
-            if (isCaptivityMovementGeneralModel(type)) {
+            if (isCaptiveLifeExpectancyGeneralModel(type)) {
                 const normalized = normalizeSearchText(type);
                 return {
                     key: normalized.includes('vida util') ? 'vida-util-cativeiro' : 'expectativa-cativeiro',

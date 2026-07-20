@@ -10,12 +10,13 @@ import { getWikidataLocalizedNames } from "../js/wikidata-search.js?v=20260717_l
         import { ecologyBlockConfigs, getEcologyBlockSvg } from "../js/ecology-visuals.js?v=20260714_ecology_models";
         import { getGeneralVisualMeta as getGeneralVisualCatalogMeta, getGeneralModelSvg as getGeneralCatalogModelSvg, getActivityMeta, getActivitySvg, getSocialMeta, getSocialSvg, getEcologicalFunctionMeta, getEcologicalFunctionSvg, getLocomotionMeta, getLocomotionSvg, isDropdownOnlyGeneralModel as isDropdownOnlyGeneralCatalogModel } from "../js/general-visual-catalog.js?v=20260714_ecology_models";
         import { getRestingPlaceMaterialSvg } from "../js/resting-place-materials.js?v=1";
-        import { collapseCombinedGenderItems, collectConcreteGenders, genderMatchesSelection, normalizeGenderValue } from "../js/gender-utils.js?v=2";
+        import { collapseCombinedGenderItems, collectConcreteGenders, genderMatchesSelection, normalizeGenderValue } from "../js/gender-utils.js?v=3";
         import { renderAnimalMediaBlock, initAnimalMediaBlock, initFooterAnatomyTabs } from "../js/animal-media-block.js?v=3";
         import { renderAnimalAudioThumbnail, initAnimalAudioControls, pauseAllAnimalAudio } from "../js/animal-audio.js?v=20260710_audio_4";
         import { initAnimalProfileActions } from "../js/profile-favorites.js?v=4";
 import { POPULATION_RANKING_KEY } from "../js/ranking-metrics.js?v=1";
 import { getConservationStatusMeta, initConservationStatusPopup } from "../js/conservation-status-popup.js?v=1";
+import { fetchDynamicDistribution } from "../js/dynamic-distribution.js?v=20260719_dynamic_fallback_1";
 import { initFeedingTypePopup } from "../js/feeding-type-popup.js?v=20260716_relations_table";
 import { initPerceptionTypePopup } from "../js/perception-type-popup.js?v=1";
 import { initSocialTypePopup } from "../js/social-type-popup.js?v=1";
@@ -43,6 +44,8 @@ import { getEnvironmentImageMeta } from "../js/environment-image-catalog.js?v=1"
 import { initClimateZoneMapPopup } from "../js/climate-zone-map-popup.js?v=1";
 import { initScientificClassificationToggles } from "./scientific-classification-toggle.js?v=1";
 import { initAnimalComparison } from "../js/animal-comparison.js?v=2";
+import { initDistributionCountryPopup } from "../js/distribution-country-popup.js?v=1";
+import { renderAnimalGallery } from "../js/animal-gallery.js?v=2";
         
         const mainContent = document.getElementById('main-content-area');
 
@@ -165,7 +168,7 @@ import { initAnimalComparison } from "../js/animal-comparison.js?v=2";
             const defaultGender = genders.has('M') ? 'M' : 'F';
             let html = `<span class="info-gender-tabs" style="display: inline-flex; gap: 10px; align-items: center; vertical-align: middle;">`;
             
-            // Abas de Fase (? esquerda)
+            // Abas de Fase (à esquerda)
             if (hasPhases) {
                 html += `
                     <span class="glass-pill-toggle phase-toggle-container" style="display: inline-flex; background: rgba(255, 255, 255, 0.04); backdrop-filter: blur(8px); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 30px; padding: 3px; gap: 2px; align-items: center; box-shadow: inset 0 1px 1px rgba(255,255,255,0.05);">
@@ -183,7 +186,7 @@ import { initAnimalComparison } from "../js/animal-comparison.js?v=2";
                 html += `
                     <span class="glass-pill-toggle gender-toggle-container" style="display: inline-flex; background: rgba(255, 255, 255, 0.04); backdrop-filter: blur(8px); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 30px; padding: 3px; gap: 2px; align-items: center; box-shadow: inset 0 1px 1px rgba(255,255,255,0.05);">
                         ${showSplitGenderToggle
-                            ? `${genders.has('M') ? `<button class="gender-tab-btn ${defaultGender === 'M' ? 'active' : ''}" data-gender="M" style="color: ${defaultGender === 'M' ? '#3b82f6' : 'rgba(255,255,255,0.4)'}; background: ${defaultGender === 'M' ? 'rgba(59, 130, 246, 0.12)' : 'transparent'}; border: 1px solid ${defaultGender === 'M' ? 'rgba(59, 130, 246, 0.15)' : 'transparent'}; border-radius: 20px; width: 36px; height: 36px; font-weight: bold; font-size: 1.05rem; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; outline: none; padding: 0; line-height: 1;">♂</button>` : ''}${genders.has('F') ? `<button class="gender-tab-btn ${defaultGender === 'F' ? 'active' : ''}" data-gender="F" style="color: ${defaultGender === 'F' ? '#ec4899' : 'rgba(255,255,255,0.4)'}; background: ${defaultGender === 'F' ? 'rgba(236, 72, 153, 0.12)' : 'transparent'}; border: 1px solid ${defaultGender === 'F' ? 'rgba(236, 72, 153, 0.15)' : 'transparent'}; border-radius: 20px; width: 36px; height: 36px; font-weight: bold; font-size: 1.05rem; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; outline: none; padding: 0; line-height: 1;">♀</button>` : ''}`
+                            ? `<button class="gender-tab-btn active" data-gender="" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); border-radius: 20px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; outline: none; padding: 0; line-height: 1;"><span style="display: inline-flex; align-items: center; gap: 1px; line-height: 1;"><span style="color: #3b82f6; font-weight: 700; font-size: 0.8rem;">&#9794;</span><span style="color: #ec4899; font-weight: 700; font-size: 0.8rem;">&#9792;</span></span></button>${genders.has('M') ? `<button class="gender-tab-btn" data-gender="M" style="color: rgba(255,255,255,0.4); background: transparent; border: 1px solid transparent; border-radius: 20px; width: 36px; height: 36px; font-weight: bold; font-size: 1.05rem; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; outline: none; padding: 0; line-height: 1;">♂</button>` : ''}${genders.has('F') ? `<button class="gender-tab-btn" data-gender="F" style="color: rgba(255,255,255,0.4); background: transparent; border: 1px solid transparent; border-radius: 20px; width: 36px; height: 36px; font-weight: bold; font-size: 1.05rem; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; outline: none; padding: 0; line-height: 1;">♀</button>` : ''}`
                             : `<span style="display: inline-flex; align-items: center; justify-content: center; gap: 2px; border-radius: 20px; width: 36px; height: 36px; background: linear-gradient(135deg, rgba(59, 130, 246, 0.14), rgba(236, 72, 153, 0.14)); border: 1px solid rgba(255,255,255,0.1);"><span style="color: #3b82f6; font-weight: 700; font-size: 0.95rem; line-height: 1;">&#9794;</span><span style="color: #ec4899; font-weight: 700; font-size: 0.95rem; line-height: 1;">&#9792;</span></span>`}
                     </span>
                 `;
@@ -348,7 +351,7 @@ import { initAnimalComparison } from "../js/animal-comparison.js?v=2";
             const phases = filterContext.phases || new Set();
             const hasBothGenders = genders.has('M') && genders.has('F');
             const hasCriaPhase = phases.has('Cria');
-            const defaultGender = genders.has('M') ? 'M' : 'F';
+            const defaultGender = '';
             const itemGender = item.genero || '';
             const itemPhase = item.fase || 'Adulto';
 
@@ -1196,7 +1199,6 @@ import { initAnimalComparison } from "../js/animal-comparison.js?v=2";
 
         function renderModelSection({ id, title, icon, items = [], filterContext = {}, mobile = false, marginTop = false, showGroupFilters = false }) {
             if (!items.length) return '';
-
             const sectionClass = mobile ? 'info-section mobile-only visual-models-info-section' : 'info-section-card visual-models-info-section';
             const style = mobile
                 ? 'margin-bottom: 20px;'
@@ -1214,6 +1216,153 @@ import { initAnimalComparison } from "../js/animal-comparison.js?v=2";
                     <div class="visual-models-grid" style="display: flex; flex-direction: column; gap: 14px;${mobile ? ' margin-top: 15px;' : ''}">
                         ${renderVisualModelCards(sortedItems, filterContext)}
                     </div>
+                </div>`;
+        }
+
+        function renderTopCardTabbedModelSection({ id, generalText = '', dimensionText = '', infoModelItems = [], dimensionModelItems = [], animalData = {}, mobile = false }) {
+            const style = mobile ? 'margin-bottom: 20px;' : '';
+            const sectionClass = mobile ? 'info-section mobile-only visual-models-info-section' : 'info-section-card visual-models-info-section';
+
+            const estiloVidaItems = infoModelItems.filter(item => getGeneralFormTabForType(item.tipo) !== 'medidas' && getInfoGroupForGeneralType(item.tipo) === 'estilo-vida');
+            const anatomiaItems = infoModelItems.filter(item => getGeneralFormTabForType(item.tipo) !== 'medidas' && getInfoGroupForGeneralType(item.tipo) === 'anatomia');
+            const fisiologiaItems = infoModelItems.filter(item => getGeneralFormTabForType(item.tipo) !== 'medidas' && getInfoGroupForGeneralType(item.tipo) === 'fisiologia');
+            const desenvolvimentoItems = infoModelItems.filter(item => getGeneralFormTabForType(item.tipo) !== 'medidas' && getInfoGroupForGeneralType(item.tipo) === 'desenvolvimento');
+            const estruturasAnatomicasItems = infoModelItems.filter(item => getGeneralFormTabForType(item.tipo) !== 'medidas' && getInfoGroupForGeneralType(item.tipo) === 'estruturas-anatomicas');
+            const measureItems = infoModelItems.filter(item => getGeneralFormTabForType(item.tipo) === 'medidas');
+            const dimensionItems = dimensionModelItems;
+
+            const tabs = [];
+            const hasGeneralPane = Boolean(String(generalText || '').trim());
+            if (hasGeneralPane) tabs.push({ key: 'general', label: 'Geral' });
+            if (estiloVidaItems.length) tabs.push({ key: 'estilo-vida', label: 'Estilo de Vida' });
+            if (anatomiaItems.length || estruturasAnatomicasItems.length || fisiologiaItems.length || desenvolvimentoItems.length) tabs.push({ key: 'anatomia', label: 'Anatomia' });
+
+            const hasAlimentacaoText = animalData.informacao?.alimentacao && animalData.informacao.alimentacao.trim() !== "";
+            const hasAlimentacaoVisual = (Array.isArray(animalData.informacao?.alimentacaoDetalhada) && animalData.informacao.alimentacaoDetalhada.some(item => item?.tipo || item?.detalhe)) ||
+                (Array.isArray(animalData.informacao?.alimentacaoEstrategias) && animalData.informacao.alimentacaoEstrategias.some(item => item?.estrategia || item?.tipo || item?.detalhe));
+            const hasAlimentacao = hasAlimentacaoText || hasAlimentacaoVisual;
+            if (hasAlimentacao) tabs.push({ key: 'alimentacao', label: 'Alimentação' });
+
+            const hasBirdEggVisual = hasCategory(animalData.categoria, 'Aves') && (animalData.informacao?.ovo || (Array.isArray(animalData.informacao?.reproducaoDetalhada) && animalData.informacao.reproducaoDetalhada.some(item => getBirdEggVisualByLabel(item.tipo))));
+            const hasReproducaoText = animalData.informacao?.reproducao && animalData.informacao.reproducao.trim() !== "";
+            const hasReproducaoVisual =
+                (Array.isArray(animalData.informacao?.reproducaoDetalhada) && animalData.informacao.reproducaoDetalhada.length > 0) ||
+                getLegacyGeneralMatingReproductionItems(animalData.informacao?.geralDetalhada || []).length > 0;
+            const hasReproducao = hasReproducaoText || hasReproducaoVisual || hasBirdEggVisual;
+            if (hasReproducao) tabs.push({ key: 'reproducao', label: 'Reprodução' });
+
+            if (measureItems.length) tabs.push({ key: 'measures', label: 'Medidas' });
+            if (dimensionItems.length || String(dimensionText || '').trim()) tabs.push({ key: 'dimensions', label: 'Dimensões' });
+
+            const allItemsForFilters = [...infoModelItems, ...dimensionModelItems];
+            const hasGenders = collectConcreteGenders(allItemsForFilters).size > 0;
+            const hasPhases = new Set(allItemsForFilters.map(item => item.fase).filter(Boolean)).has('Cria');
+
+            if (!tabs.length) return '';
+
+            const renderPane = (tabKey) => {
+                if (tabKey === 'general') {
+                    return `<div class="visual-model-tab-pane" data-visual-model-pane="general">
+                        <div class="visual-model-general-copy"><p>${generalText}</p></div>
+                    </div>`;
+                }
+                let paneItems = [];
+                let isDimension = false;
+                let paneText = '';
+                if (tabKey === 'estilo-vida') paneItems = estiloVidaItems;
+                else if (tabKey === 'anatomia') paneItems = [...anatomiaItems, ...estruturasAnatomicasItems, ...fisiologiaItems, ...desenvolvimentoItems];
+                else if (tabKey === 'measures') paneItems = measureItems;
+                else if (tabKey === 'dimensions') {
+                    paneItems = dimensionItems;
+                    isDimension = true;
+                    paneText = dimensionText;
+                }
+
+                const filterContext = { genders: collectConcreteGenders(paneItems), phases: new Set(paneItems.map(item => item.fase).filter(Boolean)) };
+
+                if (tabKey === 'anatomia') {
+                    const sortedAnatomia = [...anatomiaItems].sort((a, b) => String(a.tipo || '').localeCompare(String(b.tipo || ''), 'pt-PT'));
+                    const sortedEstruturas = [...estruturasAnatomicasItems].sort((a, b) => String(a.tipo || '').localeCompare(String(b.tipo || ''), 'pt-PT'));
+                    const sortedFisiologia = [...fisiologiaItems].sort((a, b) => String(a.tipo || '').localeCompare(String(b.tipo || ''), 'pt-PT'));
+                    const sortedDesenvolvimento = [...desenvolvimentoItems].sort((a, b) => String(a.tipo || '').localeCompare(String(b.tipo || ''), 'pt-PT'));
+
+                    return `<div class="visual-model-tab-pane" data-visual-model-pane="anatomia" hidden>
+                        ${sortedAnatomia.length ? `
+                            <div class="visual-models-grid" style="display: flex; flex-direction: column; gap: 14px;${mobile ? ' margin-top: 15px;' : ''}">
+                                ${renderVisualModelCards(sortedAnatomia, filterContext)}
+                            </div>
+                        ` : ''}
+
+                        ${sortedEstruturas.length ? `
+                            <h4 style="margin: 20px 0 10px; font-size: 0.95rem; font-weight: 700; color: rgba(255, 255, 255, 0.6); text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid rgba(255, 255, 255, 0.05); padding-bottom: 6px;">Estruturas anatómicas</h4>
+                            <div class="visual-models-grid" style="display: flex; flex-direction: column; gap: 14px;${mobile && !sortedAnatomia.length ? ' margin-top: 15px;' : ''}">
+                                ${renderVisualModelCards(sortedEstruturas, filterContext)}
+                            </div>
+                        ` : ''}
+
+                        ${sortedFisiologia.length ? `
+                            <h4 style="margin: 20px 0 10px; font-size: 0.95rem; font-weight: 700; color: rgba(255, 255, 255, 0.6); text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid rgba(255, 255, 255, 0.05); padding-bottom: 6px;">Fisiologia</h4>
+                            <div class="visual-models-grid" style="display: flex; flex-direction: column; gap: 14px;${mobile && !sortedAnatomia.length && !sortedEstruturas.length ? ' margin-top: 15px;' : ''}">
+                                ${renderVisualModelCards(sortedFisiologia, filterContext)}
+                            </div>
+                        ` : ''}
+
+                        ${sortedDesenvolvimento.length ? `
+                            <h4 style="margin: 20px 0 10px; font-size: 0.95rem; font-weight: 700; color: rgba(255, 255, 255, 0.6); text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid rgba(255, 255, 255, 0.05); padding-bottom: 6px;">Desenvolvimento</h4>
+                            <div class="visual-models-grid" style="display: flex; flex-direction: column; gap: 14px;${mobile && !sortedAnatomia.length && !sortedEstruturas.length && !sortedFisiologia.length ? ' margin-top: 15px;' : ''}">
+                                ${renderVisualModelCards(sortedDesenvolvimento, filterContext)}
+                            </div>
+                        ` : ''}
+                    </div>`;
+                }
+
+                if (tabKey === 'alimentacao') {
+                    return `<div class="visual-model-tab-pane" data-visual-model-pane="alimentacao" hidden>
+                        ${animalData.informacao?.alimentacao ? `<div class="visual-model-general-copy"><p>${animalData.informacao.alimentacao}</p></div>` : ''}
+                        ${renderFeedingVisual(animalData)}
+                    </div>`;
+                }
+
+                if (tabKey === 'reproducao') {
+                    return `<div class="visual-model-tab-pane" data-visual-model-pane="reproducao" hidden>
+                        ${animalData.informacao?.reproducao ? `<div class="visual-model-general-copy"><p>${animalData.informacao.reproducao}</p></div>` : ''}
+                        ${renderReproductionVisual(animalData)}
+                    </div>`;
+                }
+
+                const sortedItems = [...paneItems].sort((a, b) => String(a.tipo || '').localeCompare(String(b.tipo || ''), 'pt-PT'));
+
+                return `<div class="visual-model-tab-pane" data-visual-model-pane="${tabKey}" hidden>
+                    ${paneText ? `<div class="visual-model-general-copy"><p>${paneText}</p></div>` : ''}
+                    <div class="visual-models-grid" style="display: flex; flex-direction: column; gap: 14px;${mobile ? ' margin-top: 15px;' : ''}">
+                        ${renderVisualModelCards(sortedItems, filterContext)}
+                    </div>
+                </div>`;
+            };
+
+            return `
+                <div class="${sectionClass} visual-model-tabs" id="${id}" data-visual-model-tabs${style ? ` style="${style}"` : ''}>
+                    <h3 class="visual-models-section-heading" style="display: flex; align-items: center; justify-content: space-between; width: 100%; border-bottom: 1px solid rgba(148, 163, 184, 0.38); padding-bottom: 6px; flex-wrap: wrap; gap: 12px;">
+                        <span class="visual-model-section-tablist" role="tablist" aria-label="Separadores de informação" style="display: flex; flex-wrap: wrap; gap: 4px; border: none; margin: 0; flex: 1 1 auto; align-items: center;">
+                            ${tabs.map((tab, idx) => `
+                                <button type="button" class="visual-model-section-tab ${idx === 0 ? 'is-active' : ''}" data-visual-model-tab="${tab.key}" role="tab" aria-selected="${idx === 0 ? 'true' : 'false'}" style="flex: 0 0 auto; min-width: max-content;">
+                                    <span class="icon svg-icon">${
+                                        tab.key === 'alimentacao' || tab.key === 'reproducao'
+                                            ? getInfoSectionIconSvg(tab.key)
+                                            : getInfoGroupFilterIconSvg(tab.key === 'general' ? 'estilo-vida' : tab.key === 'measures' ? 'medidas' : tab.key === 'dimensions' ? 'dimensoes' : tab.key)
+                                    }</span>${tab.label}
+                                </button>
+                            `).join('')}
+                            ${hasGenders || hasPhases ? `<span class="visual-models-tablist-controls" style="margin: 0 0 0 8px !important; display: inline-flex !important; align-items: center; gap: 8px; border: none !important; background: transparent !important; padding: 0 !important; box-shadow: none !important; flex: 0 0 auto;">${getGenderTabsHTML(allItemsForFilters)}</span>` : ''}
+                        </span>
+                    </h3>
+                    ${tabs.map((tab, idx) => {
+                        const paneHTML = renderPane(tab.key);
+                        if (idx === 0) {
+                            return paneHTML.replace('class="visual-model-tab-pane"', 'class="visual-model-tab-pane is-active"').replace('hidden', '');
+                        }
+                        return paneHTML;
+                    }).join('')}
                 </div>`;
         }
 
@@ -1238,7 +1387,7 @@ import { initAnimalComparison } from "../js/animal-comparison.js?v=2";
                                 <span class="icon svg-icon">${getInfoSectionIconSvg('geral')}</span>Geral
                             </button>
                             <button type="button" class="visual-model-section-tab" data-visual-model-tab="measures" role="tab" aria-selected="false">
-                                <span class="icon svg-icon">${getInfoSectionIconSvg('medidas')}</span><span class="visual-tab-label visual-tab-label--short" data-label-pt="Medidas" data-label-en="Meas." data-label-fr="Mesures" data-label-es="Medidas" data-label-de="Messwerte" data-label-ja="æ¸¬å®šå€¤" data-label-zh="æµ‹é‡">Medidas</span>
+                                <span class="icon svg-icon">${getInfoSectionIconSvg('medidas')}</span><span class="visual-tab-label visual-tab-label--short" data-label-pt="Medidas" data-label-en="Meas." data-label-fr="Mesures" data-label-es="Medidas" data-label-de="Messwerte" data-label-ja="測定値" data-label-zh="测量">Medidas</span>
                             </button>
                             <button type="button" class="visual-model-section-tab" data-visual-model-tab="dimensions" role="tab" aria-selected="false">
                                 <span class="icon svg-icon">${getInfoSectionIconSvg('dimensoes')}</span><span class="visual-tab-label visual-tab-label--short" data-label-pt="Dimensões" data-label-en="Dimensions" data-label-fr="Dimensions" data-label-es="Dimensiones" data-label-de="Abm." data-label-ja="寸法" data-label-zh="尺寸">Dimensões</span>
@@ -3233,7 +3382,7 @@ import { initAnimalComparison } from "../js/animal-comparison.js?v=2";
             updateName(initialLanguage);
         }
 
-        function renderAnimalData(animalData, animalId) {
+        async function renderAnimalData(animalData, animalId) {
             console.log("Loaded animalData in browser:", animalData);
             document.title = `${animalData.nome} - Grandes Projetos`;
             let thumbnailsHTML = '';
@@ -3292,16 +3441,27 @@ import { initAnimalComparison } from "../js/animal-comparison.js?v=2";
             const hasPlumagemVisual = Array.isArray(animalData.informacao?.plumagemDetalhada) && animalData.informacao.plumagemDetalhada.some(item => item?.tipo || item?.detalhe);
             const hasPlumagem = hasPlumagemText || hasPlumagemVisual;
             
-            const distributionRegions = normalizeDistributionRegions(animalData.informacao?.distribuicao || {});
-            const distributionAreas = window.DistributionAreas?.normalizeDistributionAreas?.(animalData.informacao?.distribuicao?.areas || []) || [];
-            const distributionPoints = window.DistributionAreas?.normalizeDistributionPoints?.(animalData.informacao?.distribuicao?.pontos || []) || [];
-            const hasDistribicaoText = animalData.informacao?.distribuicao?.descricao && animalData.informacao.distribuicao.descricao.trim() !== "";
-            const hasDistribicao = animalData.informacao?.distribuicao && 
-                                   ((Array.isArray(animalData.informacao.distribuicao.paises) && animalData.informacao.distribuicao.paises.length > 0) || 
-                                    hasDistribicaoText ||
-                                    distributionRegions.length > 0 ||
-                                    distributionAreas.length > 0 ||
-                                    distributionPoints.length > 0);
+            const distributionInfo = animalData.informacao?.distribuicao || {};
+            const distributionRegions = normalizeDistributionRegions(distributionInfo);
+            const distributionAreas = window.DistributionAreas?.normalizeDistributionAreas?.(distributionInfo.areas || []) || [];
+            let distributionPoints = window.DistributionAreas?.normalizeDistributionPoints?.(distributionInfo.pontos || []) || [];
+            const savedDistributionCountries = Array.isArray(distributionInfo.paises) ? distributionInfo.paises : [];
+            const hasManualDistribution = distributionAreas.length > 0 || distributionPoints.length > 0 || savedDistributionCountries.length > 0;
+            let hasDynamicDistribution = false;
+            if (!hasManualDistribution && animalData.nomeCientifico) {
+                try {
+                    const dynamicDistribution = await fetchDynamicDistribution(animalData.nomeCientifico);
+                    distributionPoints = dynamicDistribution.points;
+                    hasDynamicDistribution = dynamicDistribution.points.length > 0 || dynamicDistribution.countryCodes.length > 0;
+                    if (dynamicDistribution.countryCodes.length) distributionInfo.paises = dynamicDistribution.countryCodes;
+                    animalData.informacao = animalData.informacao || {};
+                    animalData.informacao.distribuicao = distributionInfo;
+                } catch (error) {
+                    console.warn('Distribuição dinâmica indisponível:', error);
+                }
+            }
+            const hasDistribicaoText = distributionInfo.descricao && distributionInfo.descricao.trim() !== '';
+            const hasDistribicao = hasManualDistribution || hasDynamicDistribution || Boolean(hasDistribicaoText) || distributionRegions.length > 0;
 
             const hasCuriosidadesText = animalData.informacao?.curiosidades?.texto && animalData.informacao.curiosidades.texto.trim() !== "";
             const hasCuriosidadesVisual = animalData.informacao?.curiosidades && (
@@ -3526,6 +3686,72 @@ import { initAnimalComparison } from "../js/animal-comparison.js?v=2";
             const scientificClassificationSectionDesktopFinalHTML = forceScientificClassificationHtml(scientificClassificationSectionDesktopCleanHTML);
             const scientificClassificationSectionMobileFinalHTML = forceScientificClassificationHtml(scientificClassificationSectionMobileCleanHTML);
 
+            const feedSections = {
+                imagem: true,
+                classificacao: true,
+                feedEnabled: true,
+                subespecies: true,
+                relacionados: true,
+                galeria: true,
+                geral: true,
+                dimensoes: true,
+                alimentacao: true,
+                ecologia: true,
+                reproducao: true,
+                plumagem: true,
+                distribuicao: true,
+                curiosidades: true,
+                modelos: true,
+                ambiente: true,
+                ...(animalData.feedSections || {})
+            };
+
+            const applyAnimalFeedVisibility = () => {
+                const selectors = {
+                    imagem: ['.top-card-media-col > .anatomy-widget', '.left-column > .anatomy-widget'],
+                    classificacao: ['#info-classificacao', '#info-classificacao-mobile'],
+                    subespecies: ['#subspecies-parent-animals-container', '#subspecies-parent-animals-container-mobile'],
+                    relacionados: ['#related-animals-container', '#related-animals-container-mobile'],
+                    galeria: ['#animal-gallery', '#animal-gallery-mobile'],
+                    geral: ['#info-geral', '#info-geral-mobile'],
+                    dimensoes: ['#info-dimensoes', '#info-dimensoes-mobile'],
+                    alimentacao: ['#info-alimentacao', '#info-alimentacao-mobile'],
+                    ecologia: ['#info-ecologia', '#info-ecologia-mobile'],
+                    reproducao: ['#info-reproducao', '#info-reproducao-mobile'],
+                    plumagem: ['#info-plumagem', '#info-plumagem-mobile'],
+                    distribuicao: ['#info-distribuicao', '#info-distribuicao-mobile'],
+                    curiosidades: ['#info-curiosidades', '#info-curiosidades-mobile'],
+                    modelos: ['#info-modelos-visuais', '#info-modelos-visuais-mobile', '#info-modelos-visuais-top', '#info-modelos-visuais-top-mobile'],
+                    ambiente: ['#info-ambiente', '#info-ambiente-mobile']
+                };
+
+                Object.entries(selectors).forEach(([key, sectionSelectors]) => {
+                    if (feedSections[key] !== false) return;
+                    sectionSelectors.flatMap(selector => [...document.querySelectorAll(selector)]).forEach(section => {
+                        section.hidden = true;
+                        section.setAttribute('aria-hidden', 'true');
+                    });
+                });
+                if (feedSections.geral === false) {
+                    document.querySelectorAll('[data-visual-model-tab="general"], [data-visual-model-pane="general"]').forEach(element => { element.hidden = true; });
+                }
+                if (feedSections.dimensoes === false) {
+                    document.querySelectorAll('[data-visual-model-tab="dimensions"], [data-visual-model-pane="dimensions"]').forEach(element => { element.hidden = true; });
+                }
+                if (feedSections.feedEnabled === false) {
+                    document.querySelectorAll('.top-card-tabs-col').forEach(element => {
+                        element.hidden = true;
+                        element.setAttribute('aria-hidden', 'true');
+                    });
+                    document.querySelectorAll('.animal-top-card').forEach(element => {
+                        element.style.display = 'block';
+                        element.style.maxWidth = '368px';
+                        element.style.margin = '0 auto 28px';
+                    });
+                }
+            };
+
+            setTimeout(applyAnimalFeedVisibility, 0);
             mainContent.innerHTML = `
                 <div class="video-section">
                     <div id="video-thumbnails">${thumbnailsHTML}</div>
@@ -3541,9 +3767,30 @@ import { initAnimalComparison } from "../js/animal-comparison.js?v=2";
                     </div>
                 </div>
                 <nav class="page-nav desktop-only" data-page-nav>
-                    <a class="page-nav-home" href="index.html" aria-label="P?gina inicial"><i class="fa-solid fa-paw" aria-hidden="true"></i></a>
+                    <a class="page-nav-home" href="index.html" aria-label="Página inicial"><i class="fa-solid fa-paw" aria-hidden="true"></i></a>
                     ${navHTMLDesktop}
                 </nav>
+                <div class="animal-top-card-container desktop-only">
+                    <div class="animal-top-card">
+                        <div class="top-card-media-col">
+                            ${renderAnimalMediaBlock(animalData, animalId)}
+                            <div id="animal-profile-actions"></div>
+                        </div>
+                        <div class="top-card-tabs-col">
+                            ${useInfoTabs
+                                ? renderTopCardTabbedModelSection({
+                                    id: 'info-modelos-visuais-top',
+                                    generalText: animalData.informacao?.geral || '',
+                                    dimensionText: animalData.informacao?.dimensoes || '',
+                                    infoModelItems: infoModelItems,
+                                    dimensionModelItems: dimensionModelItems,
+                                    animalData: animalData
+                                })
+                                : ''
+                            }
+                        </div>
+                    </div>
+                </div>
                 <div class="content-grid has-3-cols">
                     <!-- Column 1: Image & Related Animals -->
                     <div class="left-column">
@@ -3556,6 +3803,7 @@ import { initAnimalComparison } from "../js/animal-comparison.js?v=2";
                     
                     <!-- Column 2: Sections (Geral, Dimensões, Alimentação, Reprodução, Plumagem, Distribuição) -->
                     <div class="middle-column desktop-only">
+                        ${renderAnimalGallery(animalData.nomeCientifico)}
                         ${hasGeralText && !useInfoTabs ? `
                         <div class="info-section-card" id="info-geral">
                             <h3><span class="icon svg-icon">${getInfoSectionIconSvg('geral')}</span>Informação Geral</h3>
@@ -3605,7 +3853,7 @@ import { initAnimalComparison } from "../js/animal-comparison.js?v=2";
                                     </div>
                                     ${renderDistributionAreasLegend(animalData.informacao.distribuicao)}
                                     ${renderCountriesCollapse()}
-                                ${renderDistributionRegionsCard(animalData.informacao.distribuicao)}
+                                    ${renderDistributionRegionsCard(animalData.informacao.distribuicao)}
                             </div>
                         </div>` : ''}
 
@@ -3646,18 +3894,40 @@ import { initAnimalComparison } from "../js/animal-comparison.js?v=2";
                     </div>
                 </div>
 
-                    <!-- Stacked Mobile Version -->
-                    <div class="animal-details mobile-only">
-                        <div class="header mobile-only">
-                            ${renderAnimalLanguageSelect()}
-                            <h1 data-animal-common-name>${animalData.nome}</h1>
-                            <h2 class="scientific-name">(${animalData.nomeCientifico})</h2>
+                <!-- Stacked Mobile Version -->
+                <div class="animal-details mobile-only">
+                    <div class="header mobile-only">
+                        ${renderAnimalLanguageSelect()}
+                        <h1 data-animal-common-name>${animalData.nome}</h1>
+                        <h2 class="scientific-name">(${animalData.nomeCientifico})</h2>
+                    </div>
+                    <nav class="page-nav" data-page-nav>
+                        <a class="page-nav-home" href="index.html" aria-label="Página inicial"><i class="fa-solid fa-paw" aria-hidden="true"></i></a>
+                        ${navHTMLMobile}
+                    </nav>
+                    <div class="animal-top-card-container mobile-only">
+                        <div class="animal-top-card">
+                            <div class="top-card-media-col">
+                                ${renderAnimalMediaBlock(animalData, animalId)}
+                                <div id="animal-profile-actions"></div>
+                            </div>
+                            <div class="top-card-tabs-col">
+                                ${useInfoTabs
+                                    ? renderTopCardTabbedModelSection({
+                                        id: 'info-modelos-visuais-top-mobile',
+                                        generalText: animalData.informacao?.geral || '',
+                                        dimensionText: animalData.informacao?.dimensoes || '',
+                                        infoModelItems: infoModelItems,
+                                        dimensionModelItems: dimensionModelItems,
+                                        animalData: animalData,
+                                        mobile: true
+                                    })
+                                    : ''
+                                }
+                            </div>
                         </div>
-                        <nav class="page-nav" data-page-nav>
-                            <a class="page-nav-home" href="index.html" aria-label="P?gina inicial"><i class="fa-solid fa-paw" aria-hidden="true"></i></a>
-                            ${navHTMLMobile}
-                        </nav>
-                        <div class="info-sections">
+                    </div>
+                    <div class="info-sections">
                         ${useInfoTabs
                             ? renderTabbedModelSection({
                                 id: 'info-modelos-visuais-mobile',
@@ -3669,20 +3939,22 @@ import { initAnimalComparison } from "../js/animal-comparison.js?v=2";
                                 generalFilterContext: { genders: collectConcreteGenders(generalModelItems), phases: new Set(generalModelItems.map(item => item.fase).filter(Boolean)) },
                                 measureFilterContext: { genders: collectConcreteGenders(measureModelItems), phases: new Set(measureModelItems.map(item => item.fase).filter(Boolean)) },
                                 dimensionFilterContext: { genders: collectConcreteGenders(dimensionModelItems), phases: new Set(dimensionModelItems.map(item => item.fase).filter(Boolean)) },
-                                    mobile: true
-                                })
-                                : renderModelSection({
-                                    id: 'info-modelos-visuais-mobile',
-                                    title: 'Infos',
-                                    icon: getInfoSectionIconSvg('geral'),
-                                    items: [...infoModelItems, ...dimensionModelItems],
-                                    filterContext: { genders, phases },
-                                    mobile: true,
-                                    showGroupFilters: true
-                                })}
+                                mobile: true
+                            })
+                            : renderModelSection({
+                                id: 'info-modelos-visuais-mobile',
+                                title: 'Infos',
+                                icon: getInfoSectionIconSvg('geral'),
+                                items: [...infoModelItems, ...dimensionModelItems],
+                                filterContext: { genders, phases },
+                                mobile: true,
+                                showGroupFilters: true
+                            })}
                             ${envQuickData.length > 0
                                 ? renderEnvironmentSections(envQuickData, { genders, phases }, { id: 'info-ambiente-mobile', mobile: true })
                                 : ''}
+
+                            ${renderAnimalGallery(animalData.nomeCientifico, true)}
 
                             ${hasGeralText && !useInfoTabs ? `
                             <div class="info-section" id="info-geral-mobile">
@@ -3695,6 +3967,7 @@ import { initAnimalComparison } from "../js/animal-comparison.js?v=2";
                                 <h3><span class="icon svg-icon">${getInfoSectionIconSvg('dimensoes')}</span><span>Dimensões</span></h3>
                                 <p>${animalData.informacao.dimensoes || ''}</p>
                             </div>` : ''}
+
                             ${hasAlimentacao ? `
                             <div class="info-section" id="info-alimentacao-mobile">
                                 <h3><span class="icon svg-icon">${getInfoSectionIconSvg('alimentacao')}</span>Alimentação</h3>
@@ -4010,9 +4283,9 @@ import { initAnimalComparison } from "../js/animal-comparison.js?v=2";
                                             </a>
                                         </div>
                                         <div class="footer-comparison-promo-item">
-                                            <article class="footer-comparison-promo footer-comparison-promo-mushrooms" aria-label="Chimpanzé a observar cogumelos florescentes">
+                                            <a href="lab.html?id=${encodeURIComponent(animalId)}" class="footer-comparison-promo footer-comparison-promo-mushrooms" aria-label="Visitar o laboratório deste animal">
                                                 <span class="footer-comparison-promo-label">Visite o laboratório</span>
-                                            </article>
+                                            </a>
                                         </div>
                                         <div class="footer-comparison-promo-item">
                                             <article class="footer-comparison-promo footer-comparison-promo-metamorphosis" aria-label="Metamorfose de uma borboleta">
@@ -4331,6 +4604,13 @@ import { initAnimalComparison } from "../js/animal-comparison.js?v=2";
                     mapIds.forEach(initMap);
                 });
 
+                initDistributionCountryPopup({
+                    db,
+                    containers: mapIds.map(mapId => document.getElementById(mapId)),
+                    countryList,
+                    currentAnimalId: animalId
+                });
+
                 const namesSpans = document.querySelectorAll('.highlightedCountriesNames');
                 namesSpans.forEach(namesSpan => {
                     const subLabels = {
@@ -4475,35 +4755,48 @@ import { initAnimalComparison } from "../js/animal-comparison.js?v=2";
                     const selectedGender = btn.dataset.gender;
                     const tabbedSection = btn.closest('.visual-model-tabs');
                     
-                    if (tabbedSection) {
-                        const matchingButtons = tabbedSection.querySelectorAll(`.gender-tab-btn[data-gender="${selectedGender}"]`);
-                        matchingButtons.forEach(mBtn => {
-                            mBtn.parentElement.querySelectorAll('.gender-tab-btn').forEach(b => {
-                                b.classList.remove('active');
-                                b.style.background = 'transparent';
-                                b.style.borderColor = 'transparent';
-                                b.style.color = 'rgba(255, 255, 255, 0.4)';
-                            });
-                            mBtn.classList.add('active');
-                            mBtn.style.color = selectedGender === 'M' ? '#3b82f6' : '#ec4899';
-                            mBtn.style.background = selectedGender === 'M' ? 'rgba(59, 130, 246, 0.12)' : 'rgba(236, 72, 153, 0.12)';
-                            mBtn.style.borderColor = selectedGender === 'M' ? 'rgba(59, 130, 246, 0.15)' : 'rgba(236, 72, 153, 0.15)';
-                            
-                            const container = mBtn.closest('.visual-model-tab-pane') || mBtn.closest('.info-section-card') || mBtn.closest('.general-visual-card') || mBtn.closest('.dimensions-visual-card') || mBtn.closest('.info-section');
-                            applyCombinedFilters(container);
-                        });
-                    } else {
-                        btn.parentElement.querySelectorAll('.gender-tab-btn').forEach(b => {
+                    const handleButtonState = (mBtn) => {
+                        mBtn.parentElement.querySelectorAll('.gender-tab-btn').forEach(b => {
                             b.classList.remove('active');
                             b.style.background = 'transparent';
                             b.style.borderColor = 'transparent';
                             b.style.color = 'rgba(255, 255, 255, 0.4)';
+                            const spans = b.querySelectorAll('span');
+                            if (spans.length >= 2) {
+                                spans[0].style.color = 'rgba(255, 255, 255, 0.3)';
+                                spans[1].style.color = 'rgba(255, 255, 255, 0.3)';
+                            }
                         });
-                        btn.classList.add('active');
-                        btn.style.color = selectedGender === 'M' ? '#3b82f6' : '#ec4899';
-                        btn.style.background = selectedGender === 'M' ? 'rgba(59, 130, 246, 0.12)' : 'rgba(236, 72, 153, 0.12)';
-                        btn.style.borderColor = selectedGender === 'M' ? 'rgba(59, 130, 246, 0.15)' : 'rgba(236, 72, 153, 0.15)';
-                        
+                        mBtn.classList.add('active');
+                        if (selectedGender === 'M') {
+                            mBtn.style.color = '#3b82f6';
+                            mBtn.style.background = 'rgba(59, 130, 246, 0.12)';
+                            mBtn.style.borderColor = 'rgba(59, 130, 246, 0.15)';
+                        } else if (selectedGender === 'F') {
+                            mBtn.style.color = '#ec4899';
+                            mBtn.style.background = 'rgba(236, 72, 153, 0.12)';
+                            mBtn.style.borderColor = 'rgba(236, 72, 153, 0.15)';
+                        } else {
+                            mBtn.style.color = 'rgba(255, 255, 255, 0.9)';
+                            mBtn.style.background = 'rgba(255, 255, 255, 0.08)';
+                            mBtn.style.borderColor = 'rgba(255, 255, 255, 0.12)';
+                            const spans = mBtn.querySelectorAll('span');
+                            if (spans.length >= 2) {
+                                spans[0].style.color = '#3b82f6';
+                                spans[1].style.color = '#ec4899';
+                            }
+                        }
+                    };
+
+                    if (tabbedSection) {
+                        const matchingButtons = tabbedSection.querySelectorAll(`.gender-tab-btn[data-gender="${selectedGender}"]`);
+                        matchingButtons.forEach(mBtn => {
+                            handleButtonState(mBtn);
+                            const container = mBtn.closest('.visual-model-tab-pane') || mBtn.closest('.info-section-card') || mBtn.closest('.general-visual-card') || mBtn.closest('.dimensions-visual-card') || mBtn.closest('.info-section');
+                            applyCombinedFilters(container);
+                        });
+                    } else {
+                        handleButtonState(btn);
                         const container = btn.closest('.visual-model-tab-pane') || btn.closest('.info-section-card') || btn.closest('.general-visual-card') || btn.closest('.dimensions-visual-card') || btn.closest('.info-section');
                         applyCombinedFilters(container);
                     }
@@ -4553,15 +4846,38 @@ import { initAnimalComparison } from "../js/animal-comparison.js?v=2";
 
             // Lógica para navegação interna ativa
             const pageNavs = document.querySelectorAll('[data-page-nav]');
+            const desktopPageNav = document.querySelector('.page-nav.desktop-only[data-page-nav]');
+            const headerSearchWrapper = document.querySelector('.global-header .header-search-wrapper');
+            const headerSearchPlaceholder = headerSearchWrapper?.parentElement
+                ? document.createComment('local original da pesquisa do cabeçalho')
+                : null;
+
+            if (headerSearchWrapper && headerSearchPlaceholder) {
+                headerSearchWrapper.parentElement.insertBefore(headerSearchPlaceholder, headerSearchWrapper);
+            }
+
             const updateFloatingPageNavs = () => {
+                const isDesktop = window.matchMedia('(min-width: 993px)').matches;
                 pageNavs.forEach(nav => {
                     const top = nav.getBoundingClientRect().top;
-                    nav.classList.toggle('is-floating', window.scrollY > 0 && top <= 22);
+                    const isFloating = window.scrollY > 0 && top <= 22;
+                    nav.classList.toggle('is-floating', isFloating);
+
+                    if (nav === desktopPageNav && headerSearchWrapper && headerSearchPlaceholder) {
+                        const shouldMoveSearch = isDesktop && isFloating;
+                        if (shouldMoveSearch && headerSearchWrapper.parentElement !== nav) {
+                            nav.appendChild(headerSearchWrapper);
+                            headerSearchWrapper.classList.add('page-nav-search');
+                        } else if (!shouldMoveSearch && headerSearchWrapper.parentElement === nav) {
+                            headerSearchPlaceholder.parentElement.insertBefore(headerSearchWrapper, headerSearchPlaceholder);
+                            headerSearchWrapper.classList.remove('page-nav-search');
+                        }
+                    }
                 });
             };
             updateFloatingPageNavs();
             const navAnchors = document.querySelectorAll('.nav-anchor');
-            const sections = document.querySelectorAll('.middle-column .info-section-card, .info-sections .info-section');
+            const sections = document.querySelectorAll('.middle-column .info-section-card, .middle-column .animal-gallery-section, .info-sections .info-section, .info-sections .animal-gallery-section');
 
             const makeActive = (link) => {
                 navAnchors.forEach(a => a.classList.remove('active'));
@@ -4652,7 +4968,7 @@ import { initAnimalComparison } from "../js/animal-comparison.js?v=2";
                         }
                     }
 
-                    renderAnimalData(animalData, animalId);
+                    await renderAnimalData(animalData, animalId);
                     fetchAndRenderSubspeciesParents(animalData.subespeciesDe);
                     fetchAndRenderRelatedAnimals(animalData.subfamilia, animalId, animalData.tribo);
                 } else {

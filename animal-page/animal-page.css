@@ -4,7 +4,7 @@
             }
         }
 
-        /* Forçar o mesmo tamanho para a segunda linha de todos os cards de modelos visuais */
+        /* ForÃ§ar o mesmo tamanho para a segunda linha de todos os cards de modelos visuais */
         .dimension-model-card .dimension-model-value,
         .reproduction-model-card .dimension-model-value,
         .feeding-model-card .dimension-model-value,
@@ -23,11 +23,14 @@
             font-weight: 400 !important;
         }
 
-        /* Reduzir escala na seção de Infos e Ambiente do animal (tanto no desktop quanto mobile) */
+        /* Reduzir escala na seÃ§Ã£o de Infos e Ambiente do animal (tanto no desktop quanto mobile) */
         #info-modelos-visuais .dimension-model-card,
         #info-modelos-visuais-mobile .dimension-model-card {
-            padding: 6px 0 !important;
+            padding: 12px 14px !important;
             gap: 10px !important;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
         }
         #info-ambiente .dimension-model-card,
         #info-ambiente-mobile .dimension-model-card {
@@ -47,6 +50,8 @@
         #info-modelos-visuais-mobile .dimension-model-card .dimension-model-icon svg,
         #info-modelos-visuais .dimension-model-card .dimension-model-icon img,
         #info-modelos-visuais-mobile .dimension-model-card .dimension-model-icon img,
+        .visual-models-info-section .dimension-model-card .dimension-model-icon svg,
+        .visual-models-info-section .dimension-model-card .dimension-model-icon img,
         #info-ambiente .dimension-model-card .dimension-model-icon svg,
         #info-ambiente-mobile .dimension-model-card .dimension-model-icon svg,
         #info-ambiente .dimension-model-card .dimension-model-icon img,
@@ -54,16 +59,17 @@
             width: 26px !important;
             height: 26px !important;
         }
-        #info-modelos-visuais .dimension-model-card .dimension-model-value,
-        #info-modelos-visuais-mobile .dimension-model-card .dimension-model-value {
-            font-size: 1.28rem !important;
+        .visual-models-info-section .dimension-model-card .dimension-model-value,
+        .visual-models-info-section .dimension-model-card .general-model-value-row {
+            font-size: 1.2rem !important;
+            font-weight: 800 !important;
+            color: var(--model-accent) !important;
         }
         #info-ambiente .dimension-model-card .dimension-model-value,
         #info-ambiente-mobile .dimension-model-card .dimension-model-value {
             font-size: 1.15rem !important;
         }
-        #info-modelos-visuais .dimension-model-card .dimension-model-label,
-        #info-modelos-visuais-mobile .dimension-model-card .dimension-model-label {
+        .visual-models-info-section .dimension-model-card .dimension-model-label {
             font-size: 0.83rem !important;
             color: rgba(255, 255, 255, 0.7) !important;
         }
@@ -185,8 +191,9 @@
 
         .general-model-values {
             display: flex;
-            flex-direction: column;
-            gap: 3px;
+            flex-direction: row;
+            flex-wrap: wrap;
+            gap: 12px;
             margin-top: 3px;
         }
 
@@ -576,7 +583,7 @@
             color: #c4b5fd;
         }
 
-        /* Aumentar 30% em relação ao tamanho reduzido dos cards de Alimentação, Reprodução e Curiosidades */
+        /* Aumentar 30% em relaÃ§Ã£o ao tamanho reduzido dos cards de AlimentaÃ§Ã£o, ReproduÃ§Ã£o e Curiosidades */
         .feeding-model-card,
         .feeding-strategy-card,
         .reproduction-model-card,
@@ -630,7 +637,7 @@
 
 
 
-        /* Alimentação e Ecologia: mesma leitura visual da Reprodução
+        /* AlimentaÃ§Ã£o e Ecologia: mesma leitura visual da ReproduÃ§Ã£o
            valor principal em cima, categoria em baixo, cards largos e 1 por linha */
         .feeding-model-grid,
         .ecology-model-grid {
@@ -734,7 +741,7 @@
 
 
 
-        /* Ecologia: mesmas medidas dos cards/ícones da Reprodução */
+        /* Ecologia: mesmas medidas dos cards/Ã­cones da ReproduÃ§Ã£o */
         .ecology-model-card {
             padding: 11px 18px !important;
             gap: 14px !important;
@@ -751,12 +758,12 @@
             height: 26px !important;
         }
 
-        /* Forçar exibição em forma de lista vertical (1 por linha) na Reprodução */
+        /* ForÃ§ar exibiÃ§Ã£o em forma de lista vertical (1 por linha) na ReproduÃ§Ã£o */
         .reproduction-model-grid {
             grid-template-columns: 1fr !important;
         }
 
-        /* Estilo temático de cor da secção de Curiosidades (Cinzento / Slate Grey) */
+        /* Estilo temÃ¡tico de cor da secÃ§Ã£o de Curiosidades (Cinzento / Slate Grey) */
         .curiosidades-model-card .dimension-model-copy {
             flex: 1 1 auto;
             min-width: 0;
@@ -833,7 +840,7 @@
         }
 
         /* A lista de modelos visuais remove as bordas dos cards informativos,
-           mas os que abrem um popup continuam claramente identificáveis. */
+           mas os que abrem um popup continuam claramente identificÃ¡veis. */
         #info-modelos-visuais button.dimension-model-card:not(.perception-type-popup-trigger):not(.communication-type-popup-trigger),
         #info-modelos-visuais a.dimension-model-card:not(.perception-type-popup-trigger):not(.communication-type-popup-trigger),
         #info-modelos-visuais-mobile button.dimension-model-card:not(.perception-type-popup-trigger):not(.communication-type-popup-trigger),
@@ -1012,6 +1019,14 @@
                         inset 0 1px 0 rgba(255, 255, 255, 0.05);
             position: relative;
             z-index: 1;
+        }
+
+        .visual-model-tabs .visual-models-section-controls > .info-gender-tabs {
+            margin-top: 8px !important;
+            border: 1px solid rgba(148, 163, 184, 0.25) !important;
+            border-radius: 30px !important;
+            padding: 6px 16px !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25) !important;
         }
 
         .visual-models-section-controls .info-group-filters {
@@ -2254,7 +2269,7 @@ body.conservation-status-modal-open {
             font-size: 0.9rem;
         }
         .biogeographic-region-map.is-unavailable::after {
-            content: 'Mapa-mundo indisponível neste momento';
+            content: 'Mapa-mundo indisponÃ­vel neste momento';
         }
         .biogeographic-region-map-legend {
             display: flex;
@@ -2529,7 +2544,7 @@ body.conservation-status-modal-open {
             box-shadow: 0 8px 32px rgba(148, 163, 184, 0.03), inset 0 1px 0 rgba(255, 255, 255, 0.02) !important;
         }
 
-        /* Faz a secção da família usar apenas um único card visível */
+        /* Faz a secÃ§Ã£o da famÃ­lia usar apenas um Ãºnico card visÃ­vel */
         #related-animals-container,
         #related-animals-container-mobile {
             background: transparent !important;
@@ -2541,7 +2556,7 @@ body.conservation-status-modal-open {
             -webkit-backdrop-filter: none !important;
         }
 
-        /* Portal para a página da família */
+        /* Portal para a pÃ¡gina da famÃ­lia */
         .family-portal-link {
             position: relative;
             display: block;
@@ -2650,7 +2665,7 @@ body.conservation-status-modal-open {
             margin-top: 0;
         }
 
-                /* Estilo super elegante para animais da mesma família */
+                /* Estilo super elegante para animais da mesma famÃ­lia */
         .related-list {
             display: flex;
             flex-direction: column;
@@ -2888,7 +2903,7 @@ body.conservation-status-modal-open {
 
 .body-covering-display-icon{display:grid;place-items:center;min-width:72px;min-height:72px;border-radius:20px;background:linear-gradient(145deg,rgba(52,61,78,.72),rgba(31,37,52,.86));border:1px solid rgba(148,163,184,.28);box-shadow:inset 0 1px 0 rgba(255,255,255,.05),0 8px 18px rgba(0,0,0,.18)}.body-covering-display-icon i{font-size:2rem;color:#0f766e}.body-covering-display-hero{display:grid!important;place-items:center}.body-covering-display-hero i{font-size:4rem;color:#0f766e;filter:drop-shadow(0 8px 14px rgba(15,118,110,.22))}
 
-        /* Modelos próprios do revestimento corporal: SVG desenhado no projeto */
+        /* Modelos prÃ³prios do revestimento corporal: SVG desenhado no projeto */
         .body-covering-display-icon .body-covering-custom-svg {
             width: 66px;
             height: 66px;
@@ -2903,7 +2918,7 @@ body.conservation-status-modal-open {
             filter: drop-shadow(0 12px 22px rgba(0,0,0,.28));
         }
 
-        /* Correção final: modelos visuais no mesmo estilo do site */
+        /* CorreÃ§Ã£o final: modelos visuais no mesmo estilo do site */
         .body-covering-display-icon,
         .plumage-model-figure {
             background: linear-gradient(145deg, rgba(52,61,78,.72), rgba(31,37,52,.84)) !important;
@@ -3118,7 +3133,7 @@ body.conservation-status-modal-open {
     }
 }
 
-/* Foto de perfil principal da página do animal: formato vertical 600 × 950 */
+/* Foto de perfil principal da pÃ¡gina do animal: formato vertical 600 Ã— 950 */
 .animal-image {
     width: min(100%, 600px);
     max-width: 600px;
@@ -3143,7 +3158,7 @@ body.conservation-status-modal-open {
     }
 }
 
-/* Áudio xeno-canto da página do animal */
+/* Ãudio xeno-canto da pÃ¡gina do animal */
 .animal-media-action-audio {
     color: #bbf7d0;
     border-color: rgba(34, 197, 94, 0.24);
@@ -3829,65 +3844,71 @@ body.conservation-status-modal-open {
             border: 0;
         }
 
-        /* As estatísticas de Infos são linhas do cartão principal, não cartões autónomos. */
+        /* As estatísticas de Infos são cards/quadrados autónomos com bordas suaves. */
         .visual-models-info-section .dimension-model-card {
-            border: none !important;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
-            border-radius: 0 !important;
-            background: transparent !important;
-            box-shadow: none !important;
-            padding: 12px 0 !important;
+            align-items: flex-start !important;
+            border: 1px solid color-mix(in srgb, var(--model-accent) 20%, rgba(255, 255, 255, 0.08)) !important;
+            border-radius: 14px !important;
+            background: rgba(255, 255, 255, 0.02) !important;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03) !important;
+            padding: 12px 14px !important;
+            transition: border-color 0.2s, background-color 0.2s, transform 0.2s !important;
         }
 
         .visual-models-info-section .dimension-model-card:hover,
         .visual-models-info-section .dimension-model-card:focus-visible {
-            border-color: transparent !important;
-            background: transparent !important;
-            box-shadow: none !important;
-            transform: none !important;
+            border-color: color-mix(in srgb, var(--model-accent) 40%, rgba(255, 255, 255, 0.15)) !important;
+            background: rgba(255, 255, 255, 0.05) !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+            transform: translateY(-1px) !important;
         }
 
-        /* Na aba Informações, as opções são linhas do painel e não cards autónomos. */
+        /* Na aba Informações, as opções são também cartões autónomos com borda. */
         .visual-models-info-section .visual-model-tab-pane[data-visual-model-pane="info"] .dimension-model-card,
         .visual-models-info-section:not(.visual-model-tabs) .dimension-model-card {
-            border: none !important;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
-            border-radius: 0 !important;
-            background: transparent !important;
-            box-shadow: none !important;
+            border: 1px solid color-mix(in srgb, var(--model-accent) 20%, rgba(255, 255, 255, 0.08)) !important;
+            border-radius: 14px !important;
+            background: rgba(255, 255, 255, 0.02) !important;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03) !important;
         }
 
         .visual-models-info-section .visual-model-tab-pane[data-visual-model-pane="info"] .dimension-model-card:hover,
         .visual-models-info-section .visual-model-tab-pane[data-visual-model-pane="info"] .dimension-model-card:focus-visible,
         .visual-models-info-section:not(.visual-model-tabs) .dimension-model-card:hover,
         .visual-models-info-section:not(.visual-model-tabs) .dimension-model-card:focus-visible {
-            border: none !important;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
-            border-radius: 0 !important;
-            background: transparent !important;
-            box-shadow: none !important;
-            transform: none !important;
+            border-color: color-mix(in srgb, var(--model-accent) 40%, rgba(255, 255, 255, 0.15)) !important;
+            background: rgba(255, 255, 255, 0.05) !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+            transform: translateY(-1px) !important;
         }
 
-        /* Em Informações / Dimensões, os elementos clicáveis não têm contorno exterior.
-           O indicador de abertura permanece apenas no ícone. */
+        /* Em Informações / Dimensões, os elementos clicáveis têm também contorno exterior. */
         .visual-models-info-section.visual-model-tabs .visual-model-tab-pane .dimension-model-card,
         .visual-models-info-section.visual-model-tabs .visual-model-tab-pane .dimension-model-card:hover,
         .visual-models-info-section.visual-model-tabs .visual-model-tab-pane .dimension-model-card:focus-visible {
-            border: none !important;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
-            border-radius: 0 !important;
-            background: transparent !important;
-            box-shadow: none !important;
-            transform: none !important;
+            border: 1px solid color-mix(in srgb, var(--model-accent) 20%, rgba(255, 255, 255, 0.08)) !important;
+            border-radius: 14px !important;
+            background: rgba(255, 255, 255, 0.02) !important;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03) !important;
+        }
+        
+        .visual-models-info-section.visual-model-tabs .visual-model-tab-pane .dimension-model-card:hover,
+        .visual-models-info-section.visual-model-tabs .visual-model-tab-pane .dimension-model-card:focus-visible {
+            border-color: color-mix(in srgb, var(--model-accent) 40%, rgba(255, 255, 255, 0.15)) !important;
+            background: rgba(255, 255, 255, 0.05) !important;
+            transform: translateY(-1px) !important;
         }
 
-        /* Os gatilhos de alimentação têm uma regra própria de contorno; nesta secção
-           também devem seguir o mesmo tratamento dos restantes modelos. */
+        /* Os gatilhos de alimentação seguem o mesmo padrão de quadrado com contorno. */
         #info-modelos-visuais .visual-model-tab-pane .feeding-type-popup-trigger,
         #info-modelos-visuais-mobile .visual-model-tab-pane .feeding-type-popup-trigger,
         #info-modelos-visuais .visual-model-tab-pane .feeding-strategy-popup-trigger,
-        #info-modelos-visuais-mobile .visual-model-tab-pane .feeding-strategy-popup-trigger,
+        #info-modelos-visuais-mobile .visual-model-tab-pane .feeding-strategy-popup-trigger {
+            border: 1px solid color-mix(in srgb, var(--model-accent) 20%, rgba(255, 255, 255, 0.08)) !important;
+            border-radius: 14px !important;
+            background: rgba(255, 255, 255, 0.02) !important;
+        }
+
         #info-modelos-visuais .visual-model-tab-pane .feeding-type-popup-trigger:hover,
         #info-modelos-visuais-mobile .visual-model-tab-pane .feeding-type-popup-trigger:hover,
         #info-modelos-visuais .visual-model-tab-pane .feeding-strategy-popup-trigger:hover,
@@ -3896,11 +3917,8 @@ body.conservation-status-modal-open {
         #info-modelos-visuais-mobile .visual-model-tab-pane .feeding-type-popup-trigger:focus-visible,
         #info-modelos-visuais .visual-model-tab-pane .feeding-strategy-popup-trigger:focus-visible,
         #info-modelos-visuais-mobile .visual-model-tab-pane .feeding-strategy-popup-trigger:focus-visible {
-            border: none !important;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
-            border-radius: 0 !important;
-            background: transparent !important;
-            box-shadow: none !important;
+            border-color: color-mix(in srgb, var(--model-accent) 40%, rgba(255, 255, 255, 0.15)) !important;
+            background: rgba(255, 255, 255, 0.05) !important;
         }
 
         /* Os botões de popup garantem sombra extra para manter consistência */
@@ -3909,7 +3927,7 @@ body.conservation-status-modal-open {
             box-shadow: 0 1px 0 rgba(255, 255, 255, 0.08) !important;
         }
 
-        /* Organização responsiva da secção Informações / Dimensões. */
+        /* OrganizaÃ§Ã£o responsiva da secÃ§Ã£o InformaÃ§Ãµes / DimensÃµes. */
         .visual-model-tabs,
         .visual-model-tabs .visual-model-tab-pane,
         .visual-model-tabs .visual-models-grid,
@@ -4055,8 +4073,8 @@ body.conservation-status-modal-open {
 
         }
 
-/* Regra final: nenhum modelo clicável tem contorno exterior dentro de
-   Informações / Dimensões; o contorno fica reservado ao ícone/indicador. */
+/* Regra final: nenhum modelo clicÃ¡vel tem contorno exterior dentro de
+   InformaÃ§Ãµes / DimensÃµes; o contorno fica reservado ao Ã­cone/indicador. */
 #info-modelos-visuais .dimension-model-card,
 #info-modelos-visuais-mobile .dimension-model-card,
 #info-modelos-visuais .dimension-model-card:hover,
@@ -4226,7 +4244,7 @@ body.conservation-status-modal-open {
     .animal-language-menu { right: 50%; transform-origin: top center; transform: translate(50%, -6px) scale(0.98); }
     .animal-language-control.is-open .animal-language-menu { transform: translate(50%, 0) scale(1); }
 }
-/* Abreviaturas apenas para Measurements em inglês e Abmessungen em alemão. */
+/* Abreviaturas apenas para Measurements em inglÃªs e Abmessungen em alemÃ£o. */
 .visual-model-section-tab {
     overflow: hidden;
 }
@@ -4249,7 +4267,31 @@ html[lang="en"] .visual-model-section-tab .visual-tab-label--short[data-label-en
 html[lang="de"] .visual-model-section-tab .visual-tab-label--short[data-label-de="Abm."]::after {
     content: attr(data-label-de);
     font-size: clamp(0.72rem, 1.9vw, 0.98rem);
-}
+}
+
+.distribution-country-map-clickable path[data-code] { cursor: pointer; }
+.distribution-country-map-clickable path[data-code]:hover { filter: brightness(1.22); }
+.distribution-country-animals-backdrop { position: fixed; inset: 0; z-index: 1200; display: grid; place-items: center; padding: 18px; background: rgba(4, 10, 8, .78); backdrop-filter: blur(8px); }
+.distribution-country-animals-backdrop[hidden] { display: none; }
+.distribution-country-animals-modal { position: relative; width: min(680px, 100%); max-height: min(760px, 92vh); overflow: auto; padding: 28px; border: 1px solid rgba(167, 243, 208, .2); border-radius: 22px; background: #101b18; color: #ecfdf5; box-shadow: 0 24px 80px rgba(0, 0, 0, .45); }
+.distribution-country-animals-close { position: absolute; top: 12px; right: 16px; border: 0; background: transparent; color: #a7f3d0; font-size: 2rem; line-height: 1; cursor: pointer; }
+.distribution-country-animals-kicker { color: #6ee7b7; font-size: .75rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+.distribution-country-animals-heading h2 { margin: 7px 0 4px; font-size: clamp(1.45rem, 4vw, 2rem); }
+.distribution-country-animals-heading h2 { display: flex; align-items: center; gap: 12px; }
+.distribution-country-flag-image { width: 42px; height: 31px; flex: 0 0 auto; border-radius: 4px; object-fit: cover; box-shadow: 0 1px 5px rgba(0, 0, 0, .28); }
+.distribution-country-animals-heading p, .distribution-country-animals-status { color: #a7b8b1; margin: 0; }
+.distribution-country-animals-status { margin-top: 20px; font-size: .86rem; }
+.distribution-country-animals-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 12px; }
+.distribution-country-animal-card { display: flex; align-items: center; gap: 10px; min-width: 0; padding: 8px; border: 1px solid rgba(167, 243, 208, .12); border-radius: 12px; color: inherit; text-decoration: none; background: rgba(255, 255, 255, .035); }
+.distribution-country-animal-card:hover { border-color: rgba(110, 231, 183, .55); background: rgba(110, 231, 183, .1); }
+.distribution-country-animal-rank { width: 22px; color: #6ee7b7; font-weight: 700; text-align: center; }
+.distribution-country-animal-card img, .distribution-country-animal-placeholder { width: 48px; height: 48px; flex: 0 0 48px; border-radius: 9px; object-fit: cover; background: #24332e; }
+.distribution-country-animal-placeholder { display: grid; place-items: center; font-size: 1.35rem; }
+.distribution-country-animal-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
+.distribution-country-animals-empty { color: #a7b8b1; }
+body.distribution-country-animals-open { overflow: hidden; }
+@media (max-width: 600px) { .distribution-country-animals-modal { padding: 24px 16px; border-radius: 16px; } .distribution-country-animals-list { grid-template-columns: 1fr; } }
+
 
 @media (max-width: 640px) {
     .footer-comparison-layout {
@@ -4260,12 +4302,244 @@ html[lang="de"] .visual-model-section-tab .visual-tab-label--short[data-label-de
 
     .footer-comparison-promos {
         display: flex;
-        flex-direction: column;
+        flex-direction: row;
     }
 
+    .footer-comparison-promos {
+        align-items: stretch;
+        gap: 8px;
+        width: 100%;
+    }
+
+    .footer-comparison-promo-item {
+        flex: 1 1 0;
+        width: 0;
+    }
+
+    .footer-comparison-promo {
+        aspect-ratio: 1.18 / 1;
+        border-radius: 12px;
+    }
+
+    .footer-comparison-promo::after {
+        inset: 6px;
+        border-radius: 8px;
+    }
+
+    .footer-comparison-promo-label {
+        top: 10px;
+        left: 10px;
+        width: calc(100% - 20px);
+        font-size: 0.5rem;
+        letter-spacing: 0.08em;
+    }
     .visual-model-section-tab .visual-tab-label--short {
         flex: 0 1 auto;
     }
 }
 
 
+
+
+/* Galeria externa do animal: primeira secção da coluna central. */
+.animal-gallery-section { overflow: hidden; }
+.animal-gallery-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.animal-gallery-heading h3 { display: flex; align-items: center; gap: 10px; margin: 0; }
+.animal-gallery-source { color: rgba(226, 232, 240, .58); font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; }
+.animal-gallery-grid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px; margin-top: 0; }
+.animal-gallery-item { position: relative; display: block; aspect-ratio: 1 / 1; overflow: hidden; border: 1px solid rgba(148, 163, 184, .22); border-radius: 12px; background: rgba(15, 23, 42, .7); }
+.animal-gallery-item img { display: block; width: 100%; height: 100%; object-fit: cover; transition: transform 180ms ease, filter 180ms ease; }
+.animal-gallery-item:hover img, .animal-gallery-item:focus-visible img { transform: scale(1.06); filter: brightness(1.08); }
+.animal-gallery-credit { position: absolute; right: 0; bottom: 0; left: 0; overflow: hidden; padding: 18px 7px 6px; color: #fff; font-size: .62rem; text-overflow: ellipsis; white-space: nowrap; background: linear-gradient(transparent, rgba(0, 0, 0, .78)); }
+.animal-gallery-status { grid-column: 1 / -1; margin: 0; color: rgba(226, 232, 240, .65); font-size: .88rem; }
+@media (max-width: 1200px) { .animal-gallery-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 600px) { .animal-gallery-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.animal-gallery-item { appearance: none; width: 100%; padding: 0; color: inherit; font: inherit; cursor: zoom-in; text-align: left; }
+.animal-gallery-lightbox[hidden] { display: none; }
+.animal-gallery-lightbox { position: fixed; z-index: 10000; inset: 0; display: grid; place-items: center; padding: 24px; }
+.animal-gallery-lightbox-backdrop { position: absolute; inset: 0; background: rgba(4, 5, 12, .86); backdrop-filter: blur(10px); }
+.animal-gallery-lightbox-dialog { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; width: min(100%, 1050px); max-height: calc(100vh - 48px); padding: 14px; border: 1px solid rgba(255,255,255,.16); border-radius: 18px; background: rgba(22, 20, 31, .98); box-shadow: 0 24px 80px rgba(0,0,0,.48); }
+.animal-gallery-lightbox-image { display: block; width: auto; max-width: 100%; height: auto; max-height: calc(100vh - 128px); object-fit: contain; border-radius: 11px; }
+.animal-gallery-lightbox-caption { width: 100%; box-sizing: border-box; padding: 10px 6px 2px; color: rgba(226,232,240,.72); font-size: .78rem; text-align: center; }
+.animal-gallery-lightbox-close { position: absolute; z-index: 2; top: 7px; right: 7px; display: grid; place-items: center; width: 34px; height: 34px; border: 1px solid rgba(255,255,255,.18); border-radius: 50%; color: #fff; background: rgba(9,9,20,.75); font-size: 1.55rem; line-height: 1; cursor: pointer; }
+.animal-gallery-lightbox-close:hover, .animal-gallery-lightbox-close:focus-visible { background: var(--primary-color, #d09f5b); color: #20170b; }
+.animal-gallery-popup-open { overflow: hidden; }
+@media (max-width: 600px) { .animal-gallery-lightbox { padding: 12px; } .animal-gallery-lightbox-dialog { max-height: calc(100vh - 24px); padding: 9px; } .animal-gallery-lightbox-image { max-height: calc(100vh - 90px); } }
+
+/* Card no topo da página do animal contendo perfil e abas (Geral, Medidas, Dimensões) */
+.animal-top-card {
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-card, #13192e);
+    border: 1px solid var(--border-color, rgba(255, 255, 255, 0.08));
+    border-radius: 28px;
+    padding: 24px;
+    margin-bottom: 28px;
+    gap: 24px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+}
+
+.animal-top-card .top-card-media-col {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    align-items: center;
+    width: 100%;
+}
+
+.animal-top-card .top-card-media-col .anatomy-widget {
+    margin: 0;
+    width: 100%;
+}
+
+.animal-top-card .top-card-tabs-col {
+    width: 100%;
+    min-width: 0;
+}
+
+/* Remove default card background and border inside the top card to keep it clean */
+.animal-top-card .visual-models-info-section {
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    margin: 0 !important;
+}
+
+/* Fix negative margins cutting off tab text and icons */
+.animal-top-card .visual-models-section-heading {
+    margin: 0 0 20px 0 !important;
+    width: 100% !important;
+}
+
+.animal-top-card .visual-model-section-tablist {
+    min-height: 60px !important;
+    height: auto !important;
+}
+
+@media (min-width: 993px) {
+    .animal-top-card {
+        flex-direction: row;
+        align-items: stretch;
+        gap: 32px;
+    }
+    .animal-top-card .top-card-media-col {
+        width: 320px;
+        flex-shrink: 0;
+        align-items: stretch;
+    }
+    .animal-top-card .top-card-tabs-col {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+    }
+    .animal-top-card .visual-models-info-section {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+    .animal-top-card .visual-model-tab-pane {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+    }
+    .animal-top-card .visual-model-tab-pane[hidden] {
+        display: none !important;
+    }
+}
+
+/* Padroniza o tamanho do texto (conteúdo) e os modelos visuais dentro do card do topo */
+.animal-top-card .visual-model-general-copy p {
+    font-size: 1.04rem !important;
+}
+
+.animal-top-card .dimension-model-label,
+.animal-top-card .plumage-model-label,
+.animal-top-card .dimension-model-value,
+.animal-top-card .plumage-model-value,
+.animal-top-card [class*="popup-copy"] span,
+.animal-top-card [class*="popup-copy"] strong,
+.animal-top-card [class*="popup-copy"] p {
+    font-size: 1.07rem !important;
+    font-weight: 700 !important;
+}
+
+/* Padroniza as dimensões, margens e ícones de todos os cartões de modelos visuais e botões de popup */
+.animal-top-card .dimension-model-card,
+.animal-top-card .general-model-card,
+.animal-top-card .ecology-model-card,
+.animal-top-card .feeding-model-card,
+.animal-top-card .reproduction-model-card,
+.animal-top-card .curiosidades-model-card,
+.animal-top-card button[class*="popup-trigger"],
+.animal-top-card [class*="popup-trigger"] {
+    padding: 10px 14px !important;
+    gap: 12px !important;
+    min-height: auto !important;
+    font-family: inherit !important;
+    font-size: inherit !important;
+    text-align: left !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.12) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12) !important;
+    border-left: 1px solid rgba(255, 255, 255, 0.12) !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.12) !important;
+    background: rgba(255, 255, 255, 0.03) !important;
+    border-radius: 8px !important;
+    box-sizing: border-box !important;
+}
+
+.animal-top-card .dimension-model-icon,
+.animal-top-card .general-model-card .dimension-model-icon,
+.animal-top-card [class*="popup-icon"] {
+    width: 32px !important;
+    height: 32px !important;
+    min-width: 32px !important;
+    flex-shrink: 0 !important;
+    border-radius: 8px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.animal-top-card .dimension-model-icon svg,
+.animal-top-card .general-model-card .dimension-model-icon svg,
+.animal-top-card [class*="popup-icon"] svg,
+.animal-top-card [class*="popup-icon"] img {
+    width: 18px !important;
+    height: 18px !important;
+}
+
+.animal-top-card .visual-models-grid {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)) !important;
+    gap: 12px !important;
+}
+
+.animal-top-card .visual-model-section-tablist {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 4px !important;
+    min-height: auto !important;
+    width: 100% !important;
+    grid-template-columns: none !important;
+    align-items: center;
+}
+
+.animal-top-card .visual-model-section-tab {
+    flex: 0 0 auto !important;
+    min-width: max-content !important;
+    height: auto !important;
+    padding: 10px 8px !important;
+    min-height: 48px !important;
+    gap: 4px !important;
+}
+
+.animal-top-card .feeding-model-grid,
+.animal-top-card .reproduction-model-grid,
+.animal-top-card .ecology-model-grid {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)) !important;
+    gap: 12px !important;
+}

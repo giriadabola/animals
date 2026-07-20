@@ -1,7 +1,7 @@
 // Limpeza forçada de cache específica da página /form/form.html
 // Sempre que mudares FORM_CACHE_VERSION, o browser limpa caches/service workers e recarrega a página uma única vez.
 (function forceFormCacheRefresh() {
-    const FORM_CACHE_VERSION = 'form-cache-2026-07-16-ios-refresh-1';
+    const FORM_CACHE_VERSION = 'form-cache-2026-07-20-inat-canonical-name-1';
     const STORAGE_KEY = 'animals_form_cache_version';
     const RELOAD_KEY = 'animals_form_cache_reloaded_for_' + FORM_CACHE_VERSION;
 

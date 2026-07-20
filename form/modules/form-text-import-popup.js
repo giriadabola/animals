@@ -68,6 +68,15 @@
 
     function buildImportedGeneralItem(row) {
         const parameterKey = normalize(row.parameter);
+        if (parameterKey.includes('temperatura corporal') && ['k', 'kelvin', 'kelvins'].includes(normalize(row.unit))) {
+            const convertKelvin = value => {
+                const number = Number(String(value || '').replace(',', '.'));
+                return Number.isFinite(number) ? String(Number((number - 273.15).toFixed(2))) : String(value || '').trim();
+            };
+            const valorMin = convertKelvin(row.first);
+            const valorMax = row.second ? convertKelvin(row.second) : '';
+            return { tipo: row.parameter, valor: valorMin, valorMin, valorMax, unidade: '°C', genero: row.gender, fase: row.phase };
+        }
         const valueKey = normalize(row.first);
         const biomaOnlyValues = new Set(['rio', 'delta', 'lago', 'mar profundo', 'oceano aberto', 'plataforma continental', 'zona abissal', 'zona batial', 'zona bentonica', 'zona neritica', 'zona pelagica']);
         const tipo = parameterKey === 'habitats' && biomaOnlyValues.has(valueKey) ? 'Bioma' : row.parameter;

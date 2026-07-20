@@ -884,6 +884,9 @@
             console.warn('[Curiosidades] Tipos sem modelo visual dedicado:', curiosidadesPreviewMissing);
         }
 
+        window.getCuriosidadesData = getCuriosidadesData;
+        window.setCuriosidadesData = setCuriosidadesData;
+
         addCuriosidadesBtn.addEventListener('click', () => createCuriosidadeRow());
         setCuriosidadesData();
 

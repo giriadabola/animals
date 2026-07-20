@@ -28,8 +28,8 @@
     <script src="https://cdn.jsdelivr.net/npm/jsvectormap/dist/maps/world.js"></script>
     <script src="./form-cache.js?v=20260716_ios_refresh_1"></script>
     <script src="../js/page-transition.js?v=1"></script>
-    <link rel="stylesheet" href="./form.css?v=20260716_reproductive_strategy_1">
-    <link rel="stylesheet" href="./form-responsive.css?v=20260715_mobile_1">
+    <link rel="stylesheet" href="./form.css?v=20260720_iucn_maps_only_1">
+    <link rel="stylesheet" href="./form-responsive.css?v=20260720_iucn_maps_only_1">
 
     <style id="form-auth-critical-css">
         /* Evita flash do formulário antes de confirmar login. */
@@ -99,7 +99,7 @@
                 <button type="button" class="top-level-tab-btn" data-top-tab="rodape">
                     <i class="fa-solid fa-shoe-prints" style="transform: rotate(-90deg);"></i> Rodapé
                 </button>
-                <button type="button" class="top-level-tab-btn" data-top-tab="idiomas"><i class="fa-solid fa-language"></i> Idiomas</button>
+                <button type="button" class="top-level-tab-btn" data-top-tab="feed"><i class="fa-solid fa-rss"></i> Feed</button>
             </div>
             <div class="form-header-fields">
                 <div class="form-group">
@@ -709,7 +709,29 @@
 
                     <!-- Aba: Distribuição -->
                     <div class="form-tab-panel" id="tabpanel-distribuicao" role="tabpanel">
-                        <div class="distribution-layout">
+                        <div class="distribution-subtabs-navigation" role="tablist" aria-label="Modo do mapa de distribuição">
+    <button type="button" class="form-subtab-nav-btn active" data-subtab="distribuicao-mapa-dinamico" role="tab" aria-selected="true" aria-controls="subtabpanel-distribuicao-mapa-dinamico"><i class="fa-solid fa-globe" aria-hidden="true"></i> Mapa dinâmico</button>
+    <button type="button" class="form-subtab-nav-btn" data-subtab="distribuicao-mapa-manual" role="tab" aria-selected="false" aria-controls="subtabpanel-distribuicao-mapa-manual"><i class="fa-solid fa-pen-ruler" aria-hidden="true"></i> Mapa manual</button>
+</div>
+<div class="form-subtab-panel active" id="subtabpanel-distribuicao-mapa-dinamico" role="tabpanel">
+    <div class="distribution-dynamic-layout">
+        <div class="distribution-dynamic-info">
+            <div class="preview-card-title">Distribuição automática via GBIF + iNaturalist</div>
+            <p class="form-hint">O mapa combina ocorrências georreferenciadas da GBIF e observações Research Grade do iNaturalist. Os dados podem ser copiados para o mapa manual.</p>
+            <div class="distribution-dynamic-actions">
+                <button type="button" class="secondary-action-btn" id="loadGbifDistributionBtn"><i class="fa-solid fa-rotate" aria-hidden="true"></i> Actualizar mapa</button>
+                <button type="button" class="secondary-action-btn" id="importGbifDistributionBtn" disabled><i class="fa-solid fa-file-import" aria-hidden="true"></i> Copiar para o mapa manual</button>
+            </div>
+            <p class="distribution-map-status" id="gbifDistributionStatus" role="status" aria-live="polite">Aguardando o nome científico.</p>
+        </div>
+        <div class="map-container-wrapper dynamic-map-wrapper">
+            <div class="distribution-map-heading"><div class="preview-card-title">Mapa dinâmico de ocorrências</div></div>
+            <div class="map-container" id="distributionMapDynamic"></div>
+        </div>
+    </div>
+</div>
+<div class="form-subtab-panel" id="subtabpanel-distribuicao-mapa-manual" role="tabpanel">
+<div class="distribution-layout">
                             <div class="distribution-editor">
                                 <div class="form-group">
                                     <label for="countrySearchInput">Adicionar Países</label>
@@ -765,6 +787,7 @@
                             </div>
                         </div>
                     </div>
+                        </div>
 
                     <!-- Aba: Curiosidades -->
                     <div class="form-tab-panel" id="tabpanel-curiosidades" role="tabpanel">
@@ -880,18 +903,7 @@
                 </div>
             </div>
             
-            <div id="top-tabpanel-idiomas" class="grid-span-3" style="display: none;">
-                <div class="idiomas-card">
-                    <div class="idiomas-heading">
-                        <div><h3>Idiomas</h3><p>Nome do animal por país ou idioma, recolhido automaticamente do Wikidata.</p></div>
-                        <button type="button" class="secondary-action-btn" id="addIdiomaBtn"><i class="fa-solid fa-plus"></i> Adicionar linha</button>
-                    </div>
-                    <div class="idiomas-table-wrap">
-                        <table class="idiomas-table"><thead><tr><th>País</th><th>Nome do animal</th><th aria-label="Acções"></th></tr></thead><tbody id="idiomasRows"></tbody></table>
-                    </div>
-                    <p class="idiomas-empty" id="idiomasEmpty">Ainda não existem idiomas importados.</p>
-                </div>
-            </div>
+            <div id="top-tabpanel-feed" class="grid-span-3" style="display: none;"></div>
 
             <div class="save-quality-row grid-span-3">
                 <div class="animal-quality-selector" id="animalQualitySelector" aria-label="Nível de qualidade do registo">
@@ -925,6 +937,107 @@
             </div>
             <div id="statusMessage" class="grid-span-3"></div>
         </form>
+        <aside class="form-navigation-sidebar">
+            <div class="sidebar-header">
+                <h3>Índice</h3>
+            </div>
+            <div class="sidebar-search" style="position: sticky; top: 0; background: var(--bg-card); padding-bottom: 12px; margin-bottom: 8px; z-index: 5; border-bottom: 1px solid var(--border-color);">
+                <input type="text" id="sidebarSearchInput" placeholder="Pesquisar opções..." style="width: 100%; padding: 8px 12px; font-size: 0.85rem; border-radius: 8px; border: 1px solid var(--border-color); background: rgba(0,0,0,0.2); color: var(--text-primary); outline: none; transition: border-color 0.2s;" oninput="filterSidebarOptions()">
+            </div>
+            <div class="sidebar-nav-scroll-wrapper">
+                <ul class="sidebar-nav-list">
+                    <li class="sidebar-nav-item active" data-target="identificacao">
+                        <i class="fa-solid fa-id-card"></i> Identificação
+                        <span class="nav-status-indicator" style="margin-left: auto;"><i class="fa-regular fa-circle" style="opacity: 0.5;"></i></span>
+                    </li>
+                    <li class="sidebar-nav-item" data-target="classificacao">
+                        <i class="fa-solid fa-dna"></i> Classificação
+                        <span class="nav-status-indicator" style="margin-left: auto;"><i class="fa-regular fa-circle" style="opacity: 0.5;"></i></span>
+                    </li>
+                    <li class="sidebar-nav-item" data-tab-target="geral" style="display: flex; flex-direction: column; align-items: stretch; gap: 4px;">
+                        <div style="display: flex; align-items: center; gap: 12px; width: 100%;">
+                            <i class="fa-solid fa-circle-info"></i>
+                            <span>Geral</span>
+                            <span class="nav-status-indicator" style="margin-left: auto;"><i class="fa-regular fa-circle" style="opacity: 0.5;"></i></span>
+                        </div>
+                        <ul class="sidebar-sub-list" id="sidebar-sub-list-geral" style="margin: 6px 0 0 0px; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 4px; font-size: 0.78rem; font-weight: 500; opacity: 0.85; line-height: 1.3;">
+                        </ul>
+                    </li>
+                    <li class="sidebar-nav-item" data-tab-target="dimensoes" style="display: flex; flex-direction: column; align-items: stretch; gap: 4px;">
+                        <div style="display: flex; align-items: center; gap: 12px; width: 100%;">
+                            <i class="fa-solid fa-ruler-combined"></i>
+                            <span>Dimensões</span>
+                            <span class="nav-status-indicator" style="margin-left: auto;"><i class="fa-regular fa-circle" style="opacity: 0.5;"></i></span>
+                        </div>
+                        <ul class="sidebar-sub-list" id="sidebar-sub-list-dimensoes" style="margin: 6px 0 0 0px; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 4px; font-size: 0.78rem; font-weight: 500; opacity: 0.85; line-height: 1.3;">
+                        </ul>
+                    </li>
+                    <li class="sidebar-nav-item" data-tab-target="alimentacao" style="display: flex; flex-direction: column; align-items: stretch; gap: 4px;">
+                        <div style="display: flex; align-items: center; gap: 12px; width: 100%;">
+                            <i class="fa-solid fa-utensils"></i>
+                            <span>Alimentação</span>
+                            <span class="nav-status-indicator" style="margin-left: auto;"><i class="fa-regular fa-circle" style="opacity: 0.5;"></i></span>
+                        </div>
+                        <ul class="sidebar-sub-list" id="sidebar-sub-list-alimentacao" style="margin: 6px 0 0 0px; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 4px; font-size: 0.78rem; font-weight: 500; opacity: 0.85; line-height: 1.3;">
+                        </ul>
+                    </li>
+                    <li class="sidebar-nav-item" data-tab-target="ecologia" style="display: flex; flex-direction: column; align-items: stretch; gap: 4px;">
+                        <div style="display: flex; align-items: center; gap: 12px; width: 100%;">
+                            <i class="fa-solid fa-seedling"></i>
+                            <span>Ecologia</span>
+                            <span class="nav-status-indicator" style="margin-left: auto;"><i class="fa-regular fa-circle" style="opacity: 0.5;"></i></span>
+                        </div>
+                        <ul class="sidebar-sub-list" id="sidebar-sub-list-ecologia" style="margin: 6px 0 0 0px; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 4px; font-size: 0.78rem; font-weight: 500; opacity: 0.85; line-height: 1.3;">
+                        </ul>
+                    </li>
+                    <li class="sidebar-nav-item" data-tab-target="reproducao" style="display: flex; flex-direction: column; align-items: stretch; gap: 4px;">
+                        <div style="display: flex; align-items: center; gap: 12px; width: 100%;">
+                            <i class="fa-solid fa-heart"></i>
+                            <span>Reprodução</span>
+                            <span class="nav-status-indicator" style="margin-left: auto;"><i class="fa-regular fa-circle" style="opacity: 0.5;"></i></span>
+                        </div>
+                        <ul class="sidebar-sub-list" id="sidebar-sub-list-reproducao" style="margin: 6px 0 0 0px; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 4px; font-size: 0.78rem; font-weight: 500; opacity: 0.85; line-height: 1.3;">
+                        </ul>
+                    </li>
+                    <li class="sidebar-nav-item" data-tab-target="distribuicao" style="display: flex; flex-direction: column; align-items: stretch; gap: 4px;">
+                        <div style="display: flex; align-items: center; gap: 12px; width: 100%;">
+                            <i class="fa-solid fa-map-location-dot"></i>
+                            <span>Distribuição</span>
+                            <span class="nav-status-indicator" style="margin-left: auto;"><i class="fa-regular fa-circle" style="opacity: 0.5;"></i></span>
+                        </div>
+                        <ul class="sidebar-sub-list" id="sidebar-sub-list-distribuicao" style="margin: 6px 0 0 0px; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 4px; font-size: 0.78rem; font-weight: 500; opacity: 0.85; line-height: 1.3;">
+                        </ul>
+                    </li>
+                    <li class="sidebar-nav-item" data-tab-target="curiosidades" style="display: flex; flex-direction: column; align-items: stretch; gap: 4px;">
+                        <div style="display: flex; align-items: center; gap: 12px; width: 100%;">
+                            <i class="fa-solid fa-lightbulb"></i>
+                            <span>Curiosidades</span>
+                            <span class="nav-status-indicator" style="margin-left: auto;"><i class="fa-regular fa-circle" style="opacity: 0.5;"></i></span>
+                        </div>
+                        <ul class="sidebar-sub-list" id="sidebar-sub-list-curiosidades" style="margin: 6px 0 0 0px; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 4px; font-size: 0.78rem; font-weight: 500; opacity: 0.85; line-height: 1.3;">
+                        </ul>
+                    </li>
+                    <li class="sidebar-nav-item" data-tab-target="plumagem" id="sidebar-nav-plumagem" style="display: none; flex-direction: column; align-items: stretch; gap: 4px;">
+                        <div style="display: flex; align-items: center; gap: 12px; width: 100%;">
+                            <i class="fa-solid fa-feather-pointed"></i>
+                            <span>Revestimento</span>
+                            <span class="nav-status-indicator" style="margin-left: auto;"><i class="fa-regular fa-circle" style="opacity: 0.5;"></i></span>
+                        </div>
+                        <ul class="sidebar-sub-list" id="sidebar-sub-list-plumagem" style="margin: 6px 0 0 0px; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 4px; font-size: 0.78rem; font-weight: 500; opacity: 0.85; line-height: 1.3;">
+                        </ul>
+                    </li>
+                    <li class="sidebar-nav-item divider"></li>
+                    <li class="sidebar-nav-item" data-top-target="rodape">
+                        <i class="fa-solid fa-shoe-prints" style="transform: rotate(-90deg);"></i> Rodapé
+                        <span class="nav-status-indicator" style="margin-left: auto;"><i class="fa-regular fa-circle" style="opacity: 0.5;"></i></span>
+                    </li>
+                    <li class="sidebar-nav-item" data-top-target="feed">
+                        <i class="fa-solid fa-rss"></i> Feed
+                        <span class="nav-status-indicator" style="margin-left: auto;"><i class="fa-regular fa-circle" style="opacity: 0.5;"></i></span>
+                    </li>
+                </ul>
+            </div>
+        </aside>
     </div>
 
     <!-- Modal de Seleção de Edição -->
@@ -1125,5 +1238,545 @@
     <!-- Service Worker PWA -->
     <script src="./sw-register.js?v=20260716_ios_refresh_1"></script>
     <script src="./xeno-canto-link.js?v=1"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Wait for modules to be loaded
+            document.addEventListener('form:modules-loaded', () => {
+                initializeSidebarNav();
+            });
+            // Also call initialization immediately in case the event already fired
+            setTimeout(initializeSidebarNav, 1000);
+        });
+
+        function initializeSidebarNav() {
+            if (window.sidebarNavInitialized) return;
+            
+            const sidebarItems = document.querySelectorAll('.sidebar-nav-item[data-target], .sidebar-nav-item[data-tab-target], .sidebar-nav-item[data-top-target]');
+            if (!sidebarItems.length) return;
+            
+            window.sidebarNavInitialized = true;
+
+            const topTabBtns = document.querySelectorAll('.top-level-tab-btn');
+            const tabButtons = document.querySelectorAll('.form-tab-nav-btn');
+            const toggleAdvancedBtn = document.getElementById('toggleAdvancedBtn');
+            const advancedFieldsContainer = document.getElementById('advancedFieldsContainer');
+            
+            // Check if a section is active/filled with data
+            function checkSectionActive(sectionId) {
+                if (sectionId === 'identificacao') {
+                    const nomeAnimal = document.getElementById('nomeAnimal');
+                    const nomeCientifico = document.getElementById('nomeCientifico');
+                    const imagemUrl = document.getElementById('imagemUrl');
+                    const categoria = document.getElementById('categoria');
+                    return (nomeAnimal && nomeAnimal.value.trim() !== '') || 
+                           (nomeCientifico && nomeCientifico.value.trim() !== '') ||
+                           (imagemUrl && imagemUrl.value.trim() !== '') ||
+                           (categoria && categoria.value.trim() !== '');
+                }
+                
+                if (sectionId === 'classificacao') {
+                    const fields = ['reino', 'filo', 'classe', 'ordem', 'familia', 'subfamilia', 'genero', 'especies', 'autoridadeTaxonomica'];
+                    return fields.some(id => {
+                        const el = document.getElementById(id);
+                        return el && el.value.trim() !== '';
+                    });
+                }
+
+                const panel = document.getElementById(sectionId);
+                if (!panel) return false;
+                
+                // Check standard inputs, textareas, selects
+                const inputs = panel.querySelectorAll('input:not([type="hidden"]), textarea, select');
+                for (const input of inputs) {
+                    if (input.type === 'checkbox' && input.checked) return true;
+                    if (input.type === 'radio' && input.checked) return true;
+                    if (input.value && input.value.trim() !== '') {
+                        if (input.tagName === 'SELECT') {
+                            if (input.value !== '' && input.value !== 'default') return true;
+                        } else {
+                            return true;
+                        }
+                    }
+                }
+                
+                // Check dynamic rows/tables
+                const rows = panel.querySelectorAll('.dimension-row, .general-visual-row, .feeding-row, .ecology-row, .reproduction-row, .plumage-row, .distribution-area-item, .curiosidade-item');
+                if (rows.length > 0) return true;
+
+                // Specific distribution check
+                if (sectionId === 'tabpanel-distribuicao') {
+                    const mapItems = panel.querySelectorAll('.selected-regions-container .region-tag, .country-tag-list span, #distributionManualList tr');
+                    if (mapItems.length > 0) return true;
+                }
+                
+                // Specific top level panel checks
+                if (sectionId === 'top-tabpanel-rodape') {
+                    const checkBoxes = panel.querySelectorAll('input[type="checkbox"]:checked');
+                    return checkBoxes.length > 0;
+                }
+                if (sectionId === 'top-tabpanel-feed') {
+                    const checkBoxes = panel.querySelectorAll('.feed-switch-input:checked');
+                    return checkBoxes.length > 0;
+                }
+
+                return false;
+            }
+
+            // Function to add item to a sub-list
+            function addSubListItem(subList, label, value) {
+                const li = document.createElement('li');
+                li.style.color = 'var(--text-secondary)';
+                li.style.borderLeft = '1.5px solid var(--primary-color)';
+                li.style.paddingLeft = '6px';
+                li.style.marginTop = '3px';
+                li.innerHTML = `<strong>${label}:</strong> ${value}`;
+                subList.appendChild(li);
+            }
+
+            // Function to update the sub-lists of active options under all main navigation items
+            function updateAllSubLists() {
+                const mappings = [
+                    { panelId: 'tabpanel-geral', subListId: 'sidebar-sub-list-geral' },
+                    { panelId: 'tabpanel-dimensoes', subListId: 'sidebar-sub-list-dimensoes' },
+                    { panelId: 'tabpanel-alimentacao', subListId: 'sidebar-sub-list-alimentacao' },
+                    { panelId: 'tabpanel-ecologia', subListId: 'sidebar-sub-list-ecologia' },
+                    { panelId: 'tabpanel-reproducao', subListId: 'sidebar-sub-list-reproducao' },
+                    { panelId: 'tabpanel-distribuicao', subListId: 'sidebar-sub-list-distribuicao' },
+                    { panelId: 'tabpanel-curiosidades', subListId: 'sidebar-sub-list-curiosidades' },
+                    { panelId: 'tabpanel-plumagem', subListId: 'sidebar-sub-list-plumagem' }
+                ];
+                
+                mappings.forEach(map => {
+                    const subList = document.getElementById(map.subListId);
+                    if (!subList) return;
+                    
+                    subList.innerHTML = '';
+                    
+                    // 1. GERAL
+                    if (map.panelId === 'tabpanel-geral') {
+                        const rows = document.querySelectorAll('#generalVisualRows .general-visual-row');
+                        rows.forEach(row => {
+                            const typeSel = row.querySelector('.general-visual-type');
+                            if (!typeSel) return;
+                            const labelText = typeSel.options[typeSel.selectedIndex]?.text || '';
+                            if (!labelText || labelText.includes('Selecione') || labelText.trim() === '') return;
+                            
+                            const minIn = row.querySelector('.general-visual-min');
+                            const maxIn = row.querySelector('.general-visual-max');
+                            const unitSel = row.querySelector('.general-visual-unit');
+                            const stratSel = row.querySelector('.general-visual-strategy');
+                            
+                            let valueText = '';
+                            if (stratSel && stratSel.style.display !== 'none') {
+                                const actualVal = stratSel.value ? stratSel.value.trim() : '';
+                                if (actualVal !== '') valueText = stratSel.options[stratSel.selectedIndex]?.text || actualVal;
+                            } else {
+                                const minVal = minIn ? minIn.value.trim() : '';
+                                const maxVal = maxIn ? maxIn.value.trim() : '';
+                                const unitVal = unitSel ? unitSel.value : '';
+                                if (minVal !== '' && maxVal !== '') valueText = `${minVal.replace('.', ',')} - ${maxVal.replace('.', ',')} ${unitVal}`;
+                                else if (minVal !== '') valueText = `${minVal.replace('.', ',')} ${unitVal}`;
+                                else if (maxVal !== '') valueText = `${maxVal.replace('.', ',')} ${unitVal}`;
+                            }
+                            if (valueText && valueText.trim() !== '') addSubListItem(subList, labelText, valueText);
+                        });
+                    }
+                    
+                    // 2. DIMENSÕES
+                    else if (map.panelId === 'tabpanel-dimensoes') {
+                        const rows = document.querySelectorAll('#tabpanel-dimensoes .dimension-row');
+                        rows.forEach(row => {
+                            const typeSel = row.querySelector('.dimension-metric');
+                            if (!typeSel) return;
+                            const labelText = typeSel.options[typeSel.selectedIndex]?.text || '';
+                            if (!labelText || labelText.includes('Selecione') || labelText.trim() === '') return;
+                            
+                            const minIn = row.querySelector('.dimension-min');
+                            const maxIn = row.querySelector('.dimension-max');
+                            const unitSel = row.querySelector('.dimension-unit');
+                            
+                            const minVal = minIn ? minIn.value.trim() : '';
+                            const maxVal = maxIn ? maxIn.value.trim() : '';
+                            const unitVal = unitSel ? unitSel.value : '';
+                            
+                            let valueText = '';
+                            if (minVal !== '' && maxVal !== '') valueText = `${minVal.replace('.', ',')} - ${maxVal.replace('.', ',')} ${unitVal}`;
+                            else if (minVal !== '') valueText = `${minVal.replace('.', ',')} ${unitVal}`;
+                            else if (maxVal !== '') valueText = `${maxVal.replace('.', ',')} ${unitVal}`;
+                            
+                            if (valueText && valueText.trim() !== '') addSubListItem(subList, labelText, valueText);
+                        });
+                    }
+                    
+                    // 3. ALIMENTAÇÃO
+                    else if (map.panelId === 'tabpanel-alimentacao') {
+                        const rows = document.querySelectorAll('#tabpanel-alimentacao .feeding-row');
+                        rows.forEach(row => {
+                            const typeSel = row.querySelector('.feeding-model-kind');
+                            if (!typeSel) return;
+                            const labelText = typeSel.options[typeSel.selectedIndex]?.text || '';
+                            if (!labelText || labelText.includes('Selecione') || labelText.trim() === '') return;
+                            
+                            let valueText = '';
+                            const minIn = row.querySelector('.feeding-measure-min');
+                            const maxIn = row.querySelector('.feeding-measure-max');
+                            const unitSel = row.querySelector('.feeding-measure-unit');
+                            const stratSel = row.querySelector('.feeding-strategy-value');
+                            const valSel = row.querySelector('.feeding-type-value');
+                            
+                            if (stratSel && stratSel.style.display !== 'none' && stratSel.value !== '') {
+                                valueText = stratSel.options[stratSel.selectedIndex]?.text || stratSel.value;
+                            } else if (valSel && valSel.style.display !== 'none' && valSel.value !== '') {
+                                valueText = valSel.options[valSel.selectedIndex]?.text || valSel.value;
+                            } else if (minIn) {
+                                const minVal = minIn.value.trim();
+                                const maxVal = maxIn ? maxIn.value.trim() : '';
+                                const unitVal = unitSel ? unitSel.value : '';
+                                if (minVal !== '' && maxVal !== '') valueText = `${minVal.replace('.', ',')} - ${maxVal.replace('.', ',')} ${unitVal}`;
+                                else if (minVal !== '') valueText = `${minVal.replace('.', ',')} ${unitVal}`;
+                            }
+                            
+                            if (valueText && valueText.trim() !== '') addSubListItem(subList, labelText, valueText);
+                        });
+                    }
+                    
+                    // 4. ECOLOGIA
+                    else if (map.panelId === 'tabpanel-ecologia') {
+                        const rows = document.querySelectorAll('#tabpanel-ecologia .ecology-row');
+                        rows.forEach(row => {
+                            const typeSel = row.querySelector('.ecology-type');
+                            if (!typeSel) return;
+                            const labelText = typeSel.options[typeSel.selectedIndex]?.text || '';
+                            if (!labelText || labelText.includes('Selecione') || labelText.trim() === '') return;
+                            
+                            const detailSelect = row.querySelector('.ecology-detail-controls select');
+                            const detailInputs = row.querySelectorAll('.ecology-detail-controls input[type="text"]');
+                            
+                            let valueText = '';
+                            if (detailSelect && detailSelect.value !== '') {
+                                valueText = detailSelect.options[detailSelect.selectedIndex]?.text || detailSelect.value;
+                            } else if (detailInputs.length > 0) {
+                                valueText = Array.from(detailInputs).map(inp => inp.value.trim()).filter(v => v !== '').join(', ');
+                            }
+                            
+                            if (valueText && valueText.trim() !== '') addSubListItem(subList, labelText, valueText);
+                        });
+                    }
+                    
+                    // 5. REPRODUÇÃO
+                    else if (map.panelId === 'tabpanel-reproducao') {
+                        const rows = document.querySelectorAll('#tabpanel-reproducao .reproduction-row');
+                        rows.forEach(row => {
+                            const typeSel = row.querySelector('.reproduction-model-kind');
+                            if (!typeSel) return;
+                            const labelText = typeSel.options[typeSel.selectedIndex]?.text || '';
+                            if (!labelText || labelText.includes('Selecione') || labelText.trim() === '') return;
+                            
+                            const minIn = row.querySelector('.reproduction-measure-min');
+                            const maxIn = row.querySelector('.reproduction-measure-max');
+                            const unitSel = row.querySelector('.reproduction-measure-unit');
+                            const stratSel = row.querySelector('.reproduction-strategy-value');
+                            
+                            let valueText = '';
+                            if (stratSel && stratSel.style.display !== 'none' && stratSel.value !== '') {
+                                valueText = stratSel.options[stratSel.selectedIndex]?.text || stratSel.value;
+                            } else if (minIn) {
+                                const minVal = minIn.value.trim();
+                                const maxVal = maxIn ? maxIn.value.trim() : '';
+                                const unitVal = unitSel ? unitSel.value : '';
+                                if (minVal !== '' && maxVal !== '') valueText = `${minVal.replace('.', ',')} - ${maxVal.replace('.', ',')} ${unitVal}`;
+                                else if (minVal !== '') valueText = `${minVal.replace('.', ',')} ${unitVal}`;
+                            }
+                            
+                            if (valueText && valueText.trim() !== '') addSubListItem(subList, labelText, valueText);
+                        });
+                    }
+                    
+                    // 6. DISTRIBUIÇÃO
+                    else if (map.panelId === 'tabpanel-distribuicao') {
+                        const regions = document.querySelectorAll('.selected-regions-container .region-tag, .country-tag-list span');
+                        const regionNames = Array.from(regions).map(tag => tag.textContent.replace('×', '').trim()).filter(t => t !== '');
+                        if (regionNames.length > 0) {
+                            addSubListItem(subList, 'Regiões', regionNames.slice(0, 3).join(', ') + (regionNames.length > 3 ? '...' : ''));
+                        }
+                        
+                        const manualRows = document.querySelectorAll('#distributionManualList tr');
+                        if (manualRows.length > 0) {
+                            addSubListItem(subList, 'Mapa Manual', `${manualRows.length} registos`);
+                        }
+                    }
+                    
+                    // 7. CURIOSIDADES
+                    else if (map.panelId === 'tabpanel-curiosidades') {
+                        const activeCategories = document.querySelectorAll('.curiosidade-card input[type="checkbox"]:checked');
+                        if (activeCategories.length > 0) {
+                            const catNames = Array.from(activeCategories).map(cat => cat.parentNode.textContent.trim());
+                            addSubListItem(subList, 'Categorias', catNames.join(', '));
+                        }
+                    }
+                    
+                    // 8. REVESTIMENTO (PLUMAGEM)
+                    else if (map.panelId === 'tabpanel-plumagem') {
+                        const rows = document.querySelectorAll('#tabpanel-plumagem .plumage-row');
+                        rows.forEach(row => {
+                            const typeSel = row.querySelector('.plumage-model-kind');
+                            if (!typeSel) return;
+                            const labelText = typeSel.options[typeSel.selectedIndex]?.text || '';
+                            if (!labelText || labelText.includes('Selecione') || labelText.trim() === '') return;
+                            
+                            const stratSel = row.querySelector('.plumage-strategy-value');
+                            let valueText = '';
+                            if (stratSel && stratSel.value !== '') {
+                                valueText = stratSel.options[stratSel.selectedIndex]?.text || stratSel.value;
+                            }
+                            
+                            if (valueText && valueText.trim() !== '') addSubListItem(subList, labelText, valueText);
+                        });
+                    }
+                });
+            }
+
+            // Function to search and filter options in the sidebar
+            window.filterSidebarOptions = function() {
+                const searchInput = document.getElementById('sidebarSearchInput');
+                if (!searchInput) return;
+                
+                const query = searchInput.value.toLowerCase().trim();
+                const navItems = document.querySelectorAll('.sidebar-nav-item:not(.divider)');
+                
+                navItems.forEach(item => {
+                    const subList = item.querySelector('.sidebar-sub-list');
+                    const mainText = item.querySelector('span')?.textContent.toLowerCase() || item.textContent.toLowerCase();
+                    
+                    let matchesMain = mainText.includes(query);
+                    let matchesSub = false;
+                    
+                    if (subList) {
+                        const subItems = subList.querySelectorAll('li');
+                        
+                        subItems.forEach(subItem => {
+                            const subText = subItem.textContent.toLowerCase();
+                            if (subText.includes(query)) {
+                                subItem.style.display = '';
+                                matchesSub = true;
+                            } else {
+                                subItem.style.display = 'none';
+                            }
+                        });
+                        
+                        // Show/hide sublist based on search query
+                        if (query !== '') {
+                            subList.style.display = 'flex';
+                        } else {
+                            subList.style.display = '';
+                        }
+                    }
+                    
+                    // Show nav item if it matches query or has matching sub-items
+                    if (matchesMain || matchesSub) {
+                        item.style.setProperty('display', 'flex', 'important');
+                    } else {
+                        item.style.setProperty('display', 'none', 'important');
+                    }
+                });
+                
+                // Handle divider visibility: hide if search is active
+                const divider = document.querySelector('.sidebar-nav-item.divider');
+                if (divider) {
+                    divider.style.display = query !== '' ? 'none' : '';
+                }
+            };
+
+            // Function to update the icons representing the active/filled sections
+            function updateSidebarIcons() {
+                const mappings = [
+                    { type: 'target', val: 'identificacao', panelId: 'identificacao' },
+                    { type: 'target', val: 'classificacao', panelId: 'classificacao' },
+                    { type: 'tab-target', val: 'geral', panelId: 'tabpanel-geral' },
+                    { type: 'tab-target', val: 'dimensoes', panelId: 'tabpanel-dimensoes' },
+                    { type: 'tab-target', val: 'alimentacao', panelId: 'tabpanel-alimentacao' },
+                    { type: 'tab-target', val: 'ecologia', panelId: 'tabpanel-ecologia' },
+                    { type: 'tab-target', val: 'reproducao', panelId: 'tabpanel-reproducao' },
+                    { type: 'tab-target', val: 'distribuicao', panelId: 'tabpanel-distribuicao' },
+                    { type: 'tab-target', val: 'curiosidades', panelId: 'tabpanel-curiosidades' },
+                    { type: 'tab-target', val: 'plumagem', panelId: 'tabpanel-plumagem' },
+                    { type: 'top-target', val: 'rodape', panelId: 'top-tabpanel-rodape' },
+                    { type: 'top-target', val: 'feed', panelId: 'top-tabpanel-feed' }
+                ];
+                
+                mappings.forEach(map => {
+                    let selector = '';
+                    if (map.type === 'target') {
+                        selector = `.sidebar-nav-item[data-target="${map.val}"]`;
+                    } else if (map.type === 'tab-target') {
+                        selector = `.sidebar-nav-item[data-tab-target="${map.val}"]`;
+                    } else {
+                        selector = `.sidebar-nav-item[data-top-target="${map.val}"]`;
+                    }
+                    
+                    const item = document.querySelector(selector);
+                    if (!item) return;
+                    
+                    const indicator = item.querySelector('.nav-status-indicator');
+                    if (!indicator) return;
+                    
+                    const isFilled = checkSectionActive(map.panelId);
+                    if (isFilled) {
+                        indicator.innerHTML = '<i class="fa-solid fa-circle-check" style="color: #4ade80;"></i>';
+                        indicator.title = 'Preenchido / Ativo';
+                    } else {
+                        indicator.innerHTML = '<i class="fa-regular fa-circle" style="opacity: 0.5;"></i>';
+                        indicator.title = 'Vazio / Inativo';
+                    }
+                });
+
+                // Update all sub-lists of parameters
+                updateAllSubLists();
+
+                // Reapply search filter to newly generated sub-lists
+                window.filterSidebarOptions();
+            }
+
+            // Function to reset active state on all sidebar items and set the correct one
+            function updateActiveSidebarItem() {
+                sidebarItems.forEach(item => item.classList.remove('active'));
+                
+                // Determine which one is active
+                const activeTopTab = document.querySelector('.top-level-tab-btn.active');
+                if (!activeTopTab) return;
+                
+                const topTabVal = activeTopTab.dataset.topTab;
+                if (topTabVal === 'rodape') {
+                    const item = document.querySelector('.sidebar-nav-item[data-top-target="rodape"]');
+                    if (item) item.classList.add('active');
+                } else if (topTabVal === 'feed') {
+                    const item = document.querySelector('.sidebar-nav-item[data-top-target="feed"]');
+                    if (item) item.classList.add('active');
+                } else {
+                    // Parâmetros is active. Determine if advanced classification or normal tabs are active/focused
+                    const activeParamTab = document.querySelector('.form-tab-nav-btn.active');
+                    if (activeParamTab && activeParamTab.offsetHeight > 0) {
+                        const tabVal = activeParamTab.dataset.tab;
+                        const item = document.querySelector(`.sidebar-nav-item[data-tab-target="${tabVal}"]`);
+                        if (item) item.classList.add('active');
+                    } else {
+                        // Check if advanced is open or if we are at the top
+                        if (advancedFieldsContainer && advancedFieldsContainer.style.display !== 'none') {
+                            const item = document.querySelector('.sidebar-nav-item[data-target="classificacao"]');
+                            if (item) item.classList.add('active');
+                        } else {
+                            const item = document.querySelector('.sidebar-nav-item[data-target="identificacao"]');
+                            if (item) item.classList.add('active');
+                        }
+                    }
+                }
+                
+                // Also check if plumage tab is visible to show/hide its item in the sidebar
+                const plumageTabBtn = document.getElementById('tab-btn-plumagem');
+                const sidebarPlumageItem = document.getElementById('sidebar-nav-plumagem');
+                if (plumageTabBtn && sidebarPlumageItem) {
+                    if (plumageTabBtn.style.display !== 'none') {
+                        sidebarPlumageItem.style.display = 'flex';
+                    } else {
+                        sidebarPlumageItem.style.display = 'none';
+                    }
+                }
+            }
+            
+            // Handle clicking sidebar items
+            sidebarItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    // 1. Top target click (Rodapé / Feed)
+                    if (item.dataset.topTarget) {
+                        const btn = document.querySelector(`.top-level-tab-btn[data-top-tab="${item.dataset.topTarget}"]`);
+                        if (btn) btn.click();
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }
+                    // 2. Tab target click (Geral, Dimensões, etc.)
+                    else if (item.dataset.tabTarget) {
+                        // Ensure parameters top-tab is active
+                        const paramBtn = document.querySelector('.top-level-tab-btn[data-top-tab="parametros"]');
+                        if (paramBtn && !paramBtn.classList.contains('active')) {
+                            paramBtn.click();
+                        }
+                        // Click the inner tab button
+                        const btn = document.querySelector(`.form-tab-nav-btn[data-tab="${item.dataset.tabTarget}"]`);
+                        if (btn) btn.click();
+                        
+                        // Scroll to the tab wrapper
+                        const wrapper = document.querySelector('.form-tabs-wrapper');
+                        if (wrapper) {
+                            wrapper.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }
+                    }
+                    // 3. Section targets (Identificação / Classificação)
+                    else if (item.dataset.target) {
+                        const paramBtn = document.querySelector('.top-level-tab-btn[data-top-tab="parametros"]');
+                        if (paramBtn && !paramBtn.classList.contains('active')) {
+                            paramBtn.click();
+                        }
+                        
+                        if (item.dataset.target === 'identificacao') {
+                            // Close advanced fields if open
+                            if (advancedFieldsContainer && advancedFieldsContainer.style.display !== 'none' && toggleAdvancedBtn) {
+                                toggleAdvancedBtn.click();
+                            }
+                            const field = document.getElementById('nomeAnimal');
+                            if (field) {
+                                field.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                field.focus();
+                            }
+                        } else if (item.dataset.target === 'classificacao') {
+                            // Open advanced fields if closed
+                            if (advancedFieldsContainer && advancedFieldsContainer.style.display === 'none' && toggleAdvancedBtn) {
+                                toggleAdvancedBtn.click();
+                            }
+                            setTimeout(() => {
+                                const field = document.getElementById('reino');
+                                if (field) {
+                                    field.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                    field.focus();
+                                }
+                            }, 150);
+                        }
+                    }
+                    
+                    setTimeout(updateActiveSidebarItem, 100);
+                });
+            });
+            
+            // Listen to clicks on original buttons to keep active class synced
+            document.addEventListener('click', (e) => {
+                if (e.target.closest('.top-level-tab-btn') || e.target.closest('.form-tab-nav-btn') || e.target.closest('#toggleAdvancedBtn')) {
+                    setTimeout(updateActiveSidebarItem, 150);
+                    setTimeout(updateSidebarIcons, 150);
+                }
+            });
+
+            // Listen to inputs/changes and DOM mutations (adding/removing rows) in the form to dynamically update the sidebar "in live"
+            const form = document.getElementById('animalForm');
+            if (form) {
+                form.addEventListener('input', updateSidebarIcons);
+                form.addEventListener('change', updateSidebarIcons);
+                
+                // Observe DOM mutations to catch row additions/removals instantly
+                const formObserver = new MutationObserver(() => {
+                    updateSidebarIcons();
+                });
+                formObserver.observe(form, { childList: true, subtree: true });
+            }
+            
+            // Initial sync
+            updateActiveSidebarItem();
+            updateSidebarIcons();
+            
+            // Periodically verify if plumage is visible or data changed (fallback)
+            setInterval(() => {
+                updateActiveSidebarItem();
+                updateSidebarIcons();
+            }, 2000);
+        }
+    </script>
 </body>
 </html>

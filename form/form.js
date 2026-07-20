@@ -11,7 +11,7 @@ import { db, auth } from "../js/firebase-config.js?v=5";
         import { getEcologyVisualMeta as getSharedEcologyVisualMeta, getEcologyModelSvg as getSharedEcologyModelSvg } from "../js/ecology-visuals.js?v=2";
         import { getEnvironmentImageMeta } from "../js/environment-image-catalog.js?v=1";
 
-const FORM_JS_VERSION = '61_environment_image_catalog';
+const FORM_JS_VERSION = '65_inat_canonical_name';
 
 const FORM_MODULE_FILES = [
     './modules/form-dropdown-polish.js',
@@ -32,9 +32,14 @@ const FORM_MODULE_FILES = [
     './modules/form-statistics-counter.js',
     './modules/form-parameter-search.js',
     './modules/form-text-import-popup.js',
+    './modules/form-api-config.js',
+    './modules/form-api-iucn-mapping.js',
+    './modules/form-api-auto-fill.js',
     './modules/form-taxonomy-source-import.js',
     './modules/form-distribution-submit.js',
+    './modules/form-distribution-gbif.js',
     './modules/form-rodape-tab.js',
+    './modules/form-feed-tab.js',
     './modules/form-languages.js'
 ];
 

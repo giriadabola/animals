@@ -33,10 +33,11 @@ export async function populateSurvivalLists(allAnimals, db, searchResultsContain
     if (!container) return;
     container.innerHTML = '';
 
-    let order = ["pesquisa-globo", "explorar-biomas", "parametros-visuais", "animais-destaque", "explorar-continentes", "estrategia-alimento", "acasalamento", "zona-climatica", "categoria", "familia", "classificacao-cientifica-niveis", "estatisticas"];
+    let order = ["hero-title", "pesquisa-globo", "explorar-biomas", "parametros-visuais", "animais-destaque", "explorar-continentes", "estrategia-alimento", "acasalamento", "zona-climatica", "categoria", "familia", "classificacao-cientifica-niveis", "estatisticas"];
     let subClassificationOrder = ["reino", "filo", "subfilo", "classe", "superordem", "subordem", "ordem", "familia-sub", "genero", "especie"];
     let subStatsOrder = ["mais-velozes", "mais-vida-util", "mais-altos", "mais-pesados", "mais-largo", "mais-espesso", "maior-envergadura", "gestacao-longa", "mais-crias", "mais-longos", "forca-mordida", "maior-populacao"];
     let active = {
+        "hero-title": true,
         "pesquisa-globo": true,
         "explorar-biomas": true,
         "parametros-visuais": true,
@@ -98,12 +99,13 @@ export async function populateSurvivalLists(allAnimals, db, searchResultsContain
         "oceania": true
     };
 
+    let heroTitleAlign = "center";
     try {
         const settingsSnap = await getDoc(doc(db, "settings", "index-lists"));
         if (settingsSnap.exists()) {
             const data = settingsSnap.data();
             if (data.order) {
-                const defaultOrder = ["pesquisa-globo", "explorar-biomas", "parametros-visuais", "animais-destaque", "explorar-continentes", "estrategia-alimento", "acasalamento", "zona-climatica", "categoria", "familia", "classificacao-cientifica-niveis", "estatisticas"];
+                const defaultOrder = ["hero-title", "pesquisa-globo", "explorar-biomas", "parametros-visuais", "animais-destaque", "explorar-continentes", "estrategia-alimento", "acasalamento", "zona-climatica", "categoria", "familia", "classificacao-cientifica-niveis", "estatisticas"];
                 order = data.order.filter(key => defaultOrder.includes(key));
                 defaultOrder.forEach(key => {
                     if (!order.includes(key)) order.push(key);
@@ -116,9 +118,32 @@ export async function populateSurvivalLists(allAnimals, db, searchResultsContain
                 visibleContinents = { ...visibleContinents, ...data.continents };
             }
             if (data.cardLimits) cardLimits = data.cardLimits;
+            if (data.heroTitleAlign) heroTitleAlign = data.heroTitleAlign;
         }
     } catch (err) {
         console.error("Erro ao carregar settings do index:", err);
+    }
+
+    // Apply Title settings (On/Off and Alignment/Position)
+    const heroSection = document.querySelector('.hero-section');
+    if (heroSection) {
+        const isTitleActive = active['hero-title'] !== false;
+        heroSection.style.display = isTitleActive ? '' : 'none';
+        
+        heroSection.style.textAlign = heroTitleAlign;
+        const h1 = heroSection.querySelector('h1');
+        if (h1) {
+            if (heroTitleAlign === 'left') {
+                h1.style.marginLeft = '0';
+                h1.style.marginRight = 'auto';
+            } else if (heroTitleAlign === 'right') {
+                h1.style.marginLeft = 'auto';
+                h1.style.marginRight = '0';
+            } else {
+                h1.style.marginLeft = 'auto';
+                h1.style.marginRight = 'auto';
+            }
+        }
     }
 
     function extractNumericMetric(details, searchKeys, exactMatch = false) {
@@ -196,6 +221,7 @@ export async function populateSurvivalLists(allAnimals, db, searchResultsContain
     const visualPeriodicCard = document.querySelector('.visual-periodic-card');
 
     order.forEach(key => {
+        if (key === 'hero-title') return;
         if (!active[key]) {
             if (key === 'pesquisa-globo' && globeCard) {
                 globeCard.style.display = 'none';
