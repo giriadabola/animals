@@ -1,4 +1,4 @@
-const CACHE_NAME = 'animals-app-v20260718-footer-labels-v1';
+const CACHE_NAME = 'animals-app-v20260720-filters-tab-v9';
 
 const ASSETS_TO_CACHE = [
   './',
