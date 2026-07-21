@@ -273,6 +273,9 @@ export function injectHeader() {
             </a>
             <div id="header-center-info" style="display: flex; justify-content: center; align-items: center;"></div>
             <nav class="nav-links" style="display: flex; align-items: center; gap: 15px;">
+                <span id="header-auth-section" class="hide-on-mobile" style="display: flex; align-items: center; gap: 15px; margin-left: 10px;">
+                    <!-- Auth info dynamically inserted -->
+                </span>
                 ${!isHome && !isForm ? `
                 <div class="header-search-wrapper" style="position: relative; display: flex; align-items: center;">
                     <div id="header-search-container">
@@ -284,9 +287,6 @@ export function injectHeader() {
                     <div id="headerSearchResults" style="display: none; position: absolute; right: 0; top: calc(100% + 12px); background: rgba(9, 12, 28, 0.95); backdrop-filter: blur(20px); border: 1px solid var(--border-color); border-radius: var(--border-radius-sm); padding: 12px; width: 320px; box-shadow: var(--shadow-lg); z-index: 1010; flex-direction: column; gap: 4px; box-sizing: border-box;"></div>
                 </div>
                 ` : ''}
-                <span id="header-auth-section" class="hide-on-mobile" style="display: flex; align-items: center; gap: 15px; margin-left: 10px;">
-                    <!-- Auth info dynamically inserted -->
-                </span>
             </nav>
         </div>
     `;
@@ -430,17 +430,16 @@ export function injectHeader() {
                         gerirPortalLink.id = 'nav-link-gerir-portal';
                         gerirPortalLink.href = isForm ? 'form.html' : 'form/form.html';
                         gerirPortalLink.className = `nav-link ${isForm ? 'active' : ''}`;
-                        gerirPortalLink.innerHTML = `<i class="fa-solid fa-sliders"></i> Gerir Portal`;
+                        gerirPortalLink.style.fontSize = '1.25rem';
+                        gerirPortalLink.style.display = 'inline-flex';
+                        gerirPortalLink.style.alignItems = 'center';
+                        gerirPortalLink.title = 'Gerir Portal';
+                        gerirPortalLink.ariaLabel = 'Gerir Portal';
                         authSection.parentNode.insertBefore(gerirPortalLink, authSection);
                     }
+                    gerirPortalLink.innerHTML = `<i class="fa-solid fa-sliders"></i>`;
                 } else {
                     if (gerirPortalLink) gerirPortalLink.remove();
-                }
-
-                // Atualizar nome no cabeçalho
-                const userNameEl = document.getElementById('header-user-name');
-                if (userNameEl) {
-                    userNameEl.textContent = nome;
                 }
             }, (err) => {
                 console.error("Erro ao escutar dados do perfil:", err);
@@ -470,26 +469,10 @@ export function injectHeader() {
 
             const profileHref = isForm ? '../myperfil.html' : 'myperfil.html';
             authSection.innerHTML = `
-                <a href="${profileHref}" aria-label="Abrir o meu perfil" title="O meu perfil" style="font-size: 0.85rem; color: var(--text-secondary); display: inline-flex; align-items: center; gap: 6px; text-decoration: none; cursor: pointer;">
+                <a href="${profileHref}" aria-label="O meu perfil" title="O meu perfil" style="font-size: 1.25rem; color: var(--text-secondary); display: inline-flex; align-items: center; justify-content: center; text-decoration: none; cursor: pointer;">
                     <i class="fa-solid fa-circle-user" style="color: var(--primary-color);"></i>
-                    Olá, <strong id="header-user-name">${user.displayName || user.email.split('@')[0]}</strong>
                 </a>
-                <button id="logout-btn" class="nav-link" style="background: none; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; padding: 0;">
-                    <i class="fa-solid fa-right-from-bracket"></i> Sair
-                </button>
             `;
-            document.getElementById('logout-btn').addEventListener('click', async () => {
-                if (unsubscribeProfile) {
-                    unsubscribeProfile();
-                    unsubscribeProfile = null;
-                }
-                if (unsubscribeAnimais) {
-                    unsubscribeAnimais();
-                    unsubscribeAnimais = null;
-                }
-                await signOut(auth);
-                window.location.href = 'index.html';
-            });
         } else {
             if (gerirPortalLink) gerirPortalLink.remove();
             if (centerInfo) centerInfo.innerHTML = '';

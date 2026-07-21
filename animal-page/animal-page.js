@@ -4334,8 +4334,6 @@ import { renderAnimalGallery } from "../js/animal-gallery.js?v=2";
                                     </div>
                                     <div class="top-card-divider"></div>
                                     <div class="left-column-actions">
-                                        <button type="button" class="left-action-btn" aria-label="Gostar"><i class="fa-regular fa-heart"></i></button>
-                                        <button type="button" class="left-action-btn" aria-label="Lista"><i class="fa-solid fa-list-ul"></i></button>
                                         <button type="button" class="left-action-btn" aria-label="Partilhar"><i class="fa-solid fa-share-nodes"></i></button>
                                     </div>
                                 </div>

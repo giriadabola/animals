@@ -52,6 +52,22 @@ function injectStyles() {
     .profile-action-message{position:fixed;left:50%;bottom:28px;z-index:100001;transform:translateX(-50%);background:#20243d;color:#fff;border:1px solid rgba(255,255,255,.12);border-radius:999px;padding:11px 18px;font-weight:800;box-shadow:0 14px 35px rgba(0,0,0,.4)}
     .animal-showcase-like.is-active{color:#ff82bc!important;background:rgba(236,72,153,.22)!important;border-color:rgba(236,72,153,.62)!important}
     .animal-showcase-like.is-active svg{fill:currentColor}
+    .bookmark-modal-backdrop{position:fixed;inset:0;z-index:100000;background:rgba(3,5,16,.78);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;padding:20px;animation:fadeInBookmark 0.2s ease-out}
+    .bookmark-modal{position:relative;box-sizing:border-box;width:min(340px,100%);border:1px solid rgba(255,255,255,.13);border-radius:26px;background:linear-gradient(180deg,#15182d 0%,#111426 100%);color:#eef1fa;box-shadow:0 32px 90px rgba(0,0,0,.62);padding:32px 24px 28px;text-align:center;animation:scaleInBookmark 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards}
+    @keyframes fadeInBookmark{from{opacity:0}to{opacity:1}}
+    @keyframes scaleInBookmark{from{transform:scale(0.9);opacity:0}to{transform:scale(1);opacity:1}}
+    .bookmark-modal h3{margin:0 0 20px;font-size:1.25rem;font-weight:700;color:#fff;letter-spacing:-0.01em}
+    .bookmark-modal-close{position:absolute;top:16px;right:16px;display:grid;place-items:center;border:none;border-radius:50%;width:32px;height:32px;background:rgba(255,255,255,.05);color:rgba(255,255,255,.6);font-size:20px;cursor:pointer;transition:all 0.2s ease}
+    .bookmark-modal-close:hover{background:rgba(255,255,255,.15);color:#fff;transform:rotate(90deg)}
+    .bookmark-modal-buttons{display:flex;gap:20px;justify-content:center;width:100%}
+    .bookmark-modal-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;width:100px;height:100px;border-radius:20px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);color:#fff;cursor:pointer;transition:all 0.25s cubic-bezier(0.4, 0, 0.2, 1)}
+    .bookmark-modal-btn svg{width:28px;height:28px;fill:none;stroke:currentColor;stroke-width:2.2}
+    .bookmark-modal-btn span{font-size:0.8rem;font-weight:600;opacity:0.8}
+    .bookmark-modal-btn:hover{background:rgba(139,92,246,.15);border-color:rgba(139,92,246,.4);transform:translateY(-4px);box-shadow:0 10px 20px rgba(139,92,246,.15)}
+    .bookmark-modal-btn.fav-btn.is-active{color:#ff82bc;border-color:rgba(236,72,153,.62);background:rgba(236,72,153,.13);box-shadow:0 10px 25px rgba(236,72,153,0.25)}
+    .bookmark-modal-btn.fav-btn.is-active svg{fill:currentColor}
+    .bookmark-modal-btn.lists-btn:hover{background:rgba(16,185,129,.15);border-color:rgba(16,185,129,.4);box-shadow:0 10px 20px rgba(16,185,129,.15)}
+    .bookmark-btn.is-active{color:#ff82bc!important}
   `;
   document.head.appendChild(style);
 }
@@ -109,38 +125,152 @@ async function openListsModal(user, animalId) {
 }
 function escapeHtml(value='') { return String(value).replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c])); }
 
+async function openBookmarkActionsModal(user, animalId, profile, updateBookmarkUI) {
+  const backdrop = document.createElement('div');
+  backdrop.className = 'bookmark-modal-backdrop';
+  
+  let active = profile.favorites.includes(animalId);
+  
+  backdrop.innerHTML = `
+    <div class="bookmark-modal" role="dialog" aria-modal="true">
+      <button type="button" class="bookmark-modal-close" aria-label="Fechar">×</button>
+      <h3>Ações do Animal</h3>
+      <div class="bookmark-modal-buttons">
+        <button type="button" class="bookmark-modal-btn fav-btn ${active ? 'is-active' : ''}" title="Favoritar">
+          ${icon('heart')}
+          <span>Favorito</span>
+        </button>
+        <button type="button" class="bookmark-modal-btn lists-btn" title="Adicionar a listas">
+          ${icon('list')}
+          <span>Listas</span>
+        </button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(backdrop);
+  
+  const close = () => backdrop.remove();
+  backdrop.querySelector('.bookmark-modal-close').onclick = close;
+  backdrop.onclick = e => { if (e.target === backdrop) close(); };
+  
+  const favBtn = backdrop.querySelector('.fav-btn');
+  const listsBtn = backdrop.querySelector('.lists-btn');
+  
+  favBtn.onclick = async () => {
+    favBtn.disabled = true;
+    try {
+      const ref = doc(db, 'users', user.uid);
+      await updateDoc(ref, { favorites: active ? arrayRemove(animalId) : arrayUnion(animalId) });
+      active = !active;
+      profile.favorites = active 
+        ? [...new Set([...profile.favorites, animalId])] 
+        : profile.favorites.filter(id => id !== animalId);
+      writeCache(user.uid, profile);
+      
+      favBtn.classList.toggle('is-active', active);
+      
+      document.querySelectorAll('.favorite-action').forEach(f => {
+        f.classList.toggle('is-active', active);
+        f.setAttribute('aria-label', active ? 'Remover dos favoritos' : 'Favoritar');
+        f.title = active ? 'Remover dos favoritos' : 'Favoritar';
+      });
+      
+      updateBookmarkUI(active);
+      
+      if (active) burst(favBtn);
+      toast(active ? 'Animal adicionado aos favoritos.' : 'Animal removido dos favoritos.');
+    } catch (e) {
+      console.error(e);
+      toast('Não foi possível atualizar os favoritos.');
+    }
+    favBtn.disabled = false;
+  };
+  
+  listsBtn.onclick = () => {
+    close();
+    openListsModal(user, animalId);
+  };
+}
+
 export function initAnimalProfileActions({ animalId }) {
   injectStyles();
   document.querySelectorAll('#animal-profile-actions').forEach(mount => {
     mount.hidden = true;
   });
+  
+  const bookmarkBtns = document.querySelectorAll('.bookmark-btn');
   const allMediaActions = document.querySelectorAll('.animal-media-actions');
-  if (!allMediaActions.length || !animalId) return;
 
-  allMediaActions.forEach(mediaActions => {
-    mediaActions.querySelectorAll('.profile-media-action').forEach(button => button.remove());
-    mediaActions.insertAdjacentHTML('beforeend', `
-      <button type="button" class="animal-media-action profile-media-action favorite-action" aria-label="Favoritar" title="Favoritar">${icon('heart')}</button>
-      <button type="button" class="animal-media-action profile-media-action lists-action" aria-label="Adicionar a listas" title="Adicionar a listas">${icon('list')}</button>
-    `);
-
-    const fav = mediaActions.querySelector('.favorite-action');
-    const lists = mediaActions.querySelector('.lists-action');
-    onAuthStateChanged(auth, async user => {
-      mediaActions.querySelector('.edit-suggestion-action')?.remove();
-
-      if (!user) {
-        fav.onclick = lists.onclick = () => { location.href = `login.html?redirect=${encodeURIComponent(location.href)}`; };
-        return;
+  // Wire up Share buttons in top card or elsewhere
+  document.querySelectorAll('.left-column-actions .left-action-btn[aria-label="Partilhar"]').forEach(btn => {
+    btn.onclick = () => {
+      if (navigator.share) {
+        navigator.share({
+          title: document.title,
+          url: window.location.href
+        }).catch(console.error);
+      } else {
+        navigator.clipboard.writeText(window.location.href);
+        toast('Link copiado para a área de transferência!');
       }
+    };
+  });
 
+  if (!animalId) return;
+
+  onAuthStateChanged(auth, async user => {
+    if (!user) {
+      const handleLoginRedirect = () => {
+        location.href = `login.html?redirect=${encodeURIComponent(location.href)}`;
+      };
+      
+      bookmarkBtns.forEach(btn => btn.onclick = handleLoginRedirect);
+      
+      allMediaActions.forEach(mediaActions => {
+        mediaActions.querySelectorAll('.profile-media-action').forEach(button => button.remove());
+        mediaActions.insertAdjacentHTML('beforeend', `
+          <button type="button" class="animal-media-action profile-media-action favorite-action" aria-label="Favoritar" title="Favoritar">${icon('heart')}</button>
+          <button type="button" class="animal-media-action profile-media-action lists-action" aria-label="Adicionar a listas" title="Adicionar a listas">${icon('list')}</button>
+        `);
+        const fav = mediaActions.querySelector('.favorite-action');
+        const lists = mediaActions.querySelector('.lists-action');
+        fav.onclick = lists.onclick = handleLoginRedirect;
+      });
+      return;
+    }
+
+    await ensureUserDoc(user);
+    let profile = await getUserProfile(user.uid);
+    let active = profile.favorites.includes(animalId);
+
+    const updateBookmarkUI = (isActive) => {
+      bookmarkBtns.forEach(btn => {
+        btn.classList.toggle('is-active', isActive);
+        const iEl = btn.querySelector('i');
+        if (iEl) iEl.className = isActive ? 'fa-solid fa-bookmark' : 'fa-regular fa-bookmark';
+      });
+    };
+
+    updateBookmarkUI(active);
+
+    bookmarkBtns.forEach(bookmarkBtn => {
+      bookmarkBtn.onclick = () => {
+        openBookmarkActionsModal(user, animalId, profile, updateBookmarkUI);
+      };
+    });
+
+    allMediaActions.forEach(mediaActions => {
+      mediaActions.querySelectorAll('.profile-media-action').forEach(button => button.remove());
       mediaActions.insertAdjacentHTML('beforeend', `
+        <button type="button" class="animal-media-action profile-media-action favorite-action" aria-label="Favoritar" title="Favoritar">${icon('heart')}</button>
+        <button type="button" class="animal-media-action profile-media-action lists-action" aria-label="Adicionar a listas" title="Adicionar a listas">${icon('list')}</button>
         <button type="button" class="animal-media-action profile-media-action edit-suggestion-action" aria-label="Sugerir edição" title="Sugerir edição">${icon('edit')}</button>
       `);
+
+      const fav = mediaActions.querySelector('.favorite-action');
+      const lists = mediaActions.querySelector('.lists-action');
       const edit = mediaActions.querySelector('.edit-suggestion-action');
 
-      await ensureUserDoc(user);
-      let profile = await getUserProfile(user.uid);
       edit.onclick = () => {
         const role = String(profile.rule || '').toLowerCase();
         const status = String(profile.status || '').toLowerCase();
@@ -149,24 +279,40 @@ export function initAnimalProfileActions({ animalId }) {
           ? `form/form.html?edit=${encodeURIComponent(animalId)}&mode=suggestion`
           : `myperfil.html?tab=contribute`;
       };
-      let active = profile.favorites.includes(animalId);
-      const paint = () => { fav.classList.toggle('is-active', active); fav.setAttribute('aria-label', active ? 'Remover dos favoritos' : 'Favoritar'); fav.title = active ? 'Remover dos favoritos' : 'Favoritar'; };
-      paint();
+
+      const paintFav = () => {
+        fav.classList.toggle('is-active', active);
+        fav.setAttribute('aria-label', active ? 'Remover dos favoritos' : 'Favoritar');
+        fav.title = active ? 'Remover dos favoritos' : 'Favoritar';
+      };
+      paintFav();
+
       fav.onclick = async () => {
         fav.disabled = true;
         try {
           const ref = doc(db, 'users', user.uid);
           await updateDoc(ref, { favorites: active ? arrayRemove(animalId) : arrayUnion(animalId) });
-          active = !active; profile.favorites = active ? [...new Set([...profile.favorites, animalId])] : profile.favorites.filter(id => id !== animalId); writeCache(user.uid, profile);
+          active = !active;
+          profile.favorites = active ? [...new Set([...profile.favorites, animalId])] : profile.favorites.filter(id => id !== animalId);
+          writeCache(user.uid, profile);
+          
           document.querySelectorAll('.favorite-action').forEach(f => {
             f.classList.toggle('is-active', active);
             f.setAttribute('aria-label', active ? 'Remover dos favoritos' : 'Favoritar');
             f.title = active ? 'Remover dos favoritos' : 'Favoritar';
           });
-          if (active) burst(fav); toast(active ? 'Animal adicionado aos favoritos.' : 'Animal removido dos favoritos.');
-        } catch (e) { console.error(e); toast('Não foi possível atualizar os favoritos.'); }
+          
+          updateBookmarkUI(active);
+          
+          if (active) burst(fav);
+          toast(active ? 'Animal adicionado aos favoritos.' : 'Animal removido dos favoritos.');
+        } catch (e) {
+          console.error(e);
+          toast('Não foi possível atualizar os favoritos.');
+        }
         fav.disabled = false;
       };
+
       lists.onclick = () => openListsModal(user, animalId);
     });
   });
