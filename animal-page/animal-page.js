@@ -8,11 +8,11 @@ import { getWikidataLocalizedNames } from "../js/wikidata-search.js?v=20260717_l
         import { matingSystems, getMatingMeta, getMatingSystemSvg } from "../js/mating-systems.js?v=3";
         import { sexualSystems } from "../js/sexual-systems.js?v=1";
         import { ecologyBlockConfigs, getEcologyBlockSvg } from "../js/ecology-visuals.js?v=20260714_ecology_models";
-        import { getGeneralVisualMeta as getGeneralVisualCatalogMeta, getGeneralModelSvg as getGeneralCatalogModelSvg, getActivityMeta, getActivitySvg, getSocialMeta, getSocialSvg, getEcologicalFunctionMeta, getEcologicalFunctionSvg, getLocomotionMeta, getLocomotionSvg, isDropdownOnlyGeneralModel as isDropdownOnlyGeneralCatalogModel } from "../js/general-visual-catalog.js?v=20260714_ecology_models";
+        import { getGeneralVisualMeta as getGeneralVisualCatalogMeta, getGeneralModelSvg as getGeneralCatalogModelSvg, getActivityMeta, getActivitySvg, getSocialMeta, getSocialSvg, getEcologicalFunctionMeta, getEcologicalFunctionSvg, getLocomotionMeta, getLocomotionSvg, isDropdownOnlyGeneralModel as isDropdownOnlyGeneralCatalogModel, normalizeGeneralVisualKey } from "../js/general-visual-catalog.js?v=20260714_ecology_models";
         import { getRestingPlaceMaterialSvg } from "../js/resting-place-materials.js?v=1";
         import { collapseCombinedGenderItems, collectConcreteGenders, genderMatchesSelection, normalizeGenderValue } from "../js/gender-utils.js?v=3";
         import { renderAnimalMediaBlock, initAnimalMediaBlock, initFooterAnatomyTabs } from "../js/animal-media-block.js?v=3";
-        import { renderAnimalAudioThumbnail, initAnimalAudioControls, pauseAllAnimalAudio } from "../js/animal-audio.js?v=20260710_audio_4";
+        import { renderAnimalAudioThumbnail, initAnimalAudioControls, pauseAllAnimalAudio, getAnimalAudioId } from "../js/animal-audio.js?v=20260710_audio_4";
         import { initAnimalProfileActions } from "../js/profile-favorites.js?v=4";
 import { POPULATION_RANKING_KEY } from "../js/ranking-metrics.js?v=1";
 import { getConservationStatusMeta, initConservationStatusPopup } from "../js/conservation-status-popup.js?v=1";
@@ -36,7 +36,7 @@ import { initEcologicalFunctionPopup } from "../js/ecological-function-popup.js?
 import { initMatingSystemPopup } from "../js/mating-system-popup.js?v=2";
 import { initSexualSystemPopup } from "../js/sexual-system-popup.js?v=1";
 import { initBiogeographicRegionPopup } from "../js/biogeographic-regions-popup.js?v=1";
-import { getCommunicationGenericModelSvg } from "../js/communication-visuals.js?v=3";
+import { getCommunicationGenericModelSvg, getCommunicationModelSvg } from "../js/communication-visuals.js?v=3";
 import { initCommunicationTypePopup } from "../js/communication-type-popup.js?v=1";
 import { initEcologyRelationsPopup } from "../js/ecology-relations-popup.js?v=1";
 import { initEnvironmentVisualPopup } from "../js/environment-visual-popup.js?v=1";
@@ -340,8 +340,8 @@ import { renderAnimalGallery } from "../js/animal-gallery.js?v=2";
                 <article class="dimension-model-card ${meta.accent}" data-gender="${item.genero || ''}" data-phase="${item.fase || 'Adulto'}" data-info-group="dimensoes">
                     <div class="dimension-model-icon">${getMetricModelSvg(meta.key)}</div>
                     <div class="dimension-model-copy">
-                        <div class="dimension-model-label${inlineGenderSymbol ? ' with-gender' : ''}">${escapeHtml(meta.title)}${inlineGenderSymbol}</div>
-                        <div class="dimension-model-value">${formatDimension(item, '—')}</div>
+                        <div class="dimension-model-label${inlineGenderSymbol ? ' with-gender' : ''}">${formatDimension(item, '—')}${inlineGenderSymbol}</div>
+                        <div class="dimension-model-value">${escapeHtml(meta.title)}</div>
                     </div>
                 </article>`;
         }
@@ -372,8 +372,8 @@ import { renderAnimalGallery } from "../js/animal-gallery.js?v=2";
                 <article class="dimension-model-card visual-model-group-card ${meta.accent}" data-info-group="dimensoes"${visible ? '' : ' style="display: none;"'}>
                     <div class="dimension-model-icon">${getMetricModelSvg(meta.key)}</div>
                     <div class="dimension-model-copy">
-                        <div class="dimension-model-label">${escapeHtml(meta.title)}</div>
-                        <div class="general-model-values">${rows}</div>
+                        <div class="general-model-values dimension-model-label">${rows}</div>
+                        <div class="dimension-model-value">${escapeHtml(meta.title)}</div>
                     </div>
                 </article>`;
         }
@@ -757,8 +757,8 @@ import { renderAnimalGallery } from "../js/animal-gallery.js?v=2";
                 <button type="button" class="dimension-model-card general-model-card visual-model-group-card perception-type-popup-trigger ${meta.accent}" data-info-group="${infoGroup}" data-perception-type-popup data-perception-types="${escapeHtml(JSON.stringify(selectedTypes))}" aria-haspopup="dialog" aria-label="Ver os tipos de perceção e respetivos modelos visuais"${visible ? '' : ' style="display: none;"'}>
                     <div class="dimension-model-icon">${getGeneralModelSvg(meta.key)}</div>
                     <div class="dimension-model-copy perception-model-copy">
-                        <div class="dimension-model-label">${escapeHtml(meta.title)}</div>
-                        <div class="general-model-values">${rows}</div>
+                        <div class="general-model-values dimension-model-label">${rows}</div>
+                        <div class="dimension-model-value">${escapeHtml(meta.title)}</div>
                     </div>
                 </button>`;
             return card;
@@ -839,8 +839,8 @@ import { renderAnimalGallery } from "../js/animal-gallery.js?v=2";
                 <button type="button" class="dimension-model-card general-model-card visual-model-group-card perception-type-popup-trigger social-type-popup-trigger ${meta.accent}" data-info-group="${infoGroup}" data-social-type-popup data-social-types="${escapeHtml(JSON.stringify(selectedTypes))}" aria-haspopup="dialog" aria-label="Ver os tipos de vida social e respetivos modelos visuais"${visible ? '' : ' style="display: none;"'}>
                     <div class="dimension-model-icon">${getGeneralModelSvg(meta.key)}</div>
                     <div class="dimension-model-copy perception-model-copy">
-                        <div class="dimension-model-label">${escapeHtml(meta.title)}</div>
-                        <div class="general-model-values">${rows}</div>
+                        <div class="general-model-values dimension-model-label">${rows}</div>
+                        <div class="dimension-model-value">${escapeHtml(meta.title)}</div>
                     </div>
                 </button>`;
         }
@@ -858,7 +858,7 @@ import { renderAnimalGallery } from "../js/animal-gallery.js?v=2";
             }).join('');
             return `<button type="button" class="dimension-model-card general-model-card visual-model-group-card perception-type-popup-trigger ${meta.accent}" data-info-group="${infoGroup}" data-skeleton-type-popup data-skeleton-types="${escapeHtml(JSON.stringify(selectedTypes))}" aria-haspopup="dialog" aria-label="Ver os tipos de esqueleto e respetivas explicações"${visible ? '' : ' style="display: none;"'}>
                 <div class="dimension-model-icon">${getGeneralModelSvg(meta.key)}</div>
-                <div class="dimension-model-copy perception-model-copy"><div class="dimension-model-label">${escapeHtml(meta.title)}</div><div class="general-model-values">${rows}</div></div>
+                <div class="dimension-model-copy perception-model-copy"><div class="general-model-values dimension-model-label">${rows}</div><div class="dimension-model-value">${escapeHtml(meta.title)}</div></div>
             </button>`;
         }
 
@@ -875,7 +875,7 @@ import { renderAnimalGallery } from "../js/animal-gallery.js?v=2";
             }).join('');
             return `<button type="button" class="dimension-model-card general-model-card visual-model-group-card perception-type-popup-trigger ${meta.accent}" data-info-group="${infoGroup}" data-thermoregulation-popup data-thermoregulation-types="${escapeHtml(JSON.stringify(selectedTypes))}" aria-haspopup="dialog" aria-label="Ver os tipos de termorregulação e respetivas explicações"${visible ? '' : ' style="display: none;"'}>
                 <div class="dimension-model-icon">${getGeneralModelSvg(meta.key)}</div>
-                <div class="dimension-model-copy perception-model-copy"><div class="dimension-model-label">${escapeHtml(meta.title)}</div><div class="general-model-values">${rows}</div></div>
+                <div class="dimension-model-copy perception-model-copy"><div class="general-model-values dimension-model-label">${rows}</div><div class="dimension-model-value">${escapeHtml(meta.title)}</div></div>
             </button>`;
         }
 
@@ -892,7 +892,7 @@ import { renderAnimalGallery } from "../js/animal-gallery.js?v=2";
             }).join('');
             return `<button type="button" class="dimension-model-card general-model-card visual-model-group-card perception-type-popup-trigger ${meta.accent}" data-info-group="${infoGroup}" data-body-symmetry-popup data-body-symmetry-types="${escapeHtml(JSON.stringify(selectedTypes))}" aria-haspopup="dialog" aria-label="Ver os tipos de simetria corporal e respetivas explicações"${visible ? '' : ' style="display: none;"'}>
                 <div class="dimension-model-icon">${getGeneralModelSvg(meta.key)}</div>
-                <div class="dimension-model-copy perception-model-copy"><div class="dimension-model-label">${escapeHtml(meta.title)}</div><div class="general-model-values">${rows}</div></div>
+                <div class="dimension-model-copy perception-model-copy"><div class="general-model-values dimension-model-label">${rows}</div><div class="dimension-model-value">${escapeHtml(meta.title)}</div></div>
             </button>`;
         }
 
@@ -908,7 +908,7 @@ import { renderAnimalGallery } from "../js/animal-gallery.js?v=2";
                 return `<div class="general-model-value-row" data-gender="${escapeHtml(item.genero || '')}" data-phase="${escapeHtml(item.fase || 'Adulto')}" data-info-group="${infoGroup}"${isVisible ? '' : ' style="display: none;"'}>${renderInlineGenderSymbol(item)}${escapeHtml(value)}</div>`;
             }).join('');
             return `<button type="button" class="dimension-model-card general-model-card visual-model-group-card perception-type-popup-trigger ${meta.accent}" data-info-group="${infoGroup}" data-ecological-stratum-popup data-ecological-stratum-types="${escapeHtml(JSON.stringify(selectedTypes))}" aria-haspopup="dialog" aria-label="Ver os estratos ecológicos e respetivas explicações"${visible ? '' : ' style="display: none;"'}>
-                <div class="dimension-model-icon">${getGeneralModelSvg(meta.key)}</div><div class="dimension-model-copy perception-model-copy"><div class="dimension-model-label">${escapeHtml(meta.title)}</div><div class="general-model-values">${rows}</div></div>
+                <div class="dimension-model-icon">${getGeneralModelSvg(meta.key)}</div><div class="dimension-model-copy perception-model-copy"><div class="general-model-values dimension-model-label">${rows}</div><div class="dimension-model-value">${escapeHtml(meta.title)}</div></div>
             </button>`;
         }
 
@@ -924,7 +924,7 @@ import { renderAnimalGallery } from "../js/animal-gallery.js?v=2";
                 return `<div class="general-model-value-row" data-gender="${escapeHtml(item.genero || '')}" data-phase="${escapeHtml(item.fase || 'Adulto')}" data-info-group="${infoGroup}"${isVisible ? '' : ' style="display: none;"'}>${renderInlineGenderSymbol(item)}${escapeHtml(value)}</div>`;
             }).join('');
             return `<button type="button" class="dimension-model-card general-model-card visual-model-group-card perception-type-popup-trigger ${meta.accent}" data-info-group="${infoGroup}" data-group-composition-popup data-group-composition-types="${escapeHtml(JSON.stringify(selectedTypes))}" aria-haspopup="dialog" aria-label="Ver as composições de grupo e respetivas explicações"${visible ? '' : ' style="display: none;"'}>
-                <div class="dimension-model-icon">${getGeneralModelSvg(meta.key)}</div><div class="dimension-model-copy perception-model-copy"><div class="dimension-model-label">${escapeHtml(meta.title)}</div><div class="general-model-values">${rows}</div></div>
+                <div class="dimension-model-icon">${getGeneralModelSvg(meta.key)}</div><div class="dimension-model-copy perception-model-copy"><div class="general-model-values dimension-model-label">${rows}</div><div class="dimension-model-value">${escapeHtml(meta.title)}</div></div>
             </button>`;
         }
 
@@ -940,7 +940,7 @@ import { renderAnimalGallery } from "../js/animal-gallery.js?v=2";
                 return `<div class="general-model-value-row" data-gender="${escapeHtml(item.genero || '')}" data-phase="${escapeHtml(item.fase || 'Adulto')}" data-info-group="${infoGroup}"${isVisible ? '' : ' style="display: none;"'}>${renderInlineGenderSymbol(item)}${escapeHtml(value)}</div>`;
             }).join('');
             return `<button type="button" class="dimension-model-card general-model-card visual-model-group-card perception-type-popup-trigger ${meta.accent}" data-info-group="${infoGroup}" data-locomotion-popup data-locomotion-types="${escapeHtml(JSON.stringify(selectedTypes))}" aria-haspopup="dialog" aria-label="Ver os tipos de locomoção e respetivas explicações"${visible ? '' : ' style="display: none;"'}>
-                <div class="dimension-model-icon">${getGeneralModelSvg(meta.key)}</div><div class="dimension-model-copy perception-model-copy"><div class="dimension-model-label">${escapeHtml(meta.title)}</div><div class="general-model-values">${rows}</div></div>
+                <div class="dimension-model-icon">${getGeneralModelSvg(meta.key)}</div><div class="dimension-model-copy perception-model-copy"><div class="general-model-values dimension-model-label">${rows}</div><div class="dimension-model-value">${escapeHtml(meta.title)}</div></div>
             </button>`;
         }
 
@@ -956,7 +956,7 @@ import { renderAnimalGallery } from "../js/animal-gallery.js?v=2";
                 return `<div class="general-model-value-row" data-gender="${escapeHtml(item.genero || '')}" data-phase="${escapeHtml(item.fase || 'Adulto')}" data-info-group="${infoGroup}"${isVisible ? '' : ' style="display: none;"'}>${renderInlineGenderSymbol(item)}${escapeHtml(value)}</div>`;
             }).join('');
             return `<button type="button" class="dimension-model-card general-model-card visual-model-group-card perception-type-popup-trigger ${meta.accent}" data-info-group="${infoGroup}" data-kinship-lineage-popup data-kinship-lineage-types="${escapeHtml(JSON.stringify(selectedTypes))}" aria-haspopup="dialog" aria-label="Ver os tipos de parentesco e linhagem social e respetivas explicações"${visible ? '' : ' style="display: none;"'}>
-                <div class="dimension-model-icon">${getGeneralModelSvg(meta.key)}</div><div class="dimension-model-copy perception-model-copy"><div class="dimension-model-label">${escapeHtml(meta.title)}</div><div class="general-model-values">${rows}</div></div>
+                <div class="dimension-model-icon">${getGeneralModelSvg(meta.key)}</div><div class="dimension-model-copy perception-model-copy"><div class="general-model-values dimension-model-label">${rows}</div><div class="dimension-model-value">${escapeHtml(meta.title)}</div></div>
             </button>`;
         }
 
@@ -972,7 +972,7 @@ import { renderAnimalGallery } from "../js/animal-gallery.js?v=2";
                 return `<div class="general-model-value-row" data-gender="${escapeHtml(item.genero || '')}" data-phase="${escapeHtml(item.fase || 'Adulto')}" data-info-group="${infoGroup}"${isVisible ? '' : ' style="display: none;"'}>${renderInlineGenderSymbol(item)}${escapeHtml(value)}</div>`;
             }).join('');
             return `<button type="button" class="dimension-model-card general-model-card visual-model-group-card perception-type-popup-trigger ${meta.accent}" data-info-group="${infoGroup}" data-leadership-hierarchy-popup data-leadership-hierarchy-types="${escapeHtml(JSON.stringify(selectedTypes))}" aria-haspopup="dialog" aria-label="Ver os tipos de liderança e hierarquia e respetivas explicações"${visible ? '' : ' style="display: none;"'}>
-                <div class="dimension-model-icon">${getGeneralModelSvg(meta.key)}</div><div class="dimension-model-copy perception-model-copy"><div class="dimension-model-label">${escapeHtml(meta.title)}</div><div class="general-model-values">${rows}</div></div>
+                <div class="dimension-model-icon">${getGeneralModelSvg(meta.key)}</div><div class="dimension-model-copy perception-model-copy"><div class="general-model-values dimension-model-label">${rows}</div><div class="dimension-model-value">${escapeHtml(meta.title)}</div></div>
             </button>`;
         }
 
@@ -988,7 +988,7 @@ import { renderAnimalGallery } from "../js/animal-gallery.js?v=2";
                 return `<div class="general-model-value-row" data-gender="${escapeHtml(item.genero || '')}" data-phase="${escapeHtml(item.fase || 'Adulto')}" data-info-group="${infoGroup}"${isVisible ? '' : ' style="display: none;"'}>${renderInlineGenderSymbol(item)}${escapeHtml(value)}</div>`;
             }).join('');
             return `<button type="button" class="dimension-model-card general-model-card visual-model-group-card perception-type-popup-trigger ${meta.accent}" data-info-group="${infoGroup}" data-digestive-system-popup data-digestive-system-types="${escapeHtml(JSON.stringify(selectedTypes))}" aria-haspopup="dialog" aria-label="Ver os estados do sistema digestivo e respetivas explicações"${visible ? '' : ' style="display: none;"'}>
-                <div class="dimension-model-icon">${getGeneralModelSvg(meta.key)}</div><div class="dimension-model-copy perception-model-copy"><div class="dimension-model-label">${escapeHtml(meta.title)}</div><div class="general-model-values">${rows}</div></div>
+                <div class="dimension-model-icon">${getGeneralModelSvg(meta.key)}</div><div class="dimension-model-copy perception-model-copy"><div class="general-model-values dimension-model-label">${rows}</div><div class="dimension-model-value">${escapeHtml(meta.title)}</div></div>
             </button>`;
         }
 
@@ -1005,7 +1005,7 @@ import { renderAnimalGallery } from "../js/animal-gallery.js?v=2";
             }).join('');
             return `<button type="button" class="dimension-model-card general-model-card visual-model-group-card perception-type-popup-trigger ${meta.accent}" data-info-group="${infoGroup}" data-activity-popup data-activity-types="${escapeHtml(JSON.stringify(selectedTypes))}" aria-haspopup="dialog" aria-label="Ver os tipos de atividade e respetivas explicações"${visible ? '' : ' style="display: none;"'}>
                 <div class="dimension-model-icon">${getGeneralModelSvg(meta.key)}</div>
-                <div class="dimension-model-copy perception-model-copy"><div class="dimension-model-label">${escapeHtml(meta.title)}</div><div class="general-model-values">${rows}</div></div>
+                <div class="dimension-model-copy perception-model-copy"><div class="general-model-values dimension-model-label">${rows}</div><div class="dimension-model-value">${escapeHtml(meta.title)}</div></div>
             </button>`;
         }
 
@@ -1020,7 +1020,7 @@ import { renderAnimalGallery } from "../js/animal-gallery.js?v=2";
                 return `<div class="general-model-value-row" data-gender="${escapeHtml(item.genero || '')}" data-phase="${escapeHtml(item.fase || 'Adulto')}" data-info-group="${infoGroup}"${isVisible ? '' : ' style="display: none;"'}>${renderInlineGenderSymbol(item)}${formatGeneralVisualValue(item)}</div>`;
             }).join('');
             return `<button type="button" class="dimension-model-card general-model-card visual-model-group-card perception-type-popup-trigger territory-size-popup-trigger ${meta.accent}" data-info-group="${infoGroup}" data-territory-size-popup data-territory-values="${escapeHtml(JSON.stringify(values))}" aria-haspopup="dialog" aria-label="Comparar o tamanho do território com um campo de futebol"${visible ? '' : ' style="display: none;"'}>
-                <div class="dimension-model-icon">${getGeneralModelSvg(meta.key)}</div><div class="dimension-model-copy perception-model-copy"><div class="dimension-model-label">${escapeHtml(meta.title)}</div><div class="general-model-values">${rows}</div></div>
+                <div class="dimension-model-icon">${getGeneralModelSvg(meta.key)}</div><div class="dimension-model-copy perception-model-copy"><div class="general-model-values dimension-model-label">${rows}</div><div class="dimension-model-value">${escapeHtml(meta.title)}</div></div>
             </button>`;
         }
 
@@ -1055,8 +1055,8 @@ import { renderAnimalGallery } from "../js/animal-gallery.js?v=2";
                 <button type="button" class="dimension-model-card general-model-card visual-model-group-card communication-type-popup-trigger" data-info-group="${infoGroup}" data-communication-type-popup data-communication-types="${escapeHtml(JSON.stringify(selectedTypes))}" aria-haspopup="dialog" aria-label="Ver os tipos de comunicação e respetivas explicações"${visible ? '' : ' style="display: none;"'}>
                     <div class="dimension-model-icon">${getCommunicationGenericModelSvg()}</div>
                     <div class="dimension-model-copy perception-model-copy">
-                        <div class="dimension-model-label">Tipo de Comunicação</div>
-                        <div class="general-model-values">${rows}</div>
+                        <div class="general-model-values dimension-model-label">${rows}</div>
+                        <div class="dimension-model-value">Tipo de Comunicação</div>
                     </div>
                 </button>`;
         }
@@ -1120,8 +1120,8 @@ import { renderAnimalGallery } from "../js/animal-gallery.js?v=2";
                 <article class="dimension-model-card general-model-card ${climateMeta?.accent || habitatMeta?.accent || biomaMeta?.accent || ecologicalMeta?.accent || locomotionMeta?.accent || strategyMeta?.accent || activityMeta?.accent || socialMeta?.accent || displayMeta.accent}" data-gender="${item.genero || ''}" data-phase="${item.fase || 'Adulto'}" data-info-group="${getInfoGroupForGeneralType(item.tipo)}">
                     <div class="dimension-model-icon ${climateMeta || habitatMeta || biomaMeta ? 'climate-zone-model-icon' : ''}">${icon}</div>
                     <div class="dimension-model-copy">
-                        <div class="dimension-model-label${inlineGenderSymbol ? ' with-gender' : ''}">${escapeHtml(displayMeta.title)}${inlineGenderSymbol}</div>
-                        <div class="dimension-model-value">${mixedOption ? `${escapeHtml(mixedOption)} – ` : ''}${formatGeneralVisualValue(item)}</div>
+                        <div class="dimension-model-label${inlineGenderSymbol ? ' with-gender' : ''}">${mixedOption ? `${escapeHtml(mixedOption)} – ` : ''}${formatGeneralVisualValue(item)}${inlineGenderSymbol}</div>
+                        <div class="dimension-model-value">${escapeHtml(displayMeta.title)}</div>
                     </div>
                 </article>`;
         }
@@ -1165,8 +1165,8 @@ import { renderAnimalGallery } from "../js/animal-gallery.js?v=2";
                 <article class="dimension-model-card general-model-card visual-model-group-card ${presentation.accent}" data-info-group="${infoGroup}"${visible ? '' : ' style="display: none;"'}>
                     <div class="dimension-model-icon ${presentation.climateMeta || presentation.biomaMeta ? 'climate-zone-model-icon' : ''}">${presentation.icon}</div>
                     <div class="dimension-model-copy">
-                        <div class="dimension-model-label">${escapeHtml(presentation.meta.title)}</div>
-                        <div class="general-model-values">${rows}</div>
+                        <div class="general-model-values dimension-model-label">${rows}</div>
+                        <div class="dimension-model-value">${escapeHtml(presentation.meta.title)}</div>
                     </div>
                 </article>`;
         }
@@ -1219,7 +1219,7 @@ import { renderAnimalGallery } from "../js/animal-gallery.js?v=2";
                 </div>`;
         }
 
-        function renderTopCardTabbedModelSection({ id, generalText = '', dimensionText = '', infoModelItems = [], dimensionModelItems = [], animalData = {}, mobile = false }) {
+        function renderTopCardTabbedModelSection({ id, generalText = '', dimensionText = '', infoModelItems = [], dimensionModelItems = [], animalData = {}, mobile = false, onlyHeader = false, onlyPanes = false }) {
             const style = mobile ? 'margin-bottom: 20px;' : '';
             const sectionClass = mobile ? 'info-section mobile-only visual-models-info-section' : 'info-section-card visual-models-info-section';
 
@@ -1232,8 +1232,7 @@ import { renderAnimalGallery } from "../js/animal-gallery.js?v=2";
             const dimensionItems = dimensionModelItems;
 
             const tabs = [];
-            const hasGeneralPane = Boolean(String(generalText || '').trim());
-            if (hasGeneralPane) tabs.push({ key: 'general', label: 'Geral' });
+            tabs.push({ key: 'general', label: 'Geral' });
             if (estiloVidaItems.length) tabs.push({ key: 'estilo-vida', label: 'Estilo de Vida' });
             if (anatomiaItems.length || estruturasAnatomicasItems.length || fisiologiaItems.length || desenvolvimentoItems.length) tabs.push({ key: 'anatomia', label: 'Anatomia' });
 
@@ -1262,8 +1261,407 @@ import { renderAnimalGallery } from "../js/animal-gallery.js?v=2";
 
             const renderPane = (tabKey) => {
                 if (tabKey === 'general') {
+                    const findModelCardValue = (typeKeyword) => {
+                        const items = infoModelItems.filter(i => String(i.tipo || '').toLowerCase().includes(typeKeyword.toLowerCase()));
+                        if (items.length === 0) return { text: 'N/D', raw: [] };
+                        
+                        const activeCats = [];
+                        items.forEach(item => {
+                            const val = item.valorMin || item.valor || item.opcao || '';
+                            if (val) {
+                                activeCats.push(val);
+                            }
+                            if (typeof item.categoria === 'object') {
+                                Object.entries(item.categoria).forEach(([k, v]) => {
+                                    if (v === true) activeCats.push(k);
+                                });
+                            } else if (item.categoria) {
+                                activeCats.push(item.categoria);
+                            }
+                        });
+
+                        const uniqueCats = [...new Set(activeCats.map(c => String(c).trim()).filter(Boolean))];
+                        const text = uniqueCats.length > 0 ? uniqueCats.slice(0, 2).join('<br>') : 'N/D';
+                        return { text, raw: uniqueCats };
+                    };
+
+                    const activityObj = findModelCardValue('Atividade');
+                    const locomocaoObj = findModelCardValue('Locomoção');
+                    const stratumObj = findModelCardValue('Estrato');
+                    
+                    let feedingObj = { text: 'N/D', raw: [] };
+                    const specFeeding = (animalData.informacao?.alimentacaoDetalhada || [])
+                        .filter(i => i.tipo === 'Tipo de Alimentação' && i.detalhe);
+                    if (specFeeding.length > 0) {
+                        const activeCats = specFeeding.map(i => i.detalhe);
+                        feedingObj = {
+                            text: activeCats.slice(0, 2).join('<br>'),
+                            raw: activeCats
+                        };
+                    } else {
+                        feedingObj = findModelCardValue('Alimentação');
+                        if (feedingObj.text === 'N/D') {
+                            const strat = findModelCardValue('Estratégia');
+                            if (strat.text !== 'N/D') {
+                                feedingObj.text = strat.text;
+                                feedingObj.raw = strat.raw;
+                            }
+                        }
+                    }
+
+                    let reproductionObj = { text: 'N/D', raw: [] };
+                    const specRepro = (animalData.informacao?.reproducaoDetalhada || [])
+                        .filter(i => (i.tipo === 'Acasalamento' || i.tipo === 'Sistema sexual') && i.detalhe);
+                    if (specRepro.length > 0) {
+                        const activeCats = specRepro.map(i => i.detalhe);
+                        reproductionObj = {
+                            text: activeCats.slice(0, 2).join('<br>'),
+                            raw: activeCats
+                        };
+                    } else {
+                        reproductionObj = findModelCardValue('Reprodução');
+                        if (reproductionObj.text === 'N/D') {
+                            const mating = findModelCardValue('Acasalamento');
+                            if (mating.text !== 'N/D') {
+                                reproductionObj.text = mating.text;
+                                reproductionObj.raw = mating.raw;
+                            }
+                        }
+                    }
+
+                    const getActIcon = () => {
+                        const val = activityObj.raw[0];
+                        const actMeta = val ? getActivityMeta(val) : null;
+                        return actMeta ? getActivitySvg(actMeta.key) : getGeneralCatalogModelSvg('atividade');
+                    };
+
+                    const getFeedingIcon = () => {
+                        const val = feedingObj.raw[0];
+                        const feedMeta = val ? getFeedingVisualMeta(val) : null;
+                        return feedMeta ? getFeedingModelSvg(feedMeta.key) : getGeneralCatalogModelSvg('alimentacao');
+                    };
+
+                    const getReproIcon = () => {
+                        const val = reproductionObj.raw[0];
+                        const reproMeta = val ? getMatingMeta(val) : null;
+                        return reproMeta ? getMatingSystemSvg(reproMeta.key) : getGeneralCatalogModelSvg('reproducao');
+                    };
+
+                    const getLocomotionIcon = () => {
+                        const val = locomocaoObj.raw[0];
+                        const locMeta = val ? getLocomotionMeta(val) : null;
+                        return locMeta ? getLocomotionSvg(locMeta.key) : getGeneralCatalogModelSvg('locomocao');
+                    };
+
+                    // Extração para os 3 novos cards abaixo
+                    const commItems = (animalData.informacao?.geralDetalhada || [])
+                        .filter(i => String(i.tipo || '').toLowerCase().includes('comunicação') || String(i.tipo || '').toLowerCase().includes('comunicacao'));
+                    const selectedCommTypes = getCommunicationTypesFromItems(commItems);
+
+                    let socialObj = findModelCardValue('Composição do grupo');
+                    if (socialObj.text === 'N/D') {
+                        socialObj = findModelCardValue('Organização');
+                    }
+                    if (socialObj.text === 'N/D') {
+                        socialObj = findModelCardValue('Vida social');
+                    }
+
+                    let sazonalObj = findModelCardValue('Comportamento');
+                    if (sazonalObj.text === 'N/D') {
+                        sazonalObj = findModelCardValue('Sazonal');
+                    }
+
+                    const envModels = animalData.informacao?.geralDetalhada || [];
+                    const envQuickData = collapseCombinedGenderItems(
+                        Array.isArray(envModels) ? envModels.filter(item => item.tipo && (item.valor || item.valorMin || item.valorMax) && isGeneralEnvironmentModel(item)) : []
+                    );
+
+                    const findEnvCardValue = (typeKeyword) => {
+                        const items = envQuickData.filter(i => String(i.tipo || '').toLowerCase().includes(typeKeyword.toLowerCase()));
+                        if (items.length === 0) return { text: 'N/D', raw: [] };
+                        
+                        const activeCats = [];
+                        items.forEach(item => {
+                            const val = item.valorMin || item.valor || item.opcao || '';
+                            if (val) {
+                                activeCats.push(val);
+                            }
+                            if (typeof item.categoria === 'object') {
+                                Object.entries(item.categoria).forEach(([k, v]) => {
+                                    if (v === true) activeCats.push(k);
+                                });
+                            } else if (item.categoria) {
+                                activeCats.push(item.categoria);
+                            }
+                        });
+
+                        const uniqueCats = [...new Set(activeCats.map(c => String(c).trim()).filter(Boolean))];
+                        const text = uniqueCats.length > 0 ? uniqueCats.slice(0, 2).join('<br>') : 'N/D';
+                        return { text, raw: uniqueCats };
+                    };
+
+                    let climaObj = findEnvCardValue('Zona climática');
+                    if (climaObj.text === 'N/D') {
+                        climaObj = findEnvCardValue('Clima');
+                    }
+                    let climaSecObj = findEnvCardValue('Zona climática secundária');
+                    let biomasObj = findEnvCardValue('Bioma');
+                    if (biomasObj.text === 'N/D') {
+                        biomasObj = findEnvCardValue('Biomas');
+                    }
+                    let habitatsObj = findEnvCardValue('Habitats');
+                    if (habitatsObj.text === 'N/D') {
+                        habitatsObj = findEnvCardValue('Habitat');
+                    }
+
+                    const biomesList = biomasObj.raw.flatMap(val => String(val).split(' + ')).map(v => v.trim()).filter(Boolean);
+                    const habitatsList = habitatsObj.raw.flatMap(val => String(val).split(' + ')).map(v => v.trim()).filter(Boolean);
+
+                    const distData = animalData.informacao?.distribuicao || {};
+                    const distRegions = typeof normalizeDistributionRegions === 'function' ? normalizeDistributionRegions(distData) : [];
+                    const distRegionValues = distRegions.map(item => item.valor);
+                    const distRegionValuesData = escapeHtml(JSON.stringify(distRegionValues));
+                    const topMapId = mobile ? 'distributionMapCardTopMobile' : 'distributionMapCardTopDesktop';
+
+                    const getSocialIcon = () => {
+                        const val = socialObj.raw[0] || '';
+                        const normalized = normalizeGeneralVisualKey(val);
+                        return getSocialSvg ? getSocialSvg(normalized) : getGeneralCatalogModelSvg('organizacao-social');
+                    };
+
                     return `<div class="visual-model-tab-pane" data-visual-model-pane="general">
-                        <div class="visual-model-general-copy"><p>${generalText}</p></div>
+                        ${generalText ? `<div class="visual-model-general-copy" style="margin-bottom: 20px;"><p>${generalText}</p></div>` : ''}
+                        <div class="right-column-top-cards" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; margin-top: 10px; width: 100%;">
+                            
+                            <button type="button" class="summary-metric-card" data-activity-popup data-activity-types="${escapeHtml(JSON.stringify(activityObj.raw))}" aria-haspopup="dialog" style="--card-accent: #eab308; text-align: left; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 18px; padding: 16px; display: flex; flex-direction: column; gap: 12px; cursor: pointer; width: 100%; font-family: inherit;">
+                                <div class="summary-metric-header" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                        <span style="color: var(--card-accent); display: flex; align-items: center; justify-content: center; width: 18px; height: 18px;">${getActIcon()}</span>
+                                        <span style="font-weight: 500; font-size: 0.85rem; color: rgba(255,255,255,0.7);">Atividade</span>
+                                    </div>
+                                    <i class="fa-solid fa-chevron-right" style="color: rgba(255,255,255,0.4); font-size: 0.8rem;"></i>
+                                </div>
+                                <span class="summary-metric-value">${activityObj.text}</span>
+                                <div class="summary-metric-watermark">${getActIcon()}</div>
+                            </button>
+
+                            <button type="button" class="summary-metric-card" data-feeding-type-popup data-feeding-types="${escapeHtml(JSON.stringify(feedingObj.raw))}" aria-haspopup="dialog" style="--card-accent: #ef4444; text-align: left; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 18px; padding: 16px; display: flex; flex-direction: column; gap: 12px; cursor: pointer; width: 100%; font-family: inherit;">
+                                <div class="summary-metric-header" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                        <span style="color: var(--card-accent); display: flex; align-items: center; justify-content: center; width: 18px; height: 18px;">${getFeedingIcon()}</span>
+                                        <span style="font-weight: 500; font-size: 0.85rem; color: rgba(255,255,255,0.7);">Tipo de alimentação</span>
+                                    </div>
+                                    <i class="fa-solid fa-chevron-right" style="color: rgba(255,255,255,0.4); font-size: 0.8rem;"></i>
+                                </div>
+                                <span class="summary-metric-value">${feedingObj.text}</span>
+                                <div class="summary-metric-watermark">${getFeedingIcon()}</div>
+                            </button>
+
+                            <button type="button" class="summary-metric-card" data-mating-system-popup data-mating-systems="${escapeHtml(JSON.stringify(reproductionObj.raw))}" aria-haspopup="dialog" style="--card-accent: #ec4899; text-align: left; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 18px; padding: 16px; display: flex; flex-direction: column; gap: 12px; cursor: pointer; width: 100%; font-family: inherit;">
+                                <div class="summary-metric-header" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                        <span style="color: var(--card-accent); display: flex; align-items: center; justify-content: center; width: 18px; height: 18px;">${getReproIcon()}</span>
+                                        <span style="font-weight: 500; font-size: 0.85rem; color: rgba(255,255,255,0.7);">Tipo de reprodução</span>
+                                    </div>
+                                    <i class="fa-solid fa-chevron-right" style="color: rgba(255,255,255,0.4); font-size: 0.8rem;"></i>
+                                </div>
+                                <span class="summary-metric-value">${reproductionObj.text}</span>
+                                <div class="summary-metric-watermark">${getReproIcon()}</div>
+                            </button>
+
+                            <button type="button" class="summary-metric-card" data-locomotion-popup data-locomotion-types="${escapeHtml(JSON.stringify(locomocaoObj.raw))}" aria-haspopup="dialog" style="--card-accent: #3b82f6; text-align: left; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 18px; padding: 16px; display: flex; flex-direction: column; gap: 12px; cursor: pointer; width: 100%; font-family: inherit;">
+                                <div class="summary-metric-header" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                        <span style="color: var(--card-accent); display: flex; align-items: center; justify-content: center; width: 18px; height: 18px;">${getLocomotionIcon()}</span>
+                                        <span style="font-weight: 500; font-size: 0.85rem; color: rgba(255,255,255,0.7);">Locomoção</span>
+                                    </div>
+                                    <i class="fa-solid fa-chevron-right" style="color: rgba(255,255,255,0.4); font-size: 0.8rem;"></i>
+                                </div>
+                                <span class="summary-metric-value">${locomocaoObj.text}</span>
+                                <div class="summary-metric-watermark">${getLocomotionIcon()}</div>
+                            </button>
+
+                            <button type="button" class="summary-metric-card" data-ecological-stratum-popup data-ecological-strata="${escapeHtml(JSON.stringify(stratumObj.raw))}" aria-haspopup="dialog" style="--card-accent: #10b981; text-align: left; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 18px; padding: 16px; display: flex; flex-direction: column; gap: 12px; cursor: pointer; width: 100%; font-family: inherit;">
+                                <div class="summary-metric-header" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                        <span style="color: var(--card-accent); display: flex; align-items: center; justify-content: center; width: 18px; height: 18px;">${getGeneralModelSvg('estrato-ecologico')}</span>
+                                        <span style="font-weight: 500; font-size: 0.85rem; color: rgba(255,255,255,0.7);">Estrato ecológico</span>
+                                    </div>
+                                    <i class="fa-solid fa-chevron-right" style="color: rgba(255,255,255,0.4); font-size: 0.8rem;"></i>
+                                </div>
+                                <span class="summary-metric-value">${stratumObj.text}</span>
+                                <div class="summary-metric-watermark">${getGeneralModelSvg('estrato-ecologico')}</div>
+                            </button>
+
+                        </div>
+
+                        <div class="right-column-bottom-cards" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-top: 12px; width: 100%;">
+                            
+                            <button type="button" class="summary-metric-card taller-metric-card" data-communication-type-popup data-communication-types="${escapeHtml(JSON.stringify(selectedCommTypes))}" aria-haspopup="dialog" style="--card-accent: #06b6d4; text-align: left; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 18px; padding: 16px; display: flex; flex-direction: column; gap: 14px; cursor: pointer; width: 100%; font-family: inherit; min-height: 140px;">
+                                <div class="summary-metric-header" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                        <span style="color: var(--card-accent); display: flex; align-items: center; justify-content: center; width: 18px; height: 18px;">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width: 100%; height: 100%;">
+                                                <path d="M12 2v20M17 5v14M22 9v6M7 5v14M2 9v6"/>
+                                            </svg>
+                                        </span>
+                                        <span style="font-weight: 500; font-size: 0.85rem; color: rgba(255,255,255,0.7);">Tipo de Comunicação</span>
+                                    </div>
+                                    <i class="fa-solid fa-chevron-right" style="color: rgba(255,255,255,0.4); font-size: 0.8rem;"></i>
+                                </div>
+                                <div class="communication-tags-container" style="display: flex; flex-wrap: wrap; gap: 8px; z-index: 2;">
+                                    ${['Vocalizações', 'Química', 'Visual', 'Tátil'].map(label => {
+                                        const isSelected = selectedCommTypes.some(type => type.toLowerCase().includes(label.toLowerCase()));
+                                        return `
+                                            <div class="communication-tag ${isSelected ? 'active' : 'inactive'}" style="display: flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; font-family: inherit; transition: all 0.2s ease;">
+                                                <span class="comm-tag-icon" style="width: 16px; height: 16px; display: flex; align-items: center; justify-content: center; opacity: ${isSelected ? 1 : 0.4}; color: var(--card-accent);">${getCommunicationModelSvg(label)}</span>
+                                                <span style="opacity: ${isSelected ? 1 : 0.6}; color: ${isSelected ? '#fff' : 'rgba(255,255,255,0.5)'};">${label}</span>
+                                            </div>
+                                        `;
+                                    }).join('')}
+                                </div>
+                                <div class="summary-metric-watermark" style="opacity: 0.04;">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M12 2v20M17 5v14M22 9v6M7 5v14M2 9v6"/>
+                                    </svg>
+                                </div>
+                            </button>
+
+                            <button type="button" class="summary-metric-card taller-metric-card" data-social-type-popup data-social-types="${escapeHtml(JSON.stringify(socialObj.raw))}" aria-haspopup="dialog" style="--card-accent: #a855f7; text-align: left; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 18px; padding: 16px; display: flex; flex-direction: column; gap: 14px; cursor: pointer; width: 100%; font-family: inherit; min-height: 140px;">
+                                <div class="summary-metric-header" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                        <span style="color: var(--card-accent); display: flex; align-items: center; justify-content: center; width: 18px; height: 18px;">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width: 100%; height: 100%;">
+                                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                                                <circle cx="9" cy="7" r="4"/>
+                                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                                                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                                            </svg>
+                                        </span>
+                                        <span style="font-weight: 500; font-size: 0.85rem; color: rgba(255,255,255,0.7);">Organização social</span>
+                                    </div>
+                                    <i class="fa-solid fa-chevron-right" style="color: rgba(255,255,255,0.4); font-size: 0.8rem;"></i>
+                                </div>
+                                <span class="summary-metric-value">${socialObj.text}</span>
+                                <div class="summary-metric-watermark">${getSocialIcon()}</div>
+                            </button>
+
+                            <button type="button" class="summary-metric-card taller-metric-card" data-activity-popup data-activity-types="${escapeHtml(JSON.stringify(sazonalObj.raw))}" aria-haspopup="dialog" style="--card-accent: #38bdf8; text-align: left; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 18px; padding: 16px; display: flex; flex-direction: column; gap: 14px; cursor: pointer; width: 100%; font-family: inherit; min-height: 140px;">
+                                <div class="summary-metric-header" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                        <span style="color: var(--card-accent); display: flex; align-items: center; justify-content: center; width: 18px; height: 18px;">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width: 100%; height: 100%;">
+                                                <path d="M2 12h20M12 2v20M20 16l-4-4 4-4M4 8l4 4-4 4M16 4l-4 4-4-4M8 20l4-4 4 4"/>
+                                            </svg>
+                                        </span>
+                                        <span style="font-weight: 500; font-size: 0.85rem; color: rgba(255,255,255,0.7);">Comportamento sazonal</span>
+                                    </div>
+                                    <i class="fa-solid fa-chevron-right" style="color: rgba(255,255,255,0.4); font-size: 0.8rem;"></i>
+                                </div>
+                                <span class="summary-metric-value">${sazonalObj.text}</span>
+                                <div class="summary-metric-watermark">${getGeneralCatalogModelSvg('sazonal')}</div>
+                            </button>
+
+                        </div>
+
+                        <!-- Secção de Ambiente & Distribuição (Tamanho duplo: Clima/Biomas/Habitats à esquerda, Mapa de Distribuição à direita) -->
+                        <div class="right-column-env-cards" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; margin-top: 12px; width: 100%;">
+                            
+                            <!-- Card 1: Clima, Biomas & Habitats -->
+                            <div class="summary-metric-card env-large-card" style="--card-accent: #10b981; text-align: left; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 18px; padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; width: 100%; min-height: 220px; font-family: inherit;">
+                                <div class="summary-metric-header" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                        <span style="color: var(--card-accent); display: flex; align-items: center; justify-content: center; width: 16px; height: 16px;">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width: 100%; height: 100%;">
+                                                <path d="M12 2v2M4.93 4.93l1.41 1.41M20 12h2M17.66 17.66l1.41 1.41M12 20v2M6.34 17.66l-1.41 1.41M2 12h2M6.34 6.34l-1.41-1.41"/>
+                                                <path d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8Z"/>
+                                            </svg>
+                                        </span>
+                                        <span style="font-weight: 500; font-size: 0.8rem; color: rgba(255,255,255,0.7);">Clima, Biomas & Habitats</span>
+                                    </div>
+                                </div>
+                                
+                                <div style="display: flex; flex-direction: column; gap: 4px; z-index: 2;">
+                                    <div style="font-size: 0.75rem; color: rgba(255,255,255,0.5); font-weight: 500;">Clima</div>
+                                    <button type="button" data-climate-zone-map-popup data-popup-label="${escapeHtml(climaObj.raw[0] || '')}" data-info-group="habitat" style="font-size: 0.95rem; color: var(--card-accent); margin: 0; padding: 4px 10px; font-weight: 700; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 8px; cursor: pointer; text-align: left; width: fit-content; font-family: inherit;">
+                                        ${[climaObj.text, climaSecObj.text].filter(t => t && t !== 'N/D').join(' / ') || 'N/D'}
+                                    </button>
+                                </div>
+
+                                <div style="display: flex; flex-direction: column; gap: 6px; z-index: 2; flex: 1;">
+                                    <div style="font-size: 0.75rem; color: rgba(255,255,255,0.5); font-weight: 500;">Biomas</div>
+                                    <div class="env-images-row" style="display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px; width: 100%;">
+                                        ${biomesList.length > 0 ? biomesList.map(biome => {
+                                            const imgMeta = getBiomaMeta(biome);
+                                            if (!imgMeta) return '';
+                                            return `
+                                                <button type="button" class="env-image-card" data-environment-visual-popup data-popup-kind="biome" data-popup-label="${escapeHtml(biome)}" data-popup-image="${escapeHtml(imgMeta.image)}" style="display: flex; flex-direction: column; gap: 4px; min-width: 65px; max-width: 75px; background: none; border: none; padding: 0; cursor: pointer; text-align: left; font-family: inherit;">
+                                                    <div class="env-image-wrapper" style="position: relative; aspect-ratio: 1/1; border-radius: 6px; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.08); width: 100%;">
+                                                        <img src="${imgMeta.image}" style="width: 100%; height: 100%; object-fit: cover;" alt="${biome}" />
+                                                    </div>
+                                                    <span style="font-size: 0.65rem; font-weight: 600; color: rgba(255, 255, 255, 0.8); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 2px; width: 100%;" title="${biome}">${biome}</span>
+                                                </button>
+                                            `;
+                                        }).join('') : `<span style="font-size: 0.75rem; color: rgba(255,255,255,0.4);">Sem biomas registados</span>`}
+                                    </div>
+                                </div>
+
+                                <div style="display: flex; flex-direction: column; gap: 6px; z-index: 2; flex: 1; margin-top: 2px;">
+                                    <div style="font-size: 0.75rem; color: rgba(255,255,255,0.5); font-weight: 500;">Habitats</div>
+                                    <div class="env-images-row" style="display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px; width: 100%;">
+                                        ${habitatsList.length > 0 ? habitatsList.map(habitat => {
+                                            const imgMeta = getHabitatMeta(habitat);
+                                            if (!imgMeta) return '';
+                                            return `
+                                                <button type="button" class="env-image-card" data-environment-visual-popup data-popup-kind="habitat" data-popup-label="${escapeHtml(habitat)}" data-popup-image="${escapeHtml(imgMeta.image)}" style="display: flex; flex-direction: column; gap: 4px; min-width: 65px; max-width: 75px; background: none; border: none; padding: 0; cursor: pointer; text-align: left; font-family: inherit;">
+                                                    <div class="env-image-wrapper" style="position: relative; aspect-ratio: 1/1; border-radius: 6px; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.08); width: 100%;">
+                                                        <img src="${imgMeta.image}" style="width: 100%; height: 100%; object-fit: cover;" alt="${habitat}" />
+                                                    </div>
+                                                    <span style="font-size: 0.65rem; font-weight: 600; color: rgba(255, 255, 255, 0.8); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 2px; width: 100%;" title="${habitat}">${habitat}</span>
+                                                </button>
+                                            `;
+                                        }).join('') : `<span style="font-size: 0.75rem; color: rgba(255,255,255,0.4);">Sem habitats registados</span>`}
+                                    </div>
+                                </div>
+
+                                <div class="summary-metric-watermark" style="opacity: 0.04; width: 60px; height: 60px;">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M12 2v2M4.93 4.93l1.41 1.41M20 12h2M17.66 17.66l1.41 1.41M12 20v2M6.34 17.66l-1.41 1.41M2 12h2M6.34 6.34l-1.41-1.41"/>
+                                        <path d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8Z"/>
+                                    </svg>
+                                </div>
+                            </div>
+
+                            <!-- Card 2: Distribuição & Mapa -->
+                            <div class="summary-metric-card env-large-card" style="--card-accent: #6366f1; text-align: left; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 18px; padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; width: 100%; min-height: 220px; font-family: inherit;">
+                                <div class="summary-metric-header" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                                    <button type="button" data-biogeographic-region-popup data-biogeographic-regions="${distRegionValuesData}" aria-haspopup="dialog" style="background: none; border: none; padding: 0; margin: 0; cursor: pointer; display: flex; align-items: center; justify-content: space-between; width: 100%; font-family: inherit;">
+                                        <div style="display: flex; align-items: center; gap: 8px;">
+                                            <span style="color: var(--card-accent); display: flex; align-items: center; justify-content: center; width: 16px; height: 16px;">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width: 100%; height: 100%;">
+                                                    <circle cx="12" cy="12" r="10"/>
+                                                    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10zM2 12h20"/>
+                                                </svg>
+                                            </span>
+                                            <span style="font-weight: 500; font-size: 0.8rem; color: rgba(255,255,255,0.7);">Distribuição geográfica</span>
+                                        </div>
+                                        <i class="fa-solid fa-chevron-right" style="color: rgba(255,255,255,0.4); font-size: 0.8rem;"></i>
+                                    </button>
+                                </div>
+
+                                <div style="flex: 1; min-height: 140px; height: 140px; position: relative; z-index: 2; border-radius: 12px; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.08);">
+                                    <div class="map-container" id="${topMapId}" style="width: 100%; height: 100%; min-height: 140px; background: rgba(0,0,0,0.15);"></div>
+                                </div>
+
+                                <div class="summary-metric-watermark" style="opacity: 0.04; width: 60px; height: 60px;">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <circle cx="12" cy="12" r="10"/>
+                                        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10zM2 12h20"/>
+                                    </svg>
+                                </div>
+                            </div>
+                            
+                        </div>
                     </div>`;
                 }
                 let paneItems = [];
@@ -1281,10 +1679,10 @@ import { renderAnimalGallery } from "../js/animal-gallery.js?v=2";
                 const filterContext = { genders: collectConcreteGenders(paneItems), phases: new Set(paneItems.map(item => item.fase).filter(Boolean)) };
 
                 if (tabKey === 'anatomia') {
-                    const sortedAnatomia = [...anatomiaItems].sort((a, b) => String(a.tipo || '').localeCompare(String(b.tipo || ''), 'pt-PT'));
-                    const sortedEstruturas = [...estruturasAnatomicasItems].sort((a, b) => String(a.tipo || '').localeCompare(String(b.tipo || ''), 'pt-PT'));
-                    const sortedFisiologia = [...fisiologiaItems].sort((a, b) => String(a.tipo || '').localeCompare(String(b.tipo || ''), 'pt-PT'));
-                    const sortedDesenvolvimento = [...desenvolvimentoItems].sort((a, b) => String(a.tipo || '').localeCompare(String(b.tipo || ''), 'pt-PT'));
+                    const sortedAnatomia = [...paneItems.filter(item => getInfoGroupForGeneralType(item.tipo) === 'anatomia')].sort((a, b) => String(a.tipo || '').localeCompare(String(b.tipo || ''), 'pt-PT'));
+                    const sortedEstruturas = [...paneItems.filter(item => getInfoGroupForGeneralType(item.tipo) === 'estruturas-anatomicas')].sort((a, b) => String(a.tipo || '').localeCompare(String(b.tipo || ''), 'pt-PT'));
+                    const sortedFisiologia = [...paneItems.filter(item => getInfoGroupForGeneralType(item.tipo) === 'fisiologia')].sort((a, b) => String(a.tipo || '').localeCompare(String(b.tipo || ''), 'pt-PT'));
+                    const sortedDesenvolvimento = [...paneItems.filter(item => getInfoGroupForGeneralType(item.tipo) === 'desenvolvimento')].sort((a, b) => String(a.tipo || '').localeCompare(String(b.tipo || ''), 'pt-PT'));
 
                     return `<div class="visual-model-tab-pane" data-visual-model-pane="anatomia" hidden>
                         ${sortedAnatomia.length ? `
@@ -1340,10 +1738,10 @@ import { renderAnimalGallery } from "../js/animal-gallery.js?v=2";
                 </div>`;
             };
 
-            return `
-                <div class="${sectionClass} visual-model-tabs" id="${id}" data-visual-model-tabs${style ? ` style="${style}"` : ''}>
-                    <h3 class="visual-models-section-heading" style="display: flex; align-items: center; justify-content: space-between; width: 100%; border-bottom: 1px solid rgba(148, 163, 184, 0.38); padding-bottom: 6px; flex-wrap: wrap; gap: 12px;">
-                        <span class="visual-model-section-tablist" role="tablist" aria-label="Separadores de informação" style="display: flex; flex-wrap: wrap; gap: 4px; border: none; margin: 0; flex: 1 1 auto; align-items: center;">
+            if (onlyHeader) {
+                return `
+                    <h3 class="visual-models-section-heading" style="display: flex; align-items: center; justify-content: space-between; width: 100%; border: none !important; padding: 0 !important; background: transparent !important; margin-bottom: 0px !important;">
+                        <span class="visual-model-section-tablist" role="tablist" aria-label="Separadores de informação" style="display: flex; flex-wrap: wrap; gap: 4px; border: none; margin: 0; flex: 1 1 auto; align-items: center; width: 100%;">
                             ${tabs.map((tab, idx) => `
                                 <button type="button" class="visual-model-section-tab ${idx === 0 ? 'is-active' : ''}" data-visual-model-tab="${tab.key}" role="tab" aria-selected="${idx === 0 ? 'true' : 'false'}" style="flex: 0 0 auto; min-width: max-content;">
                                     <span class="icon svg-icon">${
@@ -1353,7 +1751,35 @@ import { renderAnimalGallery } from "../js/animal-gallery.js?v=2";
                                     }</span>${tab.label}
                                 </button>
                             `).join('')}
-                            ${hasGenders || hasPhases ? `<span class="visual-models-tablist-controls" style="margin: 0 0 0 8px !important; display: inline-flex !important; align-items: center; gap: 8px; border: none !important; background: transparent !important; padding: 0 !important; box-shadow: none !important; flex: 0 0 auto;">${getGenderTabsHTML(allItemsForFilters)}</span>` : ''}
+                            ${hasGenders || hasPhases ? `<span class="visual-models-tablist-controls" style="margin: 0 5px 0 auto !important; display: inline-flex !important; align-items: center; gap: 8px; border: none !important; background: transparent !important; padding: 0 !important; box-shadow: none !important; flex: 0 0 auto;">${getGenderTabsHTML(allItemsForFilters)}</span>` : ''}
+                        </span>
+                    </h3>`;
+            }
+
+            if (onlyPanes) {
+                return tabs.map((tab, idx) => {
+                    const paneHTML = renderPane(tab.key);
+                    if (idx === 0) {
+                        return paneHTML.replace('class="visual-model-tab-pane"', 'class="visual-model-tab-pane is-active"').replace('hidden', '');
+                    }
+                    return paneHTML;
+                }).join('');
+            }
+
+            return `
+                <div class="${sectionClass} visual-model-tabs" id="${id}" data-visual-model-tabs${style ? ` style="${style}"` : ''}>
+                    <h3 class="visual-models-section-heading" style="display: flex; align-items: center; justify-content: space-between; width: 100%; border-bottom: 1px solid rgba(148, 163, 184, 0.38); padding-bottom: 6px; flex-wrap: wrap; gap: 12px;">
+                        <span class="visual-model-section-tablist" role="tablist" aria-label="Separadores de informação" style="display: flex; flex-wrap: wrap; gap: 4px; border: none; margin: 0; flex: 1 1 auto; align-items: center; width: 100%;">
+                            ${tabs.map((tab, idx) => `
+                                <button type="button" class="visual-model-section-tab ${idx === 0 ? 'is-active' : ''}" data-visual-model-tab="${tab.key}" role="tab" aria-selected="${idx === 0 ? 'true' : 'false'}" style="flex: 0 0 auto; min-width: max-content;">
+                                    <span class="icon svg-icon">${
+                                        tab.key === 'alimentacao' || tab.key === 'reproducao'
+                                            ? getInfoSectionIconSvg(tab.key)
+                                            : getInfoGroupFilterIconSvg(tab.key === 'general' ? 'estilo-vida' : tab.key === 'measures' ? 'medidas' : tab.key === 'dimensions' ? 'dimensoes' : tab.key)
+                                    }</span>${tab.label}
+                                </button>
+                            `).join('')}
+                            ${hasGenders || hasPhases ? `<span class="visual-models-tablist-controls" style="margin: 0 5px 0 auto !important; display: inline-flex !important; align-items: center; gap: 8px; border: none !important; background: transparent !important; padding: 0 !important; box-shadow: none !important; flex: 0 0 auto;">${getGenderTabsHTML(allItemsForFilters)}</span>` : ''}
                         </span>
                     </h3>
                     ${tabs.map((tab, idx) => {
@@ -1799,7 +2225,7 @@ import { renderAnimalGallery } from "../js/animal-gallery.js?v=2";
                                     </div>`;
                             }).join('')}
                         </div>`
-                    : `<div class="dimension-model-value">${escapeHtml(firstEntry.display || 'Tipo de dieta')}</div>`;
+                    : `<div class="dimension-model-label">${escapeHtml(firstEntry.display || 'Tipo de dieta')}</div>`;
                 const secondaryHtml = entries.length === 1 && firstEntry.secondary
                     ? `<div class="dimension-model-meta">${escapeHtml(firstEntry.secondary)}</div>`
                     : '';
@@ -1808,7 +2234,7 @@ import { renderAnimalGallery } from "../js/animal-gallery.js?v=2";
                         <div class="dimension-model-icon">${heroIcon}</div>
                         <div class="dimension-model-copy">
                             ${valuesHtml}
-                            <div class="dimension-model-label">${nutritionMeta.title}</div>
+                            <div class="dimension-model-value">${nutritionMeta.title}</div>
                             ${secondaryHtml}
                         </div>
                     </article>`;
@@ -1821,8 +2247,8 @@ import { renderAnimalGallery } from "../js/animal-gallery.js?v=2";
                     <article class="dimension-model-card feeding-model-card feeding-type-highlight-card ${nutritionMeta.accent}">
                         <div class="dimension-model-icon">${getReproductionModelSvg(nutritionMeta.key)}</div>
                         <div class="dimension-model-copy">
-                            <div class="dimension-model-value">${escapeHtml(resolvedValue)}</div>
-                            <div class="dimension-model-label">${nutritionMeta.title}</div>
+                            <div class="dimension-model-label">${escapeHtml(resolvedValue)}</div>
+                            <div class="dimension-model-value">${nutritionMeta.title}</div>
                             ${detailData.secondary ? `<div class="dimension-model-meta">${escapeHtml(detailData.secondary)}</div>` : ''}
                         </div>
                     </article>`;
@@ -1834,8 +2260,8 @@ import { renderAnimalGallery } from "../js/animal-gallery.js?v=2";
                 <article class="dimension-model-card feeding-model-card feeding-type-highlight-card ${meta.accent}">
                     <div class="dimension-model-icon">${getFeedingModelSvg(meta.key)}</div>
                     <div class="dimension-model-copy">
-                        <div class="dimension-model-value">${escapeHtml(detail)}</div>
-                        <div class="dimension-model-label">${escapeHtml(meta.title)}</div>
+                        <div class="dimension-model-label">${escapeHtml(detail)}</div>
+                        <div class="dimension-model-value">${escapeHtml(meta.title)}</div>
                     </div>
                 </article>`;
         }
@@ -1895,7 +2321,7 @@ import { renderAnimalGallery } from "../js/animal-gallery.js?v=2";
                                     </div>`;
                             }).join('')}
                         </div>`
-                    : `<div class="dimension-model-value">${escapeHtml(firstEntry.display || 'Tipo de dieta')}</div>`;
+                    : `<div class="dimension-model-label">${escapeHtml(firstEntry.display || 'Tipo de dieta')}</div>`;
                 const secondaryHtml = entries.length === 1 && firstEntry.secondary
                     ? `<div class="dimension-model-meta">${escapeHtml(firstEntry.secondary)}</div>`
                     : '';
@@ -1905,7 +2331,7 @@ import { renderAnimalGallery } from "../js/animal-gallery.js?v=2";
                         <div class="dimension-model-icon">${heroIcon}</div>
                         <div class="dimension-model-copy">
                             ${listHtml}
-                            <div class="dimension-model-label">${nutritionMeta.title}</div>
+                            <div class="dimension-model-value">${nutritionMeta.title}</div>
                             ${secondaryHtml}
                         </div>
                     </button>`;
@@ -1918,8 +2344,8 @@ import { renderAnimalGallery } from "../js/animal-gallery.js?v=2";
                     <article class="dimension-model-card feeding-model-card feeding-type-highlight-card ${nutritionMeta.accent}">
                         <div class="dimension-model-icon">${getFeedingNutritionModelSvg(nutritionMeta)}</div>
                         <div class="dimension-model-copy">
-                            <div class="dimension-model-value">${escapeHtml(resolvedValue)}</div>
-                            <div class="dimension-model-label">${nutritionMeta.title}</div>
+                            <div class="dimension-model-label">${escapeHtml(resolvedValue)}</div>
+                            <div class="dimension-model-value">${nutritionMeta.title}</div>
                             ${detailData.secondary ? `<div class="dimension-model-meta">${escapeHtml(detailData.secondary)}</div>` : ''}
                         </div>
                     </article>`;
@@ -1931,8 +2357,8 @@ import { renderAnimalGallery } from "../js/animal-gallery.js?v=2";
                 <article class="dimension-model-card feeding-model-card feeding-type-highlight-card ${meta.accent}">
                     <div class="dimension-model-icon">${getFeedingModelSvg(meta.key)}</div>
                     <div class="dimension-model-copy">
-                        <div class="dimension-model-value">${escapeHtml(detail)}</div>
-                        <div class="dimension-model-label">${escapeHtml(meta.title)}</div>
+                        <div class="dimension-model-label">${escapeHtml(detail)}</div>
+                        <div class="dimension-model-value">${escapeHtml(meta.title)}</div>
                     </div>
                 </article>`;
         }
@@ -1950,8 +2376,8 @@ import { renderAnimalGallery } from "../js/animal-gallery.js?v=2";
                     <article class="dimension-model-card feeding-model-card ${nutritionMeta.accent}">
                         <div class="dimension-model-icon">${icon}</div>
                         <div class="dimension-model-copy">
-                            <div class="dimension-model-value">${escapeHtml(resolvedValue)}</div>
-                            <div class="dimension-model-label">${nutritionMeta.title}</div>
+                            <div class="dimension-model-label">${escapeHtml(resolvedValue)}</div>
+                            <div class="dimension-model-value">${nutritionMeta.title}</div>
                             ${detailData.secondary ? `<div class="dimension-model-meta">${escapeHtml(detailData.secondary)}</div>` : ''}
                         </div>
                     </article>`;
@@ -1964,8 +2390,8 @@ import { renderAnimalGallery } from "../js/animal-gallery.js?v=2";
                 <article class="dimension-model-card feeding-model-card ${meta.accent}">
                     <div class="dimension-model-icon">${getFeedingModelSvg(meta.key)}</div>
                     <div class="dimension-model-copy">
-                        <div class="dimension-model-value">${escapeHtml(detail)}</div>
-                        <div class="dimension-model-label${inlineGenderSymbol ? ' with-gender' : ''}">${escapeHtml(meta.title)}${inlineGenderSymbol}</div>
+                        <div class="dimension-model-label">${escapeHtml(detail)}</div>
+                        <div class="dimension-model-value${inlineGenderSymbol ? ' with-gender' : ''}">${escapeHtml(meta.title)}${inlineGenderSymbol}</div>
                     </div>
                 </article>`;
         }
@@ -3528,9 +3954,6 @@ import { renderAnimalGallery } from "../js/animal-gallery.js?v=2";
             const allItems = [...validDimensoes, ...validQuickData];
             const genders = collectConcreteGenders(allItems);
             const phases = new Set(allItems.map(i => i.fase).filter(Boolean));
-            // Quando existem dimensões, mantém-se sempre a estrutura com as abas
-            // "Informações" e "Dimensões". O número total de parâmetros não
-            // deve decidir a apresentação; sem dimensões, a aba não é criada.
             const infoModelItems = validQuickData.map(item => ({ ...item, isDimension: false }));
             const dimensionModelItems = validDimensoes.map(item => ({ ...item, isDimension: true }));
             const useInfoTabs = Boolean(hasGeralText || infoModelItems.length || dimensionModelItems.length);
@@ -3549,6 +3972,7 @@ import { renderAnimalGallery } from "../js/animal-gallery.js?v=2";
             if (hasPlumagem) navItems.push({ href: '#info-plumagem', label: getBodyCoveringTitle(animalData) });
             if (hasDistribicao) navItems.push({ href: '#info-distribuicao', label: 'Distribuição' });
             if (hasCuriosidades) navItems.push({ href: '#info-curiosidades', label: 'Curiosidades' });
+
             const navHTMLDesktop = navItems.map((item, idx) => {
                 const desktopHref = item.desktopHref || item.href;
                 const tabAttribute = item.visualTab ? ` data-visual-model-tab-target="${item.visualTab}"` : '';
@@ -3703,6 +4127,7 @@ import { renderAnimalGallery } from "../js/animal-gallery.js?v=2";
                 curiosidades: true,
                 modelos: true,
                 ambiente: true,
+                pageNav: true,
                 ...(animalData.feedSections || {})
             };
 
@@ -3722,7 +4147,8 @@ import { renderAnimalGallery } from "../js/animal-gallery.js?v=2";
                     distribuicao: ['#info-distribuicao', '#info-distribuicao-mobile'],
                     curiosidades: ['#info-curiosidades', '#info-curiosidades-mobile'],
                     modelos: ['#info-modelos-visuais', '#info-modelos-visuais-mobile', '#info-modelos-visuais-top', '#info-modelos-visuais-top-mobile'],
-                    ambiente: ['#info-ambiente', '#info-ambiente-mobile']
+                    ambiente: ['#info-ambiente', '#info-ambiente-mobile'],
+                    pageNav: ['.page-nav']
                 };
 
                 Object.entries(selectors).forEach(([key, sectionSelectors]) => {
@@ -3730,6 +4156,7 @@ import { renderAnimalGallery } from "../js/animal-gallery.js?v=2";
                     sectionSelectors.flatMap(selector => [...document.querySelectorAll(selector)]).forEach(section => {
                         section.hidden = true;
                         section.setAttribute('aria-hidden', 'true');
+                        section.style.setProperty('display', 'none', 'important');
                     });
                 });
                 if (feedSections.geral === false) {
@@ -3752,6 +4179,63 @@ import { renderAnimalGallery } from "../js/animal-gallery.js?v=2";
             };
 
             setTimeout(applyAnimalFeedVisibility, 0);
+            
+            // Extract quick parameters dynamically
+            const allCombinedItems = [
+                ...(animalData.informacao?.geralDetalhada || []),
+                ...(animalData.informacao?.dimensoesDetalhadas || []),
+                ...(animalData.informacao?.curiosidades?.detalhes || []),
+                ...(infoModelItems || []),
+                ...(dimensionModelItems || [])
+            ];
+            
+            function findQuickMetric(items, keywords) {
+                return items.find(item => {
+                    const tipo = String(item.tipo || '').toLowerCase();
+                    return keywords.some(k => tipo.includes(k));
+                });
+            }
+
+            const heightItem = findQuickMetric(allCombinedItems, ['altura']);
+            const weightItem = findQuickMetric(allCombinedItems, ['peso']);
+            const lengthItem = findQuickMetric(allCombinedItems, ['comprimento total', 'comprimento']);
+            const lifeItem = findQuickMetric(allCombinedItems, ['vida útil', 'esperança de vida', 'expectativa de vida', 'longevidade']);
+
+            const heightVal = formatDimension(heightItem, 'N/D');
+            const weightVal = formatDimension(weightItem, 'N/D');
+            const lengthVal = formatDimension(lengthItem, 'N/D');
+            const lifeVal = formatDimension(lifeItem, 'N/D');
+
+            const iucnStatusValue = animalData.informacao?.curiosidades?.estadoConservacao || animalData.estadoConservacao || 'LC';
+            const iucnMeta = getConservationStatusMeta(iucnStatusValue);
+            const taxonomyParts = [
+                animalData.reino ? `Reino ${animalData.reino}` : 'Reino Animalia',
+                animalData.classe ? `Classe ${animalData.classe}` : 'Classe Mammalia',
+                animalData.ordem ? `Ordem ${animalData.ordem}` : 'Ordem Artiodactyla'
+            ].filter(Boolean).join(' &bull; ');
+
+            const audioId = getAnimalAudioId(animalData);
+
+            const findModelCardValue = (typeKeyword) => {
+                const item = infoModelItems.find(i => String(i.tipo || '').toLowerCase().includes(typeKeyword.toLowerCase()));
+                if (!item) return 'N/D';
+                const activeCats = [];
+                if (typeof item.categoria === 'object') {
+                    Object.entries(item.categoria).forEach(([k, v]) => {
+                        if (v === true) activeCats.push(k);
+                    });
+                } else if (item.categoria) {
+                    activeCats.push(item.categoria);
+                }
+                return activeCats.length > 0 ? activeCats.join(' / ') : 'N/D';
+            };
+
+            const atividadeVal = findModelCardValue('Atividade');
+            const locomocaoVal = findModelCardValue('Locomoção');
+            const estratoVal = findModelCardValue('Estrato');
+            const orgSocialVal = findModelCardValue('Organização');
+            const compSazonalVal = findModelCardValue('Comportamento') || 'Nómada';
+
             mainContent.innerHTML = `
                 <div class="video-section">
                     <div id="video-thumbnails">${thumbnailsHTML}</div>
@@ -3759,40 +4243,128 @@ import { renderAnimalGallery } from "../js/animal-gallery.js?v=2";
                         <iframe frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
                     </div>
                 </div>
-                <div class="animal-header-card desktop-only">
-                    <div class="header-titles">
-                        <h1 data-animal-common-name>${animalData.nome}</h1>
-                        <h2 class="scientific-name">(${animalData.nomeCientifico})</h2>
-                        ${renderAnimalLanguageSelect()}
-                    </div>
-                </div>
+                
                 <nav class="page-nav desktop-only" data-page-nav>
                     <a class="page-nav-home" href="index.html" aria-label="Página inicial"><i class="fa-solid fa-paw" aria-hidden="true"></i></a>
                     ${navHTMLDesktop}
                 </nav>
+                
+                <!-- Redesigned Top Card Container -->
                 <div class="animal-top-card-container desktop-only">
-                    <div class="animal-top-card">
-                        <div class="top-card-media-col">
-                            ${renderAnimalMediaBlock(animalData, animalId)}
-                            <div id="animal-profile-actions"></div>
-                        </div>
-                        <div class="top-card-tabs-col">
-                            ${useInfoTabs
-                                ? renderTopCardTabbedModelSection({
-                                    id: 'info-modelos-visuais-top',
+                    <div class="animal-top-card-redesign" data-visual-model-tabs>
+                        
+                        <!-- Top Navigation Tabs spanning full width -->
+                        ${useInfoTabs
+                            ? `
+                            <div class="top-card-redesign-header" style="margin-bottom: 0px;">
+                                ${renderTopCardTabbedModelSection({
+                                    id: 'info-modelos-visuais-top-header',
                                     generalText: animalData.informacao?.geral || '',
                                     dimensionText: animalData.informacao?.dimensoes || '',
                                     infoModelItems: infoModelItems,
                                     dimensionModelItems: dimensionModelItems,
-                                    animalData: animalData
-                                })
-                                : ''
-                            }
+                                    animalData: animalData,
+                                    onlyHeader: true
+                                })}
+                            </div>
+                            `
+                            : ''
+                        }
+                        
+                        <div class="top-card-redesign-body">
+                            <!-- Left Column: Image, taxonomy, iucn, quick params, footer actions -->
+                            <div class="top-card-left-col">
+                                <section class="anatomy-widget">
+                                    <div class="animal-image-top">
+                                        <div class="profile-image-loader" style="display: none; position: absolute; inset: 0; align-items: center; justify-content: center; background: rgba(9, 9, 20, 0.45); backdrop-filter: blur(6px); z-index: 5; border-radius: 18px;">
+                                            <i class="fa-solid fa-paw fa-fade" style="font-size: 3rem; color: #10b981;"></i>
+                                        </div>
+                                        <img data-profile-main-image src="${escapeHtml(animalData.imagemUrl || '')}" alt="${escapeHtml(animalData.nome || 'Animal')}" style="object-position: ${escapeHtml(animalData.imagemObjectPosition || 'center center')};">
+                                        <div class="image-pager"><i class="fa-regular fa-image"></i> <span>1/12</span></div>
+                                    </div>
+                                </section>
+                                
+                                <div class="left-column-details">
+                                    <div class="name-row">
+                                        <h1 data-animal-common-name>${animalData.nome}</h1>
+                                        <button type="button" class="bookmark-btn" aria-label="Favorito"><i class="fa-regular fa-bookmark"></i></button>
+                                    </div>
+                                    
+                                    <div class="scientific-name-row">
+                                        <h2 class="scientific-name">${animalData.nomeCientifico}</h2>
+                                        ${audioId ? `
+                                            <button type="button" class="audio-btn-inline" data-animal-audio-panel-toggle data-audio-id="${escapeHtml(audioId)}" aria-label="Áudio" title="Áudio">
+                                                <i class="fa-solid fa-volume-high"></i>
+                                            </button>
+                                        ` : ''}
+                                        <button type="button" class="badge-accepted" data-conservation-status="${escapeHtml(iucnStatusValue)}" style="cursor: pointer; background: color-mix(in srgb, ${iucnMeta.bg} 15%, transparent); border: 1px solid color-mix(in srgb, ${iucnMeta.bg} 35%, transparent); color: color-mix(in srgb, ${iucnMeta.bg} 90%, #ffffff); font-family: inherit;">
+                                            <i class="fa-solid fa-shield-halved"></i> ${iucnMeta.code}
+                                        </button>
+                                    </div>
+                                    <div class="top-card-divider"></div>
+                                    <div class="quick-params-grid">
+                                        <div class="quick-param-card">
+                                            <div class="quick-param-icon">${getMetricModelSvg('altura')}</div>
+                                            <div class="quick-param-info">
+                                                <span class="quick-param-label">Altura</span>
+                                                <span class="quick-param-value">${heightVal}</span>
+                                            </div>
+                                        </div>
+                                        <div class="quick-param-card">
+                                            <div class="quick-param-icon">${getMetricModelSvg('peso')}</div>
+                                            <div class="quick-param-info">
+                                                <span class="quick-param-label">Peso</span>
+                                                <span class="quick-param-value">${weightVal}</span>
+                                            </div>
+                                        </div>
+                                        <div class="quick-param-card">
+                                            <div class="quick-param-icon">${getMetricModelSvg('comprimento')}</div>
+                                            <div class="quick-param-info">
+                                                <span class="quick-param-label">Comprimento</span>
+                                                <span class="quick-param-value">${lengthVal}</span>
+                                            </div>
+                                        </div>
+                                        <div class="quick-param-card">
+                                            <div class="quick-param-icon">${getGeneralCatalogModelSvg('vida')}</div>
+                                            <div class="quick-param-info">
+                                                <span class="quick-param-label">Vida útil</span>
+                                                <span class="quick-param-value">${lifeVal}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="top-card-divider"></div>
+                                    <div class="left-column-actions">
+                                        <button type="button" class="left-action-btn" aria-label="Gostar"><i class="fa-regular fa-heart"></i></button>
+                                        <button type="button" class="left-action-btn" aria-label="Lista"><i class="fa-solid fa-list-ul"></i></button>
+                                        <button type="button" class="left-action-btn" aria-label="Partilhar"><i class="fa-solid fa-share-nodes"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Right Column: Top metrics & Tabs section -->
+                            <div class="top-card-right-col">
+                                <div class="top-card-tabs-wrapper">
+                                    ${useInfoTabs
+                                        ? renderTopCardTabbedModelSection({
+                                            id: 'info-modelos-visuais-top-panes',
+                                            generalText: animalData.informacao?.geral || '',
+                                            dimensionText: animalData.informacao?.dimensoes || '',
+                                            infoModelItems: infoModelItems,
+                                            dimensionModelItems: dimensionModelItems,
+                                            animalData: animalData,
+                                            onlyPanes: true
+                                        })
+                                        : ''
+                                    }
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
+
+                <!-- Original 3-Column Content Grid Below -->
                 <div class="content-grid has-3-cols">
-                    <!-- Column 1: Image & Related Animals -->
+                    <!-- Column 1: Related Animals & Subspecies -->
                     <div class="left-column">
                         ${renderAnimalMediaBlock(animalData, animalId)}
                         <div id="animal-profile-actions"></div>
@@ -3801,7 +4373,7 @@ import { renderAnimalGallery } from "../js/animal-gallery.js?v=2";
                         <div id="related-animals-container" class="desktop-only" style="display: none;"></div>
                     </div>
                     
-                    <!-- Column 2: Sections (Geral, Dimensões, Alimentação, Reprodução, Plumagem, Distribuição) -->
+                    <!-- Column 2: Full Detailed Sections -->
                     <div class="middle-column desktop-only">
                         ${renderAnimalGallery(animalData.nomeCientifico)}
                         ${hasGeralText && !useInfoTabs ? `
@@ -3893,7 +4465,6 @@ import { renderAnimalGallery } from "../js/animal-gallery.js?v=2";
                             : ''}
                     </div>
                 </div>
-
                 <!-- Stacked Mobile Version -->
                 <div class="animal-details mobile-only">
                     <div class="header mobile-only">
@@ -4497,101 +5068,110 @@ import { renderAnimalGallery } from "../js/animal-gallery.js?v=2";
                     }, 80);
                 }
 
-                const mapIds = ['distributionMapDetailDesktop', 'distributionMapDetailMobile'];
+                const mapIds = ['distributionMapDetailDesktop', 'distributionMapDetailMobile', 'distributionMapCardTopDesktop', 'distributionMapCardTopMobile'];
                 
                 function initMap(mapId) {
                     const container = document.getElementById(mapId);
                     if (!container) return;
                     if (container.classList.contains('jsvectormap-init-done')) return;
 
-                    // Only initialize map if container is visible in viewport/layout
-                    if (container.offsetWidth === 0 || container.offsetHeight === 0) {
-                        return;
-                    }
-
-                    try {
-                        const mapDetail = new jsVectorMap({
-                            selector: `#${mapId}`,
-                            map: 'world',
-                            regionsSelectable: false,
-                            selectedRegions: highlightedCodes,
-                            zoomButtons: false,
-                            zoomOnScroll: false,
-                            regionStyle: {
-                                initial: {
-                                    fill: '#2e2e38',
-                                    fillOpacity: 1,
-                                    stroke: '#3b3b4f',
-                                    strokeWidth: 0.5
-                                },
-                                selected: {
-                                    fill: '#f59e0b',
-                                    fillOpacity: 1
-                                }
-                            }
-                        });
-
-                        const createAreaOverlay = window.DistributionAreas?.createDistributionAreaOverlay;
-                        if (typeof createAreaOverlay === 'function') {
-                            const areaOverlay = createAreaOverlay(container, {
-                                areas: distributionAreas,
-                                points: distributionPoints
-                            });
-                            areaOverlay?.render(distributionAreas, [], distributionPoints);
+                    let attempts = 0;
+                    const initInterval = setInterval(() => {
+                        attempts++;
+                        if (attempts > 50) { // Limit attempts to 5 seconds
+                            clearInterval(initInterval);
+                            return;
                         }
+                        if (container.offsetWidth > 0 && container.offsetHeight > 0) {
+                            clearInterval(initInterval);
+                            if (container.classList.contains('jsvectormap-init-done')) return;
 
-                        container.classList.add('jsvectormap-init-done');
-
-                        // Apply gradients on loaded regions
-                        highlightedCodes.forEach(code => {
-                            applySubregionGradient(code, paisesDetalhes[code] || 'inteiro', mapId);
-                        });
-
-                        // Polling focus handler: waits for map container to have actual size in browser layout
-                        const hasDrawnGeometry = distributionAreas.length > 0 || distributionPoints.length > 0;
-                        if (hasDrawnGeometry || highlightedCodes.length > 0) {
-                            let attempts = 0;
-                            const focusInterval = setInterval(() => {
-                                attempts++;
-                                if (container.offsetWidth > 0 && container.offsetHeight > 0) {
-                                    const focusGeometry = window.DistributionAreas?.focusDistributionGeometry;
-                                    const geometryFocused = typeof focusGeometry === 'function' && focusGeometry(
-                                        mapDetail,
-                                        container,
-                                        distributionAreas,
-                                        distributionPoints,
-                                        { animate: false, padding: 0.35, maximumZoom: 7 }
-                                    );
-                                    if (geometryFocused) {
-                                        clearInterval(focusInterval);
-                                        return;
-                                    }
-
-                                    if (highlightedCodes.length === 0) {
-                                        clearInterval(focusInterval);
-                                        return;
-                                    }
-
-                                    try {
-                                        mapDetail.setFocus({ regions: highlightedCodes, animate: false });
-                                        clearInterval(focusInterval);
-                                    } catch (e) {
-                                        try {
-                                            mapDetail.setFocus({ region: highlightedCodes[0], animate: false });
-                                            clearInterval(focusInterval);
-                                        } catch (err) {
-                                            console.error("Erro ao focar regiões:", err);
+                            try {
+                                const mapDetail = new jsVectorMap({
+                                    selector: `#${mapId}`,
+                                    map: 'world',
+                                    regionsSelectable: false,
+                                    selectedRegions: highlightedCodes,
+                                    zoomButtons: false,
+                                    zoomOnScroll: false,
+                                    regionStyle: {
+                                        initial: {
+                                            fill: '#2e2e38',
+                                            fillOpacity: 1,
+                                            stroke: '#3b3b4f',
+                                            strokeWidth: 0.5
+                                        },
+                                        selected: {
+                                            fill: '#f59e0b',
+                                            fillOpacity: 1
                                         }
                                     }
+                                });
+
+                                const createAreaOverlay = window.DistributionAreas?.createDistributionAreaOverlay;
+                                if (typeof createAreaOverlay === 'function') {
+                                    const areaOverlay = createAreaOverlay(container, {
+                                        areas: distributionAreas,
+                                        points: distributionPoints
+                                    });
+                                    areaOverlay?.render(distributionAreas, [], distributionPoints);
                                 }
-                                if (attempts > 15) {
-                                    clearInterval(focusInterval);
+
+                                container.classList.add('jsvectormap-init-done');
+
+                                // Apply gradients on loaded regions
+                                highlightedCodes.forEach(code => {
+                                    applySubregionGradient(code, paisesDetalhes[code] || 'inteiro', mapId);
+                                });
+
+                                // Polling focus handler: waits for map container to have actual size in browser layout
+                                const hasDrawnGeometry = distributionAreas.length > 0 || distributionPoints.length > 0;
+                                if (hasDrawnGeometry || highlightedCodes.length > 0) {
+                                    let focusAttempts = 0;
+                                    const focusInterval = setInterval(() => {
+                                        focusAttempts++;
+                                        if (container.offsetWidth > 0 && container.offsetHeight > 0) {
+                                            const focusGeometry = window.DistributionAreas?.focusDistributionGeometry;
+                                            const geometryFocused = typeof focusGeometry === 'function' && focusGeometry(
+                                                mapDetail,
+                                                container,
+                                                distributionAreas,
+                                                distributionPoints,
+                                                { animate: false, padding: 0.35, maximumZoom: 7 }
+                                            );
+                                            if (geometryFocused) {
+                                                clearInterval(focusInterval);
+                                                return;
+                                            }
+
+                                            if (highlightedCodes.length === 0) {
+                                                clearInterval(focusInterval);
+                                                return;
+                                            }
+
+                                            try {
+                                                mapDetail.setFocus({ regions: highlightedCodes, animate: false });
+                                                clearInterval(focusInterval);
+                                            } catch (e) {
+                                                try {
+                                                    mapDetail.setFocus({ region: highlightedCodes[0], animate: false });
+                                                    clearInterval(focusInterval);
+                                                } catch (err) {
+                                                    console.error("Erro ao focar regiões:", err);
+                                                    clearInterval(focusInterval);
+                                                }
+                                            }
+                                        }
+                                        if (focusAttempts > 20) {
+                                            clearInterval(focusInterval);
+                                        }
+                                    }, 80);
                                 }
-                            }, 80);
+                            } catch (error) {
+                                console.error("Erro ao inicializar o mapa jvectormap:", error);
+                            }
                         }
-                    } catch (error) {
-                        console.error("Erro ao inicializar o mapa jvectormap:", error);
-                    }
+                    }, 100);
                 }
 
                 // Initial attempts to render the visible map
@@ -4843,6 +5423,57 @@ import { renderAnimalGallery } from "../js/animal-gallery.js?v=2";
                     }
                 });
             });
+
+            // Header button handlers to sync with phase and gender switches
+            const headerPawBtn = document.querySelector('.nav-header-controls .paw-btn');
+            const headerGenderBtn = document.querySelector('.nav-header-controls .gender-btn');
+
+            if (headerPawBtn) {
+                let currentPhase = 'Adulto';
+                headerPawBtn.addEventListener('click', () => {
+                    currentPhase = currentPhase === 'Adulto' ? 'Cria' : 'Adulto';
+                    headerPawBtn.classList.toggle('active', currentPhase === 'Adulto');
+                    const targetBtn = document.querySelector(`.phase-tab-btn[data-phase="${currentPhase}"]`) || 
+                                      document.querySelector(`.profile-image-badge.phase-switch [data-phase-option="${currentPhase}"]`);
+                    if (targetBtn) {
+                        targetBtn.click();
+                    } else {
+                        document.querySelectorAll('.visual-model-tab-pane, .info-section-card, .general-visual-card').forEach(container => {
+                            applyCombinedFilters(container);
+                        });
+                    }
+                });
+            }
+
+            if (headerGenderBtn) {
+                let genderIndex = 0; // 0: Both, 1: Male, 2: Female
+                const genders = ['', 'M', 'F'];
+                headerGenderBtn.addEventListener('click', () => {
+                    genderIndex = (genderIndex + 1) % 3;
+                    const selectedGender = genders[genderIndex];
+                    
+                    headerGenderBtn.classList.remove('active-m', 'active-f');
+                    if (selectedGender === 'M') {
+                        headerGenderBtn.classList.add('active-m');
+                        headerGenderBtn.textContent = '♂';
+                    } else if (selectedGender === 'F') {
+                        headerGenderBtn.classList.add('active-f');
+                        headerGenderBtn.textContent = '♀';
+                    } else {
+                        headerGenderBtn.textContent = '♂/♀';
+                    }
+                    
+                    const targetBtn = document.querySelector(`.gender-tab-btn[data-gender="${selectedGender}"]`) ||
+                                      document.querySelector(`.profile-image-badge[data-profile-badge-key="gender:${selectedGender}"]`);
+                    if (targetBtn) {
+                        targetBtn.click();
+                    } else {
+                        document.querySelectorAll('.visual-model-tab-pane, .info-section-card, .general-visual-card').forEach(container => {
+                            applyCombinedFilters(container);
+                        });
+                    }
+                });
+            }
 
             // Lógica para navegação interna ativa
             const pageNavs = document.querySelectorAll('[data-page-nav]');

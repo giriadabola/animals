@@ -3133,7 +3133,7 @@ body.conservation-status-modal-open {
     }
 }
 
-/* Foto de perfil principal da pÃ¡gina do animal: formato vertical 600 Ã— 950 */
+/* Foto de perfil principal da página do animal: formato vertical 600 × 950 */
 .animal-image {
     width: min(100%, 600px);
     max-width: 600px;
@@ -3143,7 +3143,17 @@ body.conservation-status-modal-open {
     background: rgba(9, 9, 20, 0.72);
 }
 
-.animal-image > img[data-profile-main-image] {
+.animal-image-top {
+    width: min(100%, 600px);
+    max-width: 600px;
+    aspect-ratio: 600 / 910;
+    border-radius: 28px;
+    overflow: hidden;
+    background: rgba(9, 9, 20, 0.72);
+}
+
+.animal-image > img[data-profile-main-image],
+.animal-image-top > img[data-profile-main-image] {
     width: 100%;
     height: 100%;
     min-height: 0;
@@ -3152,7 +3162,7 @@ body.conservation-status-modal-open {
 }
 
 @media (min-width: 900px) {
-    .animal-image {
+    .animal-image, .animal-image-top {
         height: auto;
         max-height: 950px;
     }
@@ -4267,7 +4277,8 @@ html[lang="en"] .visual-model-section-tab .visual-tab-label--short[data-label-en
 html[lang="de"] .visual-model-section-tab .visual-tab-label--short[data-label-de="Abm."]::after {
     content: attr(data-label-de);
     font-size: clamp(0.72rem, 1.9vw, 0.98rem);
-}
+}
+
 
 .distribution-country-map-clickable path[data-code] { cursor: pointer; }
 .distribution-country-map-clickable path[data-code]:hover { filter: brightness(1.22); }
@@ -4424,7 +4435,7 @@ body.distribution-country-animals-open { overflow: hidden; }
         gap: 32px;
     }
     .animal-top-card .top-card-media-col {
-        width: 320px;
+        width: 280px;
         flex-shrink: 0;
         align-items: stretch;
     }
@@ -4453,6 +4464,9 @@ body.distribution-country-animals-open { overflow: hidden; }
 .animal-top-card .visual-model-general-copy p {
     font-size: 1.04rem !important;
 }
+.animal-top-card-redesign .visual-model-general-copy p {
+    font-size: 0.85rem !important;
+}
 
 .animal-top-card .dimension-model-label,
 .animal-top-card .plumage-model-label,
@@ -4465,6 +4479,34 @@ body.distribution-country-animals-open { overflow: hidden; }
     font-weight: 700 !important;
 }
 
+/* Redução de 30% no tamanho de letra dos cards de modelos na versão desktop APENAS para a aba GERAL */
+.animal-top-card-redesign [data-visual-model-pane="general"] .dimension-model-label,
+.animal-top-card-redesign [data-visual-model-pane="general"] .plumage-model-label,
+.animal-top-card-redesign [data-visual-model-pane="general"] .dimension-model-value,
+.animal-top-card-redesign [data-visual-model-pane="general"] .plumage-model-value,
+.animal-top-card-redesign [data-visual-model-pane="general"] [class*="popup-copy"] span,
+.animal-top-card-redesign [data-visual-model-pane="general"] [class*="popup-copy"] strong,
+.animal-top-card-redesign [data-visual-model-pane="general"] [class*="popup-copy"] p {
+    font-size: 0.8rem !important;
+    font-weight: 700 !important;
+}
+
+/* Tamanho de letra e cor idênticos aos da aba "Reprodução" para todas as outras abas (exceto Geral) */
+.animal-top-card-redesign [data-visual-model-pane]:not([data-visual-model-pane="general"]) .dimension-model-label,
+.animal-top-card-redesign [data-visual-model-pane]:not([data-visual-model-pane="general"]) .plumage-model-label,
+.animal-top-card-redesign [data-visual-model-pane]:not([data-visual-model-pane="general"]) .general-model-value-row {
+    font-size: 1.15rem !important;
+    font-weight: 700 !important;
+    color: #ffffff !important;
+}
+.animal-top-card-redesign [data-visual-model-pane]:not([data-visual-model-pane="general"]) .dimension-model-value,
+.animal-top-card-redesign [data-visual-model-pane]:not([data-visual-model-pane="general"]) .plumage-model-value {
+    font-size: 0.92rem !important;
+    font-weight: 400 !important;
+    color: var(--text-secondary) !important;
+    text-transform: none !important;
+}
+
 /* Padroniza as dimensões, margens e ícones de todos os cartões de modelos visuais e botões de popup */
 .animal-top-card .dimension-model-card,
 .animal-top-card .general-model-card,
@@ -4473,7 +4515,15 @@ body.distribution-country-animals-open { overflow: hidden; }
 .animal-top-card .reproduction-model-card,
 .animal-top-card .curiosidades-model-card,
 .animal-top-card button[class*="popup-trigger"],
-.animal-top-card [class*="popup-trigger"] {
+.animal-top-card [class*="popup-trigger"],
+.animal-top-card-redesign [data-visual-model-pane]:not([data-visual-model-pane="general"]) .dimension-model-card,
+.animal-top-card-redesign [data-visual-model-pane]:not([data-visual-model-pane="general"]) .general-model-card,
+.animal-top-card-redesign [data-visual-model-pane]:not([data-visual-model-pane="general"]) .ecology-model-card,
+.animal-top-card-redesign [data-visual-model-pane]:not([data-visual-model-pane="general"]) .feeding-model-card,
+.animal-top-card-redesign [data-visual-model-pane]:not([data-visual-model-pane="general"]) .reproduction-model-card,
+.animal-top-card-redesign [data-visual-model-pane]:not([data-visual-model-pane="general"]) .curiosidades-model-card,
+.animal-top-card-redesign [data-visual-model-pane]:not([data-visual-model-pane="general"]) button[class*="popup-trigger"],
+.animal-top-card-redesign [data-visual-model-pane]:not([data-visual-model-pane="general"]) [class*="popup-trigger"] {
     padding: 10px 14px !important;
     gap: 12px !important;
     min-height: auto !important;
@@ -4490,9 +4540,32 @@ body.distribution-country-animals-open { overflow: hidden; }
     box-sizing: border-box !important;
 }
 
+/* Redução de 30% nas dimensões físicas e espaçamentos (paddings) dos cards no desktop APENAS para a aba GERAL */
+.animal-top-card-redesign [data-visual-model-pane="general"] .dimension-model-card,
+.animal-top-card-redesign [data-visual-model-pane="general"] .general-model-card,
+.animal-top-card-redesign [data-visual-model-pane="general"] .ecology-model-card,
+.animal-top-card-redesign [data-visual-model-pane="general"] .feeding-model-card,
+.animal-top-card-redesign [data-visual-model-pane="general"] .reproduction-model-card,
+.animal-top-card-redesign [data-visual-model-pane="general"] .curiosidades-model-card,
+.animal-top-card-redesign [data-visual-model-pane="general"] button[class*="popup-trigger"],
+.animal-top-card-redesign [data-visual-model-pane="general"] [class*="popup-trigger"] {
+    padding: 6px 10px !important;
+    gap: 8px !important;
+    min-height: auto !important;
+    font-family: inherit !important;
+    text-align: left !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    background: rgba(255, 255, 255, 0.03) !important;
+    border-radius: 6px !important;
+    box-sizing: border-box !important;
+}
+
 .animal-top-card .dimension-model-icon,
 .animal-top-card .general-model-card .dimension-model-icon,
-.animal-top-card [class*="popup-icon"] {
+.animal-top-card [class*="popup-icon"],
+.animal-top-card-redesign [data-visual-model-pane]:not([data-visual-model-pane="general"]) .dimension-model-icon,
+.animal-top-card-redesign [data-visual-model-pane]:not([data-visual-model-pane="general"]) .general-model-card .dimension-model-icon,
+.animal-top-card-redesign [data-visual-model-pane]:not([data-visual-model-pane="general"]) [class*="popup-icon"] {
     width: 32px !important;
     height: 32px !important;
     min-width: 32px !important;
@@ -4503,12 +4576,38 @@ body.distribution-country-animals-open { overflow: hidden; }
     justify-content: center !important;
 }
 
+/* Ícones 30% menores para a lista desktop na aba GERAL */
+.animal-top-card-redesign [data-visual-model-pane="general"] .dimension-model-icon,
+.animal-top-card-redesign [data-visual-model-pane="general"] .general-model-card .dimension-model-icon,
+.animal-top-card-redesign [data-visual-model-pane="general"] [class*="popup-icon"] {
+    width: 22px !important;
+    height: 22px !important;
+    min-width: 22px !important;
+    flex-shrink: 0 !important;
+    border-radius: 5px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
 .animal-top-card .dimension-model-icon svg,
 .animal-top-card .general-model-card .dimension-model-icon svg,
 .animal-top-card [class*="popup-icon"] svg,
-.animal-top-card [class*="popup-icon"] img {
+.animal-top-card [class*="popup-icon"] img,
+.animal-top-card-redesign [data-visual-model-pane]:not([data-visual-model-pane="general"]) .dimension-model-icon svg,
+.animal-top-card-redesign [data-visual-model-pane]:not([data-visual-model-pane="general"]) .general-model-card .dimension-model-icon svg,
+.animal-top-card-redesign [data-visual-model-pane]:not([data-visual-model-pane="general"]) [class*="popup-icon"] svg,
+.animal-top-card-redesign [data-visual-model-pane]:not([data-visual-model-pane="general"]) [class*="popup-icon"] img {
     width: 18px !important;
     height: 18px !important;
+}
+
+.animal-top-card-redesign [data-visual-model-pane="general"] .dimension-model-icon svg,
+.animal-top-card-redesign [data-visual-model-pane="general"] .general-model-card .dimension-model-icon svg,
+.animal-top-card-redesign [data-visual-model-pane="general"] [class*="popup-icon"] svg,
+.animal-top-card-redesign [data-visual-model-pane="general"] [class*="popup-icon"] img {
+    width: 12px !important;
+    height: 12px !important;
 }
 
 .animal-top-card .visual-models-grid {
@@ -4517,7 +4616,15 @@ body.distribution-country-animals-open { overflow: hidden; }
     gap: 12px !important;
 }
 
-.animal-top-card .visual-model-section-tablist {
+/* A lista vertical em visual-models-grid continua a ser flex-column na versão desktop */
+.animal-top-card-redesign .visual-models-grid {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+}
+
+.animal-top-card .visual-model-section-tablist,
+.animal-top-card-redesign .visual-model-section-tablist {
     display: flex !important;
     flex-wrap: wrap !important;
     gap: 4px !important;
@@ -4527,7 +4634,8 @@ body.distribution-country-animals-open { overflow: hidden; }
     align-items: center;
 }
 
-.animal-top-card .visual-model-section-tab {
+.animal-top-card .visual-model-section-tab,
+.animal-top-card-redesign .visual-model-section-tab {
     flex: 0 0 auto !important;
     min-width: max-content !important;
     height: auto !important;
@@ -4542,4 +4650,653 @@ body.distribution-country-animals-open { overflow: hidden; }
     display: grid !important;
     grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)) !important;
     gap: 12px !important;
+}
+
+.animal-top-card-redesign .feeding-model-grid,
+.animal-top-card-redesign .reproduction-model-grid,
+.animal-top-card-redesign .ecology-model-grid {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+}
+
+/* Redesigned layout styles matching mockup */
+.top-card-redesign-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: transparent !important;
+    border: none !important;
+    padding: 0px 24px 0px 24px !important;
+    border-radius: 20px !important;
+    margin-bottom: 0px !important;
+    margin-left: -24px !important;
+    margin-right: -24px !important;
+    width: calc(100% + 48px) !important;
+}
+
+.top-card-redesign-tabs {
+    display: flex;
+    gap: 12px;
+}
+
+.top-card-tab {
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.6) !important;
+    font-size: 0.95rem;
+    font-weight: 500;
+    padding: 8px 16px;
+    border-radius: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+}
+
+.top-card-tab i {
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.5);
+    transition: all 0.2s ease;
+}
+
+.top-card-tab:hover i,
+.top-card-tab.active i {
+    color: #10b981;
+}
+
+.top-card-tab:hover,
+.top-card-tab.active {
+    color: #10b981 !important;
+    background: rgba(16, 185, 129, 0.08) !important;
+}
+
+/* Controls inside header nav bar */
+.nav-header-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.nav-control-btn {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.04);
+    color: rgba(255, 255, 255, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+    padding: 0;
+}
+
+.nav-control-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.nav-control-btn.paw-btn.active {
+    background: rgba(16, 185, 129, 0.15);
+    color: #10b981;
+    border-color: rgba(16, 185, 129, 0.3);
+}
+
+.nav-control-btn.gender-btn.active-m {
+    color: #3b82f6;
+    background: rgba(59, 130, 246, 0.15);
+    border-color: rgba(59, 130, 246, 0.3);
+}
+
+.nav-control-btn.gender-btn.active-f {
+    color: #ec4899;
+    background: rgba(236, 72, 153, 0.15);
+    border-color: rgba(236, 72, 153, 0.3);
+}
+
+/* Content Layout Redesign */
+.content-grid.has-2-cols-redesign {
+    display: grid;
+    grid-template-columns: 328px 1fr;
+    gap: 32px;
+    align-items: flex-start;
+    margin-top: 24px;
+}
+
+@media (max-width: 992px) {
+    .content-grid.has-2-cols-redesign {
+        grid-template-columns: 1fr;
+        gap: 24px;
+    }
+}
+
+.left-column-details {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    background: transparent;
+    padding: 2px 0 10px 0;
+}
+
+.top-card-divider {
+    height: 1px;
+    background: rgba(255, 255, 255, 0.08);
+    width: 100%;
+}
+
+.left-column-details .name-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.left-column-details .name-row h1 {
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: #fff;
+    margin: 0;
+    line-height: 1.15;
+}
+
+.left-column-details .bookmark-btn {
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 4px;
+    transition: color 0.2s;
+}
+
+.left-column-details .bookmark-btn:hover {
+    color: #facc15;
+}
+
+.left-column-details .scientific-name-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: -2px;
+}
+
+.left-column-details .scientific-name {
+    font-style: italic;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 1.1rem;
+    margin: 0;
+}
+
+.left-column-details .audio-btn-inline {
+    background: transparent;
+    border: none;
+    color: #10b981;
+    font-size: 1.1rem;
+    cursor: pointer;
+    padding: 0;
+}
+
+.left-column-details .badge-accepted {
+    background: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+    border: 1px solid rgba(16, 185, 129, 0.2);
+    border-radius: 20px;
+    padding: 3px 10px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.left-column-details .classification-row {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.5);
+    line-height: 1.4;
+    font-weight: 400;
+}
+
+.left-column-details .iucn-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 16px;
+    padding: 14px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+}
+
+.left-column-details .iucn-card:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.left-column-details .iucn-info {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.left-column-details .iucn-title {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 500;
+}
+
+.left-column-details .iucn-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: #fff;
+}
+
+.left-column-details .iucn-chevron {
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 0.95rem;
+}
+
+/* Quick Params Grid */
+.quick-params-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.quick-param-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 16px;
+    padding: 8px 10px;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.quick-param-icon {
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.04);
+    color: rgba(255, 255, 255, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    flex-shrink: 0;
+}
+
+.quick-param-icon svg {
+    width: 18px !important;
+    height: 18px !important;
+}
+
+.quick-param-icon svg path,
+.quick-param-icon svg circle,
+.quick-param-icon svg ellipse {
+    stroke: currentColor !important;
+    stroke-width: 3px !important;
+}
+
+.quick-param-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.quick-param-label {
+    font-size: 0.65rem;
+    color: rgba(255, 255, 255, 0.4);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-weight: 500;
+}
+
+.quick-param-value {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #fff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Footer Action Buttons */
+.left-column-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 2px;
+}
+
+.left-action-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.03);
+    color: rgba(255, 255, 255, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 1.1rem;
+    transition: all 0.2s ease;
+    padding: 0;
+}
+
+.left-action-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.left-action-btn.audio-play {
+    background: rgba(16, 185, 129, 0.1);
+    border-color: rgba(16, 185, 129, 0.2);
+    color: #10b981;
+}
+
+.left-action-btn.audio-play:hover {
+    background: rgba(16, 185, 129, 0.2);
+    color: #34d399;
+}
+
+/* Right Column Redesign Layout */
+.right-column-redesign {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.right-column-top-cards {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 16px;
+}
+
+@media (max-width: 1200px) {
+    .right-column-top-cards {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .right-column-top-cards {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+.summary-metric-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 18px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+button.summary-metric-card:hover {
+    background: rgba(255, 255, 255, 0.07) !important;
+    border-color: rgba(255, 255, 255, 0.15) !important;
+    transform: translateY(-2px);
+}
+
+.summary-metric-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.5);
+    font-weight: 500;
+    z-index: 2; /* Garante que fica por cima da marca de água */
+}
+
+.summary-metric-header svg {
+    width: 18px !important;
+    height: 18px !important;
+    flex-shrink: 0 !important;
+}
+
+.summary-metric-value {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--card-accent) !important;
+    line-height: 1.3;
+    display: flex;
+    align-items: center;
+    flex: 1;
+    z-index: 2; /* Fica por cima da marca de água */
+    background: color-mix(in srgb, var(--card-accent) 8%, transparent);
+    border: 1px solid color-mix(in srgb, var(--card-accent) 15%, transparent);
+    padding: 8px 12px;
+    border-radius: 12px;
+    margin-top: 4px;
+}
+
+.summary-metric-watermark {
+    position: absolute;
+    bottom: -15px;
+    right: -10px;
+    width: 68px;
+    height: 68px;
+    opacity: 0.06;
+    color: var(--card-accent);
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform: rotate(-10deg);
+    z-index: 1;
+}
+
+.summary-metric-watermark svg {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.communication-tag.active {
+    background: color-mix(in srgb, var(--card-accent) 15%, transparent) !important;
+    border: 1px solid color-mix(in srgb, var(--card-accent) 30%, transparent) !important;
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.communication-tag.inactive {
+    background: rgba(255, 255, 255, 0.02) !important;
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+    color: rgba(255, 255, 255, 0.4) !important;
+}
+
+.communication-tag svg.metric-model-svg {
+    width: 16px !important;
+    height: 16px !important;
+}
+
+/* Scrollbar para imagens de clima/biomas/habitats */
+.env-images-row::-webkit-scrollbar {
+    height: 4px;
+}
+.env-images-row::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 4px;
+}
+.env-images-row::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+}
+.env-images-row::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.right-column-sections-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+}
+
+@media (max-width: 1200px) {
+    .right-column-sections-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Image pager styles */
+.left-column .animal-image {
+    position: relative;
+    border-radius: 24px;
+    overflow: hidden;
+}
+
+.left-column .image-pager {
+    position: absolute;
+    bottom: 16px;
+    right: 16px;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(6px);
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    z-index: 2;
+}
+
+/* Top Card Redesign Specific Layout and Containers */
+.animal-top-card-redesign {
+    background: #13192e;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 28px;
+    padding: 0px 24px 24px 24px;
+    margin-bottom: 28px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.top-card-redesign-body {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 32px;
+}
+
+@media (max-width: 992px) {
+    .top-card-redesign-body {
+        grid-template-columns: 1fr;
+        gap: 24px;
+    }
+}
+
+.top-card-left-col {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.top-card-right-col {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    min-width: 0;
+}
+
+.top-card-tabs-wrapper {
+    background: rgba(255, 255, 255, 0.01);
+    border: 1px solid rgba(255, 255, 255, 0.03);
+    border-radius: 20px;
+    padding: 20px;
+}
+
+/* Top Card Redesign Tabs & Controls Override */
+.animal-top-card-redesign .visual-models-section-heading {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    background: transparent !important;
+    border: none !important;
+    padding: 0px 24px 0px 24px !important;
+    border-radius: 20px !important;
+    margin-bottom: 0px !important;
+    border-bottom: none !important;
+    min-height: auto !important;
+    height: auto !important;
+    width: calc(100% + 48px) !important;
+    margin-left: -24px !important;
+    margin-right: -24px !important;
+}
+
+.animal-top-card-redesign .visual-model-section-tablist {
+    display: flex !important;
+    gap: 12px !important;
+    align-items: center !important;
+    flex: 1 !important;
+}
+
+.animal-top-card-redesign .visual-model-section-tab {
+    background: transparent !important;
+    border: none !important;
+    color: rgba(255, 255, 255, 0.6) !important;
+    font-size: 0.95rem !important;
+    font-weight: 500 !important;
+    padding: 8px 16px !important;
+    border-radius: 10px !important;
+    cursor: pointer !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    transition: all 0.2s ease !important;
+    min-height: auto !important;
+    height: auto !important;
+    text-transform: none !important;
+}
+
+.animal-top-card-redesign .visual-model-section-tab .icon svg {
+    width: 16px !important;
+    height: 16px !important;
+    fill: currentColor !important;
+    margin: 0 !important;
+}
+
+.animal-top-card-redesign .visual-model-section-tab:hover,
+.animal-top-card-redesign .visual-model-section-tab.is-active {
+    color: #10b981 !important;
+    background: rgba(16, 185, 129, 0.08) !important;
+}
+
+.animal-top-card-redesign .visual-models-tablist-controls {
+    margin-left: auto !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+}
+
+/* Remover outline de foco das miniaturas do card de ambiente */
+.env-image-card,
+.env-image-card:focus,
+.env-image-card:active,
+.env-image-card:focus-visible {
+    outline: none !important;
+    box-shadow: none !important;
 }
