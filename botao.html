@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Migrador de Timestamps - MundoAnimal</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Playfair+Display:ital,wght@0,700;1,700&display=swap">
+    <style>
+        :root {
+            --bg: radial-gradient(circle at 50% -10%, #1b1742 0, #090b18 35%, #070914 70%);
+            --paper: #0d0f22;
+            --border: rgba(255, 255, 255, 0.08);
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --text: #eef1fa;
+            --text-muted: #aeb7ce;
+            --success: #10b981;
+            --danger: #ef4444;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            width: min(580px, 92vw);
+            background: var(--paper);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 30px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+
+        h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.2rem;
+            margin: 0 0 10px 0;
+            background: linear-gradient(135deg, #fff 30%, var(--text-muted) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            line-height: 1.5;
+            margin-bottom: 25px;
+        }
+
+        .btn {
+            background: var(--primary);
+            color: white;
+            border: 0;
+            padding: 14px 28px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 8px 24px rgba(79, 70, 229, 0.3);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn:hover:not(:disabled) {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 12px 28px rgba(79, 70, 229, 0.45);
+        }
+
+        .btn:disabled {
+            background: #2a2c42;
+            color: #787a91;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .console-log {
+            margin-top: 25px;
+            background: #06070d;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 15px;
+            text-align: left;
+            font-family: monospace;
+            font-size: 0.85rem;
+            max-height: 200px;
+            overflow-y: auto;
+            color: #00ff66;
+            display: none;
+        }
+
+        .console-log::-webkit-scrollbar {
+            width: 6px;
+        }
+        .console-log::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .console-log::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 4px;
+        }
+
+        .status-success {
+            color: var(--success);
+            font-weight: bold;
+            margin-top: 15px;
+            display: none;
+        }
+
+        .input-field {
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: #06070d;
+            color: white;
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.95rem;
+        }
+
+        .input-field:focus {
+            outline: 2px solid var(--primary);
+            border-color: transparent;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Migrador de Timestamps</h1>
+        <p>Este utilitário converte todos os campos de data <code>timestamp</code> na coleção de animais do Firestore de números simples (Unix epoch) para objetos de data nativos do Firestore (Dia/Hora).</p>
+        
+        <!-- Secção de Login se o utilizador não estiver autenticado -->
+        <div id="loginSection" style="display:none; margin-bottom:20px; border:1px solid rgba(255,255,255,0.08); padding:20px; border-radius:12px; background: rgba(0,0,0,0.2);">
+            <h3 style="margin-top:0; font-size:1.1rem; text-align:left;">Iniciar Sessão (Administrador)</h3>
+            <div style="display:flex; flex-direction:column; gap:10px; text-align:left;">
+                <label style="font-size:0.85rem; color:var(--text-muted);">Email</label>
+                <input id="loginEmail" class="input-field" type="email" placeholder="admin@zoo.com">
+                
+                <label style="font-size:0.85rem; color:var(--text-muted);">Palavra-passe</label>
+                <input id="loginPassword" class="input-field" type="password" placeholder="••••••••">
+                
+                <button id="doLoginBtn" class="btn" style="margin-top:10px; padding:10px; box-shadow:none;">Entrar</button>
+            </div>
+            <div id="loginError" style="color:var(--danger); font-size:0.85rem; margin-top:8px; display:none;"></div>
+        </div>
+
+        <div id="userInfoSection" style="margin-bottom:20px; font-size:0.9rem; color:var(--text-muted); display:none;">
+            Autenticado como: <b id="userEmail" style="color:#fff;"></b>
+        </div>
+
+        <button id="migrateBtn" class="btn" disabled>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+            Iniciar Migração
+        </button>
+
+        <div id="logArea" class="console-log"></div>
+        <div id="successMessage" class="status-success">✓ Migração concluída com sucesso!</div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
+        import { getFirestore, collection, getDocs, doc, updateDoc } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBfOrW348C9BWrgCHeu8VsKhC14292p77A",
+            authDomain: "animals-1cb2d.firebaseapp.com",
+            projectId: "animals-1cb2d",
+            storageBucket: "animals-1cb2d.firebasestorage.app",
+            messagingSenderId: "353507738450",
+            appId: "1:353507738450:web:29367b67a633cf71c2308b"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        const migrateBtn = document.getElementById('migrateBtn');
+        const logArea = document.getElementById('logArea');
+        const successMessage = document.getElementById('successMessage');
+        
+        const loginSection = document.getElementById('loginSection');
+        const userInfoSection = document.getElementById('userInfoSection');
+        const userEmailSpan = document.getElementById('userEmail');
+        const loginEmailInput = document.getElementById('loginEmail');
+        const loginPasswordInput = document.getElementById('loginPassword');
+        const doLoginBtn = document.getElementById('doLoginBtn');
+        const loginError = document.getElementById('loginError');
+
+        function appendLog(text) {
+            logArea.style.display = 'block';
+            logArea.innerText += text + '\n';
+            logArea.scrollTop = logArea.scrollHeight;
+        }
+
+        // Monitorizar estado de autenticação
+        onAuthStateChanged(auth, user => {
+            if (user) {
+                loginSection.style.display = 'none';
+                userInfoSection.style.display = 'block';
+                userEmailSpan.textContent = user.email;
+                migrateBtn.disabled = false;
+                appendLog(`Sessão ativa detetada para: ${user.email}`);
+            } else {
+                loginSection.style.display = 'block';
+                userInfoSection.style.display = 'none';
+                migrateBtn.disabled = true;
+                appendLog("Aviso: Necessitas de iniciar sessão com uma conta de Administrador para ter permissões de escrita.");
+            }
+        });
+
+        // Efetuar Login
+        doLoginBtn.addEventListener('click', async () => {
+            const email = loginEmailInput.value.trim();
+            const password = loginPasswordInput.value;
+            loginError.style.display = 'none';
+            
+            if (!email || !password) {
+                loginError.textContent = "Escreve o email e palavra-passe.";
+                loginError.style.display = 'block';
+                return;
+            }
+            
+            try {
+                doLoginBtn.disabled = true;
+                await signInWithEmailAndPassword(auth, email, password);
+            } catch (err) {
+                loginError.textContent = "Erro ao entrar: " + err.message;
+                loginError.style.display = 'block';
+            } finally {
+                doLoginBtn.disabled = false;
+            }
+        });
+
+        migrateBtn.addEventListener('click', async () => {
+            migrateBtn.disabled = true;
+            successMessage.style.display = 'none';
+            logArea.innerText = '';
+            
+            try {
+                appendLog("A obter documentos da coleção 'animais'...");
+                const querySnapshot = await getDocs(collection(db, "animais"));
+                appendLog(`Total de documentos obtidos: ${querySnapshot.size}`);
+                
+                let count = 0;
+                for (const docSnap of querySnapshot.docs) {
+                    const data = docSnap.data();
+                    const updates = {};
+                    
+                    if (typeof data.timestamp === 'number') {
+                        updates.timestamp = new Date(data.timestamp);
+                    }
+                    
+                    if (Array.isArray(data.editado)) {
+                        let changed = false;
+                        const newEditado = data.editado.map(e => {
+                            if (typeof e.timestamp === 'number') {
+                                changed = true;
+                                return { ...e, timestamp: new Date(e.timestamp) };
+                            }
+                            return e;
+                        });
+                        if (changed) {
+                            updates.editado = newEditado;
+                        }
+                    }
+                    
+                    if (Object.keys(updates).length > 0) {
+                        await updateDoc(doc(db, "animais", docSnap.id), updates);
+                        appendLog(`Convertido com sucesso: ${docSnap.id}`);
+                        count++;
+                    } else {
+                        appendLog(`Sem necessidade de conversão: ${docSnap.id}`);
+                    }
+                }
+                
+                appendLog(`-----------------------------------`);
+                appendLog(`Migração finalizada! ${count} documentos atualizados.`);
+                successMessage.innerText = `✓ Migração concluída! ${count} animais convertidos.`;
+                successMessage.style.display = 'block';
+            } catch (err) {
+                appendLog(`[ERRO] Ocorreu uma falha: ${err.message}`);
+                console.error(err);
+            } finally {
+                migrateBtn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>
