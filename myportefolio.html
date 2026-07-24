@@ -236,7 +236,7 @@
                                     <td class="name">${escapeHtml(animal.nome || 'Sem nome')}</td>
                                     <td class="scientific">${escapeHtml(animal.nomeCientifico || '—')}</td>
                                     <td><span class="quality-pill"><i class="quality-icon ${quality.className} ${quality.icon}"></i>${quality.label}</span></td>
-                                    <td><a class="edit-btn" href="form/form.html?edit=${encodeURIComponent(animal.id)}"><i class="fa-solid fa-pen-to-square"></i> Editar</a></td>
+                                    <td><a class="edit-btn" href="form/form.html?edit=${encodeURIComponent(animal.id)}" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-pen-to-square"></i> Editar</a></td>
                                 </tr>`;
                         }).join('')}
                     </tbody>
