@@ -275,9 +275,11 @@ export function initAnimalProfileActions({ animalId }) {
         const role = String(profile.rule || '').toLowerCase();
         const status = String(profile.status || '').toLowerCase();
         const approved = status === 'on' && (role === 'colaborador' || String(profile.colaborador || '').toLowerCase() === 'on');
-        location.href = approved
-          ? `form/form.html?edit=${encodeURIComponent(animalId)}&mode=suggestion`
-          : `myperfil.html?tab=contribute`;
+        if (approved) {
+          window.open(`form/form.html?edit=${encodeURIComponent(animalId)}&mode=suggestion`, '_blank', 'noopener,noreferrer');
+        } else {
+          location.href = `myperfil.html?tab=contribute`;
+        }
       };
 
       const paintFav = () => {
