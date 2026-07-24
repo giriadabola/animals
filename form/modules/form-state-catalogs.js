@@ -720,7 +720,7 @@
 
                 const recordTypeSaveData = getRecordTypeSaveData(recordIdentity);
                 
-                let timestamp = Date.now();
+                let timestamp = new Date();
                 let editado = [];
                 let criadoPor = auth.currentUser ? auth.currentUser.uid : null;
                 
@@ -736,7 +736,7 @@
                         editado = Array.isArray(existingAnimal.editado) ? [...existingAnimal.editado] : [];
                     }
                     editado.push({
-                        timestamp: Date.now(),
+                        timestamp: new Date(),
                         editadoPor: auth.currentUser ? auth.currentUser.uid : null
                     });
                 }

@@ -4328,7 +4328,7 @@ body.form-text-import-open { overflow: hidden; }
 .form-text-import-preview-list { display: grid; gap: 8px; }
 .form-text-import-preview-item {
     display: grid;
-    grid-template-columns: minmax(125px, .7fr) minmax(150px, 1fr) minmax(130px, 1.1fr);
+    grid-template-columns: minmax(125px, .7fr) minmax(150px, 1fr) minmax(130px, 1.1fr) max-content;
     gap: 10px;
     align-items: center;
     padding: 9px 10px;
@@ -4339,6 +4339,28 @@ body.form-text-import-open { overflow: hidden; }
 .form-text-import-preview-category { color: var(--text-secondary); font-weight: 700; }
 .form-text-import-preview-parameter { color: var(--text-primary); font-weight: 800; }
 .form-text-import-preview-value { color: var(--primary-color); overflow-wrap: anywhere; }
+.form-text-import-preview-remove {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    padding: 0;
+    border: 1px solid color-mix(in srgb, var(--border-color) 70%, var(--primary-color) 30%);
+    border-radius: 50%;
+    background: transparent;
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-size: .68rem;
+    transition: color .15s ease, border-color .15s ease, background .15s ease;
+}
+.form-text-import-preview-remove:hover,
+.form-text-import-preview-remove:focus-visible {
+    color: #fff;
+    border-color: #ef4444;
+    background: #ef4444;
+    outline: none;
+}
 .form-text-import-preview-empty { margin: 0; color: var(--text-secondary); font-size: .82rem; }
 .form-text-import-actions {
     display: flex;

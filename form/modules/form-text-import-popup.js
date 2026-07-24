@@ -15,6 +15,7 @@
 
     let lastFocusedElement = null;
     let parsedRows = [];
+    const removedPreviewIds = new Set();
 
     const normalize = value => String(value || '').trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
     const isMissing = value => !String(value || '').trim() || ['nao especificado', 'sem unidade', 'n/a', '—', '-'].includes(normalize(value));
@@ -49,12 +50,19 @@
         const parts = line.split(/\s*>\s*/).map(part => part.trim());
         if (parts.length < 3) return null;
         const [rawCategory, parameter, first = '', second = '', unit = '', gender = '', phase = '', context = '', valueType = '', ...sourceParts] = parts;
-        const category = normalizeCategory(rawCategory);
-        if (!['Informações Gerais', 'Dimensões', 'Alimentação', 'Ecologia', 'Reprodução', 'Revestimento corporal', 'Distribuição', 'Curiosidades'].includes(category) || !parameter) return null;
+        let category = normalizeCategory(rawCategory);
+        const parameterKey = normalize(parameter);
+        // Normaliza nomes usados por fontes externas para modelos existentes.
+        if (parameterKey === 'comportamento de alimentacao' && category.includes('Informa')) {
+            category = 'Alimenta\u00E7\u00E3o';
+        }
+        if (!['Informa\u00E7\u00F5es Gerais', 'Dimens\u00F5es', 'Alimenta\u00E7\u00E3o', 'Ecologia', 'Reprodu\u00E7\u00E3o', 'Revestimento corporal', 'Distribui\u00E7\u00E3o', 'Curiosidades'].includes(category) || !parameter) return null;
         return {
             id: index,
             category,
-            parameter,
+            parameter: parameterKey === 'comportamento de alimentacao'
+                ? 'Estrat\u00E9gia para obter alimentos'
+                : parameter,
             first: isMissing(first) ? '' : first,
             second: isMissing(second) ? '' : second,
             unit: isMissing(unit) ? '' : (unit === 'unid.' ? 'unidade' : unit),
@@ -66,8 +74,37 @@
         };
     }
 
+    function normalizeImportedGeneralParameter(parameter) {
+        const key = normalize(parameter);
+        const aliases = {
+            'numero de crias que atingem o voo': 'Número de crias que atingem o voo',
+            'numero de crias que atingem o voo': 'Número de crias que atingem o voo',
+            'velocidade da migracao': 'Velocidade de migração',
+            'velocidade de migracao': 'Velocidade de migração',
+            'velocidade migratoria': 'Velocidade de migração',
+            'duracao da migracao': 'Duração da migração',
+            'duracao migracao': 'Duração da migração',
+            'duracao das paragens migratorias': 'Duração das paragens migratórias',
+            'duracao das paragens de migracao': 'Dura\u00E7\u00E3o das paragens migrat\u00F3rias',
+            'habitat': 'Habitats',
+            'chamadas': 'Tipo de Comunica\u00E7\u00E3o',
+            'tipo de local de repouso/ninho': 'Constru\u00E7\u00E3o de local de repouso'
+        };
+        return aliases[key] || String(parameter || '').trim();
+    }
+
+    function normalizeImportedGeneralUnit(parameter, unit) {
+        const value = String(unit || '').trim();
+        const key = normalize(parameter);
+        if (key.includes('velocidade') && key.includes('migracao')) {
+            const aliases = { 'km/h': 'km/hora', 'km/hora': 'km/hora', 'km/dia': 'km/dia', 'km/semana': 'km/semana', 'km/mes': 'km/mês', 'km/ano': 'km/ano' };
+            return aliases[normalize(value)] || value;
+        }
+        return value;
+    }
     function buildImportedGeneralItem(row) {
-        const parameterKey = normalize(row.parameter);
+        const parameter = normalizeImportedGeneralParameter(row.parameter);
+        const parameterKey = normalize(parameter);
         if (parameterKey.includes('temperatura corporal') && ['k', 'kelvin', 'kelvins'].includes(normalize(row.unit))) {
             const convertKelvin = value => {
                 const number = Number(String(value || '').replace(',', '.'));
@@ -75,12 +112,25 @@
             };
             const valorMin = convertKelvin(row.first);
             const valorMax = row.second ? convertKelvin(row.second) : '';
-            return { tipo: row.parameter, valor: valorMin, valorMin, valorMax, unidade: '°C', genero: row.gender, fase: row.phase };
+            return { tipo: parameter, valor: valorMin, valorMin, valorMax, unidade: '°C', genero: row.gender, fase: row.phase };
         }
-        const valueKey = normalize(row.first);
+        let value = row.first;
+        if (parameterKey === 'tipo de comunicacao') {
+            const communicationAliases = {
+                'chamamento de alarme': 'Chamadas de alarme',
+                'chamamento de contacto': 'Chamadas de contacto',
+                'chamamento de acasalamento': 'Chamadas de acasalamento',
+                'chamada de alarme': 'Chamadas de alarme',
+                'chamada de contacto': 'Chamadas de contacto',
+                'chamada de acasalamento': 'Chamadas de acasalamento'
+            };
+            value = communicationAliases[normalize(value)] || value;
+        }
+        const valueKey = normalize(value);
         const biomaOnlyValues = new Set(['rio', 'delta', 'lago', 'mar profundo', 'oceano aberto', 'plataforma continental', 'zona abissal', 'zona batial', 'zona bentonica', 'zona neritica', 'zona pelagica']);
-        const tipo = parameterKey === 'habitats' && biomaOnlyValues.has(valueKey) ? 'Bioma' : row.parameter;
-        return { tipo, valor: row.first, valorMin: row.first, valorMax: row.second, unidade: row.unit, genero: row.gender, fase: row.phase };
+        const tipo = parameterKey === 'habitats' && biomaOnlyValues.has(valueKey) ? 'Bioma' : parameter;
+        const unidade = normalizeImportedGeneralUnit(parameter, row.unit);
+        return { tipo, valor: value, valorMin: value, valorMax: row.second, unidade, genero: row.gender, fase: row.phase };
     }
 
     function normalizeImportedReproductionParameter(parameter) {
@@ -91,6 +141,10 @@
             'epoca de reproducao': 'Época de reprodução',
             'temporada de reproducao': 'Época de reprodução',
             'numero de ovos': 'Número de ovos',
+            'comprimento dos ovos': 'Comprimento dos ovos',
+            'comprimento do ovo': 'Comprimento dos ovos',
+            'largura dos ovos': 'Largura dos ovos',
+            'largura do ovo': 'Largura dos ovos',
             'tempo ate a eclosao': 'Tempo até à eclosão',
             'maturidade sexual': 'Maturidade Sexual',
             'sistema sexual': 'Sistema sexual',
@@ -198,7 +252,7 @@
         }
 
         const numericParameter = [
-            'numero de ovos', 'tempo ate a eclosao', 'maturidade sexual',
+            'numero de ovos', 'comprimento dos ovos', 'comprimento do ovo', 'largura dos ovos', 'largura do ovo', 'tempo ate a eclosao', 'maturidade sexual',
             'intervalo entre nascimentos', 'numero de crias', 'duracao do estro',
             'frequencia de acasalamento durante o estro', 'taxa de sucesso reprodutivo',
             'idade da metamorfose', 'numero de mudas', 'numero de estadios larvais',
@@ -277,7 +331,8 @@
     }
 
     function buildImportedFeedingItem(row) {
-        const parameterKey = normalize(row.parameter);
+        const parameter = row.parameter;
+        const parameterKey = normalize(parameter);
         const numeric = parameterKey === 'alimento ingerido em media' || parameterKey === 'agua bebida em media';
         if (numeric) {
             const value = `${row.first || row.second || ''}${row.second && row.second !== row.first ? `-${row.second}` : ''}${row.unit ? ` ${row.unit}` : ''}`.trim();
@@ -391,13 +446,13 @@
     }
 
     function updatePreview() {
-        parsedRows = parseText(textarea.value);
+        parsedRows = parseText(textarea.value).filter(row => !removedPreviewIds.has(String(row.id)));
         if (automateButton) automateButton.disabled = parsedRows.length === 0;
         if (!preview || !previewList) return;
         preview.hidden = false;
         if (previewCount) previewCount.textContent = `${parsedRows.length} ${parsedRows.length === 1 ? 'campo' : 'campos'}`;
         previewList.innerHTML = parsedRows.length
-            ? parsedRows.map(row => `<div class="form-text-import-preview-item"><span class="form-text-import-preview-category">${escapeHtml(row.category)}</span><span class="form-text-import-preview-parameter">${escapeHtml(row.parameter)}</span><span class="form-text-import-preview-value">${escapeHtml(displayValue(row))}</span></div>`).join('')
+            ? parsedRows.map((row, previewIndex) => `<div class="form-text-import-preview-item"><span class="form-text-import-preview-category">${escapeHtml(row.category)}</span><span class="form-text-import-preview-parameter">${escapeHtml(row.parameter)}</span><span class="form-text-import-preview-value">${escapeHtml(displayValue(row))}</span><button type="button" class="form-text-import-preview-remove" data-preview-row-index="${previewIndex}" aria-label="Remover esta linha da importação" title="Remover esta linha"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button></div>`).join('')
             : '<p class="form-text-import-preview-empty">Ainda não foi reconhecido nenhum campo. Cole uma linha no formato indicado.</p>';
     }
 
@@ -487,6 +542,16 @@
         document.dispatchEvent(new CustomEvent('form:text-imported', { detail: { count: rows.length } }));
     }
 
+    previewList?.addEventListener('click', event => {
+        const removeButton = event.target.closest('.form-text-import-preview-remove');
+        if (!removeButton) return;
+        const previewIndex = Number(removeButton.dataset.previewRowIndex);
+        const row = parsedRows[previewIndex];
+        if (!row) return;
+        removedPreviewIds.add(String(row.id));
+        updatePreview();
+    });
+
     function setStatus(message = '') {
         if (!status) return;
         status.textContent = message;
@@ -495,6 +560,7 @@
 
     function openModal() {
         lastFocusedElement = document.activeElement;
+        removedPreviewIds.clear();
         overlay.style.display = 'flex';
         overlay.setAttribute('aria-hidden', 'false');
         document.body.classList.add('form-text-import-open');
@@ -537,8 +603,8 @@
         }
     });
 
-    textarea.addEventListener('input', updatePreview);
-    textarea.addEventListener('paste', () => window.setTimeout(updatePreview, 0));
+    textarea.addEventListener('input', () => { removedPreviewIds.clear(); updatePreview(); });
+    textarea.addEventListener('paste', () => window.setTimeout(() => { removedPreviewIds.clear(); updatePreview(); }, 0));
 
     automateButton?.addEventListener('click', () => {
         if (!parsedRows.length) {

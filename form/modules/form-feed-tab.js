@@ -9,6 +9,7 @@
             description: 'Elementos de identificação e navegação do animal.',
             items: [
                 ['imagem', 'Imagem principal', 'Imagem e controlos multimédia do animal.'],
+                ['pageNav', 'Barra de navegação da página', 'Menu de atalhos rápidos (Geral, Medidas, etc.) no topo da página.'],
                 ['classificacao', 'Classificação científica', 'Reino, filo, classe, ordem, família e restantes níveis.'],
                 ['subespecies', 'Subespécies / animal-pai', 'Ligação a animais dos quais este é subespécie.'],
                 ['relacionados', 'Animais relacionados', 'Animais da mesma subfamília ou tribo.']

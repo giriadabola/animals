@@ -195,6 +195,11 @@
             keywords: ['estratégia reprodutiva', 'padrão reprodutivo'],
             action: () => createReproductiveStrategyTarget('timing', value)
         }));
+        ['Comprimento dos ovos', 'Largura dos ovos'].forEach(parameter => addEntry(entries, {
+            section: 'reproducao', label: parameter, parent: 'Reprodução',
+            action: () => createReproductionTarget(parameter, '')
+        }));
+
         let allReproductionTypes = [];
         if (typeof reproductionTypesByCategory !== 'undefined') allReproductionTypes = Object.values(reproductionTypesByCategory).flat();
         if (typeof reproductionTypeOptionsByCategory !== 'undefined') allReproductionTypes.push(...Object.values(reproductionTypeOptionsByCategory).flat());

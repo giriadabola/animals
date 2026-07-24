@@ -291,6 +291,8 @@ import { renderAnimalGallery } from "../js/animal-gallery.js?v=2";
                 asa: `<svg class="metric-model-svg metric-wing" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M14 55C27 30 44 16 67 13C63 34 51 52 30 66H14V55Z"/><path d="M31 28C38 36 42 46 43 59"/><path d="M45 21C51 30 53 40 53 50"/></svg>`,
                 envergadura: `<svg class="metric-model-svg metric-wingspan" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M7 42h66"/><path d="M7 42l8-8"/><path d="M7 42l8 8"/><path d="M73 42l-8-8"/><path d="M73 42l-8 8"/><path d="M17 55c8-13 15-20 23-23"/><path d="M63 55c-8-13-15-20-23-23"/></svg>`,
                 patas: `<svg class="metric-model-svg metric-legs" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M28 13v39"/><path d="M52 13v39"/><path d="M24 52l-10 12"/><path d="M28 52l4 13"/><path d="M32 52l12 10"/><path d="M48 52l-10 12"/><path d="M52 52l4 13"/><path d="M56 52l12 10"/></svg>`,
+                comprimentoOvos: `<svg class="metric-model-svg reproduction-icon-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M12 40h56"/><path d="M12 32v16M68 32v16"/><path d="M25 24c9 0 16 7 16 16s-7 16-16 16S9 49 9 40s7-16 16-16Z"/></svg>`,
+                larguraOvos: `<svg class="metric-model-svg reproduction-icon-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M40 12v56"/><path d="M32 12h16M32 68h16"/><path d="M40 22c14 0 22 8 22 18s-8 18-22 18-22-8-22-18 8-18 22-18Z"/></svg>`, 
                 ovo: `<svg class="metric-model-svg metric-egg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M40 10c13 0 23 17 23 33c0 15-9 27-23 27S17 58 17 43C17 27 27 10 40 10Z"/><path d="M20 70h40"/></svg>`,
                 medida: `<svg class="metric-model-svg metric-generic" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M16 59L58 17l6 6l-42 42l-8-6Z"/><path d="M26 49l6 6"/><path d="M36 39l6 6"/><path d="M46 29l6 6"/></svg>`
             };
@@ -385,7 +387,7 @@ import { renderAnimalGallery } from "../js/animal-gallery.js?v=2";
                 'Atividade', 'Comportamento sazonal', 'Locomoção', 'Vida social', 'Vida Social',
                 'Composição do grupo social', 'Composição do grupo', 'Organização social',
                 'Liderança e hierarquia', 'Parentesco e linhagem social', 'Tipo de Comunicação',
-                'Construção de local de repouso', 'Autoinfeção'
+                'Construção de local de repouso', 'Autoinfeção', 'Velocidade de migração', 'Duração da migração', 'Duração das paragens migratórias'
             ]);
             
             const anatomiaModels = new Set([
@@ -401,7 +403,7 @@ import { renderAnimalGallery } from "../js/animal-gallery.js?v=2";
             ]);
             
             const desenvolvimentoModels = new Set([
-                'Transformações do desenvolvimento', 'Capacidade de regeneração'
+                'Transformações do desenvolvimento', 'Capacidade de regeneração', 'Número de crias que atingem o voo'
             ]);
             
             const estruturasAnatomicasModels = new Set([
@@ -2451,21 +2453,466 @@ import { renderAnimalGallery } from "../js/animal-gallery.js?v=2";
                 </button>`;
         }
 
+        // Dicionário de traduções e dados taxonómicos de alimentos comuns
+        const foodTranslations = {
+            'salix': { pt: 'Salgueiro', en: 'Willow', es: 'Sauce', scientific: 'Salix spp.', categories: ['Plantas', 'Folhas', 'Ramos'] },
+            'betula': { pt: 'Bétula', en: 'Birch', es: 'Abedul', scientific: 'Betula spp.', categories: ['Plantas', 'Folhas', 'Ramos'] },
+            'sambucus': { pt: 'Sabugueiro', en: 'Elderberry', es: 'Saúco', scientific: 'Sambucus spp.', categories: ['Plantas', 'Frutos'] },
+            'nuphar': { pt: 'Nenúfar amarelo', en: 'Yellow Water-lily', es: 'Nuphar amarillo', scientific: 'Nuphar lutea', categories: ['Aquáticas', 'Plantas'] },
+            'poaceae': { pt: 'Gramíneas', en: 'Grasses', es: 'Gramíneas', scientific: 'Poaceae spp.', categories: ['Plantas'] },
+            'populus': { pt: 'Álamo', en: 'Poplar', es: 'Álamo', scientific: 'Populus spp.', categories: ['Plantas', 'Folhas', 'Ramos'] },
+            'acer': { pt: 'Bordo', en: 'Maple', es: 'Arce', scientific: 'Acer spp.', categories: ['Plantas', 'Folhas', 'Ramos'] },
+            'myriophyllum': { pt: 'Pinheirinha-d\'água', en: 'Watermilfoil', es: 'Miriófilo', scientific: 'Myriophyllum aquaticum', categories: ['Aquáticas', 'Plantas'] },
+            'potamogeton': { pt: 'Potamogeton', en: 'Pondweed', es: 'Potamogeton', scientific: 'Potamogeton spp.', categories: ['Aquáticas', 'Plantas'] },
+            'nymphaeaceae': { pt: 'Lírios-d\'água', en: 'Water lilies', es: 'Nenúfares', scientific: 'Nymphaeaceae', categories: ['Aquáticas', 'Plantas'] },
+            'pisces': { pt: 'Peixes', en: 'Fish', es: 'Peces', scientific: 'Pisces', categories: ['Peixes'] },
+            'gastropoda': { pt: 'Caracóis', en: 'Snails', es: 'Caracoles', scientific: 'Gastropoda', categories: ['Moluscos'] },
+            'lacertilia': { pt: 'Lagartos', en: 'Lizards', es: 'Lagartijas', scientific: 'Lacertilia', categories: ['Répteis'] },
+            'amphibia': { pt: 'Anfíbios', en: 'Amphibians', es: 'Anfibios', scientific: 'Amphibia', categories: ['Anfíbios'] },
+            'engraulidae': { pt: 'Anchovas', en: 'Anchovies', es: 'Anchoas', scientific: 'Engraulidae', categories: ['Peixes'] },
+            'scomber': { pt: 'Cavalas', en: 'Mackerels', es: 'Caballas', scientific: 'Scomber scombrus', categories: ['Peixes'] },
+            'sardina': { pt: 'Sardinhas', en: 'Sardines', es: 'Sardinas', scientific: 'Sardina pilchardus', categories: ['Peixes'] },
+            'crustacea': { pt: 'Crustáceos', en: 'Crustaceans', es: 'Crustáceos', scientific: 'Crustacea', categories: ['Crustáceos'] },
+            'fructus': { pt: 'Frutos', en: 'Fruits', es: 'Frutos', scientific: 'Fructus', categories: ['Plantas', 'Frutos'] },
+            'gemmae': { pt: 'Rebentos', en: 'Shoots', es: 'Brotes', scientific: 'Gemmae', categories: ['Plantas'] },
+            'flores': { pt: 'Flores', en: 'Flowers', es: 'Flores', scientific: 'Flores', categories: ['Plantas'] },
+            'mel': { pt: 'Mel', en: 'Honey', es: 'Miel', scientific: 'Mel', categories: ['Doces'] }
+        };
+
+        function resolveFoodDetails(foodName, currentLang = 'pt') {
+            const cleanName = String(foodName || '').trim();
+            const norm = cleanName.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+            const lookupName = norm.replace(/\s+(spp\.|sp\.|subsp\.|spp|sp)\b/gi, '').trim();
+
+            let foundKey = null;
+
+            // 1. Verificar se o input é um nome científico (ex: "Salix spp." -> "salix")
+            if (foodTranslations[lookupName]) {
+                foundKey = lookupName;
+            } else {
+                // 2. Verificar se o input coincide com alguma tradução (ex: "Salgueiro", "Willow" -> "salix")
+                foundKey = Object.keys(foodTranslations).find(key => {
+                    const trans = foodTranslations[key];
+                    return Object.entries(trans).some(([langKey, val]) => {
+                        if (langKey === 'scientific' || langKey === 'categories') return false;
+                        return String(val).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '') === norm;
+                    });
+                });
+            }
+
+            if (foundKey) {
+                const entry = foodTranslations[foundKey];
+                const translatedName = entry[currentLang] || entry['pt'] || cleanName;
+                return {
+                    nome: translatedName,
+                    nomeCientifico: entry.scientific,
+                    categories: entry.categories
+                };
+            }
+
+            return {
+                nome: cleanName,
+                nomeCientifico: '',
+                categories: ['Plantas']
+            };
+        }
+
+        function parseRangeDetail(detailStr) {
+            const clean = String(detailStr || '').trim();
+            if (!clean) return { main: 'N/D', range: '' };
+            
+            const rangeRegex = /^(\d+(?:\.\d+)?)\s*-\s*(\d+(?:\.\d+)?)\s*(.*)$/;
+            const match = clean.match(rangeRegex);
+            if (match) {
+                const min = match[1];
+                const max = match[2];
+                const unit = match[3] || '';
+                const avg = Math.round((parseFloat(min) + parseFloat(max)) / 2);
+                return {
+                    main: `${avg} ${unit}`.trim(),
+                    range: `Varia entre ${min} – ${max} ${unit}`.trim()
+                };
+            }
+            
+            const singleRegex = /^(\d+(?:\.\d+)?)\s*(.*)$/;
+            const singleMatch = clean.match(singleRegex);
+            if (singleMatch) {
+                const val = parseFloat(singleMatch[1]);
+                const unit = singleMatch[2] || '';
+                const min = Math.round(val * 0.65);
+                const max = Math.round(val * 1.35);
+                return {
+                    main: clean,
+                    range: `Varia entre ${min} – ${max} ${unit}`.trim()
+                };
+            }
+            
+            return { main: clean, range: '' };
+        }
+
+        function getSilhouetteSvg(animalName) {
+            const norm = String(animalName || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+            if (norm.includes('alce')) {
+                // Moose outline silhuette
+                return `
+                    <svg class="feeding-watermark" viewBox="0 0 200 200" fill="currentColor" style="color: #f59e0b;">
+                        <path d="M180,60 C175,55 168,52 160,54 C152,56 146,62 144,70 C142,78 146,86 152,90 M140,85 C135,75 125,68 115,70 C105,72 98,80 96,90 M96,90 C80,95 70,110 72,126 C74,142 88,154 104,154 L160,154 C176,154 190,140 190,124 C190,108 178,94 162,92" />
+                    </svg>
+                `;
+            }
+            return `
+                <svg class="feeding-watermark" viewBox="0 0 100 100" fill="currentColor" style="color: #f59e0b;">
+                    <path d="M50 15C30.7 15 15 30.7 15 50s15.7 35 35 35 35-15.7 35-35S69.3 15 50 15zm-5 45c-2.8 0-5-2.2-5-5s2.2-5 5-5 5 2.2 5 5-2.2 5-5 5zm10-15c-2.8 0-5-2.2-5-5s2.2-5 5-5 5 2.2 5 5-2.2 5-5 5z" />
+                </svg>
+            `;
+        }
+
+        async function fetchWikipediaImage(query) {
+            // Disambiguate single-word genus names (e.g., Acer matching Acer Inc. computers instead of Acer maples)
+            const isSingleWord = !query.includes(' ');
+            const enSearchQuery = isSingleWord ? `${query} genus` : query;
+
+            try {
+                const urlEn = `https://en.wikipedia.org/w/api.php?action=query&origin=*&format=json&prop=pageimages&piprop=thumbnail&pithumbsize=250&generator=search&gsrsearch=${encodeURIComponent(enSearchQuery)}&gsrlimit=1`;
+                const res = await fetch(urlEn);
+                const data = await res.json();
+                if (data && data.query && data.query.pages) {
+                    const pages = data.query.pages;
+                    const pageId = Object.keys(pages)[0];
+                    const page = pages[pageId];
+                    if (page && page.thumbnail && page.thumbnail.source) {
+                        return page.thumbnail.source;
+                    }
+                }
+            } catch (e) {
+                console.error("Erro ao buscar no Wikipedia EN:", e);
+            }
+            return null;
+        }
+
+        async function triggerFeedingFoodsImageLoad() {
+            const loaders = document.querySelectorAll('.food-avatar-wrapper.loading');
+            loaders.forEach(async (wrapper) => {
+                const scientificName = wrapper.dataset.scientificName || '';
+                const commonName = wrapper.dataset.commonName || '';
+                const img = wrapper.querySelector('img');
+                
+                const query = scientificName || commonName;
+                if (!query) {
+                    const fallback = wrapper.querySelector('.food-avatar-fallback-icon');
+                    const loader = wrapper.querySelector('.food-avatar-loader-icon');
+                    if (fallback) fallback.style.display = 'flex';
+                    if (loader) loader.style.display = 'none';
+                    wrapper.classList.remove('loading');
+                    return;
+                }
+                
+                // Sanitize search query by stripping taxonomic abbreviations like "spp.", "sp.", "subsp."
+                const cleanedQuery = query.replace(/\s+(spp\.|sp\.|subsp\.|spp|sp)\b/gi, '').trim();
+                
+                const imageUrl = await fetchWikipediaImage(cleanedQuery);
+                if (imageUrl) {
+                    img.src = imageUrl;
+                } else {
+                    const fallback = wrapper.querySelector('.food-avatar-fallback-icon');
+                    const loader = wrapper.querySelector('.food-avatar-loader-icon');
+                    if (fallback) fallback.style.display = 'flex';
+                    if (loader) loader.style.display = 'none';
+                    wrapper.classList.remove('loading');
+                }
+            });
+        }
+
+        // Global functions for interactive food filtering and toggling
+        window.filterFeedingFoods = function(pillEl, category) {
+            const parent = pillEl.closest('.card-alimentos-consumidos');
+            parent.querySelectorAll('.feeding-filter-pill').forEach(btn => btn.classList.remove('active'));
+            pillEl.classList.add('active');
+            
+            parent.querySelectorAll('.food-avatar-item').forEach(item => {
+                const cats = (item.dataset.categories || '').split(',');
+                if (category === 'all' || cats.includes(category)) {
+                    item.style.display = 'flex';
+                    setTimeout(() => { item.style.opacity = '1'; item.style.transform = 'scale(1)'; }, 10);
+                } else {
+                    item.style.opacity = '0';
+                    item.style.transform = 'scale(0.8)';
+                    setTimeout(() => { item.style.display = 'none'; }, 200);
+                }
+            });
+        };
+
+        window.toggleAllFeedingFoods = function(btnEl) {
+            const parent = btnEl.closest('.card-alimentos-consumidos');
+            const isShowingAll = btnEl.classList.toggle('open');
+            
+            parent.querySelectorAll('.food-avatar-item.hidden-by-limit').forEach(item => {
+                if (isShowingAll) {
+                    item.style.display = 'flex';
+                    setTimeout(() => { item.style.opacity = '1'; item.style.transform = 'scale(1)'; }, 10);
+                } else {
+                    item.style.opacity = '0';
+                    item.style.transform = 'scale(0.8)';
+                    setTimeout(() => { item.style.display = 'none'; }, 200);
+                }
+            });
+            
+            btnEl.innerHTML = isShowingAll
+                ? `Ver menos <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="transform: rotate(180deg); width: 12px; height: 12px;"><path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`
+                : `Ver todos os alimentos <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width: 12px; height: 12px;"><path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+        };
+
         function renderFeedingVisual(animalData) {
+            const currentLang = typeof getSavedAnimalLanguage === 'function' ? getSavedAnimalLanguage() : 'pt';
             const feeding = animalData.informacao?.alimentacaoDetalhada || [];
             const valid = Array.isArray(feeding) ? feeding.filter(item => item.tipo || item.detalhe) : [];
             const strategies = animalData.informacao?.alimentacaoEstrategias || [];
             const validStrategies = Array.isArray(strategies) ? strategies.filter(item => item.estrategia || item.tipo || item.detalhe) : [];
             if (!valid.length && !validStrategies.length) return '';
 
+            // 1. Tipo de Alimentação
+            const entryTypes = valid.filter(i => i.tipo === 'Tipo de Alimentação').map(parseFeedingDetail).map(entry => entry.display).filter(Boolean);
+            const selectedFeedingTypes = [...new Set(entryTypes.map(value => String(value || '').trim()).filter(Boolean))];
+            const selectedFeedingTypesData = JSON.stringify(selectedFeedingTypes);
+
+            const allRelAnimals = [];
+            const allRelFoods = [];
+            const allRelGroups = [];
+            const grouped = groupFeedingItems(valid);
+            grouped.forEach(g => {
+                if (g.animals) allRelAnimals.push(...g.animals);
+                if (g.foods) allRelFoods.push(...g.foods);
+                if (g.relationGroups) allRelGroups.push(...g.relationGroups);
+            });
+            const feedingRelationsData = JSON.stringify({ animals: allRelAnimals, foods: allRelFoods, groups: allRelGroups });
+
+            const typeItems = valid.filter(i => i.tipo === 'Tipo de Alimentação' && String(i.detalhe || '').trim() !== '');
+            const feedingTypesListHtml = typeItems.map(i => {
+                const detailData = parseFeedingDetail(i.detalhe || '');
+                const label = detailData.primary || i.detalhe;
+                const meta = getFeedingVisualMeta(label);
+                
+                // Deterministic icon fallback
+                let iconClass = 'fa-paw';
+                if (label.includes('Herbívoro') || label.includes('Folívoro')) iconClass = 'fa-leaf';
+                else if (label.includes('Frugívoro')) iconClass = 'fa-apple-whole';
+                else if (label.includes('Carnívoro') || label.includes('Predador')) iconClass = 'fa-skull-crossbones';
+                
+                return `
+                    <div class="feeding-type-item">
+                        <span class="feeding-type-item-icon"><i class="fa-solid ${iconClass}"></i></span>
+                        <span class="feeding-type-item-name">${escapeHtml(label)}</span>
+                    </div>
+                `;
+            }).join('');
+
+            const generalDesc = animalData.informacao?.alimentacao || '';
+
+            // 2. Alimento Ingerido
+            const foodIntakeItem = valid.find(i => i.tipo === 'Alimento Ingerido em Média');
+            const foodIntakeDetails = foodIntakeItem ? parseRangeDetail(foodIntakeItem.detalhe) : { main: 'N/D', range: '' };
+            const silhouetteSvg = getSilhouetteSvg(animalData.nome);
+
+            // 3. Água Bebida
+            const waterIntakeItem = valid.find(i => i.tipo === 'Água bebida em Média');
+            const waterIntakeDetails = waterIntakeItem ? parseRangeDetail(waterIntakeItem.detalhe) : { main: 'N/D', range: '' };
+            const waterSilhouetteSvg = `
+                <svg class="feeding-watermark" viewBox="0 0 200 200" fill="none" stroke="currentColor" stroke-width="1.5" style="color: #3b82f6;">
+                    <path d="M100,30 C100,30 135,80 135,110 C135,130 119,146 100,146 C81,146 65,130 65,110 C65,80 100,30 100,30 Z" fill="currentColor" fill-opacity="0.08" />
+                </svg>
+            `;
+
+            // 4. Alimentos Consumidos
+            const foodsList = [];
+            const seenFoodKeys = new Set();
+            allRelFoods.forEach(food => {
+                const foodObj = typeof food === 'object' ? food : { nome: food, id: '' };
+                const key = foodObj.id || foodObj.nome;
+                if (key && !seenFoodKeys.has(key)) {
+                    seenFoodKeys.add(key);
+                    foodsList.push(resolveFoodDetails(foodObj.nome, currentLang));
+                }
+            });
+
+            const allCategories = new Set();
+            foodsList.forEach(f => f.categories.forEach(cat => allCategories.add(cat)));
+            const availableCategories = ['Plantas', 'Folhas', 'Ramos', 'Frutos', 'Aquáticas', 'Peixes', 'Moluscos', 'Crustáceos', 'Répteis', 'Anfíbios']
+                .filter(cat => allCategories.has(cat));
+
+            const pillsHtml = availableCategories.length > 0
+                ? `
+                    <button type="button" class="feeding-filter-pill active" onclick="window.filterFeedingFoods(this, 'all')">Todos</button>
+                    ${availableCategories.map(cat => `
+                        <button type="button" class="feeding-filter-pill" onclick="window.filterFeedingFoods(this, '${cat}')">${escapeHtml(cat)}</button>
+                    `).join('')}
+                `
+                : '';
+
+            const LIMIT = 6;
+            const foodsGridHtml = foodsList.length > 0 
+                ? foodsList.map((f, index) => {
+                    const hiddenClass = index >= LIMIT ? ' hidden-by-limit' : '';
+                    const displayStyle = index >= LIMIT ? 'style="display: none;"' : '';
+                    return `
+                        <div class="food-avatar-item${hiddenClass}" data-categories="${escapeHtml(f.categories.join(','))}" ${displayStyle}>
+                            <div class="food-avatar-wrapper loading" data-scientific-name="${escapeHtml(f.nomeCientifico || '')}" data-common-name="${escapeHtml(f.nome || '')}">
+                                <span class="food-avatar-loader-icon"><i class="fa-solid fa-paw blinking-loader"></i></span>
+                                <span class="food-avatar-fallback-icon" style="display: none;"><i class="fa-solid fa-leaf"></i></span>
+                                <img src="" alt="${escapeHtml(f.nome)}" style="display: none;" 
+                                     onload="this.style.display='block'; if(this.previousElementSibling && this.previousElementSibling.previousElementSibling) this.previousElementSibling.previousElementSibling.style.display='none'; this.parentElement.classList.remove('loading');"
+                                     onerror="this.style.display='none'; if(this.previousElementSibling) this.previousElementSibling.style.display='flex'; if(this.previousElementSibling && this.previousElementSibling.previousElementSibling) this.previousElementSibling.previousElementSibling.style.display='none'; this.parentElement.classList.remove('loading');">
+                            </div>
+                            <h4 class="food-avatar-name" title="${escapeHtml(f.nome)}">${escapeHtml(f.nome)}</h4>
+                            ${f.nomeCientifico ? `<p class="food-avatar-scientific" title="${escapeHtml(f.nomeCientifico)}">${escapeHtml(f.nomeCientifico)}</p>` : ''}
+                        </div>
+                    `;
+                }).join('')
+                : `<p class="feeding-general-desc">Sem alimentos específicos registados.</p>`;
+
+            const viewAllBtnHtml = '';
+
+            // 5. Estratégias de Alimentação
+            const finalStrategies = [];
+            const seenStrategies = new Set();
+            validStrategies.forEach(s => {
+                const name = s.estrategia || s.tipo || '';
+                if (name && !seenStrategies.has(name)) {
+                    seenStrategies.add(name);
+                    finalStrategies.push(s);
+                }
+            });
+
+            if (finalStrategies.length === 0) {
+                valid.filter(i => i.tipo === 'Estratégia para obter alimentos').forEach(s => {
+                    const name = s.detalhe || '';
+                    if (name && !seenStrategies.has(name)) {
+                        seenStrategies.add(name);
+                        finalStrategies.push({ estrategia: name, detalhe: s.detalhe });
+                    }
+                });
+            }
+
+            const strategiesListHtml = finalStrategies.length > 0 
+                ? finalStrategies.map((s, index) => {
+                    const name = s.estrategia || s.detalhe || '';
+                    const desc = s.detalhe || feedingStrategyDescriptions[name] || '';
+                    let label = 'Método de forrageamento';
+                    if (index === 0) label = 'Tipo de forrageamento';
+                    else if (index === 1) label = 'Local de forrageamento';
+                    return `
+                        <div class="strategy-item">
+                            <p class="strategy-label">${escapeHtml(label)}</p>
+                            <h4 class="strategy-value">${escapeHtml(name)}</h4>
+                            <p class="strategy-desc">${escapeHtml(desc)}</p>
+                        </div>
+                    `;
+                }).join('')
+                : `<p class="feeding-general-desc">Sem estratégias registadas.</p>`;
+
+            const selectedNames = JSON.stringify(finalStrategies.map(item => item.estrategia || item.detalhe));
+
+            const typeIcon = `<svg viewBox="0 0 80 80" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:100%; height:100%;"><path d="M17 62C30 31 48 18 67 15C64 38 51 57 21 65"/><path d="M23 60C37 49 49 36 61 20"/></svg>`;
+            const weightIcon = `<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:100%; height:100%;"><path d="M12 28h40l-4 30H16L12 28Z"/><path d="M22 28c0-8 4-14 10-14s10 6 10 14"/></svg>`;
+            const waterIcon = `<svg viewBox="0 0 200 200" fill="none" stroke="currentColor" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:100%; height:100%;"><path d="M100,30 C100,30 135,80 135,110 C135,130 119,146 100,146 C81,146 65,130 65,110 C65,80 100,30 100,30 Z" /></svg>`;
+            const leafIcon = `<svg viewBox="0 0 80 80" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:100%; height:100%;"><path d="M15 58c9-25 27-39 51-43c-3 28-20 45-49 50"/><path d="M20 60c14-11 27-25 40-40"/></svg>`;
+            const utensilsIcon = `<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:100%; height:100%;"><path d="M21 8v20"/><path d="M13 8v17c0 6 4 10 8 10s8-4 8-10V8"/><path d="M21 35v21"/><path d="M44 8c6 7 8 15 8 24c0 8-3 14-8 17v7"/><path d="M44 8v48"/></svg>`;
+
+            const typesListValHtml = typeItems.length > 0
+                ? `<div class="feeding-types-list-summary" style="display: flex; flex-direction: column; gap: 2px; width: 100%; text-align: left;">
+                    ${typeItems.map(i => {
+                        const detailData = parseFeedingDetail(i.detalhe || '');
+                        return `<span>${escapeHtml(detailData.primary || i.detalhe)}</span>`;
+                    }).join('')}
+                   </div>`
+                : 'N/D';
+
             return `
-                <div class="reproduction-visual-card feeding-animal-visual-card">
-                    <div class="reproduction-model-grid feeding-model-grid">
-                        ${groupFeedingItems(valid).map(renderFeedingGroup).join('')}
-                        ${renderFeedingStrategyPopupCard(validStrategies)}
+                <div class="feeding-dashboard-container">
+                    <div class="feeding-dashboard-top-row">
+                        <!-- Card 1: Tipo de Alimentação -->
+                        <button type="button" class="summary-metric-card feeding-type-popup-trigger" data-feeding-type-popup data-feeding-types="${escapeHtml(selectedFeedingTypesData)}" data-feeding-relations="${escapeHtml(feedingRelationsData)}" aria-haspopup="dialog" style="--card-accent: #10b981; text-align: left; width: 100%; font-family: inherit; min-height: 160px;">
+                            <div class="summary-metric-header" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <span style="color: var(--card-accent); display: flex; align-items: center; justify-content: center; width: 18px; height: 18px;">${typeIcon}</span>
+                                    <span style="font-weight: 500; font-size: 0.85rem; color: rgba(255,255,255,0.7);">Tipo de Alimentação</span>
+                                </div>
+                                <i class="fa-solid fa-chevron-right" style="color: rgba(255,255,255,0.4); font-size: 0.8rem;"></i>
+                            </div>
+                            <span class="summary-metric-value" style="width: 100%; box-sizing: border-box;">
+                                ${typesListValHtml}
+                            </span>
+                            <div class="summary-metric-watermark">${typeIcon}</div>
+                        </button>
+
+                        <!-- Card 2: Alimento Ingerido -->
+                        <div class="summary-metric-card" style="--card-accent: #f59e0b; min-height: 160px;">
+                            <div class="summary-metric-header" style="display: flex; align-items: center; gap: 8px;">
+                                <span style="color: var(--card-accent); display: flex; align-items: center; justify-content: center; width: 18px; height: 18px;">${weightIcon}</span>
+                                <span style="font-weight: 500; font-size: 0.85rem; color: rgba(255,255,255,0.7);">Alimento ingerido em média</span>
+                            </div>
+                            <span class="summary-metric-value" style="width: 100%; box-sizing: border-box; text-align: left; justify-content: flex-start;">
+                                ${escapeHtml(foodIntakeDetails.main)}
+                            </span>
+                            <div class="summary-metric-watermark">${weightIcon}</div>
+                        </div>
+
+                        <!-- Card 3: Água Bebida -->
+                        <div class="summary-metric-card" style="--card-accent: #3b82f6; min-height: 160px;">
+                            <div class="summary-metric-header" style="display: flex; align-items: center; gap: 8px;">
+                                <span style="color: var(--card-accent); display: flex; align-items: center; justify-content: center; width: 18px; height: 18px;">${waterIcon}</span>
+                                <span style="font-weight: 500; font-size: 0.85rem; color: rgba(255,255,255,0.7);">Água bebida em média</span>
+                            </div>
+                            <span class="summary-metric-value" style="width: 100%; box-sizing: border-box; text-align: left; justify-content: flex-start;">
+                                ${escapeHtml(waterIntakeDetails.main)}
+                            </span>
+                            <div class="summary-metric-watermark">${waterIcon}</div>
+                        </div>
+                    </div>
+
+                    <div class="feeding-dashboard-bottom-row">
+                        <!-- Card 4: Alimentos Consumidos -->
+                        <div class="summary-metric-card card-alimentos-consumidos" style="--card-accent: #10b981; min-height: 240px; display: flex; flex-direction: column; overflow: visible;">
+                            <div class="summary-metric-header" style="display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 12px;">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <span style="color: var(--card-accent); display: flex; align-items: center; justify-content: center; width: 18px; height: 18px;">${leafIcon}</span>
+                                    <span style="font-weight: 500; font-size: 0.85rem; color: rgba(255,255,255,0.7);">Alimentos consumidos</span>
+                                </div>
+                                <button type="button" class="feeding-header-arrow-btn" data-feeding-type-popup data-feeding-types="${escapeHtml(selectedFeedingTypesData)}" data-feeding-relations="${escapeHtml(feedingRelationsData)}" aria-haspopup="dialog" style="background: transparent; border: none; padding: 0; color: rgba(255,255,255,0.4); font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; justify-content: center; width: 18px; height: 18px;">
+                                    <i class="fa-solid fa-chevron-right"></i>
+                                </button>
+                            </div>
+                            <div style="z-index: 2; flex: 1; display: flex; flex-direction: column;">
+                                ${pillsHtml ? `<div class="feeding-filter-pills">${pillsHtml}</div>` : ''}
+                                <div class="feeding-foods-avatar-grid">
+                                    ${foodsGridHtml}
+                                </div>
+                                ${viewAllBtnHtml}
+                            </div>
+                            <div class="summary-metric-watermark">${leafIcon}</div>
+                        </div>
+
+                        <!-- Card 5: Estratégias de Alimentação -->
+                        <div class="summary-metric-card" style="--card-accent: #10b981; min-height: 240px; display: flex; flex-direction: column;">
+                            <div class="summary-metric-header" style="display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 12px;">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <span style="color: var(--card-accent); display: flex; align-items: center; justify-content: center; width: 18px; height: 18px;">${utensilsIcon}</span>
+                                    <span style="font-weight: 500; font-size: 0.85rem; color: rgba(255,255,255,0.7);">Estratégias de alimentação</span>
+                                </div>
+                                <button type="button" class="feeding-header-arrow-btn" data-feeding-strategy-popup data-feeding-strategies="${escapeHtml(selectedNames)}" aria-haspopup="dialog" style="background: transparent; border: none; padding: 0; color: rgba(255,255,255,0.4); font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; justify-content: center; width: 18px; height: 18px;">
+                                    <i class="fa-solid fa-chevron-right"></i>
+                                </button>
+                            </div>
+                            <div style="z-index: 2; flex: 1; display: flex; flex-direction: column; justify-content: center;">
+                                <div class="strategy-list">
+                                    ${strategiesListHtml}
+                                </div>
+                            </div>
+                            <div class="summary-metric-watermark">${utensilsIcon}</div>
+                        </div>
                     </div>
                 </div>`;
         }
+
 
         function normalizeEcologyAnimalEntry(item = {}) {
             if (typeof item === 'string') {
@@ -2646,6 +3093,8 @@ import { renderAnimalGallery } from "../js/animal-gallery.js?v=2";
             if (normalized.includes('numero de mudas')) return { key: 'numeroMudas', title: type || 'Número de mudas', accent: 'accent-tail' };
             if (normalized.includes('numero de estadios larvais')) return { key: 'numeroEstadiosLarvais', title: type || 'Número de estádios larvais', accent: 'accent-egg' };
             if (normalized.includes('gestacao') || normalized.includes('gestação') || normalized.includes('gravidez') || normalized.includes('tempo')) return { key: 'gestacao', title: type || 'Gestação', accent: 'accent-weight' };
+            if (normalized.includes('comprimento dos ovos')) return { key: 'comprimentoOvos', title: type || 'Comprimento dos ovos', accent: 'accent-length' };
+            if (normalized.includes('largura dos ovos')) return { key: 'larguraOvos', title: type || 'Largura dos ovos', accent: 'accent-width' };
             if (normalized.includes('oviparo') || normalized.includes('ovo')) return { key: 'ovo', title: type || 'Ovíparo', accent: 'accent-egg' };
             if (normalized.includes('viviparo') || normalized.includes('placental')) return { key: 'viviparo', title: type || 'Vivíparo', accent: 'accent-weight' };
             if (normalized.includes('marsupial')) return { key: 'marsupial', title: type || 'Marsupial', accent: 'accent-tail' };
@@ -2669,6 +3118,8 @@ import { renderAnimalGallery } from "../js/animal-gallery.js?v=2";
                 taxaSucessoReprodutivo: `<svg class="metric-model-svg reproduction-icon-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><circle cx="40" cy="40" r="27"/><path d="M25 55l30-30"/><circle cx="29" cy="29" r="5"/><circle cx="51" cy="51" r="5"/><path d="M31 42l7 7l13-16"/></svg>`,
                 intervaloNascimentos: `<svg class="metric-model-svg reproduction-icon-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M18 20h44v42H18V20Z"/><path d="M18 32h44"/><path d="M29 13v14M51 13v14"/><circle cx="31" cy="46" r="6"/><circle cx="51" cy="46" r="6"/><path d="M37 46h8"/><path d="M41 42l4 4l-4 4"/></svg>`,
                 gestacao: `<svg class="metric-model-svg reproduction-icon-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M22 26h36v36H22V26Z"/><path d="M22 38h36"/><path d="M31 16v10"/><path d="M49 16v10"/><circle cx="40" cy="50" r="7"/><path d="M40 46v4h4"/></svg>`,
+                comprimentoOvos: `<svg class="metric-model-svg reproduction-icon-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M12 40h56"/><path d="M12 32v16M68 32v16"/><path d="M25 24c9 0 16 7 16 16s-7 16-16 16S9 49 9 40s7-16 16-16Z"/></svg>`,
+                larguraOvos: `<svg class="metric-model-svg reproduction-icon-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M40 12v56"/><path d="M32 12h16M32 68h16"/><path d="M40 22c14 0 22 8 22 18s-8 18-22 18-22-8-22-18 8-18 22-18Z"/></svg>`, 
                 ovo: `<svg class="metric-model-svg reproduction-icon-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M40 10c13 0 23 17 23 33c0 15-9 27-23 27S17 58 17 43C17 27 27 10 40 10Z"/><path d="M29 47c7 5 15 5 22 0"/></svg>`,
                 viviparo: `<svg class="metric-model-svg reproduction-icon-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M40 12c15 12 24 24 24 38c0 13-10 22-24 22S16 63 16 50c0-14 9-26 24-38Z"/><circle cx="40" cy="48" r="12"/><path d="M40 36v-9"/></svg>`,
                 marsupial: `<svg class="metric-model-svg reproduction-icon-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true"><path d="M20 62c2-26 13-43 33-48c9 9 13 19 11 32c-2 13-11 22-26 27"/><path d="M28 48c7 12 20 14 31 3"/><circle cx="42" cy="51" r="6"/></svg>`,
@@ -5598,6 +6049,7 @@ import { renderAnimalGallery } from "../js/animal-gallery.js?v=2";
                     }
 
                     await renderAnimalData(animalData, animalId);
+                    triggerFeedingFoodsImageLoad();
                     fetchAndRenderSubspeciesParents(animalData.subespeciesDe);
                     fetchAndRenderRelatedAnimals(animalData.subfamilia, animalId, animalData.tribo);
                 } else {

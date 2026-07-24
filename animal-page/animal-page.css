@@ -5300,3 +5300,288 @@ button.summary-metric-card:hover {
     outline: none !important;
     box-shadow: none !important;
 }
+
+/* Dashboard de Alimentação Redesenhado */
+.feeding-dashboard-container {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+    margin-top: 15px;
+}
+
+.feeding-dashboard-top-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+}
+
+.feeding-dashboard-bottom-row {
+    display: grid;
+    grid-template-columns: 3.2fr 2.8fr;
+    gap: 16px;
+}
+
+.feeding-types-list-summary span {
+    color: var(--card-accent) !important;
+    font-size: 1.1rem;
+    font-weight: 700;
+    line-height: 1.3;
+}
+
+.feeding-general-desc {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.5);
+    line-height: 1.4;
+    margin: 0;
+}
+
+.feeding-dash-subtitle {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.4);
+    margin: 0;
+    z-index: 2;
+}
+
+/* Card 4: Alimentos Consumidos specific styles */
+.feeding-filter-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.feeding-filter-pill {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    padding: 6px 14px;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.feeding-filter-pill:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: #ffffff;
+}
+
+.feeding-filter-pill.active {
+    background: rgba(16, 185, 129, 0.1);
+    border-color: rgba(16, 185, 129, 0.3);
+    color: #10b981;
+}
+
+.feeding-foods-avatar-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.food-avatar-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 8px;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.food-avatar-wrapper {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    overflow: hidden;
+    background: #152530;
+    position: relative;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.food-avatar-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.food-avatar-name {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.85);
+    margin: 0;
+    max-width: 90px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.food-avatar-scientific {
+    font-size: 0.7rem;
+    font-style: italic;
+    color: rgba(255, 255, 255, 0.4);
+    margin: 0;
+    max-width: 90px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.feeding-view-all-btn {
+    align-self: center;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 24px;
+    padding: 8px 20px;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+    margin-top: auto;
+}
+
+.feeding-view-all-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: #ffffff;
+    border-color: rgba(255, 255, 255, 0.15);
+}
+
+.feeding-view-all-btn svg {
+    width: 12px;
+    height: 12px;
+    transition: transform 0.2s ease;
+}
+
+.feeding-view-all-btn.open svg {
+    transform: rotate(180deg);
+}
+
+/* Card 5 specific styles */
+.strategy-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.strategy-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.strategy-label {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.5);
+    margin: 0;
+}
+
+.strategy-value {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #10b981;
+    margin: 0 0 2px 0;
+}
+
+.strategy-desc {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.5);
+    line-height: 1.4;
+    margin: 0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+    .feeding-dashboard-top-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .feeding-dashboard-bottom-row {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Remove default pseudo-element diagonal arrow for popup triggers inside the redesigned feeding dashboard */
+.feeding-dashboard-container .feeding-type-popup-trigger::after,
+.feeding-dashboard-container .feeding-strategy-popup-trigger::after,
+.feeding-dashboard-container .summary-metric-card::after {
+    display: none !important;
+    content: none !important;
+}
+
+.feeding-dashboard-container button.summary-metric-card,
+.feeding-dashboard-container button.feeding-type-popup-trigger,
+.feeding-dashboard-container button.feeding-strategy-popup-trigger {
+    padding-right: 16px !important; /* restore normal padding */
+}
+
+/* Ensure header buttons do not have default borders or backgrounds from popup triggers */
+.feeding-dashboard-container .summary-metric-header button.feeding-type-popup-trigger,
+.feeding-dashboard-container .summary-metric-header button.feeding-strategy-popup-trigger,
+.feeding-dashboard-container .summary-metric-header button.feeding-header-arrow-btn {
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    width: 18px !important;
+    height: 18px !important;
+    min-height: 0 !important;
+    cursor: pointer !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    color: rgba(255, 255, 255, 0.4) !important;
+    outline: none !important;
+}
+
+.feeding-dashboard-container .summary-metric-header button.feeding-header-arrow-btn:hover {
+    color: #fff !important;
+    background: transparent !important;
+    transform: none !important;
+}
+
+/* Wikipedia image dynamic loading styles */
+@keyframes pulseBlink {
+    0%, 100% { opacity: 0.3; transform: scale(0.9); }
+    50% { opacity: 1; transform: scale(1.1); }
+}
+
+.blinking-loader {
+    animation: pulseBlink 1.2s infinite ease-in-out;
+    color: var(--card-accent, #10b981) !important;
+    font-size: 1.3rem !important;
+}
+
+.food-avatar-loader-icon,
+.food-avatar-fallback-icon {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.05) !important;
+    border-radius: 50%;
+    z-index: 1;
+}
+
+.food-avatar-fallback-icon i {
+    color: rgba(255, 255, 255, 0.3) !important;
+    font-size: 1.1rem !important;
+}
+
+.food-avatar-wrapper {
+    position: relative;
+    overflow: hidden;
+}
+
+
+
+

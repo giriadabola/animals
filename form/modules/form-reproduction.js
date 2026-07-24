@@ -105,6 +105,14 @@
             optCrias.value = 'crias';
             optCrias.textContent = 'Número de Crias';
 
+            const optComprimentoOvos = document.createElement('option');
+            optComprimentoOvos.value = 'comprimento_ovos';
+            optComprimentoOvos.textContent = 'Comprimento dos ovos';
+
+            const optLarguraOvos = document.createElement('option');
+            optLarguraOvos.value = 'largura_ovos';
+            optLarguraOvos.textContent = 'Largura dos ovos';
+
             const optNumeroOvos = document.createElement('option');
             optNumeroOvos.value = 'numero_ovos';
             optNumeroOvos.textContent = 'Número de ovos';
@@ -157,7 +165,7 @@
             optTipo.value = 'tipo';
             optTipo.textContent = 'Tipo de reprodução';
             
-            rowModeSelect.append(optPlaceholder, optAcasalamento, optEpocaReproducao, optParental, optMaturidade, optCrias, optNumeroOvos, optTempoEclosao, optEstro, optFrequenciaEstro, optSucessoReprodutivo, optIntervaloNascimentos, optIdadeMetamorfose, optNumeroMudas, optNumeroEstadiosLarvais, optSistemaSexual, optGestacao, optEstrategiaReprodutiva, optTipo);
+            rowModeSelect.append(optPlaceholder, optAcasalamento, optEpocaReproducao, optParental, optMaturidade, optCrias, optNumeroOvos, optTempoEclosao, optEstro, optFrequenciaEstro, optSucessoReprodutivo, optIntervaloNascimentos, optIdadeMetamorfose, optNumeroMudas, optNumeroEstadiosLarvais, optSistemaSexual, optGestacao, optEstrategiaReprodutiva, optComprimentoOvos, optLarguraOvos, optTipo);
             window.formDropdownPolish?.sortSelectOptionsAlphabetically?.(rowModeSelect);
 
             const typeSelect = document.createElement('select');
@@ -264,6 +272,8 @@
             const isAguaMedia = typeStr === 'Água bebida em Média';
             const normalizedReproductionType = normalizeSearchText(typeStr);
             const isNumeroOvos = normalizedReproductionType.includes('numero de ovos') || normalizedReproductionType.includes('número de ovos');
+            const isComprimentoOvos = normalizedReproductionType.includes('comprimento dos ovos');
+            const isLarguraOvos = normalizedReproductionType.includes('largura dos ovos');
             const isEpocaReproducao = normalizedReproductionType.includes('epoca de reproducao') || normalizedReproductionType.includes('época de reprodução');
             
             const eggColorValue = birdEggVisuals.find(egg => normalizeSearchText(egg.label) === normalizeSearchText(typeStr))?.label || '';
@@ -526,7 +536,13 @@
                     const parts = detailStr.split(/\s*(?:[-–—]|\ba\b)\s*/i).map(part => part.trim()).filter(Boolean);
                     fillReproductionSeasonSelect(seasonStartSelect, parts[0] || '', 'Início');
                     fillReproductionSeasonSelect(seasonEndSelect, parts[1] || parts[0] || '', 'Fim');
-                }            } else if (isNumeroOvos || isEggColor) {
+                }            } else if (isComprimentoOvos || isLarguraOvos) {
+                rowModeSelect.value = isComprimentoOvos ? 'comprimento_ovos' : 'largura_ovos';
+                if (detailStr) {
+                    const match = detailStr.match(/(\\d+(?:[.,]\\d+)?)(?:\\s*[-–]\\s*(\\d+(?:[.,]\\d+)?))?\\s*(mm|cm|m)?/i);
+                    if (match) { minInput.value = match[1] || ''; maxInput.value = match[2] || ''; unitSelect.dataset.eggMeasureUnit = match[3] || 'cm'; }
+                }
+            } else if (isNumeroOvos || isEggColor) {
                 rowModeSelect.value = 'numero_ovos';
                 const savedEggColor = isEggColor
                     ? eggColorValue
@@ -582,7 +598,7 @@
                 } else if (rowModeSelect.value === 'parental_investment') {
                     row.append(minInput, maxInput, unitSelect, genderBtn, faseBtn, removeBtn);
                 } else if (rowModeSelect.value === 'tipo') {
-                    fillReproductionTypeSelect(typeSelect, typeSelect.value || (!isTipoModelLabel && !isGestation && !isCrias && !isMaturidade && !isMating && !isAlimentacaoTipo && !isAlimentoMedio && !isAguaMedia && !isEpocaReproducao && !isNumeroOvos && !isTempoEclosao && !isDuracaoEstro && !isFrequenciaAcasalamentoEstro && !isTaxaSucessoReprodutivo && !isIntervaloNascimentos && !isIdadeMetamorfose && !isNumeroMudas && !isNumeroEstadiosLarvais && !isSistemaSexual && !isParental ? catalogTypeStr : ''));
+                    fillReproductionTypeSelect(typeSelect, typeSelect.value || (!isTipoModelLabel && !isGestation && !isCrias && !isMaturidade && !isMating && !isAlimentacaoTipo && !isAlimentoMedio && !isAguaMedia && !isEpocaReproducao && !isNumeroOvos && !isComprimentoOvos && !isLarguraOvos && !isTempoEclosao && !isDuracaoEstro && !isFrequenciaAcasalamentoEstro && !isTaxaSucessoReprodutivo && !isIntervaloNascimentos && !isIdadeMetamorfose && !isNumeroMudas && !isNumeroEstadiosLarvais && !isSistemaSexual && !isParental ? catalogTypeStr : ''));
                     const maxSpacer = document.createElement('div');
                     const unitSpacer = document.createElement('div');
                     maxSpacer.className = 'reproduction-type-empty-cell';
@@ -627,6 +643,16 @@
                     fillReproductionSeasonSelect(seasonStartSelect, seasonStartSelect.value, 'In\u00edcio');
                     fillReproductionSeasonSelect(seasonEndSelect, seasonEndSelect.value, 'Fim');
                     row.append(seasonStartSelect, seasonEndSelect, genderBtn, faseBtn, removeBtn);
+                } else if (rowModeSelect.value === 'comprimento_ovos' || rowModeSelect.value === 'largura_ovos') {
+                    minInput.className = 'reproduction-gestation-min';
+                    maxInput.className = 'reproduction-gestation-max';
+                    minInput.placeholder = 'Mín: 1';
+                    maxInput.placeholder = 'Máx: 5';
+                    const previousUnit = unitSelect.dataset.eggMeasureUnit || unitSelect.value;
+                    unitSelect.innerHTML = '';
+                    ['mm', 'cm', 'm'].forEach(u => { const opt = document.createElement('option'); opt.value = u; opt.textContent = u; unitSelect.append(opt); });
+                    unitSelect.value = ['mm', 'cm', 'm'].includes(previousUnit) ? previousUnit : 'cm';
+                    row.append(minInput, maxInput, unitSelect, genderBtn, faseBtn, removeBtn);
                 } else if (rowModeSelect.value === 'numero_ovos') {
                     minInput.className = 'reproduction-gestation-min';
                     maxInput.className = 'reproduction-gestation-max';
@@ -1010,7 +1036,17 @@
                             tipo: '\u00c9poca de reprodu\u00e7\u00e3o',
                             detalhe: detail
                         };
-                    } else if (rowModeSelect.value === 'numero_ovos') {
+                    } else if (rowModeSelect.value === 'comprimento_ovos' || rowModeSelect.value === 'largura_ovos') {
+                    minInput.className = 'reproduction-gestation-min';
+                    maxInput.className = 'reproduction-gestation-max';
+                    minInput.placeholder = 'Mín: 1';
+                    maxInput.placeholder = 'Máx: 5';
+                    const previousUnit = unitSelect.dataset.eggMeasureUnit || unitSelect.value;
+                    unitSelect.innerHTML = '';
+                    ['mm', 'cm', 'm'].forEach(u => { const opt = document.createElement('option'); opt.value = u; opt.textContent = u; unitSelect.append(opt); });
+                    unitSelect.value = ['mm', 'cm', 'm'].includes(previousUnit) ? previousUnit : 'cm';
+                    row.append(minInput, maxInput, unitSelect, genderBtn, faseBtn, removeBtn);
+                } else if (rowModeSelect.value === 'numero_ovos') {
                         const min = row.querySelector('.reproduction-gestation-min')?.value || '';
                         const max = row.querySelector('.reproduction-gestation-max')?.value || '';
                         let detail = '';

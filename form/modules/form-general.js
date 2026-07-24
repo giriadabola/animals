@@ -86,6 +86,10 @@
             { tipo: 'Lado corporal da estrutura', unidade: '' },
             { tipo: 'Forma da estrutura', unidade: '' },
             { tipo: 'Capacidade de regeneração', unidade: '' },
+            { tipo: 'Número de crias que atingem o voo', unidade: 'unidade' },
+            { tipo: 'Velocidade de migração', unidade: 'km/dia' },
+            { tipo: 'Duração da migração', unidade: 'dias' },
+            { tipo: 'Duração das paragens migratórias', unidade: 'dias' },
         ].forEach(option => {
             if (!generalVisualOptions.some(existing => normalizeSearchText(existing.tipo) === normalizeSearchText(option.tipo))) {
                 generalVisualOptions.push(option);
@@ -195,7 +199,7 @@
                     'Parentesco e linhagem social',
                     'Vida social',
                     'Tipo de agrupamento social',
-                    'Tipo de Comunicação'
+                    'Tipo de Comunicação', 'Velocidade de migração', 'Duração da migração', 'Duração das paragens migratórias'
                 ]
             },
             {
@@ -220,7 +224,7 @@
                 key: 'crias',
                 title: 'Crias',
                 icon: 'fa-baby',
-                models: ['Tempo de Amamentação', 'Abertura dos olhos', 'Início da marcha', 'Início da corrida', 'Saída do esconderijo', 'Independência', 'Início do voo', 'Primeira alimentação sólida', 'Saída do ninho', 'Saída da toca', 'Desmame', 'Primeira vocalização', 'Maturidade física']
+                models: ['Tempo de Amamentação', 'Abertura dos olhos', 'Início da marcha', 'Início da corrida', 'Saída do esconderijo', 'Independência', 'Início do voo', 'Número de crias que atingem o voo', 'Primeira alimentação sólida', 'Saída do ninho', 'Saída da toca', 'Desmame', 'Primeira vocalização', 'Maturidade física']
             },
             {
                 key: 'estruturas_anatomicas',
@@ -597,6 +601,9 @@
         }
 
         function getGeneralUnitOptions(type = '') {
+            if (normalizeSearchText(type).includes('numero de crias que atingem o voo')) return ['unidade', 'centenas', 'milhares'];
+            if (normalizeSearchText(type).includes('velocidade de migracao')) return ['km/hora', 'km/dia', 'km/semana', 'km/mês', 'km/ano'];
+            if (normalizeSearchText(type).includes('duracao da migracao') || normalizeSearchText(type).includes('duracao das paragens migratorias')) return ['minutos', 'horas', 'dias', 'semanas', 'meses', 'anos'];
             if (normalizeSearchText(type).includes('temperatura corporal')) return ['\u00b0C'];
             if (isSocialGroupCompositionGeneralModel(type)) return ['machos adultos', 'fêmeas adultas', 'subadultos', 'juvenis', 'crias', 'indivíduos'];
             if (isMixedDropdownRangeGeneralModel(type)) return ['mm', 'cm', 'm'];
@@ -623,6 +630,9 @@
 
         function getGeneralDefaultUnit(type = '') {
             if (normalizeSearchText(type).includes('temperatura corporal')) return '\u00b0C';
+            if (normalizeSearchText(type).includes('numero de crias que atingem o voo')) return 'unidade';
+            if (normalizeSearchText(type).includes('velocidade de migracao')) return 'km/dia';
+            if (normalizeSearchText(type).includes('duracao da migracao') || normalizeSearchText(type).includes('duracao das paragens migratorias')) return 'dias';
             if (isSocialGroupCompositionGeneralModel(type)) return '';
             if (isMixedDropdownRangeGeneralModel(type)) return 'cm';
             if (normalizeSearchText(type).includes('percentagem de gordura')) return '%';
