@@ -86,6 +86,12 @@ const rows = [
     ['animal encontrado', 'animal found', 'animal trouv\u00e9', 'animal encontrado', 'Tier gefunden', '\u52d5\u7269\u304c\u898b\u3064\u304b\u308a\u307e\u3057\u305f', '\u627e\u5230\u4e00\u79cd\u52a8\u7269'],
     ['animais encontrados', 'animals found', 'animaux trouv\u00e9s', 'animales encontrados', 'Tiere gefunden', '\u52d5\u7269\u304c\u898b\u3064\u304b\u308a\u307e\u3057\u305f', '\u627e\u5230\u591a\u79cd\u52a8\u7269'],
     ['Fechar', 'Close', 'Fermer', 'Cerrar', 'Schlie\u00dfen', '\u9589\u3058\u308b', '\u5173\u95ed'],
+    ['Comprimento dos ovos', 'Egg length', 'Longueur des œufs', 'Longitud de los huevos', 'Eilänge', '卵の長さ', '鸡蛋长度'],
+    ['Largura dos ovos', 'Egg width', 'Largeur des œufs', 'Anchura de los huevos', 'Eibreite', '卵の幅', '鸡蛋宽度'],
+    ['Número de crias que atingem o voo', 'Number of young that reach flight', 'Nombre de petits qui atteignent le vol', 'Número de crías que alcanzan el vuelo', 'Anzahl der Jungtiere, die flugfähig werden', '飛行に達する幼体の数', '达到飞行能力的幼体数量'],
+    ['Velocidade de migração', 'Migration speed', 'Vitesse de migration', 'Velocidad de migración', 'Migrationsgeschwindigkeit', '渡りの速度', '迁徙速度'],
+    ['Duração da migração', 'Migration duration', 'Durée de la migration', 'Duración de la migración', 'Migrationsdauer', '渡りの期間', '迁徙持续时间'],
+    ['Duração das paragens migratórias', 'Duration of migratory stopovers', 'Durée des haltes migratoires', 'Duración de las paradas migratorias', 'Dauer der Zugrast', '渡りの立ち寄り期間', '迁徙停留时间'],
     ['Bandeira de', 'Flag of', 'Drapeau de', 'Bandera de', 'Flagge von', '\u56fd\u65d7\uff1a', '\u56fd\u65d7\uff1a'],
 ];const languageColumns = { en: 1, fr: 2, es: 3, de: 4, ja: 5, zh: 6 };
 

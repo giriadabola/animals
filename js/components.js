@@ -468,7 +468,11 @@ export function injectHeader() {
             }
 
             const profileHref = isForm ? '../myperfil.html' : 'myperfil.html';
+            const zooHref = isForm ? '../myzoo.html' : 'myzoo.html';
             authSection.innerHTML = `
+                <a href="${zooHref}" class="nav-link" aria-label="Meu Zoo" title="Meu Zoo" style="font-size: 1.15rem; color: var(--text-secondary); display: inline-flex; align-items: center; gap: 6px; text-decoration: none; cursor: pointer; margin-right: 15px;">
+                    <i class="fa-solid fa-map-location-dot" style="color: var(--primary-color);"></i> <span class="hide-on-mobile">Meu Zoo</span>
+                </a>
                 <a href="${profileHref}" aria-label="O meu perfil" title="O meu perfil" style="font-size: 1.25rem; color: var(--text-secondary); display: inline-flex; align-items: center; justify-content: center; text-decoration: none; cursor: pointer;">
                     <i class="fa-solid fa-circle-user" style="color: var(--primary-color);"></i>
                 </a>

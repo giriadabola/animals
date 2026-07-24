@@ -33,7 +33,52 @@ async function findLocalAnimalsByWikidata(queryText, items = [], getAnimal = ite
     if (!candidateIds.length) return [];
     return items.filter(item => candidateIds.includes(normalize(getAnimal(item)?.nomeCientifico)));
 }
-export { findLocalAnimalsByWikidata, getWikidataLocalizedNames, getWikidataLabelsByTerm };
+const scientificNamesCache = new Map();
+
+async function getWikidataScientificName(term = '') {
+    const value = String(term || '').trim();
+    if (!value) return '';
+    const cacheKey = normalize(value);
+    if (scientificNamesCache.has(cacheKey)) return scientificNamesCache.get(cacheKey);
+
+    try {
+        const params = new URLSearchParams({
+            action: 'wbsearchentities',
+            search: value,
+            language: 'pt',
+            uselang: 'pt',
+            type: 'item',
+            limit: '10',
+            format: 'json',
+            origin: '*'
+        });
+        const response = await fetch(WIKIDATA_ENDPOINT + '?' + params);
+        const results = response.ok ? (await response.json())?.search || [] : [];
+        const entities = await Promise.all(results.map(result =>
+            fetch(ENTITY_ENDPOINT + encodeURIComponent(result.id) + '.json')
+                .then(entityResponse => entityResponse.ok ? entityResponse.json() : null)
+                .catch(() => null)
+        ));
+        const target = normalize(value);
+        const entity = entities
+            .flatMap(data => Object.values(data?.entities || {}))
+            .find(candidate => {
+                const labels = Object.values(candidate?.labels || {}).map(label => label?.value);
+                const aliases = Object.values(candidate?.aliases || {}).flatMap(items => items.map(item => item?.value));
+                return [...labels, ...aliases].some(label => normalize(label) === target);
+            })
+            || entities.flatMap(data => Object.values(data?.entities || {}))[0];
+            
+        const scientificName = entity?.claims?.P225?.[0]?.mainsnak?.datavalue?.value || '';
+        scientificNamesCache.set(cacheKey, scientificName);
+        return scientificName;
+    } catch {
+        scientificNamesCache.set(cacheKey, '');
+        return '';
+    }
+}
+
+export { findLocalAnimalsByWikidata, getWikidataLocalizedNames, getWikidataLabelsByTerm, getWikidataScientificName };
 
 const localizedNamesCache = new Map();
 

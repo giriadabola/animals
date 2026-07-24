@@ -1,5 +1,5 @@
 import { feedingTypes, feedingTypeDescriptions, getFeedingModelSvg, getFeedingVisualMeta } from './feeding-visuals.js';
-import { getWikidataLabelsByTerm, getWikidataLocalizedNames } from './wikidata-search.js?v=20260717_localized_names_1';
+import { getWikidataLabelsByTerm, getWikidataLocalizedNames, getWikidataScientificName } from './wikidata-search.js?v=20260717_localized_names_1';
 
 const feedingCatalog = [...feedingTypes].sort((a, b) => a.localeCompare(b, 'pt-PT', { sensitivity: 'base' }));
 
@@ -55,8 +55,8 @@ function renderFeedingRelations(relations, selectedTypes = []) {
         })),
         ...foods.map(food => ({
             category: 'Alimento',
-            name: food.nome || food.label || food,
-            scientific: ''
+            name: typeof food === 'object' ? food.nome || food.label || 'Alimento' : food,
+            scientific: typeof food === 'object' ? food.nomeCientifico || '' : ''
         }))
     ];
     const rows = relations.groups.length
@@ -118,80 +118,122 @@ function getActiveFeedingLanguage() {
     return document.documentElement.lang === 'pt-PT' ? 'pt' : document.documentElement.lang || 'pt';
 }
 
-async function translateFeedingRelationNames(popup) {
-    const language = getActiveFeedingLanguage();
-    const cells = [...popup.querySelectorAll('[data-feeding-name-source]')];
-    if (language === 'pt') {
-        cells.forEach(cell => { cell.textContent = cell.dataset.feedingNameSource || ''; });
-        return;
-    }
-    await Promise.all(cells.map(async cell => {
-        const sourceName = cell.dataset.feedingNameSource || '';
-        const scientificName = cell.dataset.feedingScientificSource || '';
-        const labels = scientificName
-            ? await getWikidataLocalizedNames(scientificName)
-            : await getWikidataLabelsByTerm(sourceName);
-        const translated = labels[language]
-            || (language === 'zh' ? labels['zh-hans'] || labels['zh-hant'] : '')
-            || sourceName;
-        cell.textContent = translated;
-    }));
-}
-
-function openFeedingTypePopup(trigger) {
+async function openFeedingTypePopup(trigger) {
     closeFeedingTypePopup();
 
-    const selectedTypes = readSelectedTypes(trigger).map(resolveFeedingType);
-    const relations = readFeedingRelations(trigger);
-    const selectedKeys = new Set(selectedTypes.map(type => normalizeFeedingType(type.label)));
-    const inactiveTypes = feedingCatalog
-        .filter(type => !selectedKeys.has(normalizeFeedingType(type)))
-        .map(resolveFeedingType);
+    const loader = document.createElement('div');
+    loader.className = 'feeding-loading-backdrop';
+    loader.style.cssText = 'position: fixed; inset: 0; z-index: 100000; background: rgba(3, 5, 16, 0.7); backdrop-filter: blur(10px); display: flex; align-items: center; justify-content: center;';
+    loader.innerHTML = '<i class="fa-solid fa-paw fa-fade" style="font-size: 4rem; color: #10b981;"></i>';
+    document.body.appendChild(loader);
 
-    const popup = document.createElement('div');
-    popup.id = 'feeding-type-modal';
-    popup.className = 'conservation-status-modal-backdrop feeding-type-modal-backdrop';
-    popup.innerHTML = `
-        <section class="conservation-status-modal feeding-type-modal" role="dialog" aria-modal="true" aria-label="Alimentação">
-            <div class="conservation-status-modal-heading">
-                <div>
-                    <span class="conservation-status-modal-kicker">Modelo de alimentação</span>
-                    <h2>Alimentação</h2>
-                    <p>Os tipos apresentados no topo pertencem a este animal.</p>
-                </div>
-                <button type="button" class="conservation-status-modal-close" aria-label="Fechar">&times;</button>
-            </div>
-            <section class="feeding-type-selected-panel" aria-labelledby="feeding-type-selected-title">
-                <h3 id="feeding-type-selected-title">Tipos de alimentação deste animal</h3>
-                <div class="feeding-type-selected-list">
-                    ${selectedTypes.length ? selectedTypes.map(renderSelectedType).join('') : '<p class="feeding-type-empty">Não foi indicado um tipo de alimentação específico.</p>'}
-                </div>
-            </section>
-            ${renderFeedingRelations(relations, selectedTypes)}
-            <section class="feeding-type-catalog-panel" aria-labelledby="feeding-type-catalog-title">
-                <h3 id="feeding-type-catalog-title">Outros tipos de alimentação</h3>
-                <div class="feeding-type-catalog-grid">
-                    ${inactiveTypes.map(renderInactiveType).join('')}
-                </div>
-            </section>
-        </section>`;
-    popup.__trigger = trigger;
+    try {
+        const selectedTypes = readSelectedTypes(trigger).map(resolveFeedingType);
+        const relations = readFeedingRelations(trigger);
+        const language = getActiveFeedingLanguage();
 
-    const closeButton = popup.querySelector('.conservation-status-modal-close');
-    closeButton.addEventListener('click', closeFeedingTypePopup);
-    popup.addEventListener('click', event => {
-        if (event.target === popup) closeFeedingTypePopup();
-    });
-    popup.__handleEscape = event => {
-        if (event.key === 'Escape') closeFeedingTypePopup();
-    };
-    document.addEventListener('keydown', popup.__handleEscape);
-    popup.__handleLanguageChange = () => translateFeedingRelationNames(popup);
-    document.addEventListener('animal-language-change', popup.__handleLanguageChange);
-    document.body.appendChild(popup);
-    translateFeedingRelationNames(popup);
-    document.body.classList.add('conservation-status-modal-open');
-    closeButton.focus();
+        const processItems = async (items, isAnimal) => {
+            for (let i = 0; i < items.length; i++) {
+                let item = items[i];
+                const originalName = isAnimal 
+                    ? (item.nome || item.label || item.nomeCientifico || '') 
+                    : (typeof item === 'object' ? item.nome || item.label : item);
+                
+                let displayName = originalName;
+                const scientificSource = isAnimal ? item.nomeCientifico || '' : '';
+                if (language !== 'pt' && originalName) {
+                    const labels = scientificSource
+                        ? await getWikidataLocalizedNames(scientificSource)
+                        : await getWikidataLabelsByTerm(originalName);
+                    displayName = labels[language]
+                        || (language === 'zh' ? labels['zh-hans'] || labels['zh-hant'] : '')
+                        || originalName;
+                }
+
+                if (!isAnimal && typeof item !== 'object') {
+                    item = { nome: displayName, nomeCientifico: '' };
+                    items[i] = item;
+                } else {
+                    item.nome = displayName;
+                }
+
+                if (!item.nomeCientifico && originalName) {
+                    const scName = await getWikidataScientificName(originalName);
+                    item.nomeCientifico = scName || '';
+                }
+            }
+        };
+
+        if (relations.groups.length) {
+            await Promise.all(relations.groups.map(async group => {
+                await Promise.all([
+                    processItems(group.animals || [], true),
+                    processItems(group.foods || [], false)
+                ]);
+            }));
+        } else {
+            await Promise.all([
+                processItems(relations.animals || [], true),
+                processItems(relations.foods || [], false)
+            ]);
+        }
+
+        const selectedKeys = new Set(selectedTypes.map(type => normalizeFeedingType(type.label)));
+        const inactiveTypes = feedingCatalog
+            .filter(type => !selectedKeys.has(normalizeFeedingType(type)))
+            .map(resolveFeedingType);
+
+        const popup = document.createElement('div');
+        popup.id = 'feeding-type-modal';
+        popup.className = 'conservation-status-modal-backdrop feeding-type-modal-backdrop';
+        popup.innerHTML = `
+            <section class="conservation-status-modal feeding-type-modal" role="dialog" aria-modal="true" aria-label="Alimentação">
+                <div class="conservation-status-modal-heading">
+                    <div>
+                        <span class="conservation-status-modal-kicker">Modelo de alimentação</span>
+                        <h2>Alimentação</h2>
+                        <p>Os tipos apresentados no topo pertencem a este animal.</p>
+                    </div>
+                    <button type="button" class="conservation-status-modal-close" aria-label="Fechar">&times;</button>
+                </div>
+                <section class="feeding-type-selected-panel" aria-labelledby="feeding-type-selected-title">
+                    <h3 id="feeding-type-selected-title">Tipos de alimentação deste animal</h3>
+                    <div class="feeding-type-selected-list">
+                        ${selectedTypes.length ? selectedTypes.map(renderSelectedType).join('') : '<p class="feeding-type-empty">Não foi indicado um tipo de alimentação específico.</p>'}
+                    </div>
+                </section>
+                ${renderFeedingRelations(relations, selectedTypes)}
+                <section class="feeding-type-catalog-panel" aria-labelledby="feeding-type-catalog-title">
+                    <h3 id="feeding-type-catalog-title">Outros tipos de alimentação</h3>
+                    <div class="feeding-type-catalog-grid">
+                        ${inactiveTypes.map(renderInactiveType).join('')}
+                    </div>
+                </section>
+            </section>`;
+        popup.__trigger = trigger;
+
+        const closeButton = popup.querySelector('.conservation-status-modal-close');
+        closeButton.addEventListener('click', closeFeedingTypePopup);
+        popup.addEventListener('click', event => {
+            if (event.target === popup) closeFeedingTypePopup();
+        });
+        popup.__handleEscape = event => {
+            if (event.key === 'Escape') closeFeedingTypePopup();
+        };
+        document.addEventListener('keydown', popup.__handleEscape);
+        popup.__handleLanguageChange = () => {
+            closeFeedingTypePopup();
+            openFeedingTypePopup(trigger);
+        };
+        document.addEventListener('animal-language-change', popup.__handleLanguageChange);
+        document.body.appendChild(popup);
+        document.body.classList.add('conservation-status-modal-open');
+        closeButton.focus();
+    } catch (error) {
+        console.error(error);
+    } finally {
+        loader.remove();
+    }
 }
 
 export function initFeedingTypePopup(root = document) {
